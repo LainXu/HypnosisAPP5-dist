@@ -1,5 +1,5 @@
-# HypnosisAPP5 Dist
+# Webview Bundle
 
-Public CDN mirror for the bundled SillyTavern frontend.
+Public CDN mirror for a bundled webview.
 
 Source and workbench files are not stored in this repository.
