@@ -218,6 +218,13 @@ window.setTimeout(() => {
         .sort();
       return [cleanOperationText(record.source || "APP"), cleanOperationText(record.action || "操作"), fields.join("|")].join("\u0001");
     };
+    const operationSingleSlotKey = (payload) => {
+      const record = normalizeOperationPayload(payload);
+      const source = cleanOperationText(record.source || "");
+      const action = cleanOperationText(record.action || "");
+      if (/^建议剧情地点$/.test(action) && /^(地图|学校地图)$/.test(source)) return "story-location";
+      return "";
+    };
 		    const makeOperationEntry = (payload) => {
 		      const cleanPayload = stripOperationVariableFields(payload);
 		      const key = operationRecordKey(cleanPayload);
@@ -414,6 +421,12 @@ window.setTimeout(() => {
     };
     window.__ST_APPEND_OPERATION_TO_INPUT__ = async (payload) => {
       const entry = makeOperationEntry(payload);
+      const singleSlot = operationSingleSlotKey(entry.payload);
+      if (singleSlot) {
+        window.__ST_OPERATION_INPUT_LOG__ = window.__ST_OPERATION_INPUT_LOG__.filter((item) => {
+          return operationSingleSlotKey(operationEntryPayload(item)) !== singleSlot;
+        });
+      }
       const duplicate = window.__ST_OPERATION_INPUT_LOG__.some((item) => describeOperationEntry(item).key === entry.key);
       if (duplicate) {
         emitOperationQueueChanged();
