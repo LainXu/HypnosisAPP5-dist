@@ -4075,33 +4075,21 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     return "hypnoos.monitor.public-toilet.dispatch.v1:" + graphScopeKey();
   }
 
+  const MONITOR_GATE_KEYS = ["1号门", "2号门", "3号门"];
+
   function emptyMonitorGate(index = 0) {
     return {
       roleName: "",
       endStamp: 0,
       endText: "",
       roleValue: 0,
-      closed: index === 2,
-      pendingRoleName: "",
-      pendingEndStamp: 0,
-      pendingEndText: "",
-      pendingRoleValue: 0
+      closed: index === 2
     };
   }
 
   function normalizeMonitorGate(value, index = 0) {
     if (!value || typeof value !== "object" || Array.isArray(value)) return emptyMonitorGate(index);
-    const roleName = String(value.roleName || value["角色"] || value["角色名"] || "").trim();
-    const endStamp = Math.max(0, Number(value.endStamp || value["结束时间戳"] || 0) || 0);
-    const endText = String(value.endText || value["派遣结束时间"] || "").trim();
-    const roleValue = Math.max(0, Math.floor(Number(value.roleValue || value["身价"] || 0) || 0));
-    const pendingRoleName = String(value.pendingRoleName || value["待确认角色"] || "").trim();
-    const pendingEndStamp = Math.max(0, Number(value.pendingEndStamp || value["待确认结束时间戳"] || 0) || 0);
-    const pendingEndText = String(value.pendingEndText || value["待确认派遣结束时间"] || "").trim();
-    const pendingRoleValue = Math.max(0, Math.floor(Number(value.pendingRoleValue || value["待确认身价"] || 0) || 0));
-    const closed = roleName ? true : Boolean(value.closed ?? value["是否关闭"] ?? value["关闭"]);
-    if (roleName) return { roleName, endStamp, endText, roleValue, closed: true, pendingRoleName: "", pendingEndStamp: 0, pendingEndText: "", pendingRoleValue: 0 };
-    return { ...emptyMonitorGate(index), closed, pendingRoleName, pendingEndStamp, pendingEndText, pendingRoleValue };
+    return { ...emptyMonitorGate(index), closed: Boolean(value.closed ?? value["是否关闭"] ?? value["关闭"] ?? index === 2) };
   }
 
   function normalizeMonitorState(value) {
@@ -4109,7 +4097,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     return { gates };
   }
 
-  function readMonitorState() {
+  function readMonitorUiState() {
     try {
       const parsed = JSON.parse(localStorage.getItem(monitorStorageKey()) || "null");
       return normalizeMonitorState(parsed);
@@ -4120,7 +4108,9 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 
   function saveMonitorState(state) {
     try {
-      localStorage.setItem(monitorStorageKey(), JSON.stringify(normalizeMonitorState(state)));
+      localStorage.setItem(monitorStorageKey(), JSON.stringify({
+        gates: normalizeMonitorState(state).gates.map((gate) => ({ closed: Boolean(gate.closed) }))
+      }));
     } catch {}
   }
 
@@ -4144,6 +4134,13 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     return schoolYearDay(parsed.month, parsed.day) * 1440 + minutes;
   }
 
+  function monitorEndStampFromText(text) {
+    const parsed = parseStoryDate(text || "");
+    const minutes = minutesFromTimeText(text || "");
+    if (!parsed || !Number.isFinite(minutes)) return 0;
+    return schoolYearDay(parsed.month, parsed.day) * 1440 + minutes;
+  }
+
   function monitorDispatchEndInfo() {
     const system = getSystemState();
     const parsed = parseStoryDate(system["当前日期"] || "") || { month: 4, day: 9 };
@@ -4157,54 +4154,52 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     };
   }
 
-  function syncMonitorGatesWithRoleVariables(state = readMonitorState()) {
+  function readMonitorState() {
+    const uiState = readMonitorUiState();
     const roles = getStatsRoles();
-    const currentStamp = monitorCurrentStamp();
-    let changed = false;
-    const gates = state.gates.map((gate, index) => {
-      if (gate.pendingRoleName) {
-        const pendingRole = roles[gate.pendingRoleName];
-        if (pendingRole && isMonitorRoleDispatched(pendingRole["是否派遣中"])) {
-          changed = true;
-          return {
-            roleName: gate.pendingRoleName,
-            endStamp: gate.pendingEndStamp,
-            endText: gate.pendingEndText,
-            roleValue: gate.pendingRoleValue || monitorRoleValue(pendingRole),
-            closed: true,
-            pendingRoleName: "",
-            pendingEndStamp: 0,
-            pendingEndText: "",
-            pendingRoleValue: 0
-          };
-        }
-      }
-      if (!gate.roleName) return gate;
-      const role = roles[gate.roleName];
-      if (!role) {
-        changed = true;
-        return { ...emptyMonitorGate(index), closed: Boolean(gate.closed) };
-      }
-      if (gate.endStamp && currentStamp >= gate.endStamp && !isMonitorRoleDispatched(role["是否派遣中"])) {
-        changed = true;
-        return { ...emptyMonitorGate(index), closed: Boolean(gate.closed) };
-      }
-      return gate;
+    const system = getSystemState();
+    const slots = system["派遣岗位"] || system["监控派遣岗位"] || {};
+    const gates = uiState.gates.map((gate, index) => {
+      const raw = slots[MONITOR_GATE_KEYS[index]] || slots[index + 1] || slots[String(index + 1)] || {};
+      const roleName = String(raw["角色名"] || raw["角色"] || raw["姓名"] || "").trim();
+      if (!roleName) return { ...emptyMonitorGate(index), closed: Boolean(gate.closed) };
+      const role = roles[roleName] || {};
+      const endText = String(raw["派遣结束时间"] || raw["结束时间"] || "").trim();
+      const roleValue = Math.max(0, Math.floor(Number(raw["身价"] ?? raw["收益"] ?? monitorRoleValue(role)) || 0));
+      return {
+        roleName,
+        endStamp: monitorEndStampFromText(endText),
+        endText,
+        roleValue,
+        closed: true
+      };
     });
-    const next = { gates };
-    if (changed) saveMonitorState(next);
-    return next;
+    return { gates };
+  }
+
+  function syncMonitorGatesWithRoleVariables(state = readMonitorState()) {
+    return state;
   }
 
   function getMonitorEligibleRoles(state = readMonitorState()) {
     const roles = getStatsRoles();
-    const occupied = new Set(state.gates.flatMap((gate) => [gate.roleName, gate.pendingRoleName]).filter(Boolean));
+    const occupied = new Set(state.gates.map((gate) => gate.roleName).filter(Boolean));
     return sortedStatsRoleNames(roles).filter((roleName) => {
       const role = roles[roleName];
       if (!role || occupied.has(roleName)) return false;
       const favor = Number(role["好感度"] ?? 0);
       const obey = Number(role["服从度"] ?? 0);
       return favor >= 100 && obey >= 100 && !isMonitorRoleDispatched(role["是否派遣中"]);
+    });
+  }
+
+  function hasPendingMonitorGateDispatch(index) {
+    const gateName = MONITOR_GATE_KEYS[index] || ((index + 1) + "号门");
+    return (window.__ST_GET_PENDING_OPERATION_INPUT_LOG__?.() || []).some((entry) => {
+      const payload = entry?.payload || entry;
+      return payload?.["来源"] === "监控" &&
+        payload?.["操作"] === "派遣角色" &&
+        payload?.["门位"] === gateName;
     });
   }
 
@@ -4238,7 +4233,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         角色名: gate.roleName,
         派遣结束时间: gate.endText,
         身价: gate.roleValue || monitorRoleValue(role),
-        AI执行规范: "派遣时间已结束，请发放身价收益并解除派遣。",
+        AI执行规范: "派遣时间已结束，请发放身价收益，解除角色派遣，并清空对应派遣岗位。",
         不可删除: true
       });
     });
@@ -4279,13 +4274,6 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         return '<article class="st-monitor-gate occupied">' +
           '<div class="st-monitor-gate-head"><strong>' + (index + 1) + '号门</strong><small>派遣中</small></div>' +
           '<p class="st-monitor-empty">' + escapeHtml(gate.roleName) + '<br>结束：' + escapeHtml(gate.endText || "一整天后") + '<br>身价：¥' + Number(gate.roleValue || monitorRoleValue(roles[gate.roleName])).toLocaleString() + '</p>' +
-        '</article>';
-      }
-      if (gate.pendingRoleName) {
-        return '<article class="st-monitor-gate pending">' +
-          '<div class="st-monitor-gate-head"><strong>' + (index + 1) + '号门</strong><small>待AI确认</small></div>' +
-          '<p class="st-monitor-empty">' + escapeHtml(gate.pendingRoleName) + '<br>预计结束：' + escapeHtml(gate.pendingEndText || "一整天后") + '<br>等待AI判定是否派遣成功。</p>' +
-          '<button type="button" class="st-monitor-dispatch" disabled>待确认</button>' +
         '</article>';
       }
       const options = eligible.map((roleName) => {
@@ -4346,15 +4334,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         if (!roleName || !role) return;
         const end = monitorDispatchEndInfo();
         const next = syncMonitorGatesWithRoleVariables(readMonitorState());
-        if (next.gates[index]?.roleName || next.gates[index]?.pendingRoleName) return;
-        next.gates[index] = {
-          ...next.gates[index],
-          pendingRoleName: roleName,
-          pendingEndStamp: end.endStamp,
-          pendingEndText: end.endText,
-          pendingRoleValue: monitorRoleValue(role)
-        };
-        saveMonitorState(next);
+        if (next.gates[index]?.roleName || hasPendingMonitorGateDispatch(index)) return;
         appendAppOperation({
           来源: "监控",
           操作: "派遣角色",
@@ -4366,9 +4346,8 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
           当前是否派遣中: isMonitorRoleDispatched(role["是否派遣中"]) ? "是" : "否",
           角色当前身价: monitorRoleValue(role),
           前置条件: "好感度>=100；服从度>=100；未派遣中；门位为空。",
-          AI执行规范: "由AI按剧情和前置条件判定是否成功。成功时将该角色的是否派遣中设为true；派遣持续一整天；结束后按身价发放收益。失败则不要改变量。"
+          AI执行规范: "由AI按剧情和前置条件判定是否成功。成功时写入系统.派遣岗位." + (index + 1) + "号门的角色名、派遣结束时间、身价，并将该角色的是否派遣中设为true；派遣持续一整天，不立刻发钱。失败则不要改变量。"
         });
-        renderMonitorPage(page);
       });
     });
   }
