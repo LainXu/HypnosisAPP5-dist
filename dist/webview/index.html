@@ -1893,58 +1893,73 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-work-button:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.35);box-shadow:none}
 .st-work-button:not(:disabled):active{transform:scale(.98)}
 .st-work-note{margin:0;color:rgba(203,213,225,.58);font-size:11px;line-height:1.55}
-.st-encounter-app .st-lite-body{gap:9px}
-.st-encounter-tabs{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.st-encounter-tab{height:34px;border:1px solid rgba(255,255,255,.1);border-radius:13px;background:rgba(255,255,255,.055);color:rgba(226,232,240,.72);font-size:12px;font-weight:950;cursor:pointer}
-.st-encounter-tab.active{border-color:rgba(244,114,182,.38);background:linear-gradient(135deg,rgba(244,63,94,.24),rgba(168,85,247,.16));color:#fff;box-shadow:0 12px 26px rgba(190,24,93,.16)}
-.st-encounter-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
-.st-encounter-toolbar strong{color:#fff;font-size:14px;line-height:1.2}
-.st-encounter-toolbar span{color:rgba(226,232,240,.55);font-size:10px;font-weight:850;white-space:nowrap}
-.st-encounter-empty{border:1px dashed rgba(255,255,255,.14);border-radius:14px;background:rgba(255,255,255,.035);padding:16px 12px;text-align:center;color:rgba(203,213,225,.62);font-size:12px;line-height:1.5}
-.st-encounter-packages{display:grid;gap:9px}
-.st-encounter-package{border:1px solid rgba(255,255,255,.1);border-radius:16px;background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.035));box-shadow:0 14px 30px rgba(0,0,0,.2);overflow:hidden}
-.st-encounter-cover{height:128px;background:linear-gradient(135deg,rgba(244,63,94,.26),rgba(14,165,233,.16));display:grid;place-items:center;overflow:hidden;color:rgba(255,255,255,.55);font-size:12px;font-weight:900}
+.st-encounter-app{background:linear-gradient(180deg,#fff7ed 0%,#fff1f2 48%,#edf7ff 100%)!important;color:#3f2f2b}
+.st-encounter-app .st-lite-header{background:linear-gradient(180deg,rgba(255,247,237,.96),rgba(255,241,242,.82));border-bottom:1px solid rgba(180,83,9,.14);color:#3f2f2b}
+.st-encounter-app .st-lite-title strong{color:#3f2f2b}
+.st-encounter-app .st-lite-title span{color:rgba(88,64,54,.62)}
+.st-encounter-app .st-lite-back{color:#7c2d12;border-color:rgba(180,83,9,.18);background:rgba(255,255,255,.72)}
+.st-encounter-app .st-lite-body{gap:8px;padding-top:9px}
+.st-encounter-tabs{display:grid;grid-template-columns:1fr 1fr;gap:7px;border:1px solid rgba(180,83,9,.13);border-radius:16px;background:rgba(255,255,255,.58);padding:4px;box-shadow:0 8px 22px rgba(180,83,9,.08)}
+.st-encounter-tab{height:32px;border:0;border-radius:12px;background:transparent;color:rgba(88,64,54,.64);font-size:12px;font-weight:950;cursor:pointer}
+.st-encounter-tab.active{background:linear-gradient(135deg,#fb7185,#f59e0b);color:#fff;box-shadow:0 10px 18px rgba(244,114,182,.22)}
+.st-encounter-shop-hero{border:1px solid rgba(180,83,9,.16);border-radius:18px;background:linear-gradient(135deg,rgba(255,255,255,.84),rgba(255,237,213,.78) 48%,rgba(219,234,254,.7));box-shadow:0 14px 30px rgba(180,83,9,.1);padding:10px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:center}
+.st-encounter-shop-hero strong{display:block;color:#3f2f2b;font-size:16px;line-height:1.2}
+.st-encounter-shop-hero span{display:block;margin-top:3px;color:rgba(88,64,54,.62);font-size:10px;font-weight:850;line-height:1.35}
+.st-encounter-shop-count{min-width:48px;height:42px;border:1px solid rgba(251,146,60,.24);border-radius:14px;background:rgba(255,255,255,.66);display:grid;place-items:center;color:#9a3412;font-size:18px;font-weight:950;box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}
+.st-encounter-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px}
+.st-encounter-toolbar strong{color:#3f2f2b;font-size:13px;line-height:1.2}
+.st-encounter-toolbar span{color:rgba(88,64,54,.58);font-size:10px;font-weight:850;white-space:nowrap}
+.st-encounter-empty{border:1px dashed rgba(180,83,9,.22);border-radius:14px;background:rgba(255,255,255,.58);padding:14px 10px;text-align:center;color:rgba(88,64,54,.62);font-size:12px;line-height:1.5}
+.st-encounter-packages{display:grid;gap:8px}
+.st-encounter-package{position:relative;display:grid;grid-template-columns:112px minmax(0,1fr);gap:0;border:1px solid rgba(180,83,9,.15);border-radius:16px;background:rgba(255,255,255,.78);box-shadow:0 12px 28px rgba(180,83,9,.1);overflow:hidden}
+.st-encounter-package.is-featured{border-color:rgba(251,146,60,.36);box-shadow:0 14px 34px rgba(251,146,60,.16)}
+.st-encounter-cover{height:100%;min-height:154px;background:linear-gradient(135deg,#fff7ed,#e0f2fe);display:grid;place-items:center;overflow:hidden;color:rgba(88,64,54,.48);font-size:11px;font-weight:900}
 .st-encounter-cover img{width:100%;height:100%;object-fit:cover;display:block}
-.st-encounter-package-body{padding:10px;display:grid;gap:8px}
-.st-encounter-package-title{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-.st-encounter-package-title strong{min-width:0;color:#fff;font-size:15px;line-height:1.25;font-weight:950;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.st-encounter-price{flex:0 0 auto;border:1px solid rgba(250,204,21,.24);border-radius:999px;background:rgba(250,204,21,.11);color:#fde68a;padding:3px 8px;font-size:10px;font-weight:950;white-space:nowrap}
-.st-encounter-package p{margin:0;color:rgba(226,232,240,.68);font-size:11px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.st-encounter-meta{display:flex;flex-wrap:wrap;gap:6px}
-.st-encounter-meta span{border:1px solid rgba(255,255,255,.08);border-radius:999px;background:rgba(2,6,23,.34);color:rgba(226,232,240,.72);padding:4px 7px;font-size:10px;font-weight:850}
+.st-encounter-package-body{padding:9px;display:grid;gap:7px;min-width:0}
+.st-encounter-package-title{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;align-items:start}
+.st-encounter-package-title strong{min-width:0;color:#3f2f2b;font-size:14px;line-height:1.22;font-weight:950;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.st-encounter-price{border:1px solid rgba(245,158,11,.28);border-radius:999px;background:#fff7ed;color:#9a3412;padding:3px 7px;font-size:10px;font-weight:950;white-space:nowrap}
+.st-encounter-package p{margin:0;color:rgba(88,64,54,.66);font-size:10px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.st-encounter-meta{display:flex;flex-wrap:wrap;gap:5px}
+.st-encounter-meta span{border:1px solid rgba(180,83,9,.12);border-radius:999px;background:rgba(255,247,237,.78);color:rgba(88,64,54,.7);padding:3px 6px;font-size:9px;font-weight:900;line-height:1.2}
+.st-encounter-role-strip{display:flex;gap:6px;min-width:0;overflow:hidden}
+.st-encounter-role-chip{flex:1 1 0;min-width:0;border:1px solid rgba(180,83,9,.12);border-radius:12px;background:rgba(255,255,255,.72);padding:4px;display:grid;grid-template-columns:30px minmax(0,1fr);gap:5px;align-items:center}
+.st-encounter-role-chip img{width:30px;height:30px;border-radius:9px;object-fit:cover;background:#f8fafc}
+.st-encounter-role-chip strong{display:block;min-width:0;color:#3f2f2b;font-size:9px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-encounter-role-chip small{display:block;margin-top:2px;color:rgba(88,64,54,.52);font-size:8px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .st-encounter-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}
 .st-encounter-actions.is-single{grid-template-columns:1fr}
-.st-encounter-button{height:34px;border:1px solid rgba(255,255,255,.12);border-radius:12px;background:rgba(255,255,255,.07);color:rgba(226,232,240,.88);font-size:11px;font-weight:950;cursor:pointer}
-.st-encounter-button.primary{background:linear-gradient(135deg,#f43f5e,#8b5cf6);border-color:rgba(255,255,255,.18);color:white;box-shadow:0 12px 24px rgba(190,24,93,.2)}
+.st-encounter-button{height:33px;border:1px solid rgba(180,83,9,.16);border-radius:12px;background:rgba(255,255,255,.72);color:#7c2d12;font-size:11px;font-weight:950;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}
+.st-encounter-button.primary{background:linear-gradient(135deg,#fb7185,#f59e0b);border-color:rgba(255,255,255,.38);color:white;box-shadow:0 10px 18px rgba(244,114,182,.22)}
 .st-encounter-button:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.35);box-shadow:none}
 .st-encounter-button:not(:disabled):active{transform:scale(.98)}
-.st-encounter-status{min-height:16px;color:rgba(125,211,252,.75);font-size:10px;line-height:1.45}
-.st-encounter-form{display:grid;gap:8px}
+.st-encounter-status{min-height:16px;color:#0f766e;font-size:10px;line-height:1.45;font-weight:850}
+.st-encounter-form{display:grid;gap:8px;border:1px solid rgba(180,83,9,.15)!important;background:rgba(255,255,255,.76)!important;box-shadow:0 12px 28px rgba(180,83,9,.1)}
 .st-encounter-field{display:grid;gap:4px}
-.st-encounter-field span{color:rgba(226,232,240,.62);font-size:10px;font-weight:850}
-.st-encounter-field input,.st-encounter-field textarea{width:100%;box-sizing:border-box;border:1px solid rgba(255,255,255,.1);border-radius:12px;background:rgba(2,6,23,.48);color:#f8fafc;padding:8px 9px;font-size:12px;line-height:1.4;outline:none}
+.st-encounter-field span{color:rgba(88,64,54,.64);font-size:10px;font-weight:900}
+.st-encounter-field input,.st-encounter-field textarea{width:100%;box-sizing:border-box;border:1px solid rgba(180,83,9,.14);border-radius:12px;background:rgba(255,251,235,.7);color:#3f2f2b;padding:8px 9px;font-size:12px;line-height:1.4;outline:none}
 .st-encounter-field textarea{min-height:64px;resize:vertical}
-.st-encounter-field input:focus,.st-encounter-field textarea:focus{border-color:rgba(244,114,182,.42);box-shadow:0 0 0 3px rgba(244,114,182,.1)}
+.st-encounter-field input:focus,.st-encounter-field textarea:focus{border-color:rgba(251,146,60,.45);box-shadow:0 0 0 3px rgba(251,146,60,.12);background:#fff}
 .st-encounter-grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.st-encounter-cover-edit{display:grid;grid-template-columns:88px 1fr;gap:9px;align-items:center}
-.st-encounter-cover-preview{width:88px;height:66px;border:1px solid rgba(255,255,255,.1);border-radius:12px;background:rgba(2,6,23,.38);display:grid;place-items:center;overflow:hidden;color:rgba(203,213,225,.45);font-size:10px;font-weight:900;text-align:center}
+.st-encounter-cover-edit{display:grid;grid-template-columns:92px 1fr;gap:9px;align-items:center}
+.st-encounter-cover-preview{width:92px;height:68px;border:1px solid rgba(180,83,9,.14);border-radius:13px;background:#fff7ed;display:grid;place-items:center;overflow:hidden;color:rgba(88,64,54,.46);font-size:10px;font-weight:900;text-align:center}
 .st-encounter-cover-preview img{width:100%;height:100%;object-fit:cover;display:block}
 .st-encounter-role-tools{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.st-encounter-role-tools strong{color:#fff;font-size:13px}
-.st-encounter-role-tools span{color:rgba(203,213,225,.58);font-size:10px;white-space:nowrap}
-.st-encounter-role-card{border:1px solid rgba(255,255,255,.1);border-radius:14px;background:rgba(255,255,255,.045);padding:9px;display:grid;gap:8px}
+.st-encounter-role-tools strong{color:#3f2f2b;font-size:13px}
+.st-encounter-role-tools span{color:rgba(88,64,54,.58);font-size:10px;white-space:nowrap;font-weight:850}
+.st-encounter-role-card{border:1px solid rgba(180,83,9,.13);border-radius:14px;background:rgba(255,247,237,.72);padding:9px;display:grid;gap:8px}
 .st-encounter-role-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.st-encounter-role-head strong{color:#f8fafc;font-size:12px}
-.st-encounter-role-head button{height:24px;border:1px solid rgba(244,63,94,.24);border-radius:999px;background:rgba(244,63,94,.1);color:#fecdd3;font-size:10px;font-weight:900;padding:0 8px;cursor:pointer}
+.st-encounter-role-head strong{color:#3f2f2b;font-size:12px}
+.st-encounter-role-head button{height:24px;border:1px solid rgba(225,29,72,.2);border-radius:999px;background:rgba(255,228,230,.72);color:#be123c;font-size:10px;font-weight:900;padding:0 8px;cursor:pointer}
 .st-encounter-role-image-row{display:grid;grid-template-columns:58px 1fr;gap:8px;align-items:center}
-.st-encounter-role-image{width:58px;height:58px;border:1px solid rgba(255,255,255,.1);border-radius:12px;background:rgba(2,6,23,.38);overflow:hidden;display:grid;place-items:center;color:rgba(203,213,225,.45);font-size:9px;font-weight:900;text-align:center}
+.st-encounter-role-image{width:58px;height:58px;border:1px solid rgba(180,83,9,.14);border-radius:12px;background:#fff;overflow:hidden;display:grid;place-items:center;color:rgba(88,64,54,.46);font-size:9px;font-weight:900;text-align:center}
 .st-encounter-role-image img{width:100%;height:100%;object-fit:cover;display:block}
 .st-encounter-pager{display:grid;grid-template-columns:34px 1fr 34px;gap:7px;align-items:center}
-.st-encounter-pager button{height:30px;border:1px solid rgba(255,255,255,.1);border-radius:11px;background:rgba(255,255,255,.06);color:#fff;font-size:15px;font-weight:950;cursor:pointer}
+.st-encounter-pager button{height:30px;border:1px solid rgba(180,83,9,.14);border-radius:11px;background:rgba(255,255,255,.72);color:#7c2d12;font-size:15px;font-weight:950;cursor:pointer}
 .st-encounter-pager button:disabled{opacity:.35;cursor:not-allowed}
-.st-encounter-pager span{text-align:center;color:rgba(226,232,240,.62);font-size:10px;font-weight:850}
-.st-encounter-note{margin:0;color:rgba(203,213,225,.54);font-size:10px;line-height:1.5}
-@media (max-width:420px){.st-encounter-grid2{grid-template-columns:1fr}.st-encounter-cover{height:112px}.st-encounter-actions{grid-template-columns:1fr}}
+.st-encounter-pager span{text-align:center;color:rgba(88,64,54,.6);font-size:10px;font-weight:850}
+.st-encounter-note{margin:0;color:rgba(88,64,54,.58);font-size:10px;line-height:1.5}
+@media (max-width:420px){.st-encounter-grid2{grid-template-columns:1fr}.st-encounter-package{grid-template-columns:104px minmax(0,1fr)}.st-encounter-cover{min-height:150px}.st-encounter-actions{grid-template-columns:1fr}.st-encounter-role-chip{grid-template-columns:24px minmax(0,1fr)}.st-encounter-role-chip img{width:24px;height:24px}}
 #st-operation-workspace{box-sizing:border-box;width:100%;max-width:680px;min-height:0;margin:0;display:grid;grid-template-columns:minmax(320px,420px) minmax(150px,1fr);gap:8px;align-items:start;justify-content:start;padding:4px 0 4px 4px}
 #st-operation-workspace>#app{min-width:0;width:100%}
 #st-operation-workspace>#app>div:first-child{justify-content:flex-start!important;align-items:flex-start!important;padding:0!important}
@@ -4278,7 +4293,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     };
   }
 
-  const MONITOR_DEFAULT_WORK_TEXT = "NSFW直播";
+  const MONITOR_DEFAULT_WORK_TEXT = "轻口味的NSFW直播";
 
   function normalizeMonitorDispatchWorkText(value) {
     const original = String(value || "").trim();
@@ -4521,7 +4536,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         '<div class="st-monitor-gate-head"><strong>' + (index + 1) + '号门</strong><small>' + gateStatus + '</small></div>' +
         (gateEligible.length
           ? '<select class="st-monitor-select" data-monitor-select="' + index + '">' + options + '</select>' +
-            '<div class="st-monitor-form-row"><label><span>内容</span><input class="st-monitor-input" data-monitor-work="' + index + '" value="' + escapeAttr(workValue) + '" placeholder="默认 NSFW直播"></label><label><span>天数</span><input class="st-monitor-days" data-monitor-days="' + index + '" type="number" min="1" max="30" value="' + escapeAttr(daysValue) + '"></label></div>' +
+            '<div class="st-monitor-form-row"><label><span>内容</span><input class="st-monitor-input" data-monitor-work="' + index + '" value="' + escapeAttr(workValue) + '" placeholder="默认 轻口味的NSFW直播"></label><label><span>天数</span><input class="st-monitor-days" data-monitor-days="' + index + '" type="number" min="1" max="30" value="' + escapeAttr(daysValue) + '"></label></div>' +
             '<button type="button" class="st-monitor-dispatch" data-monitor-dispatch="' + index + '">派遣</button>'
           : '<p class="st-monitor-empty">暂无好感与服从均达到100的可派遣角色。</p><button type="button" class="st-monitor-dispatch" disabled>不可派遣</button>') +
       '</article>';
@@ -4541,7 +4556,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
             hitsHtml +
           '</div>' +
           '<div class="st-monitor-gates">' + gatesHtml + '</div>' +
-          '<p class="st-monitor-note">工作场所为学校男厕。因学校男生很少，这里平时基本没人；派遣内容留空或明显不适合男厕门位时默认使用 NSFW直播。派遣期间角色不能与用户见面或接触，只能电话、远程或隔门交流；结束/取消后由 AI 结算已工作完整天数的收益。</p>' +
+          '<p class="st-monitor-note">工作场所为学校男厕。因学校男生很少，这里平时基本没人；派遣内容留空或明显不适合男厕门位时默认使用轻口味的NSFW直播。派遣期间角色不能与用户见面或接触，只能电话、远程或隔门交流；结束/取消后由 AI 结算已工作完整天数的收益。</p>' +
         '</section>' +
       '</main>';
     page.querySelector('[data-lite-action="back"]')?.addEventListener("click", () => {
@@ -4608,7 +4623,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
           当前是否派遣中: isMonitorRoleDispatched(role["是否派遣中"]) ? "是" : "否",
           每日身价: monitorRoleValue(role),
           前置条件: "好感度>=100；服从度>=100；未派遣中；门位为空。",
-          AI执行规范: "由AI按剧情和前置条件判定派遣是否成功；派遣工作以本条派遣工作字段为准，若原始派遣工作为空或明显不可能发生在学校男厕门位，前端已改用默认NSFW直播，不要再按原始荒诞内容执行。工作内容可能影响主角可疑度，请按剧情风险决定是否更新。成功时写入系统.派遣岗位." + (index + 1) + "号门的角色名、派遣工作、派遣开始时间、派遣结束时间、身价，并将该角色的是否派遣中设为true；派遣期间不立刻发钱。失败则不要改变量。"
+          AI执行规范: "由AI按剧情和前置条件判定派遣是否成功；派遣工作以本条派遣工作字段为准，若原始派遣工作为空或明显不可能发生在学校男厕门位，前端已改用默认轻口味的NSFW直播，不要再按原始荒诞内容执行。工作内容可能影响主角可疑度，请按剧情风险决定是否更新。成功时写入系统.派遣岗位." + (index + 1) + "号门的角色名、派遣工作、派遣开始时间、派遣结束时间、身价，并将该角色的是否派遣中设为true；派遣期间不立刻发钱。失败则不要改变量。"
         };
         const pendingEntry = getPendingMonitorGateDispatchEntry(index);
         const pendingChanged = pendingEntry && monitorDispatchPayloadSignature(pendingEntry.payload) !== monitorDispatchPayloadSignature(payload);
@@ -5004,7 +5019,52 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     return roles.filter((role) => String(role?.name || role?.intro || "").trim()).length * 4;
   }
 
-  function encounterReadPackages() {
+  function encounterBuiltInPackages() {
+    return [encounterNormalizePackage({
+      id: "basic-example-role-pack",
+      name: "基础邂逅示例包",
+      intro: "三个可直接导入的示例角色：阴郁同学、异世界杀手、成熟总裁。适合测试角色包导入、人物档案图片和世界书写入流程。",
+      price: 12,
+      variableWorldbook: "人物变量世界书",
+      personaWorldbook: "人设世界书",
+      coverDataUrl: stAssetUrl("encounter/basic-role-pack-cover.png"),
+      roles: [
+        {
+          id: "role-shirakusu-anko",
+          name: "白枢暗子",
+          aliases: "暗子, 中枢暗子, 白枢同学, 灵异女, 体育健将",
+          intro: "阴郁邋遢的同班女学生。厚重刘海盖住眼睛，粗看像瘦弱丑女；实际整理后极其美貌，身体也远比外表健壮，喜欢灵异学和怪谈。",
+          variables: "按现有女角色结构写入/角色/白枢暗子：好感度0、警戒度0、服从度0、性欲0、快感值0、是否派遣中false、身价由AI按人设生成；档案保留邋遢遮眼、隐藏美貌、隐藏运动能力、四块腹肌、灵异爱好者等要点。",
+          persona: "白枢暗子是{{user}}的同班同学，平时沉默阴郁，头发遮眼、校服松垮，看起来不起眼。她对灵异学和鬼怪异常兴奋，一旦谈到相关话题会变成话痨。她实际是被外表掩盖的美人，体能优秀，仅次于夏美但本人对体育没兴趣。",
+          imageDataUrl: stAssetUrl("encounter/shirakusu-anko.png")
+        },
+        {
+          id: "role-senkoro-momoka",
+          name: "千杀百花",
+          aliases: "百花, 异世界杀手, 千杀, 勇者小队成员",
+          intro: "来自剑与魔法异世界的小型杀手少女。体型娇小、动作敏捷，眼神凌厉警戒，曾是拯救异世界人类的原勇者小队成员。",
+          variables: "按现有女角色结构写入/角色/千杀百花：好感度0、警戒度按剧情可略高、服从度0、性欲0、快感值0、是否派遣中false、身价由AI按异世界英雄和杀手身份生成；档案保留娇小敏捷、短刃、轻皮革护具、异世界常识差异。",
+          persona: "千杀百花来自中世纪剑与魔法异世界，曾是勇者小队成员和英雄之一，同时也是不善言辞的杀手。她误会{{user}}是传送元凶时会警戒试探，确认威胁后会迅速判断局势。她对勇者抱有倾慕却不理解恋爱情感。",
+          imageDataUrl: stAssetUrl("encounter/senkoro-momoka.png")
+        },
+        {
+          id: "role-nakamura-sakura",
+          name: "中村樱",
+          aliases: "樱酱, 中村总裁, Nakamura Sakura",
+          intro: "32岁的大公司女总裁。成熟优雅、资源充足、判断力强，拥有稳定婚约却隐藏夸张自毁欲，会主动以金钱和渠道支持{{user}}。",
+          variables: "按现有女角色结构写入/角色/中村樱：好感度可按初遇剧情由AI决定、警戒度0或按剧情、服从度0、性欲0、快感值0、是否派遣中false、身价较高；档案保留成年人、公司总裁、未婚夫神宫寺莲、资源支持、成熟总裁形象。",
+          persona: "中村樱是32岁的完美女总裁，事业、气场和资源都近乎完美。她有未婚夫神宫寺莲，两人感情很好但长期停留在克制关系。她在{{user}}面前会隐藏成熟身份的边界感，主动制造独处机会并提供大额资金、渠道和场地支持。",
+          imageDataUrl: stAssetUrl("encounter/nakamura-sakura.png")
+        }
+      ]
+    })];
+  }
+
+  function encounterBuiltInPackageIds() {
+    return new Set(encounterBuiltInPackages().map((pkg) => pkg.id));
+  }
+
+  function encounterReadStoredPackages() {
     try {
       const parsed = JSON.parse(localStorage.getItem(ENCOUNTER_PACKAGE_STORAGE_KEY) || "[]");
       if (Array.isArray(parsed)) return parsed.map(encounterNormalizePackage);
@@ -5012,15 +5072,26 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     return [];
   }
 
+  function encounterReadPackages() {
+    const builtIns = encounterBuiltInPackages();
+    const builtInIds = new Set(builtIns.map((pkg) => pkg.id));
+    const stored = encounterReadStoredPackages().filter((pkg) => !builtInIds.has(pkg.id));
+    return builtIns.concat(stored);
+  }
+
   function encounterSavePackages(packages) {
     try {
-      localStorage.setItem(ENCOUNTER_PACKAGE_STORAGE_KEY, JSON.stringify((Array.isArray(packages) ? packages : []).map(encounterNormalizePackage)));
+      const builtInIds = encounterBuiltInPackageIds();
+      const stored = (Array.isArray(packages) ? packages : [])
+        .map(encounterNormalizePackage)
+        .filter((pkg) => !builtInIds.has(pkg.id));
+      localStorage.setItem(ENCOUNTER_PACKAGE_STORAGE_KEY, JSON.stringify(stored));
     } catch {}
   }
 
   function encounterUpsertPackage(pkg) {
     const normalized = encounterNormalizePackage(pkg);
-    const packages = encounterReadPackages();
+    const packages = encounterReadStoredPackages();
     const index = packages.findIndex((item) => item.id === normalized.id || (item.name && item.name === normalized.name));
     if (index >= 0) packages[index] = normalized;
     else packages.unshift(normalized);
@@ -5119,21 +5190,39 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     '</article>';
   }
 
+  function encounterPackageRoleStripHtml(pkg) {
+    const roles = Array.isArray(pkg?.roles) ? pkg.roles.filter((role) => String(role?.name || role?.intro || "").trim()).slice(0, 3) : [];
+    if (!roles.length) return "";
+    return '<div class="st-encounter-role-strip">' + roles.map((role) => (
+      '<div class="st-encounter-role-chip">' +
+        (role.imageDataUrl ? '<img alt="' + escapeAttr(role.name || "角色") + '" src="' + escapeAttr(role.imageDataUrl) + '">' : '<span></span>') +
+        '<div><strong>' + escapeHtml(role.name || "未命名") + '</strong><small>' + escapeHtml((role.aliases || role.intro || "角色").split(/[，,、]/)[0]) + '</small></div>' +
+      '</div>'
+    )).join("") + '</div>';
+  }
+
   function renderEncounterBrowse(page) {
     const packages = encounterReadPackages();
     const cards = packages.length ? packages.map((pkg) => {
       const price = encounterPackagePrice(pkg);
-      return '<article class="st-encounter-package">' +
+      const featured = pkg.id === "basic-example-role-pack";
+      return '<article class="st-encounter-package' + (featured ? " is-featured" : "") + '">' +
         '<div class="st-encounter-cover">' + encounterCoverHtml(pkg.coverDataUrl, pkg.name || "角色包") + '</div>' +
         '<div class="st-encounter-package-body">' +
-          '<div class="st-encounter-package-title"><strong>' + escapeHtml(pkg.name || "未命名角色包") + '</strong></div>' +
+          '<div class="st-encounter-package-title"><strong>' + escapeHtml(pkg.name || "未命名角色包") + '</strong><span class="st-encounter-price">' + price + ' 星光点</span></div>' +
+          '<div class="st-encounter-meta"><span>' + (featured ? "基础示例" : "用户导入") + '</span><span>' + (pkg.roles?.length || 0) + ' 角色</span><span>世界书</span></div>' +
           '<p>' + escapeHtml(pkg.intro || "暂无介绍。") + '</p>' +
-          '<div class="st-encounter-actions is-single"><button type="button" class="st-encounter-button primary" data-encounter-action="purchase" data-package-id="' + escapeAttr(pkg.id) + '">购买 · ' + price + ' 星光点</button></div>' +
+          encounterPackageRoleStripHtml(pkg) +
+          '<div class="st-encounter-actions is-single"><button type="button" class="st-encounter-button primary" data-encounter-action="purchase" data-package-id="' + escapeAttr(pkg.id) + '">购买 / 使用</button></div>' +
         '</div>' +
       '</article>';
     }).join("") : '<div class="st-encounter-empty">还没有导入角色包。可以在“更改”里制作并保存，也可以导入 zip。</div>';
-    return '<section class="st-lite-card">' +
-      '<div class="st-encounter-toolbar"><strong>角色包浏览</strong><span>' + packages.length + ' 个包</span></div>' +
+    return '<section class="st-encounter-shop-hero">' +
+      '<div><strong>邂逅商店</strong><span>角色包会写入角色变量，并把包内世界书塞入指定位置。</span></div>' +
+      '<div class="st-encounter-shop-count">' + packages.length + '</div>' +
+    '</section>' +
+    '<section class="st-lite-card st-encounter-form">' +
+      '<div class="st-encounter-toolbar"><strong>包库</strong><span>基础包常驻</span></div>' +
       '<div class="st-encounter-actions is-single"><button type="button" class="st-encounter-button" data-encounter-action="import-library">导入 ZIP 到浏览</button></div>' +
       '<input type="file" accept=".zip,application/zip" data-encounter-import-library hidden>' +
     '</section>' +
@@ -5185,7 +5274,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     page.innerHTML =
       '<header class="st-lite-header">' +
         '<button class="st-lite-back" data-lite-action="back" title="返回桌面">‹</button>' +
-        '<div class="st-lite-title"><strong>邂逅</strong><span>角色包浏览与构造</span></div>' +
+        '<div class="st-lite-title"><strong>邂逅</strong><span>角色包商店</span></div>' +
       '</header>' +
       '<main class="st-lite-body">' +
         '<section class="st-encounter-tabs">' +
