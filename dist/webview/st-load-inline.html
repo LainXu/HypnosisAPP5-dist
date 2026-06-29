@@ -4339,6 +4339,34 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     };
   }
 
+  const MONITOR_DEFAULT_WORK_TEXT = "NSFW直播";
+
+  function normalizeMonitorDispatchWorkText(value) {
+    const original = String(value || "").trim();
+    const compact = original.replace(/s+/g, "");
+    const lower = compact.toLowerCase();
+    const impossibleInToilet = /排球|篮球|足球|棒球|网球|乒乓|羽毛球|游泳|田径|马拉松|赛跑|比赛|搬砖|工地|施工|挖矿|开车|赛车|飞行|演唱会|舞台剧|开店|餐厅|厨房|农活|种地|收银/.test(compact);
+    if (!compact) {
+      return {
+        workText: MONITOR_DEFAULT_WORK_TEXT,
+        normalized: true,
+        reason: "用户未填写派遣内容，前端使用默认派遣工作。"
+      };
+    }
+    if (impossibleInToilet || /volleyball|basketball|football|soccer|construction|brick|race|marathon|restaurant|cashier/.test(lower)) {
+      return {
+        workText: MONITOR_DEFAULT_WORK_TEXT,
+        normalized: true,
+        reason: "用户填写内容明显不适合发生在学校男厕门位，前端改用默认派遣工作。"
+      };
+    }
+    return {
+      workText: original,
+      normalized: false,
+      reason: ""
+    };
+  }
+
   function readMonitorState() {
     const uiState = readMonitorUiState();
     const roles = getStatsRoles();
@@ -4349,7 +4377,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       const roleName = String(raw["角色名"] || raw["角色"] || raw["姓名"] || "").trim();
       if (!roleName) return { ...emptyMonitorGate(index), closed: Boolean(gate.closed) };
       const role = roles[roleName] || {};
-      const workText = String(raw["派遣工作"] || raw["工作"] || raw["工作内容"] || "").trim();
+      const workText = normalizeMonitorDispatchWorkText(raw["派遣工作"] || raw["工作"] || raw["工作内容"] || "").workText;
       const startText = String(raw["派遣开始时间"] || raw["开始时间"] || "").trim();
       const endText = String(raw["派遣结束时间"] || raw["结束时间"] || "").trim();
       const roleValue = Math.max(0, Math.floor(Number(raw["身价"] ?? raw["收益"] ?? monitorRoleValue(role)) || 0));
@@ -4554,7 +4582,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         '<div class="st-monitor-gate-head"><strong>' + (index + 1) + '号门</strong><small>' + gateStatus + '</small></div>' +
         (gateEligible.length
           ? '<select class="st-monitor-select" data-monitor-select="' + index + '">' + options + '</select>' +
-            '<div class="st-monitor-form-row"><label><span>内容</span><input class="st-monitor-input" data-monitor-work="' + index + '" value="' + escapeAttr(workValue) + '" placeholder="填写派遣内容"></label><label><span>天数</span><input class="st-monitor-days" data-monitor-days="' + index + '" type="number" min="1" max="30" value="' + escapeAttr(daysValue) + '"></label></div>' +
+            '<div class="st-monitor-form-row"><label><span>内容</span><input class="st-monitor-input" data-monitor-work="' + index + '" value="' + escapeAttr(workValue) + '" placeholder="默认 NSFW直播"></label><label><span>天数</span><input class="st-monitor-days" data-monitor-days="' + index + '" type="number" min="1" max="30" value="' + escapeAttr(daysValue) + '"></label></div>' +
             '<button type="button" class="st-monitor-dispatch" data-monitor-dispatch="' + index + '">派遣</button>'
           : '<p class="st-monitor-empty">暂无好感与服从均达到100的可派遣角色。</p><button type="button" class="st-monitor-dispatch" disabled>不可派遣</button>') +
       '</article>';
@@ -4574,7 +4602,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
             hitsHtml +
           '</div>' +
           '<div class="st-monitor-gates">' + gatesHtml + '</div>' +
-          '<p class="st-monitor-note">工作场所为学校男厕。因学校男生很少，这里平时基本没人；派遣内容由这里填写后随本轮操作暂存。派遣期间角色不能与用户见面或接触，只能电话、远程或隔门交流；结束/取消后由 AI 结算已工作完整天数的收益。</p>' +
+          '<p class="st-monitor-note">工作场所为学校男厕。因学校男生很少，这里平时基本没人；派遣内容留空或明显不适合男厕门位时默认使用 NSFW直播。派遣期间角色不能与用户见面或接触，只能电话、远程或隔门交流；结束/取消后由 AI 结算已工作完整天数的收益。</p>' +
         '</section>' +
       '</main>';
     page.querySelector('[data-lite-action="back"]')?.addEventListener("click", () => {
@@ -4607,12 +4635,10 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         if (!roleName || !role) return;
         const workInput = page.querySelector('[data-monitor-work="' + index + '"]');
         const daysInput = page.querySelector('[data-monitor-days="' + index + '"]');
-        const workText = String(workInput?.value || "").trim();
-        if (!workText) {
-          workInput?.focus?.();
-          flashMonitorButton(button, "请填写内容");
-          return;
-        }
+        const rawWorkText = String(workInput?.value || "").trim();
+        const normalizedWork = normalizeMonitorDispatchWorkText(rawWorkText);
+        const workText = normalizedWork.workText;
+        if (workInput && normalizedWork.normalized) workInput.value = workText;
         const dispatchDays = Math.max(1, Math.min(30, Math.floor(Number(daysInput?.value) || 1)));
         const timeInfo = monitorDispatchTimeInfo(dispatchDays);
         const next = syncMonitorGatesWithRoleVariables(readMonitorState());
@@ -4631,6 +4657,9 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
           门位: (index + 1) + "号门",
           工作地点: "私立斋明学园男厕（学校男生很少，平时基本没人）",
           派遣工作: workText,
+          原始派遣工作: rawWorkText || "未填写",
+          派遣工作修正: normalizedWork.normalized ? normalizedWork.reason : "未修正，使用用户填写内容。",
+          默认派遣工作: MONITOR_DEFAULT_WORK_TEXT,
           角色名: roleName,
           派遣天数: timeInfo.durationDays,
           派遣开始时间: timeInfo.startText,
@@ -4640,7 +4669,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
           当前是否派遣中: isMonitorRoleDispatched(role["是否派遣中"]) ? "是" : "否",
           每日身价: monitorRoleValue(role),
           前置条件: "好感度>=100；服从度>=100；未派遣中；门位为空。",
-          AI执行规范: "由AI按剧情和前置条件判定派遣是否成功；工作内容可能影响主角可疑度，请按剧情风险决定是否更新。成功时写入系统.派遣岗位." + (index + 1) + "号门的角色名、派遣工作、派遣开始时间、派遣结束时间、身价，并将该角色的是否派遣中设为true；派遣期间不立刻发钱。失败则不要改变量。"
+          AI执行规范: "由AI按剧情和前置条件判定派遣是否成功；派遣工作以本条派遣工作字段为准，若原始派遣工作为空或明显不可能发生在学校男厕门位，前端已改用默认NSFW直播，不要再按原始荒诞内容执行。工作内容可能影响主角可疑度，请按剧情风险决定是否更新。成功时写入系统.派遣岗位." + (index + 1) + "号门的角色名、派遣工作、派遣开始时间、派遣结束时间、身价，并将该角色的是否派遣中设为true；派遣期间不立刻发钱。失败则不要改变量。"
         };
         const pendingEntry = getPendingMonitorGateDispatchEntry(index);
         const pendingChanged = pendingEntry && monitorDispatchPayloadSignature(pendingEntry.payload) !== monitorDispatchPayloadSignature(payload);
