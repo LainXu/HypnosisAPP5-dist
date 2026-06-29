@@ -1943,6 +1943,9 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-encounter-detail-panel{border:1px solid rgba(127,88,47,.14);border-radius:8px;background:rgba(255,255,255,.68);padding:10px;display:grid;gap:9px}
 .st-encounter-detail-panel h3{margin:0;color:#352b25;font-size:13px;line-height:1.2;font-weight:950}
 .st-encounter-detail-text{margin:0;color:rgba(70,57,47,.72);font-size:11px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+.st-encounter-prompt-preview{border:1px solid rgba(14,116,144,.14);border-radius:8px;background:rgba(224,247,244,.58);padding:8px 9px;display:grid;gap:5px}
+.st-encounter-prompt-preview strong{color:#244c4a;font-size:11px;line-height:1.2;font-weight:950}
+.st-encounter-prompt-preview p{margin:0;color:rgba(47,79,77,.76);font-size:11px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
 .st-encounter-used-note{border:1px solid rgba(15,118,110,.18);border-radius:8px;background:rgba(204,251,241,.42);color:#0f766e;padding:8px 9px;font-size:11px;font-weight:900;line-height:1.4}
 .st-encounter-kv{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .st-encounter-kv span{min-width:0;border:1px solid rgba(127,88,47,.12);border-radius:8px;background:rgba(255,250,243,.68);padding:7px 8px;color:rgba(70,57,47,.66);font-size:10px;font-weight:850;line-height:1.35;overflow:hidden;text-overflow:ellipsis}
@@ -2346,7 +2349,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       title: "阴郁同学",
       note: "已填写示例",
       roleName: "白枢暗子",
-      aliases: "暗子, 白枢同学, 灵异女, 体育健将",
+      aliases: "暗子, 白枢同学, 灵异女",
       summary: "{{user}}在同班教室或走廊里看到并锁定的阴郁系同班女学生。她平时沉默寡言、神经兮兮，听说喜欢灵异学，对鬼怪和怪谈异常感兴趣。",
       relation: "同班同学；她平时几乎不主动社交，只会在灵异、鬼怪、都市传说等话题被触发时突然打开话匣子。",
       appearance: "日常打扮刻意朴素阴沉，刘海和宽松校服遮住大半气质，看起来瘦弱不起眼；但只要认真整理发型、妆容和衣装，会显出比爱丽莎还要精致的美人感。身体实际肌肉饱满，有四块腹肌，运动能力很强却完全不像外表。",
@@ -2368,7 +2371,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       title: "作弊模式",
       note: "已填写示例",
       roleName: "中村樱",
-      aliases: "樱酱, 中村总裁, Nakamura Sakura",
+      aliases: "樱酱, 中村总裁",
       summary: "{{user}}看到并锁定的大公司完美女总裁。她32岁，事业、气场和资源都近乎完美，却毫无恋爱经验；看到{{user}}第一眼便认定他是最适合承接她自毁愿望的天选之人，会主动提供大额资金与资源支持。选择这个静态示例扫描她时，AI应让她立刻主动制造与{{user}}独处的机会。",
       relation: "她有一位名叫神宫寺莲的未婚夫，对方是家世、学历、品格、事业能力和外貌都无可挑剔的精英青年；两人感情很好，外界看来是理想婚约，但一直停留在柏拉图式恋爱，亲密关系干净、温柔、克制。正因现实关系太完美、太安全，她把无法说出口的自毁欲和被弄乱的渴望投向{{user}}。面对{{user}}时会刻意装可爱撒娇，自称“樱酱”，用成熟女人的资源和权力包裹出黏人、讨好、求夸奖的姿态；静态示例扫描后，她会现场迫不及待地痴笑，写下一张《人权自愿放弃协议》，自己先签好名字，再眼神发亮地递给{{user}}要求他签字。",
       appearance: "32岁但保养极好，五官精致，眼神沉静锐利，长发、香水和高级珠宝都控制得恰到好处。平时是性感沉稳的女总裁，西装裙、高跟鞋、黑色丝袜、贴身衬衫和昂贵外套让她像不可接近的成功女性；在{{user}}面前会故意放软嗓音、眨眼、歪头、拉近距离，把成熟身体和幼稚撒娇感混在一起。",
@@ -5053,6 +5056,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       id: encounterId("pkg"),
       name: "",
       intro: "",
+      encounterPrompt: "",
       price: "",
       variableWorldbook: "人物变量世界书",
       personaWorldbook: "人设世界书",
@@ -5112,6 +5116,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       version: 1,
       name: String(source.name || source["名称"] || source["角色包名"] || ""),
       intro: String(source.intro || source.description || source["介绍"] || ""),
+      encounterPrompt: String(source.encounterPrompt || source.storyPrompt || source.prompt || source["AI提示词"] || source["邂逅提示词"] || ""),
       price: rawPrice === "" || rawPrice === null || rawPrice === undefined ? "" : (Number.isFinite(parsedPrice) ? Math.max(0, Math.floor(parsedPrice)) : String(rawPrice)),
       variableWorldbook: String(source.variableWorldbook || source["人物变量世界书位置"] || source["人物变量世界书"] || "人物变量世界书"),
       personaWorldbook: String(source.personaWorldbook || source["人设世界书位置"] || source["人设世界书"] || "人设世界书"),
@@ -5326,6 +5331,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       id: "basic-example-role-pack",
       name: "基础邂逅示例包",
       intro: "三个可直接导入的示例角色：阴郁同学、异世界杀手、成熟总裁。适合测试角色包导入、人物档案图片和世界书写入流程。",
+      encounterPrompt: "{{user}}可以在连续的日常事件里邂逅这个示例包的三位角色：先在楼梯上和白枢暗子撞到一起，结果看起来瘦弱的她反而把{{user}}撞飞；她几乎不解释，只沉默地直接离开。放学路上，{{user}}又碰到千杀百花，被她误认为可疑对象按在地上盘问；确认{{user}}很弱后，她冷淡地嘲讽{{user}}是弱鸡。随后{{user}}遇到中村樱，她主动制造独处机会，拉着{{user}}签下她写好并先签名的《人权自愿放弃协议》。AI可以按当前剧情合理调整顺序和细节，但要保留“撞飞、被按住怀疑并嘲讽、协议签署”三个核心邂逅节点。",
       price: 12,
       variableWorldbook: "人物变量世界书",
       personaWorldbook: "人设世界书",
@@ -5334,11 +5340,11 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         {
           id: "role-shirakusu-anko",
           name: "白枢暗子",
-          aliases: "暗子, 白枢同学, 灵异女, 体育健将",
+          aliases: "暗子, 白枢同学, 灵异女",
           intro: "阴郁邋遢的同班女学生。厚重刘海盖住眼睛，粗看像瘦弱丑女；实际整理后极其美貌，身体也远比外表健壮，喜欢灵异学和怪谈。",
           variables: ankoVariables,
           persona: ankoPersona,
-          personaEntry: encounterBuiltinWorldbookEntry("[mvu_plot]白枢暗子人设", ["白枢暗子", "暗子", "白枢同学", "灵异学", "鬼怪", "体育健将"], ankoPersona),
+          personaEntry: encounterBuiltinWorldbookEntry("[mvu_plot]白枢暗子人设", ["白枢暗子", "暗子", "白枢同学", "灵异学", "鬼怪"], ankoPersona),
           imageDataUrl: stAssetUrl("encounter/shirakusu-anko.png")
         },
         {
@@ -5354,7 +5360,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         {
           id: "role-nakamura-sakura",
           name: "中村樱",
-          aliases: "樱酱, 中村总裁, Nakamura Sakura",
+          aliases: "樱酱, 中村总裁",
           intro: "32岁的大公司女总裁。成熟优雅、资源充足、判断力强，拥有稳定婚约却隐藏夸张自毁欲，会主动以金钱和渠道支持{{user}}。",
           variables: sakuraVariables,
           persona: sakuraPersona,
@@ -5480,6 +5486,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     if (packageRoot) {
       draft.name = String(readPackage("name"));
       draft.intro = String(readPackage("intro"));
+      draft.encounterPrompt = String(readPackage("encounterPrompt"));
       draft.price = String(readPackage("price"));
       draft.variableWorldbook = String(readPackage("variableWorldbook") || "人物变量世界书");
       draft.personaWorldbook = String(readPackage("personaWorldbook") || "人设世界书");
@@ -5555,6 +5562,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     return '<section class="st-encounter-detail-panel">' +
       '<h3>角色包详细内容</h3>' +
       '<p class="st-encounter-detail-text">' + escapeHtml(pkg.intro || "暂无介绍。") + '</p>' +
+      (pkg.encounterPrompt ? '<div class="st-encounter-prompt-preview"><strong>AI邂逅提示词</strong><p>' + escapeHtml(pkg.encounterPrompt) + '</p></div>' : '') +
       '<div class="st-encounter-kv">' +
         '<span><strong>' + roleCount + ' 角色</strong>角色数量</span>' +
         '<span><strong>' + price + ' 星光点</strong>购买价格</span>' +
@@ -5653,6 +5661,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       '</div>' +
       '<label class="st-encounter-field"><span>角色包名字</span><input name="name" value="' + escapeAttr(draft.name) + '" placeholder="例如：斋明学园扩展角色包"></label>' +
       '<label class="st-encounter-field"><span>介绍</span><textarea name="intro" placeholder="用户在浏览页会看到的角色包简介">' + escapeHtml(draft.intro) + '</textarea></label>' +
+      '<label class="st-encounter-field"><span>AI邂逅提示词</span><textarea name="encounterPrompt" placeholder="购买/使用后交给 AI 的角色登场、相遇顺序或剧情钩子">' + escapeHtml(draft.encounterPrompt) + '</textarea></label>' +
       '<div class="st-encounter-grid2">' +
         '<label class="st-encounter-field"><span>价格（星光点）</span><input name="price" type="number" min="0" step="1" value="' + escapeAttr(draft.price) + '" placeholder="默认人数 × 4"></label>' +
         '<label class="st-encounter-field"><span>人物变量世界书位置</span><input name="variableWorldbook" value="' + escapeAttr(draft.variableWorldbook) + '" placeholder="人物变量世界书"></label>' +
@@ -6467,6 +6476,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       角色包ID: pkg.id,
       角色包名称: pkg.name || "未命名角色包",
       角色包介绍: pkg.intro || "无",
+      AI邂逅提示词: pkg.encounterPrompt || "无",
       前端处理: "已由前端扣除星光点、缓存角色图片，并尝试写入世界书；前端不会直接添加角色变量。",
       消耗星光点: result.price ?? encounterPackagePrice(pkg),
       世界书写入条目数: result.worldbookCount ?? 0,
