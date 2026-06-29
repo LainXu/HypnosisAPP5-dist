@@ -5103,6 +5103,8 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       intro: "",
       variables: "",
       persona: "",
+      variableEntry: null,
+      personaEntry: null,
       imageDataUrl: ""
     };
   }
@@ -5128,15 +5130,32 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     }
   }
 
+  function encounterNormalizeRoleWorldbookEntry(entry) {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) return null;
+    const cloned = encounterClone(entry);
+    return cloned && typeof cloned === "object" && !Array.isArray(cloned) ? cloned : null;
+  }
+
+  function encounterDefaultVariableContent(roleName) {
+    const name = String(roleName || "").trim();
+    return name ? encounterText([
+      '  ' + name + ':',
+      '    {{format_message_variable::stat_data.角色.' + name + '}}'
+    ]) : "";
+  }
+
   function encounterNormalizeRole(role, index = 0) {
     const source = role && typeof role === "object" && !Array.isArray(role) ? role : {};
+    const name = String(source.name || source["角色名"] || "");
     return {
       id: String(source.id || source.roleId || encounterId("role-" + index)),
-      name: String(source.name || source["角色名"] || ""),
+      name,
       aliases: String(source.aliases || source["别名"] || source["关键词"] || ""),
       intro: String(source.intro || source.profile || source.summary || source["介绍"] || source["档案"] || ""),
-      variables: String(source.variables || source.variableWorldbook || source["人物变量"] || source["变量设定"] || ""),
+      variables: String(source.variables || source.variableWorldbook || source["人物变量"] || source["变量设定"] || encounterDefaultVariableContent(name)),
       persona: String(source.persona || source.personaWorldbook || source["人设"] || source["人设世界书"] || ""),
+      variableEntry: encounterNormalizeRoleWorldbookEntry(source.variableEntry || source["人物变量世界书条目"] || source["人物变量条目"]),
+      personaEntry: encounterNormalizeRoleWorldbookEntry(source.personaEntry || source["人设世界书条目"] || source["人设条目"]),
       imageDataUrl: String(source.imageDataUrl || source.image || source["图片"] || "")
     };
   }
@@ -5169,7 +5188,201 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     return roles.filter((role) => String(role?.name || role?.intro || "").trim()).length * 4;
   }
 
+  function encounterText(lines) {
+    return (Array.isArray(lines) ? lines : []).join("\n");
+  }
+
+  function encounterBuiltinWorldbookEntry(comment, keys, content) {
+    const normalizedKeys = (Array.isArray(keys) ? keys : []).map((item) => String(item || "").trim()).filter(Boolean);
+    return {
+      comment,
+      key: normalizedKeys,
+      keys: normalizedKeys,
+      keysecondary: [],
+      secondary_keys: [],
+      content,
+      constant: false,
+      selective: true,
+      order: 100,
+      position: "before_char",
+      disable: false,
+      probability: 100,
+      useProbability: true,
+      depth: 4,
+      role: 0
+    };
+  }
+
   function encounterBuiltInPackages() {
+    const ankoVariables = encounterText([
+      '  白枢暗子:',
+      '    {{format_message_variable::stat_data.角色.白枢暗子}}'
+    ]);
+    const ankoPersona = encounterText([
+      '<白枢暗子人设>',
+      '白枢暗子:',
+      '  title: 阴郁系同班同学 / 灵异学爱好者 / 隐藏体育健将',
+      '  gender: 女',
+      '  age: 17',
+      '  identity:',
+      '    public: {{user}}的同班同学，平时沉默寡言、神经兮兮，班里很多人只知道她喜欢灵异学和鬼怪传闻。',
+      '    hidden: 只要稍微整理发型、妆容和衣装，就会显出比西园寺爱丽莎还要精致的美人感；身体实际肌肉饱满，有四块腹肌。',
+      '  first encounter:',
+      '    - 她通常在教室角落、图书馆灵异资料区、走廊阴影或灵异研究会相关地点出现。',
+      '    - {{user}}主动看到并用手机扫描/锁定后，AI才把她作为动态角色加入变量。',
+      '  social connection:',
+      '    {{user}}:',
+      '      relationship: 同班同学；初始距离感强，除非{{user}}提到灵异、鬼怪、都市传说或异常现象，否则她很少主动说话。',
+      '    犬冢夏美:',
+      '      relationship: 体育能力层面最接近的参照；她是夏美之外的第二大体育健将，但本人对体育毫无兴趣。',
+      '  personality:',
+      '    core:',
+      '      阴郁沉默: 日常存在感很低，说话少、眼神飘忽，容易给人神经兮兮的印象。',
+      '      灵异狂热: 对鬼怪、怪谈、诅咒、降灵、旧校舍传闻等话题异常兴奋。',
+      '      话痨反差: 一旦打开话匣子，会把灵异知识、猜想和细节连续倾倒出来，烦到周围人后知后觉想逃。',
+      '      运动怪物: 体育成绩与瘦弱阴郁外表完全不符，爆发力、耐力、柔韧和协调性都很强，但本人并不喜欢体育。',
+      '  appearance:',
+      '    daily: 平时刘海、宽松校服和阴沉姿态遮住大半容貌，看起来瘦弱、苍白、没精神。',
+      '    dressed up: 稍微打扮就会呈现极高精致度，五官、皮肤、气质甚至能压过爱丽莎式的华丽感。',
+      '    body: 肌肉饱满、核心力量优秀，有四块腹肌；衣服遮挡下几乎完全看不出来。',
+      '  profile default:',
+      '    档案:',
+      '      姓名: 白枢暗子',
+      '      年龄: "17"',
+      '      社团/职业: 同班同学 / 灵异研究会边缘成员',
+      '      身高: 160cm',
+      '      体重: 49kg',
+      '      三围: B84 / W55 / H86',
+      '      头发: 黑色长发常被刘海和松散发束遮住侧脸，发尾略乱，像是没认真打理；整理后会显出顺滑光泽和精致轮廓。',
+      '      面部: 平时眼神阴郁飘忽、表情缺乏活力；认真看人时五官极端端正细腻，带着冷白而神秘的美感。',
+      '      上衣: 宽松校服外套和衬衫把身体线条藏得很深，袖口常盖住手背，口袋里会塞灵异笔记或符纸。',
+      '      下衣: 校裙穿得规矩保守，黑色袜子和不起眼鞋子弱化存在感；运动时会暴露出远超外表的腿部力量。',
+      '</白枢暗子人设>',
+      '',
+      '<白枢暗子行为指导>',
+      '- 她不是初始三女主，只有在{{user}}实际看见并扫描/锁定后才加入变量。',
+      '- 叙事时强调“阴郁沉默”和“打开话匣子后烦人的灵异话痨”的强烈反差。',
+      '- 体育能力可以在体育课、突发奔跑、游泳、田径、格斗闪避等情境暴露，但她本人会表现出对体育没兴趣甚至嫌麻烦。',
+      '- 人物档案里的头发/面部/上衣/下衣按当前可见状态及时更新；若她打扮后出现，要明确记录精致美人感。',
+      '</白枢暗子行为指导>'
+    ]);
+    const momokaVariables = encounterText([
+      '  千杀百花:',
+      '    {{format_message_variable::stat_data.角色.千杀百花}}'
+    ]);
+    const momokaPersona = encounterText([
+      '<千杀百花人设>',
+      '千杀百花:',
+      '  title: 异世界杀手 / 前勇者小队成员',
+      '  gender: 女',
+      '  age: 19',
+      '  identity:',
+      '    public: 来自中世纪剑与魔法异世界的暗杀者，曾是拯救异世界人类的勇者小队成员之一。',
+      '    hidden: 对勇者抱有强烈倾慕，却无法准确理解这种情感；只有在勇者面前才会露出羞涩和笨拙的一面。',
+      '  first encounter:',
+      '    - 她误会{{user}}是把自己传送到现代的元凶，最初会短暂敌视、试探并评估威胁。',
+      '    - 确认{{user}}很弱后，她会认为继续纠缠没有价值，准备离开；离开前被{{user}}用手机扫描/锁定。',
+      '  social connection:',
+      '    勇者:',
+      '      relationship: 敬慕对象/无法理解的初恋；在勇者面前会明显变得安静、紧张和羞涩。',
+      '    {{user}}:',
+      '      relationship: 被误会为传送元凶的现代弱者；扫描后成为她需要警惕但暂时不值得杀掉的异常对象。',
+      '  personality:',
+      '    core:',
+      '      寡言冷静: 不善言辞，表达极短，更多用眼神、站位和行动回应。',
+      '      职业警戒: 习惯先观察环境、出口、武器和目标弱点，几乎不会完全放松。',
+      '      英雄残影: 虽是杀手，却仍保留前勇者小队成员的责任感，不会轻易伤及无辜。',
+      '    conditional:',
+      '      现代困惑: 对现代设备、校园秩序、货币和日常规则不熟，容易把普通现象误判为魔法或陷阱。',
+      '      勇者羞怯: 提到勇者或被问及情感时会短暂沉默，耳尖泛红，强行转移话题。',
+      '  habit:',
+      '    - 说话前先观察对方手部和视线，确认是否有施法或拔刀动作。',
+      '    - 习惯靠墙、阴影或门边站立，永远给自己留出撤退路线。',
+      '    - 不懂现代礼节时会直接照搬异世界佣兵式判断，显得冷淡但并非恶意。',
+      '  appearance:',
+      '    height: 149cm',
+      '    weight: 41kg',
+      '    measurement: B78 / W53 / H80',
+      '    style: 小巧轻盈的异世界暗杀者',
+      '    overview: 身形娇小可爱，动作轻得像影子，外表容易被误认为柔弱少女，但肌肉控制、步伐和反应速度都带着长年战斗训练的痕迹。',
+      '    attire:',
+      '      travel: 轻便皮革护具、短斗篷、束带短靴、暗袋和短刃，衣料带着异世界旅途的磨损与药草气味。',
+      '      modern: 若被迫换上现代衣物，会优先选择方便行动、不妨碍藏匿武器的款式。',
+      '  profile default:',
+      '    档案:',
+      '      姓名: 千杀百花',
+      '      年龄: "19"',
+      '      社团/职业: 异世界杀手 / 前勇者小队成员',
+      '      身高: 149cm',
+      '      体重: 41kg',
+      '      三围: B78 / W53 / H80',
+      '</千杀百花人设>',
+      '',
+      '<千杀百花行为指导>',
+      '- 她不是默认校园角色；只有在{{user}}实际看见并扫描/锁定后，才应作为动态角色加入变量。',
+      '- 建档后，保留“误会{{user}}是传送元凶”“确认{{user}}很弱后离开前被扫描”“前勇者小队成员”“对勇者倾慕但不自知”这些核心设定。',
+      '- 她的心理描写应偏第一视角、短句和警戒判断；人物档案里的头发/面部/上衣/下衣按当前场景及时更新。',
+      '</千杀百花行为指导>'
+    ]);
+    const sakuraVariables = encounterText([
+      '  中村樱:',
+      '    {{format_message_variable::stat_data.角色.中村樱}}'
+    ]);
+    const sakuraPersona = encounterText([
+      '<中村樱人设>',
+      '中村樱:',
+      '  title: 作弊模式',
+      '  gender: 女',
+      '  age: 32',
+      '  identity:',
+      '    public: 大公司完美女总裁，事业、资源、社交声望和外在气场都近乎无可挑剔。',
+      '    hidden: 私下有极夸张的痴女属性和自毁愿望；看到{{user}}第一眼便认定{{user}}是最适合让自己被弄乱、被支配、被拖离完美人生的天选之人。',
+      '  social connection:',
+      '    神宫寺莲:',
+      '      relationship: 未婚夫；家世、学历、品格、事业能力和外貌都无可挑剔的精英青年，两人感情很好，长期保持温柔克制的柏拉图式恋爱。',
+      '    {{user}}:',
+      '      relationship: 被她单方面认定的自毁愿望承接者；她会给{{user}}大额资金、渠道和资源支持，并不断暗示还可以继续提供；当她作为静态示例被扫描后，应立刻把独处和签署《人权自愿放弃协议》当作核心剧情钩子。',
+      '  personality:',
+      '    core:',
+      '      完美女总裁: 公开场合性感、沉稳、冷静，判断力和执行力极强，习惯用最少表情控制局面。',
+      '      隐藏痴女: 私下会把{{user}}的注视、命令、索取和随意驱使都理解成特殊恩宠，越被轻视越觉得自己被选中。',
+      '      装可爱撒娇: 面对{{user}}时会刻意放软嗓音、歪头、眨眼、贴近距离，自称“樱酱”，用成熟女人的资源和权力包装出黏人、讨好、求夸奖的姿态。',
+      '    conditional:',
+      '      柏拉图裂缝: 未婚夫神宫寺莲越完美、越温柔，她越无法向他暴露自己的自毁欲，因而更容易把危险幻想投向{{user}}。',
+      '      作弊模式资源: 她可以带来远超普通学生的资金、场地、渠道和社会便利，但这些赠与必须由剧情明确发生后再更新变量，不能自动到账。',
+      '      静态扫描触发: 如果{{user}}在扫描角色界面选择中村樱这个静态示例，AI应让她当场主动制造与{{user}}独处的空间，迫不及待地痴笑着写下一张《人权自愿放弃协议》，自己先签好名字，再递给{{user}}要求签字。',
+      '  habit:',
+      '    - 在公众面前保持完美女总裁的端庄笑容，私下对{{user}}会忽然切换成“樱酱可以帮忙哦？”的撒娇语气。',
+      '    - 会主动把支票、黑卡、司机、空房间、公司资源等当作亲近{{user}}的筹码。',
+      '    - 扫描后不会只等待后续剧情安排，而会立刻试图支开旁人、锁定私密空间，把《人权自愿放弃协议》作为她献身和自毁愿望的象征。',
+      '    - 谈到未婚夫时并不厌恶或否定他，反而承认他完美又温柔，只是这种完美让她更难说出口自己的另一面。',
+      '  appearance:',
+      '    height: 170cm',
+      '    weight: 54kg',
+      '    measurement: B92 / W58 / H90',
+      '    style: 成熟性感的精英女性',
+      '    overview: 32岁但保养极好，五官精致，眼神沉静锐利，昂贵香水、珠宝和发型都控制得恰到好处。',
+      '    attire:',
+      '      business: 高级西装裙、贴身衬衫、高跟鞋和黑色丝袜，线条干净，带着不可接近的成熟压迫感。',
+      '      private: 面对{{user}}时会故意选择更柔软、贴身或可爱化的搭配，让“完美女总裁”和“樱酱”之间形成强烈反差。',
+      '  profile default:',
+      '    档案:',
+      '      姓名: 中村樱',
+      '      年龄: "32"',
+      '      社团/职业: 大公司总裁',
+      '      身高: 170cm',
+      '      体重: 54kg',
+      '      三围: B92 / W58 / H90',
+      '</中村樱人设>',
+      '',
+      '<中村樱行为指导>',
+      '- 她是成年人社会人，不是默认学生角色；只有在{{user}}实际看见并扫描/锁定后，才应作为动态角色加入变量。',
+      '- 如果本轮来源是扫描角色界面的静态示例，AI应明确表现：中村樱主动制造与{{user}}独处、现场迫不及待痴笑、写出《人权自愿放弃协议》、自己先签，再让{{user}}签。',
+      '- 保留未婚夫神宫寺莲是无可挑剔的精英青年、两人感情很好且柏拉图式恋爱的设定，不要写成感情破裂或恶劣关系。',
+      '- 她可以为{{user}}提供大额资金与资源，但金钱/物品/渠道只有在剧情明确赠与或APP操作结算成功后才更新变量。',
+      '- 她的心理描写应体现成熟理性与夸张自毁愿望的反差；人物档案里的头发/面部/上衣/下衣按当前场景及时更新。',
+      '</中村樱行为指导>'
+    ]);
     return [encounterNormalizePackage({
       id: "basic-example-role-pack",
       name: "基础邂逅示例包",
@@ -5182,19 +5395,21 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         {
           id: "role-shirakusu-anko",
           name: "白枢暗子",
-          aliases: "暗子, 中枢暗子, 白枢同学, 灵异女, 体育健将",
+          aliases: "暗子, 白枢同学, 灵异女, 体育健将",
           intro: "阴郁邋遢的同班女学生。厚重刘海盖住眼睛，粗看像瘦弱丑女；实际整理后极其美貌，身体也远比外表健壮，喜欢灵异学和怪谈。",
-          variables: "按现有女角色结构写入/角色/白枢暗子：好感度0、警戒度0、服从度0、性欲0、快感值0、是否派遣中false、身价由AI按人设生成；档案保留邋遢遮眼、隐藏美貌、隐藏运动能力、四块腹肌、灵异爱好者等要点。",
-          persona: "白枢暗子是{{user}}的同班同学，平时沉默阴郁，头发遮眼、校服松垮，看起来不起眼。她对灵异学和鬼怪异常兴奋，一旦谈到相关话题会变成话痨。她实际是被外表掩盖的美人，体能优秀，仅次于夏美但本人对体育没兴趣。",
+          variables: ankoVariables,
+          persona: ankoPersona,
+          personaEntry: encounterBuiltinWorldbookEntry("[mvu_plot]白枢暗子人设", ["白枢暗子", "暗子", "白枢同学", "灵异学", "鬼怪", "体育健将"], ankoPersona),
           imageDataUrl: stAssetUrl("encounter/shirakusu-anko.png")
         },
         {
           id: "role-senkoro-momoka",
           name: "千杀百花",
-          aliases: "百花, 异世界杀手, 千杀, 勇者小队成员",
+          aliases: "百花, 千杀, 异世界杀手",
           intro: "来自剑与魔法异世界的小型杀手少女。体型娇小、动作敏捷，眼神凌厉警戒，曾是拯救异世界人类的原勇者小队成员。",
-          variables: "按现有女角色结构写入/角色/千杀百花：好感度0、警戒度按剧情可略高、服从度0、性欲0、快感值0、是否派遣中false、身价由AI按异世界英雄和杀手身份生成；档案保留娇小敏捷、短刃、轻皮革护具、异世界常识差异。",
-          persona: "千杀百花来自中世纪剑与魔法异世界，曾是勇者小队成员和英雄之一，同时也是不善言辞的杀手。她误会{{user}}是传送元凶时会警戒试探，确认威胁后会迅速判断局势。她对勇者抱有倾慕却不理解恋爱情感。",
+          variables: momokaVariables,
+          persona: momokaPersona,
+          personaEntry: encounterBuiltinWorldbookEntry("[mvu_plot]千杀百花人设", ["千杀百花", "百花", "千杀", "异世界杀手", "勇者"], momokaPersona),
           imageDataUrl: stAssetUrl("encounter/senkoro-momoka.png")
         },
         {
@@ -5202,8 +5417,9 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
           name: "中村樱",
           aliases: "樱酱, 中村总裁, Nakamura Sakura",
           intro: "32岁的大公司女总裁。成熟优雅、资源充足、判断力强，拥有稳定婚约却隐藏夸张自毁欲，会主动以金钱和渠道支持{{user}}。",
-          variables: "按现有女角色结构写入/角色/中村樱：好感度可按初遇剧情由AI决定、警戒度0或按剧情、服从度0、性欲0、快感值0、是否派遣中false、身价较高；档案保留成年人、公司总裁、未婚夫神宫寺莲、资源支持、成熟总裁形象。",
-          persona: "中村樱是32岁的完美女总裁，事业、气场和资源都近乎完美。她有未婚夫神宫寺莲，两人感情很好但长期停留在克制关系。她在{{user}}面前会隐藏成熟身份的边界感，主动制造独处机会并提供大额资金、渠道和场地支持。",
+          variables: sakuraVariables,
+          persona: sakuraPersona,
+          personaEntry: encounterBuiltinWorldbookEntry("[mvu_plot]中村樱人设", ["中村樱", "樱酱", "中村总裁", "神宫寺莲", "作弊模式"], sakuraPersona),
           imageDataUrl: stAssetUrl("encounter/nakamura-sakura.png")
         }
       ]
@@ -5338,7 +5554,8 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       role.name = String(roleRead("roleName"));
       role.aliases = String(roleRead("roleAliases"));
       role.intro = String(roleRead("roleIntro"));
-      role.variables = String(roleRead("roleVariables"));
+      const variableField = card.querySelector("[name='roleVariables']");
+      role.variables = variableField ? String(variableField.value || "") : encounterDefaultVariableContent(role.name);
       role.persona = String(roleRead("rolePersona"));
       nextRoles[index] = role;
     });
@@ -5534,7 +5751,6 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
           '<label class="st-encounter-field"><span>别名 / 关键词</span><input name="roleAliases" value="' + escapeAttr(role.aliases) + '" placeholder="逗号分隔"></label>' +
         '</div>' +
         '<label class="st-encounter-field"><span>介绍 / 档案摘要</span><textarea name="roleIntro" placeholder="身份、外貌、性格、关系、剧情定位">' + escapeHtml(role.intro) + '</textarea></label>' +
-        '<label class="st-encounter-field"><span>人物变量世界书内容</span><textarea name="roleVariables" placeholder="要写入人物变量世界书的变量结构、初始值、规则">' + escapeHtml(role.variables) + '</textarea></label>' +
         '<label class="st-encounter-field"><span>人设世界书内容</span><textarea name="rolePersona" placeholder="要写入人设世界书的长期人设与剧情规则">' + escapeHtml(role.persona) + '</textarea></label>' +
       '</article>' +
       '<div class="st-encounter-actions">' +
@@ -5542,7 +5758,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         '<button type="button" class="st-encounter-button primary" data-encounter-action="save-library">保存到浏览</button>' +
       '</div>' +
       '<input type="file" accept=".json,application/json" data-encounter-import-role-json hidden>' +
-      '<p class="st-encounter-note">角色JSON导入只覆盖文字内容，不覆盖角色图片。</p>' +
+      '<p class="st-encounter-note">人物变量世界书会按角色名自动生成固定 entry；角色JSON导入只覆盖人设等文字内容，不覆盖角色图片。</p>' +
     '</section>';
   }
 
@@ -5764,6 +5980,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     }
     manifest.roles = normalized.roles.map((role, index) => {
       const next = { ...role };
+      delete next.variableEntry;
       if (role.imageDataUrl) {
         const mime = encounterMimeFromDataUrl(role.imageDataUrl);
         const ext = encounterExtForMime(mime);
@@ -5938,8 +6155,11 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       const label = [entry.comment, ...(Array.isArray(entry.key) ? entry.key : []), ...(Array.isArray(entry.keys) ? entry.keys : [])].join(" ");
       const content = readContent(entry);
       if (!content.trim()) continue;
-      if (/变量|stat|mvu|角色变量/.test(label) && !role.variables) role.variables = content;
-      else if (/人设|persona|设定|角色设定/.test(label) && !role.persona) role.persona = content;
+      if (/变量|stat|mvu|角色变量/.test(label)) continue;
+      if (/人设|persona|设定|角色设定/.test(label) && !role.persona) {
+        role.persona = content;
+        role.personaEntry = encounterNormalizeRoleWorldbookEntry(entry);
+      }
       else if (!role.persona) role.persona = content;
     }
     if (!role.name && roleName) role.name = roleName;
@@ -5995,7 +6215,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
   }
 
   function encounterWorldbookEntry(comment, role, content) {
-    const keys = [role.name].concat(String(role.aliases || "").split(/[，,、]/)).map((item) => String(item || "").trim()).filter(Boolean);
+    const keys = encounterRoleWorldbookKeys(role);
     return {
       key: keys.length ? keys : [comment],
       keys: keys.length ? keys : [comment],
@@ -6004,9 +6224,9 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       comment,
       content: String(content || ""),
       constant: false,
-      selective: false,
+      selective: true,
       order: 100,
-      position: 0,
+      position: "before_char",
       disable: false,
       probability: 100,
       useProbability: true,
@@ -6015,15 +6235,45 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     };
   }
 
+  function encounterRoleWorldbookKeys(role) {
+    return [role?.name].concat(String(role?.aliases || "").split(/[，,、]/)).map((item) => String(item || "").trim()).filter(Boolean);
+  }
+
+  function encounterPreparedWorldbookEntry(template, fallbackComment, role, fallbackContent) {
+    const base = encounterWorldbookEntry(fallbackComment, role, fallbackContent);
+    const source = encounterNormalizeRoleWorldbookEntry(template);
+    const entry = source ? { ...base, ...source } : base;
+    entry.comment = String(entry.comment || fallbackComment);
+    entry.content = String(entry.content || fallbackContent || "");
+    const keys = Array.isArray(entry.key) && entry.key.length ? entry.key : Array.isArray(entry.keys) ? entry.keys : encounterRoleWorldbookKeys(role);
+    const normalizedKeys = keys.map((item) => String(item || "").trim()).filter(Boolean);
+    entry.key = normalizedKeys.length ? normalizedKeys : [entry.comment];
+    entry.keys = normalizedKeys.length ? normalizedKeys : [entry.comment];
+    delete entry.uid;
+    delete entry.id;
+    return entry;
+  }
+
+  function encounterVariableWorldbookEntry(role) {
+    const normalized = encounterNormalizeRole(role);
+    const name = String(normalized.name || "").trim();
+    if (!name) return null;
+    return encounterWorldbookEntry("[mvu_update]" + name + "变量", normalized, encounterDefaultVariableContent(name));
+  }
+
   function encounterWorldbookEntryList(pkg) {
     const list = [];
     for (const role of pkg.roles || []) {
       const normalized = encounterNormalizeRole(role);
-      if (String(normalized.variables || "").trim()) {
-        list.push({ world: pkg.variableWorldbook || "人物变量世界书", entry: encounterWorldbookEntry("[邂逅] " + (pkg.name || "角色包") + " / " + (normalized.name || "角色") + " / 人物变量", normalized, normalized.variables) });
+      const variableEntry = encounterVariableWorldbookEntry(normalized);
+      if (variableEntry) {
+        list.push({ world: pkg.variableWorldbook || "人物变量世界书", entry: variableEntry });
       }
-      if (String(normalized.persona || "").trim()) {
-        list.push({ world: pkg.personaWorldbook || "人设世界书", entry: encounterWorldbookEntry("[邂逅] " + (pkg.name || "角色包") + " / " + (normalized.name || "角色") + " / 人设", normalized, normalized.persona) });
+      if (normalized.personaEntry || String(normalized.persona || "").trim()) {
+        list.push({
+          world: pkg.personaWorldbook || "人设世界书",
+          entry: encounterPreparedWorldbookEntry(normalized.personaEntry, "[邂逅] " + (pkg.name || "角色包") + " / " + (normalized.name || "角色") + " / 人设", normalized, normalized.persona)
+        });
       }
     }
     return list;
@@ -6037,6 +6287,110 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       } catch {}
     }
     return result;
+  }
+
+  function encounterWorldApiTargets(win) {
+    const targets = [];
+    try {
+      if (win && !targets.includes(win)) targets.push(win);
+      const context = win.SillyTavern?.getContext?.() || win.getContext?.();
+      if (context && !targets.includes(context)) targets.push(context);
+      for (const api of [context?.worldInfo, context?.world_info, context?.lorebook, win.worldInfo, win.world_info_api]) {
+        if (api && !targets.includes(api)) targets.push(api);
+      }
+    } catch {}
+    return targets;
+  }
+
+  function encounterLooksLikeWorldData(value) {
+    return Boolean(value && typeof value === "object" && !Array.isArray(value) && ("entries" in value || "entry" in value || "world_info" in value));
+  }
+
+  function encounterWorldDataStores(win) {
+    const stores = [];
+    const push = (store) => {
+      if (store && typeof store === "object" && !Array.isArray(store) && !encounterLooksLikeWorldData(store) && !stores.includes(store)) stores.push(store);
+    };
+    try {
+      const context = win.SillyTavern?.getContext?.() || win.getContext?.();
+      const api = context?.worldInfo || context?.world_info || context?.lorebook;
+      [
+        win.world_info_data,
+        win.worldInfoData,
+        win.worldInfoDataByName,
+        win.worlds,
+        context?.world_info_data,
+        context?.worldInfoData,
+        context?.worldInfoDataByName,
+        context?.worlds,
+        api?.world_info_data,
+        api?.worldInfoData,
+        api?.worlds
+      ].forEach(push);
+    } catch {}
+    return stores;
+  }
+
+  function encounterFindWorldDataInStores(win, worldName) {
+    const target = String(worldName || "").trim();
+    if (!target) return null;
+    for (const store of encounterWorldDataStores(win)) {
+      const exact = store[target];
+      if (exact && typeof exact === "object") return exact;
+      const key = Object.keys(store).find((item) => String(item || "").trim() === target);
+      if (key && store[key] && typeof store[key] === "object") return store[key];
+    }
+    return null;
+  }
+
+  function encounterCreateWorldDataInStore(win, worldName) {
+    const target = String(worldName || "").trim();
+    if (!target) return null;
+    for (const store of encounterWorldDataStores(win)) {
+      if (!store[target] || typeof store[target] !== "object") store[target] = { entries: {} };
+      return store[target];
+    }
+    return null;
+  }
+
+  function encounterRequestHeaders(win) {
+    const headers = { "Content-Type": "application/json" };
+    const apply = (extra) => {
+      if (!extra) return;
+      try {
+        if (typeof extra.forEach === "function") {
+          extra.forEach((value, key) => { headers[key] = value; });
+        } else if (typeof extra === "object") {
+          Object.assign(headers, extra);
+        }
+      } catch {}
+    };
+    for (const target of encounterWorldApiTargets(win)) {
+      try {
+        if (typeof target.getRequestHeaders === "function") apply(target.getRequestHeaders());
+      } catch {}
+    }
+    try {
+      if (typeof win.getRequestHeaders === "function") apply(win.getRequestHeaders());
+    } catch {}
+    return headers;
+  }
+
+  async function encounterWorldInfoRequest(win, path, payload) {
+    if (typeof win.fetch !== "function") return null;
+    const response = await win.fetch(path, {
+      method: "POST",
+      headers: encounterRequestHeaders(win),
+      body: JSON.stringify(payload || {})
+    });
+    if (!response.ok) throw new Error("HTTP " + response.status);
+    const text = await response.text();
+    if (!text.trim()) return {};
+    try {
+      return JSON.parse(text);
+    } catch {
+      return {};
+    }
   }
 
   function encounterNextWorldUid(entries) {
@@ -6071,65 +6425,80 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
   }
 
   async function encounterLoadWorldData(win, worldName) {
+    const stored = encounterFindWorldDataInStores(win, worldName);
+    if (stored) return stored;
     const loaders = ["loadWorldInfoData", "loadWorldInfo", "getWorldInfo", "getWorldInfoData"];
-    for (const name of loaders) {
-      try {
-        if (typeof win[name] === "function") {
-          const data = await win[name](worldName);
-          if (data && typeof data === "object") return data;
-        }
-      } catch {}
-    }
-    try {
-      const context = win.SillyTavern?.getContext?.() || win.getContext?.();
-      const api = context?.worldInfo || context?.world_info || context?.lorebook;
+    for (const target of encounterWorldApiTargets(win)) {
       for (const name of loaders) {
-        if (typeof api?.[name] === "function") {
-          const data = await api[name](worldName);
-          if (data && typeof data === "object") return data;
+        try {
+          if (typeof target[name] === "function") {
+            const data = await target[name](worldName);
+            if (data && typeof data === "object") return data;
+          }
+        } catch {
+          try {
+            const data = await target[name]({ name: worldName });
+            if (data && typeof data === "object") return data;
+          } catch {}
         }
       }
-    } catch {}
+    }
     try {
       const selected = win.selected_world_info || win.selectedWorldInfo || win.world_info?.name;
       const selectedText = Array.isArray(selected) ? selected.join("\n") : String(selected || "");
       if ((!worldName || selectedText.includes(worldName)) && win.world_info && typeof win.world_info === "object") return win.world_info;
+    } catch {}
+    try {
+      const data = await encounterWorldInfoRequest(win, "/api/worldinfo/get", { name: worldName });
+      if (data && typeof data === "object") return data;
     } catch {}
     return null;
   }
 
   async function encounterSaveWorldData(win, worldName, data) {
     const savers = ["saveWorldInfo", "saveWorldInfoData", "setWorldInfo", "setWorldInfoData"];
-    for (const name of savers) {
-      try {
-        if (typeof win[name] === "function") {
-          await win[name](worldName, data, true);
-          return true;
+    for (const target of encounterWorldApiTargets(win)) {
+      for (const name of savers) {
+        if (typeof target?.[name] !== "function") continue;
+        const calls = [
+          () => target[name](worldName, data, true),
+          () => target[name](worldName, data),
+          () => target[name](data, worldName, true),
+          () => target[name](data, worldName),
+          () => target[name](worldName, true),
+          () => target[name](worldName),
+          () => target[name](data)
+        ];
+        for (const call of calls) {
+          try {
+            const result = await call();
+            if (result !== false) return true;
+          } catch {}
         }
-      } catch {
-        try {
-          await win[name](data, worldName, true);
-          return true;
-        } catch {}
       }
     }
     try {
-      const context = win.SillyTavern?.getContext?.() || win.getContext?.();
-      const api = context?.worldInfo || context?.world_info || context?.lorebook;
-      for (const name of savers) {
-        if (typeof api?.[name] === "function") {
-          await api[name](worldName, data, true);
-          return true;
-        }
-      }
+      await encounterWorldInfoRequest(win, "/api/worldinfo/edit", { name: worldName, data });
+      return true;
     } catch {}
     return false;
+  }
+
+  async function encounterCreateWorldData(win, worldName) {
+    try {
+      await encounterWorldInfoRequest(win, "/api/worldinfo/create", { name: worldName });
+      const loaded = await encounterLoadWorldData(win, worldName);
+      if (loaded) return loaded;
+    } catch {}
+    const stored = encounterCreateWorldDataInStore(win, worldName);
+    if (stored) return stored;
+    return { entries: {} };
   }
 
   async function encounterInsertWorldbookEntry(worldName, entry) {
     for (const win of encounterCandidateWindows()) {
       try {
-        const data = await encounterLoadWorldData(win, worldName);
+        const data = await encounterLoadWorldData(win, worldName) || await encounterCreateWorldData(win, worldName);
         if (!data) continue;
         if (!encounterAppendWorldEntry(data, entry)) continue;
         if (await encounterSaveWorldData(win, worldName, data)) return true;
