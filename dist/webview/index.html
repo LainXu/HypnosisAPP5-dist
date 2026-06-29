@@ -420,7 +420,7 @@ window.setTimeout(() => {
         }
       }
       if (/^打工$/.test(source) && /开始打工|打工/.test(action)) return "work:active";
-      if (/^邂逅$/.test(source) && /购买角色包/.test(action)) {
+      if (/^邂逅$/.test(source) && /购买角色包|角色包已使用/.test(action)) {
         const id = cleanOperationText(object["角色包ID"] ?? object.id ?? "");
         const name = cleanOperationText(object["角色包名称"] ?? object.name ?? "");
         return "encounter:purchase:" + (id || name);
@@ -1916,6 +1916,8 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-encounter-package{position:relative;width:100%;min-height:98px;display:grid;grid-template-columns:92px minmax(0,1fr);gap:0;border:1px solid rgba(127,88,47,.16);border-radius:8px;background:rgba(255,255,255,.78);box-shadow:0 10px 24px rgba(75,54,35,.08);overflow:hidden;text-align:left;padding:0;color:inherit;cursor:pointer}
 .st-encounter-package.is-featured{border-color:rgba(217,155,55,.36);box-shadow:0 12px 26px rgba(217,155,55,.14)}
 .st-encounter-package:active{transform:scale(.99)}
+.st-encounter-package.is-used{opacity:.68;cursor:default;filter:saturate(.72)}
+.st-encounter-package.is-used:active{transform:none}
 .st-encounter-cover{height:100%;min-height:98px;background:linear-gradient(135deg,#fff6ed,#e8f7f2);display:grid;place-items:center;overflow:hidden;color:rgba(70,57,47,.46);font-size:11px;font-weight:900}
 .st-encounter-cover img{width:100%;height:100%;object-fit:cover;display:block}
 .st-encounter-package-body{padding:10px 10px 9px;display:grid;align-content:center;gap:9px;min-width:0}
@@ -1939,6 +1941,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-encounter-detail-panel{border:1px solid rgba(127,88,47,.14);border-radius:8px;background:rgba(255,255,255,.68);padding:10px;display:grid;gap:9px}
 .st-encounter-detail-panel h3{margin:0;color:#352b25;font-size:13px;line-height:1.2;font-weight:950}
 .st-encounter-detail-text{margin:0;color:rgba(70,57,47,.72);font-size:11px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+.st-encounter-used-note{border:1px solid rgba(15,118,110,.18);border-radius:8px;background:rgba(204,251,241,.42);color:#0f766e;padding:8px 9px;font-size:11px;font-weight:900;line-height:1.4}
 .st-encounter-kv{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .st-encounter-kv span{min-width:0;border:1px solid rgba(127,88,47,.12);border-radius:8px;background:rgba(255,250,243,.68);padding:7px 8px;color:rgba(70,57,47,.66);font-size:10px;font-weight:850;line-height:1.35;overflow:hidden;text-overflow:ellipsis}
 .st-encounter-kv strong{display:block;color:#352b25;font-size:12px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1953,6 +1956,12 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-encounter-role-preview-body strong{color:#352b25;font-size:14px;line-height:1.25}
 .st-encounter-role-preview-body small{color:rgba(70,57,47,.55);font-size:10px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .st-encounter-role-preview-body p{margin:0;color:rgba(70,57,47,.7);font-size:11px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.st-encounter-edit-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.st-encounter-edit-tabs button{height:30px;border:1px solid rgba(127,88,47,.14);border-radius:8px;background:rgba(255,255,255,.66);color:rgba(70,57,47,.66);font-size:11px;font-weight:950;cursor:pointer}
+.st-encounter-edit-tabs button.active{border-color:rgba(217,155,55,.28);background:linear-gradient(135deg,rgba(217,155,55,.16),rgba(14,116,144,.12));color:#4b3b24}
+.st-encounter-role-select-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px;align-items:center}
+.st-encounter-role-select{min-width:0;height:31px;border:1px solid rgba(127,88,47,.16);border-radius:8px;background:rgba(255,250,243,.78);color:#352b25;padding:0 8px;font-size:12px;font-weight:900;outline:none}
+.st-encounter-role-select:focus{border-color:rgba(217,155,55,.42);box-shadow:0 0 0 3px rgba(217,155,55,.12)}
 .st-encounter-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}
 .st-encounter-actions.is-single{grid-template-columns:1fr}
 .st-encounter-button{height:33px;border:1px solid rgba(127,88,47,.16);border-radius:8px;background:rgba(255,255,255,.72);color:#7c3219;font-size:11px;font-weight:950;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}
@@ -1961,6 +1970,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-encounter-button:not(:disabled):active{transform:scale(.98)}
 .st-encounter-status{min-height:16px;color:#0f766e;font-size:10px;line-height:1.45;font-weight:850}
 .st-encounter-form{display:grid;gap:8px;border:1px solid rgba(127,88,47,.15)!important;border-radius:8px!important;background:rgba(255,255,255,.76)!important;box-shadow:0 12px 28px rgba(75,54,35,.08)}
+.st-encounter-form [data-encounter-package-form],.st-encounter-form>section{display:grid;gap:8px}
 .st-encounter-field{display:grid;gap:4px}
 .st-encounter-field span{color:rgba(70,57,47,.64);font-size:10px;font-weight:900}
 .st-encounter-field input,.st-encounter-field textarea{width:100%;box-sizing:border-box;border:1px solid rgba(127,88,47,.14);border-radius:8px;background:rgba(255,251,235,.7);color:#352b25;padding:8px 9px;font-size:12px;line-height:1.4;outline:none}
@@ -4964,8 +4974,8 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 
   const ENCOUNTER_PACKAGE_STORAGE_KEY = "hypnoos.encounter.packages.v1";
   const ENCOUNTER_DRAFT_STORAGE_KEY = "hypnoos.encounter.draft.v1";
+  const ENCOUNTER_PURCHASE_STORAGE_PREFIX = "hypnoos.encounter.purchases.v1";
   const ENCOUNTER_PACKAGE_FORMAT = "hypnoos-role-package";
-  const ENCOUNTER_ROLE_PAGE_SIZE = 2;
 
   function encounterId(prefix) {
     return String(prefix || "encounter") + "-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
@@ -5141,6 +5151,38 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     return normalized;
   }
 
+  function encounterPurchaseStorageKey() {
+    let scope = "global";
+    try {
+      if (typeof frontendRewardStateScope === "function") scope = frontendRewardStateScope();
+    } catch {}
+    return ENCOUNTER_PURCHASE_STORAGE_PREFIX + ":" + String(scope || "global");
+  }
+
+  function encounterReadPurchasedIds() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(encounterPurchaseStorageKey()) || "[]");
+      return new Set(Array.isArray(parsed) ? parsed.map(String).filter(Boolean) : []);
+    } catch {
+      return new Set();
+    }
+  }
+
+  function encounterIsPurchased(packageId) {
+    return encounterReadPurchasedIds().has(String(packageId || ""));
+  }
+
+  function encounterMarkPurchased(packageId) {
+    const ids = encounterReadPurchasedIds();
+    const value = String(packageId || "");
+    if (!value) return ids;
+    ids.add(value);
+    try {
+      localStorage.setItem(encounterPurchaseStorageKey(), JSON.stringify(Array.from(ids)));
+    } catch {}
+    return ids;
+  }
+
   function encounterSetStatus(page, message) {
     page.dataset.encounterStatus = String(message || "");
     const status = page.querySelector(".st-encounter-status");
@@ -5164,12 +5206,15 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     const draft = encounterReadDraft();
     const root = page.querySelector("[data-encounter-form]");
     if (!root) return draft;
-    const read = (name) => root.querySelector("[name='" + name + "']")?.value ?? "";
-    draft.name = String(read("name"));
-    draft.intro = String(read("intro"));
-    draft.price = String(read("price"));
-    draft.variableWorldbook = String(read("variableWorldbook") || "人物变量世界书");
-    draft.personaWorldbook = String(read("personaWorldbook") || "人设世界书");
+    const packageRoot = root.querySelector("[data-encounter-package-form]");
+    const readPackage = (name) => packageRoot?.querySelector("[name='" + name + "']")?.value ?? "";
+    if (packageRoot) {
+      draft.name = String(readPackage("name"));
+      draft.intro = String(readPackage("intro"));
+      draft.price = String(readPackage("price"));
+      draft.variableWorldbook = String(readPackage("variableWorldbook") || "人物变量世界书");
+      draft.personaWorldbook = String(readPackage("personaWorldbook") || "人设世界书");
+    }
     const nextRoles = Array.isArray(draft.roles) ? draft.roles.map((role, index) => encounterNormalizeRole(role, index)) : [];
     root.querySelectorAll("[data-encounter-role-card]").forEach((card) => {
       const index = Number(card.getAttribute("data-role-index"));
@@ -5185,35 +5230,6 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     });
     draft.roles = nextRoles.length ? nextRoles : [encounterBlankRole()];
     return encounterSaveDraft(draft);
-  }
-
-  function encounterRolePageCount(draft) {
-    const count = Math.max(1, Math.ceil((draft.roles?.length || 1) / ENCOUNTER_ROLE_PAGE_SIZE));
-    return count;
-  }
-
-  function encounterRolePageIndex(page, draft) {
-    const total = encounterRolePageCount(draft);
-    const raw = Number(page.dataset.encounterRolePage || 0);
-    if (!Number.isFinite(raw)) return 0;
-    return Math.max(0, Math.min(total - 1, Math.floor(raw)));
-  }
-
-  function encounterRoleCardHtml(role, index) {
-    return '<article class="st-encounter-role-card" data-encounter-role-card data-role-index="' + index + '">' +
-      '<div class="st-encounter-role-head"><strong>角色 ' + (index + 1) + '</strong><button type="button" data-encounter-action="remove-role" data-role-index="' + index + '">删除</button></div>' +
-      '<div class="st-encounter-role-image-row">' +
-        '<div class="st-encounter-role-image">' + encounterCoverHtml(role.imageDataUrl, "角色图") + '</div>' +
-        '<label class="st-encounter-field"><span>角色图片</span><input type="file" accept="image/*" data-encounter-role-image="' + index + '"></label>' +
-      '</div>' +
-      '<div class="st-encounter-grid2">' +
-        '<label class="st-encounter-field"><span>角色名</span><input name="roleName" value="' + escapeAttr(role.name) + '" placeholder="角色名"></label>' +
-        '<label class="st-encounter-field"><span>别名 / 关键词</span><input name="roleAliases" value="' + escapeAttr(role.aliases) + '" placeholder="逗号分隔"></label>' +
-      '</div>' +
-      '<label class="st-encounter-field"><span>介绍 / 档案摘要</span><textarea name="roleIntro" placeholder="身份、外貌、性格、关系、剧情定位">' + escapeHtml(role.intro) + '</textarea></label>' +
-      '<label class="st-encounter-field"><span>人物变量世界书内容</span><textarea name="roleVariables" placeholder="要写入人物变量世界书的变量结构、初始值、规则">' + escapeHtml(role.variables) + '</textarea></label>' +
-      '<label class="st-encounter-field"><span>人设世界书内容</span><textarea name="rolePersona" placeholder="要写入人设世界书的长期人设与剧情规则">' + escapeHtml(role.persona) + '</textarea></label>' +
-    '</article>';
   }
 
   function encounterPackageRoleStripHtml(pkg) {
@@ -5237,11 +5253,12 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     const price = encounterPackagePrice(pkg);
     const featured = pkg.id === "basic-example-role-pack";
     const roleCount = Array.isArray(pkg.roles) ? pkg.roles.length : 0;
-    return '<button type="button" class="st-encounter-package' + (featured ? " is-featured" : "") + '" data-encounter-action="open-package" data-package-id="' + escapeAttr(pkg.id) + '">' +
+    const used = encounterIsPurchased(pkg.id);
+    return '<button type="button" class="st-encounter-package' + (featured ? " is-featured" : "") + (used ? " is-used" : "") + '" data-encounter-action="open-package" data-package-id="' + escapeAttr(pkg.id) + '">' +
       '<div class="st-encounter-cover">' + encounterCoverHtml(pkg.coverDataUrl, pkg.name || "角色包") + '</div>' +
       '<div class="st-encounter-package-body">' +
         '<div class="st-encounter-package-title"><strong>' + escapeHtml(pkg.name || "未命名角色包") + '</strong></div>' +
-        '<div class="st-encounter-package-facts"><span>' + roleCount + ' 角色</span><span class="st-encounter-price">' + price + ' 星光点</span></div>' +
+        '<div class="st-encounter-package-facts"><span>' + roleCount + ' 角色</span><span class="st-encounter-price">' + (used ? "已使用" : price + ' 星光点') + '</span></div>' +
       '</div>' +
     '</button>';
   }
@@ -5264,6 +5281,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
   function renderEncounterDetailPackage(pkg) {
     const roleCount = Array.isArray(pkg.roles) ? pkg.roles.length : 0;
     const price = encounterPackagePrice(pkg);
+    const used = encounterIsPurchased(pkg.id);
     return '<section class="st-encounter-detail-panel">' +
       '<h3>角色包详细内容</h3>' +
       '<p class="st-encounter-detail-text">' + escapeHtml(pkg.intro || "暂无介绍。") + '</p>' +
@@ -5273,8 +5291,12 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         '<span><strong>' + escapeHtml(pkg.variableWorldbook || "人物变量世界书") + '</strong>人物变量世界书位置</span>' +
         '<span><strong>' + escapeHtml(pkg.personaWorldbook || "人设世界书") + '</strong>人设世界书位置</span>' +
       '</div>' +
-      '<div class="st-encounter-actions is-single"><button type="button" class="st-encounter-button primary" data-encounter-action="purchase" data-package-id="' + escapeAttr(pkg.id) + '">购买 / 使用</button></div>' +
-      '<p class="st-encounter-note">购买后会把角色包作为本轮 APP 操作交给 AI：扣星光点、写入角色变量，并插入指定世界书位置。</p>' +
+      (used ? '<div class="st-encounter-used-note">这个角色包已经使用过。世界书写入不可自动撤销，按钮已锁定。</div>' : '') +
+      '<div class="st-encounter-actions">' +
+        '<button type="button" class="st-encounter-button" data-encounter-action="edit-package" data-package-id="' + escapeAttr(pkg.id) + '">在此包上更改</button>' +
+        '<button type="button" class="st-encounter-button primary" data-encounter-action="purchase" data-package-id="' + escapeAttr(pkg.id) + '"' + (used ? " disabled" : "") + '>购买 / 使用</button>' +
+      '</div>' +
+      '<p class="st-encounter-note">购买会先警告确认；确认后前端直接扣星光点、缓存图片并尝试写入世界书。角色变量交给 AI 在本轮生成时添加。</p>' +
     '</section>';
   }
 
@@ -5336,16 +5358,25 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     '</section>';
   }
 
-  function renderEncounterEdit(page) {
-    const draft = encounterReadDraft();
-    const pageIndex = encounterRolePageIndex(page, draft);
-    page.dataset.encounterRolePage = String(pageIndex);
-    const total = encounterRolePageCount(draft);
-    const start = pageIndex * ENCOUNTER_ROLE_PAGE_SIZE;
-    const visibleRoles = draft.roles.slice(start, start + ENCOUNTER_ROLE_PAGE_SIZE);
-    const rolesHtml = visibleRoles.map((role, offset) => encounterRoleCardHtml(role, start + offset)).join("");
-    return '<section class="st-lite-card st-encounter-form" data-encounter-form>' +
-      '<div class="st-encounter-toolbar"><strong>更改角色包</strong><span>草稿自动保存</span></div>' +
+  function encounterEditRoleIndex(page, draft) {
+    const roles = Array.isArray(draft?.roles) ? draft.roles : [];
+    if (!roles.length) return 0;
+    const raw = Number(page.dataset.encounterEditRoleIndex || 0);
+    if (!Number.isFinite(raw)) return 0;
+    return Math.max(0, Math.min(roles.length - 1, Math.floor(raw)));
+  }
+
+  function encounterRoleSelectHtml(draft, selectedIndex) {
+    const roles = Array.isArray(draft.roles) && draft.roles.length ? draft.roles : [encounterBlankRole()];
+    const options = roles.map((role, index) => {
+      const label = String(role.name || "").trim() || ("角色 " + (index + 1));
+      return '<option value="' + index + '"' + (index === selectedIndex ? " selected" : "") + '>' + escapeHtml(label) + '</option>';
+    }).join("");
+    return '<select class="st-encounter-role-select" data-encounter-role-select aria-label="选择角色">' + options + '</select>';
+  }
+
+  function renderEncounterEditPackage(draft) {
+    return '<section data-encounter-package-form>' +
       '<div class="st-encounter-cover-edit">' +
         '<div class="st-encounter-cover-preview">' + encounterCoverHtml(draft.coverDataUrl, "封面") + '</div>' +
         '<label class="st-encounter-field"><span>角色包大图</span><input type="file" accept="image/*" data-encounter-cover-file></label>' +
@@ -5357,22 +5388,61 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         '<label class="st-encounter-field"><span>人物变量世界书位置</span><input name="variableWorldbook" value="' + escapeAttr(draft.variableWorldbook) + '" placeholder="人物变量世界书"></label>' +
       '</div>' +
       '<label class="st-encounter-field"><span>人设世界书位置</span><input name="personaWorldbook" value="' + escapeAttr(draft.personaWorldbook) + '" placeholder="人设世界书"></label>' +
-      '<div class="st-encounter-role-tools"><strong>包含角色</strong><span>' + draft.roles.length + ' 人 · 第 ' + (pageIndex + 1) + ' / ' + total + ' 页</span></div>' +
-      rolesHtml +
-      '<div class="st-encounter-pager">' +
-        '<button type="button" data-encounter-action="role-page-prev"' + (pageIndex <= 0 ? " disabled" : "") + '>‹</button>' +
-        '<span>每页 ' + ENCOUNTER_ROLE_PAGE_SIZE + ' 个角色</span>' +
-        '<button type="button" data-encounter-action="role-page-next"' + (pageIndex >= total - 1 ? " disabled" : "") + '>›</button>' +
-      '</div>' +
       '<div class="st-encounter-actions">' +
-        '<button type="button" class="st-encounter-button" data-encounter-action="add-role">新增角色</button>' +
         '<button type="button" class="st-encounter-button" data-encounter-action="save-library">保存到浏览</button>' +
         '<button type="button" class="st-encounter-button" data-encounter-action="import-draft">导入 ZIP 修改</button>' +
         '<button type="button" class="st-encounter-button primary" data-encounter-action="export-draft">导出 ZIP</button>' +
       '</div>' +
       '<div class="st-encounter-actions is-single"><button type="button" class="st-encounter-button" data-encounter-action="clear-draft">清空草稿</button></div>' +
       '<input type="file" accept=".zip,application/zip" data-encounter-import-draft hidden>' +
-      '<p class="st-encounter-note">购买后会把角色包内容作为本轮 APP 操作交给 AI：扣星光点、写入角色变量，并把人物变量/人设内容插入指定世界书位置。世界书插入不可撤销，只能之后手动删除。</p>' +
+      '<p class="st-encounter-note">购买后前端会尝试直接写入世界书；世界书写入不可撤销，只能之后手动删除。角色变量由 AI 在生成角色内容时添加。</p>' +
+    '</section>';
+  }
+
+  function renderEncounterEditRole(page, draft) {
+    const selectedIndex = encounterEditRoleIndex(page, draft);
+    page.dataset.encounterEditRoleIndex = String(selectedIndex);
+    const role = encounterNormalizeRole((draft.roles || [])[selectedIndex], selectedIndex);
+    return '<section>' +
+      '<div class="st-encounter-role-tools"><strong>角色内容</strong><span>' + (draft.roles?.length || 0) + ' 人</span></div>' +
+      '<div class="st-encounter-role-select-row">' +
+        encounterRoleSelectHtml(draft, selectedIndex) +
+        '<button type="button" class="st-encounter-button" data-encounter-action="add-role">新增</button>' +
+        '<button type="button" class="st-encounter-button" data-encounter-action="remove-role" data-role-index="' + selectedIndex + '">删除</button>' +
+      '</div>' +
+      '<article class="st-encounter-role-card" data-encounter-role-card data-role-index="' + selectedIndex + '">' +
+        '<div class="st-encounter-role-image-row">' +
+          '<div class="st-encounter-role-image">' + encounterCoverHtml(role.imageDataUrl, "角色图") + '</div>' +
+          '<label class="st-encounter-field"><span>角色图片</span><input type="file" accept="image/*" data-encounter-role-image="' + selectedIndex + '"></label>' +
+        '</div>' +
+        '<div class="st-encounter-grid2">' +
+          '<label class="st-encounter-field"><span>角色名</span><input name="roleName" value="' + escapeAttr(role.name) + '" placeholder="角色名"></label>' +
+          '<label class="st-encounter-field"><span>别名 / 关键词</span><input name="roleAliases" value="' + escapeAttr(role.aliases) + '" placeholder="逗号分隔"></label>' +
+        '</div>' +
+        '<label class="st-encounter-field"><span>介绍 / 档案摘要</span><textarea name="roleIntro" placeholder="身份、外貌、性格、关系、剧情定位">' + escapeHtml(role.intro) + '</textarea></label>' +
+        '<label class="st-encounter-field"><span>人物变量世界书内容</span><textarea name="roleVariables" placeholder="要写入人物变量世界书的变量结构、初始值、规则">' + escapeHtml(role.variables) + '</textarea></label>' +
+        '<label class="st-encounter-field"><span>人设世界书内容</span><textarea name="rolePersona" placeholder="要写入人设世界书的长期人设与剧情规则">' + escapeHtml(role.persona) + '</textarea></label>' +
+      '</article>' +
+      '<div class="st-encounter-actions">' +
+        '<button type="button" class="st-encounter-button" data-encounter-action="import-role-json">导入角色JSON</button>' +
+        '<button type="button" class="st-encounter-button primary" data-encounter-action="save-library">保存到浏览</button>' +
+      '</div>' +
+      '<input type="file" accept=".json,application/json" data-encounter-import-role-json hidden>' +
+      '<p class="st-encounter-note">角色JSON导入只覆盖文字内容，不覆盖角色图片。</p>' +
+    '</section>';
+  }
+
+  function renderEncounterEdit(page) {
+    const draft = encounterReadDraft();
+    const section = page.dataset.encounterEditSection === "role" ? "role" : "package";
+    page.dataset.encounterEditSection = section;
+    return '<section class="st-lite-card st-encounter-form" data-encounter-form>' +
+      '<div class="st-encounter-toolbar"><strong>更改角色包</strong><span>草稿自动保存</span></div>' +
+      '<nav class="st-encounter-edit-tabs">' +
+        '<button type="button" class="' + (section === "package" ? "active" : "") + '" data-encounter-action="edit-section" data-section="package">角色包</button>' +
+        '<button type="button" class="' + (section === "role" ? "active" : "") + '" data-encounter-action="edit-section" data-section="role">角色</button>' +
+      '</nav>' +
+      (section === "role" ? renderEncounterEditRole(page, draft) : renderEncounterEditPackage(draft)) +
     '</section>';
   }
 
@@ -5687,31 +5757,6 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     return cached;
   }
 
-  function encounterPurchasePayload(pkg) {
-    const price = encounterPackagePrice(pkg);
-    const roles = (pkg.roles || []).filter((role) => String(role.name || role.intro || "").trim());
-    return {
-      来源: "邂逅",
-      操作: "购买角色包",
-      角色包ID: pkg.id,
-      角色包名称: pkg.name || "未命名角色包",
-      角色包介绍: pkg.intro || "无",
-      消耗星光点: price,
-      当前星光点: encounterCurrentStarlight(),
-      人物变量世界书位置: pkg.variableWorldbook || "人物变量世界书",
-      人设世界书位置: pkg.personaWorldbook || "人设世界书",
-      角色列表: roles.map((role) => ({
-        角色名: role.name || "由AI按角色包内容命名",
-        别名: role.aliases || "",
-        档案摘要: role.intro || "",
-        人物变量世界书内容: role.variables || "",
-        人设世界书内容: role.persona || "",
-        前端图片缓存: role.imageDataUrl ? "角色图片已由前端缓存到人物档案本地照片，变量出现后自动显示。" : "无"
-      })),
-      AI执行规范: "若/系统/星光点>=消耗星光点且剧情/系统允许，则扣除对应星光点；把角色包中所有角色写入/角色，按角色包中的档案摘要、人物变量世界书内容和人设世界书内容补齐字段。把人物变量世界书内容插入指定人物变量世界书位置，把人设世界书内容插入指定人设世界书位置；世界书插入不可撤销，如需撤销只能由用户之后手动删除。若余额不足则失败，不扣费、不写角色、不写世界书。不要重复导入已存在角色；已存在时只补缺失字段或在正文说明冲突。"
-    };
-  }
-
   async function encounterHandleImport(page, mode, file) {
     if (!file) return;
     try {
@@ -5720,7 +5765,8 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       if (mode === "draft") {
         encounterSaveDraft(pkg);
         page.dataset.encounterTab = "edit";
-        page.dataset.encounterRolePage = "0";
+        page.dataset.encounterEditSection = "package";
+        page.dataset.encounterEditRoleIndex = "0";
         page.dataset.encounterStatus = "已导入到更改草稿。";
       } else {
         encounterUpsertPackage(pkg);
@@ -5733,15 +5779,320 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     }
   }
 
-  function encounterHandlePurchase(page, packageId) {
+  function encounterPickRoleJsonSource(parsed, currentRole) {
+    const name = String(currentRole?.name || "").trim();
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      if (name && parsed[name] && typeof parsed[name] === "object") return { name, source: parsed[name] };
+      const keys = Object.keys(parsed);
+      if (keys.length === 1 && parsed[keys[0]] && typeof parsed[keys[0]] === "object" && !Array.isArray(parsed[keys[0]])) {
+        return { name: keys[0], source: parsed[keys[0]] };
+      }
+    }
+    return { name: "", source: parsed };
+  }
+
+  function encounterWorldbookEntriesFromJson(parsed) {
+    if (!parsed) return [];
+    if (Array.isArray(parsed)) return parsed.filter((item) => item && typeof item === "object");
+    if (Array.isArray(parsed.entries)) return parsed.entries.filter((item) => item && typeof item === "object");
+    if (parsed.entries && typeof parsed.entries === "object") return Object.values(parsed.entries).filter((item) => item && typeof item === "object");
+    if (parsed.data) return encounterWorldbookEntriesFromJson(parsed.data);
+    return [];
+  }
+
+  function encounterRoleFromJson(parsed, currentRole) {
+    const current = encounterNormalizeRole(currentRole || {});
+    const picked = encounterPickRoleJsonSource(parsed, current);
+    const source = picked.source && typeof picked.source === "object" && !Array.isArray(picked.source) ? picked.source : {};
+    const direct = encounterNormalizeRole({
+      ...source,
+      name: source.name || source["角色名"] || picked.name || current.name,
+      imageDataUrl: current.imageDataUrl
+    });
+    const hasDirect = [direct.name, direct.aliases, direct.intro, direct.variables, direct.persona].some((value) => String(value || "").trim());
+    if (hasDirect && (direct.variables || direct.persona || direct.intro || direct.aliases || picked.name)) {
+      return { ...current, ...direct, imageDataUrl: current.imageDataUrl };
+    }
+    const entries = encounterWorldbookEntriesFromJson(parsed);
+    const roleName = String(current.name || picked.name || "").trim();
+    const matched = roleName
+      ? entries.filter((entry) => [entry.comment, entry.content, ...(Array.isArray(entry.key) ? entry.key : []), ...(Array.isArray(entry.keys) ? entry.keys : [])].join("\n").includes(roleName))
+      : entries;
+    const role = { ...current };
+    const readContent = (entry) => String(entry?.content || entry?.value || entry?.text || "");
+    for (const entry of matched) {
+      const label = [entry.comment, ...(Array.isArray(entry.key) ? entry.key : []), ...(Array.isArray(entry.keys) ? entry.keys : [])].join(" ");
+      const content = readContent(entry);
+      if (!content.trim()) continue;
+      if (/变量|stat|mvu|角色变量/.test(label) && !role.variables) role.variables = content;
+      else if (/人设|persona|设定|角色设定/.test(label) && !role.persona) role.persona = content;
+      else if (!role.persona) role.persona = content;
+    }
+    if (!role.name && roleName) role.name = roleName;
+    return encounterNormalizeRole(role);
+  }
+
+  async function encounterHandleRoleJsonImport(page, file) {
+    if (!file) return;
+    try {
+      encounterSetStatus(page, "正在导入角色JSON...");
+      const parsed = JSON.parse(await file.text());
+      const draft = encounterReadDraftFromForm(page);
+      const index = encounterEditRoleIndex(page, draft);
+      draft.roles[index] = encounterRoleFromJson(parsed, draft.roles[index]);
+      encounterSaveDraft(draft);
+      page.dataset.encounterEditSection = "role";
+      page.dataset.encounterEditRoleIndex = String(index);
+      page.dataset.encounterStatus = "已导入角色文字内容。";
+      renderEncounterPage(page);
+    } catch (error) {
+      encounterSetStatus(page, "角色JSON导入失败：" + (error?.message || error));
+    }
+  }
+
+  function encounterCurrentMvuData() {
+    if (!globalThis.Mvu?.getMvuData || !globalThis.Mvu?.replaceMvuData) return null;
+    const option = (typeof getCurrentVariableOption === "function" && getCurrentVariableOption()) || { type: "message", message_id: "latest" };
+    const mvu = globalThis.Mvu.getMvuData(option);
+    const stat = mvu?.stat_data && typeof mvu.stat_data === "object" ? mvu.stat_data : mvu;
+    if (!stat || typeof stat !== "object") return null;
+    return { mvu, stat, option };
+  }
+
+  async function encounterSetStarlight(value) {
+    const data = encounterCurrentMvuData();
+    if (!data) return false;
+    data.stat["系统"] = data.stat["系统"] && typeof data.stat["系统"] === "object" && !Array.isArray(data.stat["系统"]) ? data.stat["系统"] : {};
+    data.stat["系统"]["星光点"] = Math.max(0, Math.floor(Number(value) || 0));
+    await globalThis.Mvu.replaceMvuData(data.mvu, data.option);
+    return true;
+  }
+
+  async function encounterDeductStarlight(price) {
+    const cost = Math.max(0, Math.floor(Number(price) || 0));
+    const data = encounterCurrentMvuData();
+    if (!data) return { ok: cost === 0, previous: encounterCurrentStarlight(), reason: "MVU变量接口未就绪。" };
+    data.stat["系统"] = data.stat["系统"] && typeof data.stat["系统"] === "object" && !Array.isArray(data.stat["系统"]) ? data.stat["系统"] : {};
+    const previous = Number(data.stat["系统"]["星光点"] ?? 0);
+    if (!Number.isFinite(previous) || previous < cost) return { ok: false, previous: Number.isFinite(previous) ? previous : 0, reason: "星光点不足。" };
+    data.stat["系统"]["星光点"] = Math.max(0, Math.floor(previous - cost));
+    await globalThis.Mvu.replaceMvuData(data.mvu, data.option);
+    return { ok: true, previous, current: data.stat["系统"]["星光点"] };
+  }
+
+  function encounterWorldbookEntry(comment, role, content) {
+    const keys = [role.name].concat(String(role.aliases || "").split(/[，,、]/)).map((item) => String(item || "").trim()).filter(Boolean);
+    return {
+      key: keys.length ? keys : [comment],
+      keys: keys.length ? keys : [comment],
+      keysecondary: [],
+      secondary_keys: [],
+      comment,
+      content: String(content || ""),
+      constant: false,
+      selective: false,
+      order: 100,
+      position: 0,
+      disable: false,
+      probability: 100,
+      useProbability: true,
+      depth: 4,
+      role: 0
+    };
+  }
+
+  function encounterWorldbookEntryList(pkg) {
+    const list = [];
+    for (const role of pkg.roles || []) {
+      const normalized = encounterNormalizeRole(role);
+      if (String(normalized.variables || "").trim()) {
+        list.push({ world: pkg.variableWorldbook || "人物变量世界书", entry: encounterWorldbookEntry("[邂逅] " + (pkg.name || "角色包") + " / " + (normalized.name || "角色") + " / 人物变量", normalized, normalized.variables) });
+      }
+      if (String(normalized.persona || "").trim()) {
+        list.push({ world: pkg.personaWorldbook || "人设世界书", entry: encounterWorldbookEntry("[邂逅] " + (pkg.name || "角色包") + " / " + (normalized.name || "角色") + " / 人设", normalized, normalized.persona) });
+      }
+    }
+    return list;
+  }
+
+  function encounterCandidateWindows() {
+    const result = [];
+    for (const candidate of [window, window.parent, window.top]) {
+      try {
+        if (candidate && !result.includes(candidate)) result.push(candidate);
+      } catch {}
+    }
+    return result;
+  }
+
+  function encounterNextWorldUid(entries) {
+    const values = Array.isArray(entries) ? entries : Object.values(entries || {});
+    return Math.max(0, ...values.map((entry) => Number(entry?.uid ?? entry?.id) || 0)) + 1;
+  }
+
+  function encounterAppendWorldEntry(data, entry) {
+    if (!data || typeof data !== "object") return false;
+    const entries = data.entries || data.entry || data.world_info || (Array.isArray(data) ? data : null);
+    const duplicate = (items) => items.some((item) => String(item?.comment || "") === entry.comment || (String(item?.content || "").trim() && String(item?.content || "").trim() === String(entry.content || "").trim()));
+    if (Array.isArray(entries)) {
+      if (duplicate(entries)) return true;
+      entries.push({ ...entry, uid: encounterNextWorldUid(entries) });
+      return true;
+    }
+    if (entries && typeof entries === "object") {
+      const items = Object.values(entries);
+      if (duplicate(items)) return true;
+      const uid = encounterNextWorldUid(entries);
+      entries[uid] = { ...entry, uid };
+      return true;
+    }
+    if (Array.isArray(data)) {
+      if (duplicate(data)) return true;
+      data.push({ ...entry, uid: encounterNextWorldUid(data) });
+      return true;
+    }
+    data.entries = {};
+    data.entries[1] = { ...entry, uid: 1 };
+    return true;
+  }
+
+  async function encounterLoadWorldData(win, worldName) {
+    const loaders = ["loadWorldInfoData", "loadWorldInfo", "getWorldInfo", "getWorldInfoData"];
+    for (const name of loaders) {
+      try {
+        if (typeof win[name] === "function") {
+          const data = await win[name](worldName);
+          if (data && typeof data === "object") return data;
+        }
+      } catch {}
+    }
+    try {
+      const context = win.SillyTavern?.getContext?.() || win.getContext?.();
+      const api = context?.worldInfo || context?.world_info || context?.lorebook;
+      for (const name of loaders) {
+        if (typeof api?.[name] === "function") {
+          const data = await api[name](worldName);
+          if (data && typeof data === "object") return data;
+        }
+      }
+    } catch {}
+    try {
+      const selected = win.selected_world_info || win.selectedWorldInfo || win.world_info?.name;
+      const selectedText = Array.isArray(selected) ? selected.join("\n") : String(selected || "");
+      if ((!worldName || selectedText.includes(worldName)) && win.world_info && typeof win.world_info === "object") return win.world_info;
+    } catch {}
+    return null;
+  }
+
+  async function encounterSaveWorldData(win, worldName, data) {
+    const savers = ["saveWorldInfo", "saveWorldInfoData", "setWorldInfo", "setWorldInfoData"];
+    for (const name of savers) {
+      try {
+        if (typeof win[name] === "function") {
+          await win[name](worldName, data, true);
+          return true;
+        }
+      } catch {
+        try {
+          await win[name](data, worldName, true);
+          return true;
+        } catch {}
+      }
+    }
+    try {
+      const context = win.SillyTavern?.getContext?.() || win.getContext?.();
+      const api = context?.worldInfo || context?.world_info || context?.lorebook;
+      for (const name of savers) {
+        if (typeof api?.[name] === "function") {
+          await api[name](worldName, data, true);
+          return true;
+        }
+      }
+    } catch {}
+    return false;
+  }
+
+  async function encounterInsertWorldbookEntry(worldName, entry) {
+    for (const win of encounterCandidateWindows()) {
+      try {
+        const data = await encounterLoadWorldData(win, worldName);
+        if (!data) continue;
+        if (!encounterAppendWorldEntry(data, entry)) continue;
+        if (await encounterSaveWorldData(win, worldName, data)) return true;
+      } catch {}
+    }
+    return false;
+  }
+
+  async function encounterInsertPackageWorldbooks(pkg) {
+    const entries = encounterWorldbookEntryList(pkg);
+    if (!entries.length) return { ok: true, count: 0, failed: [] };
+    const failed = [];
+    let count = 0;
+    for (const item of entries) {
+      const ok = await encounterInsertWorldbookEntry(item.world, item.entry);
+      if (ok) count += 1;
+      else failed.push(item.world + " / " + item.entry.comment);
+    }
+    return { ok: failed.length === 0, count, failed };
+  }
+
+  function encounterPurchasePayload(pkg, result = {}) {
+    const roles = (pkg.roles || []).filter((role) => String(role.name || role.intro || "").trim());
+    return {
+      来源: "邂逅",
+      操作: "角色包已使用",
+      角色包ID: pkg.id,
+      角色包名称: pkg.name || "未命名角色包",
+      角色包介绍: pkg.intro || "无",
+      前端处理: "已由前端扣除星光点、缓存角色图片，并尝试写入世界书；前端不会直接添加角色变量。",
+      消耗星光点: result.price ?? encounterPackagePrice(pkg),
+      世界书写入条目数: result.worldbookCount ?? 0,
+      人物变量世界书位置: pkg.variableWorldbook || "人物变量世界书",
+      人设世界书位置: pkg.personaWorldbook || "人设世界书",
+      角色列表: roles.map((role) => ({
+        角色名: role.name || "由AI按角色包内容命名",
+        别名: role.aliases || "",
+        档案摘要: role.intro || "",
+        前端图片缓存: role.imageDataUrl ? "角色图片已由前端缓存到人物档案本地照片，变量出现后自动显示。" : "无"
+      })),
+      AI执行规范: "这个角色包已经被前端使用。不要重复扣星光点，不要重复插入世界书。请根据角色包和已写入世界书内容，在本轮剧情中生成对应角色导入/登场内容，并在需要时用/update或/add补充/角色变量；角色变量由AI生成，前端不会直接添加。"
+    };
+  }
+
+  async function encounterHandlePurchase(page, packageId) {
     const pkg = encounterReadPackages().find((item) => item.id === packageId);
     if (!pkg) {
       encounterSetStatus(page, "找不到这个角色包。");
       return;
     }
+    if (encounterIsPurchased(pkg.id)) {
+      encounterSetStatus(page, "这个角色包已经使用过。");
+      renderEncounterPage(page);
+      return;
+    }
+    const price = encounterPackagePrice(pkg);
+    const ok = window.confirm("购买后会直接写入世界书；世界书增加不可撤销，只能之后手动删除。角色变量不由前端添加，会交给 AI 生成。确认使用这个角色包？");
+    if (!ok) return;
+    encounterSetStatus(page, "正在使用角色包...");
+    const deduct = await encounterDeductStarlight(price);
+    if (!deduct.ok) {
+      encounterSetStatus(page, deduct.reason || "星光点扣除失败。");
+      return;
+    }
+    const worldbook = await encounterInsertPackageWorldbooks(pkg);
+    if (!worldbook.ok) {
+      if (deduct.previous !== undefined) await encounterSetStarlight(deduct.previous);
+      encounterSetStatus(page, "世界书写入失败，已尝试退回星光点。失败位置：" + worldbook.failed.slice(0, 2).join("；"));
+      return;
+    }
     const cached = encounterCacheRoleImages(pkg);
-    Promise.resolve(appendAppOperation(encounterPurchasePayload(pkg))).then((added) => {
-      encounterSetStatus(page, added ? ("已暂存购买：" + (pkg.name || "角色包") + (cached.length ? "；图片已缓存。" : "。")) : "这次购买已经在暂存区。");
+    encounterMarkPurchased(pkg.id);
+    Promise.resolve(appendAppOperation(encounterPurchasePayload(pkg, { price, worldbookCount: worldbook.count }))).then((added) => {
+      page.dataset.encounterStatus = added
+        ? ("已使用：" + (pkg.name || "角色包") + "；世界书写入 " + worldbook.count + " 条" + (cached.length ? "；图片已缓存。" : "。"))
+        : "角色包已使用，AI提示已存在于暂存区。";
+      renderEncounterPage(page);
     });
   }
 
@@ -5770,6 +6121,16 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     page.querySelector("[data-encounter-import-draft]")?.addEventListener("change", (event) => {
       encounterHandleImport(page, "draft", event.target.files?.[0]);
       event.target.value = "";
+    });
+    page.querySelector("[data-encounter-import-role-json]")?.addEventListener("change", (event) => {
+      encounterHandleRoleJsonImport(page, event.target.files?.[0]);
+      event.target.value = "";
+    });
+    page.querySelector("[data-encounter-role-select]")?.addEventListener("change", (event) => {
+      encounterReadDraftFromForm(page);
+      page.dataset.encounterEditSection = "role";
+      page.dataset.encounterEditRoleIndex = String(event.target.value || "0");
+      renderEncounterPage(page);
     });
     page.querySelector("[data-encounter-cover-file]")?.addEventListener("change", async (event) => {
       const file = event.target.files?.[0];
@@ -5838,22 +6199,44 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
           page.querySelector("[data-encounter-import-draft]")?.click();
           return;
         }
-        if (action === "purchase") {
-          encounterHandlePurchase(page, button.getAttribute("data-package-id") || "");
+        if (action === "import-role-json") {
+          encounterReadDraftFromForm(page);
+          page.querySelector("[data-encounter-import-role-json]")?.click();
           return;
         }
-        if (action === "role-page-prev" || action === "role-page-next") {
-          const draft = encounterReadDraftFromForm(page);
-          const current = encounterRolePageIndex(page, draft);
-          page.dataset.encounterRolePage = String(current + (action === "role-page-next" ? 1 : -1));
+        if (action === "edit-section") {
+          encounterReadDraftFromForm(page);
+          page.dataset.encounterEditSection = button.getAttribute("data-section") || "package";
           renderEncounterPage(page);
+          return;
+        }
+        if (action === "edit-package") {
+          const pkg = encounterFindPackage(button.getAttribute("data-package-id") || "");
+          if (!pkg) {
+            encounterSetStatus(page, "找不到这个角色包。");
+            return;
+          }
+          encounterSaveDraft(pkg);
+          page.dataset.encounterTab = "edit";
+          delete page.dataset.encounterView;
+          delete page.dataset.encounterPackageId;
+          delete page.dataset.encounterDetailSection;
+          page.dataset.encounterEditSection = "package";
+          page.dataset.encounterEditRoleIndex = "0";
+          page.dataset.encounterStatus = "已填充到更改草稿。";
+          renderEncounterPage(page);
+          return;
+        }
+        if (action === "purchase") {
+          encounterHandlePurchase(page, button.getAttribute("data-package-id") || "");
           return;
         }
         if (action === "add-role") {
           const draft = encounterReadDraftFromForm(page);
           draft.roles.push(encounterBlankRole());
           encounterSaveDraft(draft);
-          page.dataset.encounterRolePage = String(encounterRolePageCount(draft) - 1);
+          page.dataset.encounterEditSection = "role";
+          page.dataset.encounterEditRoleIndex = String(draft.roles.length - 1);
           page.dataset.encounterStatus = "已新增角色。";
           renderEncounterPage(page);
           return;
@@ -5867,6 +6250,8 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
             draft.roles.splice(index, 1);
           }
           encounterSaveDraft(draft);
+          page.dataset.encounterEditSection = "role";
+          page.dataset.encounterEditRoleIndex = String(Math.max(0, Math.min((draft.roles?.length || 1) - 1, index)));
           page.dataset.encounterStatus = "已删除角色。";
           renderEncounterPage(page);
           return;
@@ -5893,7 +6278,8 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
           const ok = window.confirm("清空当前邂逅角色包草稿？");
           if (!ok) return;
           encounterSaveDraft(encounterBlankDraft());
-          page.dataset.encounterRolePage = "0";
+          page.dataset.encounterEditSection = "package";
+          page.dataset.encounterEditRoleIndex = "0";
           page.dataset.encounterStatus = "已清空草稿。";
           renderEncounterPage(page);
         }
