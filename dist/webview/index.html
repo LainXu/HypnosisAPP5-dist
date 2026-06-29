@@ -57,16 +57,20 @@ window.setTimeout(() => {
 	      try { return typeof getContext === "function" ? getContext() : null; } catch {}
 	      return null;
 	    };
-	    const __stHypnoosIsUserMessage = (message) => {
+	    const __stHypnoosIsUserMessage = (message, index = 0) => {
 	      if (!message || typeof message !== "object") return false;
 	      if (message.is_user === true || message.isUser === true || message.from_user === true || message.user === true) return true;
+	      if (message.is_user === false || message.isUser === false || message.from_user === false || message.user === false) return false;
 	      const role = String(message.role ?? message.type ?? message.sender ?? message.from ?? "").trim().toLowerCase();
 	      if (["user", "human"].includes(role)) return true;
 	      if (["system", "assistant", "character", "bot", "model"].includes(role)) return false;
 	      const context = __stHypnoosContext();
 	      const userName = String(context?.name1 ?? context?.userName ?? "").trim();
 	      const messageName = String(message.name ?? message.senderName ?? message.author ?? "").trim();
-	      return Boolean(userName && messageName && userName === messageName);
+	      if (userName && messageName) return userName === messageName;
+	      const numericId = Number(message.message_id ?? message.mesid ?? message.id ?? index);
+	      if (Number.isInteger(numericId)) return numericId % 2 === 1;
+	      return false;
 	    };
 	    const __stHypnoosChatMessages = () => {
 	      const sources = [];
@@ -86,7 +90,7 @@ window.setTimeout(() => {
 	      const source = sources.find((items) => Array.isArray(items) && items.length) || [];
 	      return source.map((message, index) => ({ message, index, id: __stHypnoosMessageId(message, index), body: __stHypnoosMessageBody(message) }));
 	    };
-	    const __stHypnoosFrontendMessages = () => __stHypnoosChatMessages().filter((item) => !__stHypnoosIsUserMessage(item.message));
+	    const __stHypnoosFrontendMessages = () => __stHypnoosChatMessages().filter((item) => !__stHypnoosIsUserMessage(item.message, item.index));
 	    const __stHypnoosHash = (value) => {
 	      const text = String(value ?? "");
 	      let hash = 2166136261;
