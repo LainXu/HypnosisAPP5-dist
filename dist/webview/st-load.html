@@ -4912,12 +4912,11 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
   function workStartPayloadsFromText(text) {
     const result = [];
     const source = String(text || "");
-    const blocks = source.match(/<本轮APP操作>[sS]*?</本轮APP操作>/g) || [];
+    const blocks = source.match(/<本轮APP操作>[\s\S]*?<\/本轮APP操作>/g) || [];
     for (const block of blocks) {
-      const workBlocks = block.match(/<打工>[sS]*?</打工>/g) || [];
+      const workBlocks = block.match(/<打工>[\s\S]*?<\/打工>/g) || [];
       for (const workBlock of workBlocks) {
-        for (const line of workBlock.split(/
-+/)) {
+        for (const line of workBlock.split(/\n+/)) {
           const payload = workParseOperationLine(line);
           if (payload) result.push(payload);
         }
