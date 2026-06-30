@@ -280,8 +280,7 @@ window.setTimeout(() => {
 	      }
 	      return best?.candidate ?? null;
 	    };
-	    const readOperationVariableSnapshot = () => {
-	      const variables = readOperationStatData();
+	    const readOperationVariableSnapshot = (variables = readOperationStatData()) => {
 	      const system = variables?.["系统"];
 	      if (!system || typeof system !== "object" || Array.isArray(system)) return null;
 	      const roles = variables?.["角色"];
@@ -298,8 +297,16 @@ window.setTimeout(() => {
 	      copyField("MC能量上限", "MC能量上限", "_MC能量上限");
 	      copyField("星光点", "星光点");
 	      copyField("持有零花钱", "持有零花钱");
+	      copyField("持有物品", "持有物品");
 	      copyField("社畜值", "社畜值");
 	      copyField("buff", "buff");
+	      copyField("当前日期", "当前日期");
+	      copyField("当前时间", "当前时间");
+	      copyField("当前地点", "当前地点");
+	      copyField("当前日程", "当前日程");
+	      copyField("当前或待上课程", "当前或待上课程", "当前/待上课程");
+	      copyField("当天课程表", "当天课程表");
+	      copyField("派遣岗位", "派遣岗位");
 	      copyField("主角可疑度", "主角可疑度");
 	      copyField("催眠APP订阅等级", "催眠APP订阅等级", "_催眠APP订阅等级");
 	      const alisaFavor = roles?.["西园寺爱丽莎"]?.["好感度"];
@@ -312,16 +319,18 @@ window.setTimeout(() => {
 	      for (const name of names) fields.add(name);
 	    };
 	    const pickOperationVariableFields = (payload) => {
+	      const source = cleanOperationText(readOperationKey(payload, OPERATION_SOURCE_KEYS, ""));
 	      const action = cleanOperationText(readOperationKey(payload, OPERATION_ACTION_KEYS, ""));
 	      const item = cleanOperationText(payload?.["项目"] ?? payload?.["功能"] ?? payload?.["命令"] ?? "");
 	      const text = operationValueToDenseText({ action, item, payload });
 	      const fields = new Set();
+	      if (/^(时钟|地图|学校地图|扫描角色)$/.test(source)) addOperationVariableFields(fields, ["当前日期", "当前时间", "当前地点", "当前日程", "当前或待上课程"]);
 	      if (/启动催眠|追加催眠/.test(action)) addOperationVariableFields(fields, ["MC能量"]);
 	      if (/购买VIP等级/.test(action)) addOperationVariableFields(fields, ["持有零花钱", "催眠APP订阅等级"]);
 	      if (/领取成就|领取奖励|完成任务|任务完成|成就奖励|任务奖励/.test(action)) addOperationVariableFields(fields, ["星光点", "持有物品"]);
-	      if (/派遣结束提醒|取消派遣/.test(action)) addOperationVariableFields(fields, ["持有零花钱"]);
-	      if (/派遣角色/.test(action)) addOperationVariableFields(fields, ["主角可疑度"]);
-	      if (/开始打工|打工/.test(action)) addOperationVariableFields(fields, ["持有零花钱", "社畜值", "buff", "MC能量", "MC能量上限"]);
+	      if (/派遣结束提醒|取消派遣/.test(action)) addOperationVariableFields(fields, ["当前日期", "当前时间", "持有零花钱", "派遣岗位"]);
+	      if (/派遣角色/.test(action)) addOperationVariableFields(fields, ["当前日期", "当前时间", "主角可疑度", "派遣岗位"]);
+	      if (/开始打工|打工/.test(action)) addOperationVariableFields(fields, ["当前日期", "当前时间", "当前地点", "当前日程", "当前或待上课程", "持有零花钱", "社畜值", "buff", "MC能量", "MC能量上限"]);
 	      if (/购买角色包|角色包/.test(action)) addOperationVariableFields(fields, ["星光点"]);
 	      if (/资源兑换/.test(action)) {
 	        if (/提升MC能量上限/.test(item) || /MC能量上限/.test(text)) addOperationVariableFields(fields, ["持有零花钱", "MC能量上限"]);
@@ -329,6 +338,64 @@ window.setTimeout(() => {
 	      }
 	      if (/申请立校规|废止初始校规/.test(action)) addOperationVariableFields(fields, ["持有零花钱", "催眠APP订阅等级", "西园寺爱丽莎好感度", "当前校规数"]);
 	      return [...fields];
+	    };
+	    const OPERATION_CURRENT_DETAIL_KEYS = new Set([
+	      "当前变量余额",
+	      "当前余额",
+	      "变量余额",
+	      "当前时间",
+	      "当前日期",
+	      "当前地点",
+	      "当前地点变量",
+	      "当前日程",
+	      "当前或待上课程",
+	      "当前社畜值",
+	      "当前buff",
+	      "当前MC能量",
+	      "当前MC能量上限",
+	      "当前可疑度",
+	      "当前星光点",
+	      "当前零花钱",
+	      "当前好感度",
+	      "当前服从度",
+	      "当前是否派遣中"
+	    ]);
+	    const operationShouldHideDetail = (record, key) => {
+	      const source = operationTagName(record?.source || "");
+	      const name = cleanOperationText(key);
+	      if (OPERATION_CURRENT_DETAIL_KEYS.has(name)) return true;
+	      if (/^扫描角色$/.test(source) && /^(扫描前提|AI执行规范)$/.test(name)) return true;
+	      return false;
+	    };
+	    const operationVisibleDetailEntries = (record) => Object.entries(record?.details || {})
+	      .filter(([key]) => !operationShouldHideDetail(record, key));
+	    const operationVisibleValueToDenseText = (value, depth = 0) => {
+	      if (value === null || value === undefined || value === "") return "";
+	      if (Array.isArray(value)) {
+	        return value.map((item) => operationVisibleValueToDenseText(item, depth + 1)).filter(Boolean).join("；");
+	      }
+	      if (typeof value === "object") {
+	        const parts = [];
+	        for (const [key, item] of Object.entries(value)) {
+	          if (OPERATION_CURRENT_DETAIL_KEYS.has(cleanOperationText(key))) continue;
+	          const text = operationVisibleValueToDenseText(item, depth + 1);
+	          if (text) parts.push(cleanOperationText(key) + "=" + text);
+	        }
+	        return parts.join(depth > 0 ? "，" : "；");
+	      }
+	      return cleanOperationText(value);
+	    };
+	    const operationScanRoleNoticeLine = (records) => {
+	      if (!records.some((record) => /请求扫描并锁定角色/.test(cleanOperationText(record.action || "")))) return "";
+	      return "- 通用扫描规则｜扫描前提={{user}}主动看到当前场景中的目标，并用手机扫描/锁定该目标；不是凭空创建场外角色。｜AI执行规范=本操作表示 {{user}} 在当前剧情中主动看到目标，并用手机扫描/锁定她；AI只能基于当前场景可见信息与用户填写的目标定位/身体来建档。；如果用户未填写角色名，AI先为目标随机取一个自然、可长期使用、符合场景和身体特征的姓名，避免使用“未知角色”“目标A”等占位名。；取名后先使用 /add 角色名，在角色路径下新增角色，再按本规则更新 stat_data.角色 中的新角色变量。；新增前先参考西园寺爱丽莎、月咏深雪、犬冢夏美的变量结构与人设粒度：档案、身份、关系、性格、警戒/抗性和此刻心理。；新角色沿用西园寺爱丽莎、月咏深雪、犬冢夏美的 stat_data.角色 结构；需要包含档案对象、心理、关系/状态、是否派遣中:false、身价、次数和效果等字段，默认值可按常识处理。；身价由AI根据该角色的人设、身份、能力、资源、社会价值、派遣变现潜力和剧情定位生成合理数值；不要漏写。；若目标定位/身体存在特殊体质、身份、处境或抗性，AI可据此决定少量初始值差异，并在剧情中保持合理性。；不要覆盖或删除西园寺爱丽莎、月咏深雪、犬冢夏美。";
+	    };
+	    const operationGroupNoticeLines = (source, records) => {
+	      const tag = operationTagName(source);
+	      if (/^扫描角色$/.test(tag)) {
+	        const notice = operationScanRoleNoticeLine(records);
+	        return notice ? [notice] : [];
+	      }
+	      return [];
 	    };
 	    const stripOperationVariableFields = (payload) => {
 	      if (!payload || typeof payload !== "object" || Array.isArray(payload)) return payload;
@@ -354,9 +421,9 @@ window.setTimeout(() => {
     };
     const operationTagName = (value) => cleanOperationText(value).replace(/\s+/g, "") || "APP";
     const formatOperationLine = (record) => {
-      const fields = Object.entries(record.details || {})
+      const fields = operationVisibleDetailEntries(record)
         .map(([key, value]) => {
-          const text = operationValueToDenseText(value);
+          const text = operationVisibleValueToDenseText(value);
           return text ? cleanOperationText(key) + "=" + text : "";
         })
         .filter(Boolean);
@@ -445,9 +512,9 @@ window.setTimeout(() => {
       const payload = operationEntryPayload(entry);
       const record = normalizeOperationPayload(payload);
       const key = entry?.key || operationRecordKey(payload);
-      const fields = Object.entries(record.details || {})
+      const fields = operationVisibleDetailEntries(record)
         .map(([name, value]) => {
-          const text = operationValueToDenseText(value);
+          const text = operationVisibleValueToDenseText(value);
           return text ? cleanOperationText(name) + "=" + text : "";
         })
         .filter(Boolean);
@@ -462,8 +529,30 @@ window.setTimeout(() => {
         line: formatOperationLine(record)
       };
     };
+	    const addOperationRoleVariableFields = (selected, variables, roleName, fields) => {
+	      const name = cleanOperationText(roleName);
+	      const role = variables?.["角色"]?.[name];
+	      if (!name || !role || typeof role !== "object" || Array.isArray(role)) return;
+	      for (const field of fields) {
+	        const value = role[field];
+	        if (value !== undefined && value !== null && value !== "") selected["角色." + name + "." + field] = value;
+	      }
+	    };
+	    const addOperationSpecificVariables = (selected, variables, payload) => {
+	      if (!payload || typeof payload !== "object" || Array.isArray(payload)) return;
+	      const source = cleanOperationText(readOperationKey(payload, OPERATION_SOURCE_KEYS, ""));
+	      const action = cleanOperationText(readOperationKey(payload, OPERATION_ACTION_KEYS, ""));
+	      const roleName = payload["角色名"] || payload["目标角色"] || payload["角色"];
+	      if (/^监控$/.test(source) && /派遣角色/.test(action)) {
+	        addOperationRoleVariableFields(selected, variables, roleName, ["好感度", "服从度", "是否派遣中", "身价"]);
+	      }
+	      if (/^监控$/.test(source) && /派遣结束提醒|取消派遣/.test(action)) {
+	        addOperationRoleVariableFields(selected, variables, roleName, ["是否派遣中", "身价"]);
+	      }
+	    };
 	    const selectOperationVariables = (entries) => {
-	      const snapshot = readOperationVariableSnapshot();
+	      const variablesRoot = readOperationStatData();
+	      const snapshot = readOperationVariableSnapshot(variablesRoot);
 	      if (!snapshot) return null;
 	      const fields = new Set();
 	      for (const entry of entries) {
@@ -474,6 +563,7 @@ window.setTimeout(() => {
 	      for (const field of fields) {
 	        if (snapshot[field] !== undefined && snapshot[field] !== null && snapshot[field] !== "") selected[field] = snapshot[field];
 	      }
+	      for (const entry of entries) addOperationSpecificVariables(selected, variablesRoot, operationEntryPayload(entry));
 	      return Object.keys(selected).length ? selected : null;
 	    };
 	    const buildOperationBlock = (entries = window.__ST_OPERATION_INPUT_LOG__) => {
@@ -498,6 +588,7 @@ window.setTimeout(() => {
 	      for (const [source, records] of groups) {
 	        const tag = operationTagName(source);
 	        lines.push("<" + tag + ">");
+	        for (const noticeLine of operationGroupNoticeLines(source, records)) lines.push(noticeLine);
 	        for (const record of records) lines.push(formatOperationLine(record));
         lines.push("</" + tag + ">");
       }
@@ -5176,13 +5267,24 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     return {
       id: encounterId("role"),
       name: "",
-      aliases: "",
-      intro: "",
-      variables: "",
-      persona: "",
-      variableEntry: null,
-      personaEntry: null,
-      imageDataUrl: ""
+	      aliases: "",
+	      intro: "",
+	      variables: "",
+	      personaTitle: "",
+	      gender: "",
+	      age: "",
+	      identity: "",
+	      firstEncounter: "",
+	      socialConnection: "",
+	      personality: "",
+	      habit: "",
+	      appearance: "",
+	      profileDefault: "",
+	      behaviorGuidance: "",
+	      persona: "",
+	      variableEntry: null,
+	      personaEntry: null,
+	      imageDataUrl: ""
     };
   }
 
@@ -5208,11 +5310,192 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     }
   }
 
-  function encounterNormalizeRoleWorldbookEntry(entry) {
-    if (!entry || typeof entry !== "object" || Array.isArray(entry)) return null;
-    const cloned = encounterClone(entry);
-    return cloned && typeof cloned === "object" && !Array.isArray(cloned) ? cloned : null;
-  }
+	  function encounterNormalizeRoleWorldbookEntry(entry) {
+	    if (!entry || typeof entry !== "object" || Array.isArray(entry)) return null;
+	    const cloned = encounterClone(entry);
+	    return cloned && typeof cloned === "object" && !Array.isArray(cloned) ? cloned : null;
+	  }
+
+	  const ENCOUNTER_PERSONA_SECTION_SPECS = [
+	    { field: "identity", key: "identity", aliases: ["身份"] },
+	    { field: "firstEncounter", key: "first encounter", aliases: ["初遇", "首次邂逅", "登场"] },
+	    { field: "socialConnection", key: "social connection", aliases: ["关系", "人物关系", "社会关系"] },
+	    { field: "personality", key: "personality", aliases: ["性格"] },
+	    { field: "habit", key: "habit", aliases: ["习惯", "行为习惯"] },
+	    { field: "appearance", key: "appearance", aliases: ["外貌"] },
+	    { field: "profileDefault", key: "profile default", aliases: ["档案默认值", "人物档案默认值", "档案"] }
+	  ];
+
+	  function encounterNormalizeNewlines(value) {
+	    return String(value || "").replace(/\r\n?/g, "\n");
+	  }
+
+	  function encounterPersonaLines(value) {
+	    return encounterNormalizeNewlines(value).split("\n");
+	  }
+
+	  function encounterFirstText(...values) {
+	    for (const value of values) {
+	      if (value === undefined || value === null) continue;
+	      const text = String(value);
+	      if (text.trim()) return text;
+	    }
+	    return "";
+	  }
+
+	  function encounterLeadingSpaces(line) {
+	    let count = 0;
+	    const text = String(line || "");
+	    while (count < text.length && text[count] === " ") count += 1;
+	    return count;
+	  }
+
+	  function encounterStripIndent(lines, indent) {
+	    return (Array.isArray(lines) ? lines : []).map((line) => {
+	      const text = String(line || "");
+	      return text.slice(0, indent).trim() ? text : text.slice(Math.min(indent, encounterLeadingSpaces(text)));
+	    }).join("\n").trim();
+	  }
+
+	  function encounterExtractTaggedBlock(text, suffix) {
+	    const target = String(suffix || "").trim();
+	    if (!target) return "";
+	    const lines = encounterPersonaLines(text);
+	    let active = false;
+	    let found = false;
+	    const output = [];
+	    for (const line of lines) {
+	      const trimmed = line.trim();
+	      if (!active && trimmed.startsWith("<") && trimmed.endsWith(">") && !trimmed.startsWith("</") && trimmed.includes(target)) {
+	        active = true;
+	        found = true;
+	        continue;
+	      }
+	      if (active && trimmed.startsWith("</") && trimmed.endsWith(">") && trimmed.includes(target)) break;
+	      if (active) output.push(line);
+	    }
+	    return found ? output.join("\n").trim() : "";
+	  }
+
+	  function encounterRemovePersonaHeading(text, roleName) {
+	    const lines = encounterPersonaLines(text);
+	    const name = String(roleName || "").trim();
+	    const first = lines.findIndex((line) => line.trim());
+	    if (first < 0) return "";
+	    const trimmed = lines[first].trim();
+	    if (name && trimmed === name + ":") {
+	      const rest = lines.slice(first + 1);
+	      const minIndent = rest.filter((line) => line.trim()).reduce((min, line) => Math.min(min, encounterLeadingSpaces(line)), Infinity);
+	      return encounterStripIndent(rest, Number.isFinite(minIndent) ? minIndent : 0);
+	    }
+	    return lines.join("\n").trim();
+	  }
+
+	  function encounterReadPersonaScalar(lines, key) {
+	    const prefix = String(key || "").trim() + ":";
+	    for (const line of lines || []) {
+	      const trimmed = String(line || "").trim();
+	      if (trimmed.toLowerCase().startsWith(prefix.toLowerCase())) return trimmed.slice(prefix.length).trim();
+	    }
+	    return "";
+	  }
+
+	  function encounterReadPersonaSection(lines, key) {
+	    const label = String(key || "").trim().toLowerCase() + ":";
+	    const source = Array.isArray(lines) ? lines : [];
+	    for (let index = 0; index < source.length; index += 1) {
+	      const line = String(source[index] || "");
+	      const trimmed = line.trim();
+	      if (!trimmed.toLowerCase().startsWith(label)) continue;
+	      const inline = trimmed.slice(label.length).trim();
+	      if (inline) return inline;
+	      const indent = encounterLeadingSpaces(line);
+	      const body = [];
+	      for (let next = index + 1; next < source.length; next += 1) {
+	        const child = String(source[next] || "");
+	        const childTrimmed = child.trim();
+	        if (childTrimmed && encounterLeadingSpaces(child) <= indent && childTrimmed.includes(":")) break;
+	        body.push(child);
+	      }
+	      return encounterStripIndent(body, indent + 2);
+	    }
+	    return "";
+	  }
+
+	  function encounterParsePersonaFixedContent(content, roleName) {
+	    const raw = encounterNormalizeNewlines(content);
+	    const mainBlock = encounterExtractTaggedBlock(raw, "人设") || raw;
+	    const main = encounterRemovePersonaHeading(mainBlock, roleName);
+	    const lines = encounterPersonaLines(main);
+	    const parsed = {
+	      personaTitle: encounterReadPersonaScalar(lines, "title"),
+	      gender: encounterReadPersonaScalar(lines, "gender"),
+	      age: encounterReadPersonaScalar(lines, "age"),
+	      behaviorGuidance: encounterExtractTaggedBlock(raw, "行为指导")
+	    };
+	    for (const spec of ENCOUNTER_PERSONA_SECTION_SPECS) {
+	      parsed[spec.field] = encounterReadPersonaSection(lines, spec.key) || spec.aliases.map((alias) => encounterReadPersonaSection(lines, alias)).find(Boolean) || "";
+	    }
+	    parsed.hasFixed = Boolean([parsed.personaTitle, parsed.gender, parsed.age, parsed.behaviorGuidance]
+	      .concat(ENCOUNTER_PERSONA_SECTION_SPECS.map((spec) => parsed[spec.field]))
+	      .some((value) => String(value || "").trim()));
+	    parsed.extra = parsed.hasFixed ? "" : raw;
+	    return parsed;
+	  }
+
+	  function encounterHasPersonaFixedFields(role) {
+	    return Boolean([
+	      role?.personaTitle,
+	      role?.gender,
+	      role?.age,
+	      role?.identity,
+	      role?.firstEncounter,
+	      role?.socialConnection,
+	      role?.personality,
+	      role?.habit,
+	      role?.appearance,
+	      role?.profileDefault,
+	      role?.behaviorGuidance
+	    ].some((value) => String(value || "").trim()));
+	  }
+
+	  function encounterIndentPersonaBlock(value, indent) {
+	    const prefix = " ".repeat(Math.max(0, Number(indent) || 0));
+	    return encounterPersonaLines(value).map((line) => prefix + line).join("\n");
+	  }
+
+	  function encounterPersonaContent(role) {
+	    const normalized = encounterNormalizeRole(role || {});
+	    if (!encounterHasPersonaFixedFields(normalized)) return String(normalized.persona || "");
+	    const name = String(normalized.name || "角色").trim() || "角色";
+	    const lines = ["<" + name + "人设>", name + ":"];
+	    const addScalar = (key, value) => {
+	      const text = String(value || "").trim();
+	      if (text) lines.push("  " + key + ": " + text);
+	    };
+	    const addBlock = (key, value) => {
+	      const text = encounterNormalizeNewlines(value).trim();
+	      if (!text) return;
+	      lines.push("  " + key + ":");
+	      lines.push(encounterIndentPersonaBlock(text, 4));
+	    };
+	    addScalar("title", normalized.personaTitle);
+	    addScalar("gender", normalized.gender);
+	    addScalar("age", normalized.age);
+	    for (const spec of ENCOUNTER_PERSONA_SECTION_SPECS) addBlock(spec.key, normalized[spec.field]);
+	    lines.push("</" + name + "人设>");
+	    if (String(normalized.behaviorGuidance || "").trim()) {
+	      lines.push("", "<" + name + "行为指导>");
+	      lines.push(encounterNormalizeNewlines(normalized.behaviorGuidance).trim());
+	      lines.push("</" + name + "行为指导>");
+	    }
+	    if (String(normalized.persona || "").trim()) {
+	      lines.push("", "<" + name + "补充人设>");
+	      lines.push(encounterNormalizeNewlines(normalized.persona).trim());
+	      lines.push("</" + name + "补充人设>");
+	    }
+	    return lines.join("\n");
+	  }
 
   function encounterDefaultVariableContent(roleName) {
     const name = String(roleName || "").trim();
@@ -5222,21 +5505,49 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     ]) : "";
   }
 
-  function encounterNormalizeRole(role, index = 0) {
-    const source = role && typeof role === "object" && !Array.isArray(role) ? role : {};
-    const name = String(source.name || source["角色名"] || "");
-    return {
-      id: String(source.id || source.roleId || encounterId("role-" + index)),
-      name,
-      aliases: String(source.aliases || source["别名"] || source["关键词"] || ""),
-      intro: String(source.intro || source.profile || source.summary || source["介绍"] || source["档案"] || ""),
-      variables: String(source.variables || source.variableWorldbook || source["人物变量"] || source["变量设定"] || encounterDefaultVariableContent(name)),
-      persona: String(source.persona || source.personaWorldbook || source["人设"] || source["人设世界书"] || ""),
-      variableEntry: encounterNormalizeRoleWorldbookEntry(source.variableEntry || source["人物变量世界书条目"] || source["人物变量条目"]),
-      personaEntry: encounterNormalizeRoleWorldbookEntry(source.personaEntry || source["人设世界书条目"] || source["人设条目"]),
-      imageDataUrl: String(source.imageDataUrl || source.image || source["图片"] || "")
-    };
-  }
+	  function encounterNormalizeRole(role, index = 0) {
+	    const source = role && typeof role === "object" && !Array.isArray(role) ? role : {};
+	    const name = String(source.name || source["角色名"] || "");
+	    const rawPersona = String(
+	      source.persona ||
+	      source.personaWorldbook ||
+	      source.personaContent ||
+	      source["人设"] ||
+	      source["人设世界书"] ||
+	      source["人设世界书内容"] ||
+	      source.personaEntry?.content ||
+	      source["人设世界书条目"]?.content ||
+	      source["人设条目"]?.content ||
+	      ""
+	    );
+	    const parsedPersona = encounterParsePersonaFixedContent(rawPersona, name);
+	    const explicitPersonaExtra = source.personaExtra ?? source.extraPersona ?? source["补充人设"] ?? source["额外人设"];
+	    const personaExtra = explicitPersonaExtra !== undefined && explicitPersonaExtra !== null
+	      ? String(explicitPersonaExtra)
+	      : (parsedPersona.hasFixed ? parsedPersona.extra : rawPersona);
+	    return {
+	      id: String(source.id || source.roleId || encounterId("role-" + index)),
+	      name,
+	      aliases: String(source.aliases || source["别名"] || source["关键词"] || ""),
+	      intro: String(source.intro || source.profile || source.summary || source["介绍"] || source["档案"] || ""),
+	      variables: String(source.variables || source.variableWorldbook || source["人物变量"] || source["变量设定"] || encounterDefaultVariableContent(name)),
+	      personaTitle: encounterFirstText(source.personaTitle, source.title, source["title"], source["称号"], source["定位"], parsedPersona.personaTitle),
+	      gender: encounterFirstText(source.gender, source["gender"], source["性别"], parsedPersona.gender),
+	      age: encounterFirstText(source.age, source["age"], source["年龄"], parsedPersona.age),
+	      identity: encounterFirstText(source.identity, source["身份"], parsedPersona.identity),
+	      firstEncounter: encounterFirstText(source.firstEncounter, source.first_encounter, source["初遇"], source["首次邂逅"], parsedPersona.firstEncounter),
+	      socialConnection: encounterFirstText(source.socialConnection, source.social_connection, source["关系"], source["人物关系"], parsedPersona.socialConnection),
+	      personality: encounterFirstText(source.personality, source["性格"], parsedPersona.personality),
+	      habit: encounterFirstText(source.habit, source["习惯"], source["行为习惯"], parsedPersona.habit),
+	      appearance: encounterFirstText(source.appearance, source["外貌"], parsedPersona.appearance),
+	      profileDefault: encounterFirstText(source.profileDefault, source.profile_default, source["档案默认值"], source["人物档案默认值"], parsedPersona.profileDefault),
+	      behaviorGuidance: encounterFirstText(source.behaviorGuidance, source.behavior_guidance, source["行为指导"], parsedPersona.behaviorGuidance),
+	      persona: String(personaExtra || ""),
+	      variableEntry: encounterNormalizeRoleWorldbookEntry(source.variableEntry || source["人物变量世界书条目"] || source["人物变量条目"]),
+	      personaEntry: encounterNormalizeRoleWorldbookEntry(source.personaEntry || source["人设世界书条目"] || source["人设条目"]),
+	      imageDataUrl: String(source.imageDataUrl || source.image || source["图片"] || "")
+	    };
+	  }
 
   function encounterNormalizePackage(input) {
     const source = input && typeof input === "object" && !Array.isArray(input) ? input : {};
@@ -5634,12 +5945,23 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       const roleRead = (name) => card.querySelector("[name='" + name + "']")?.value ?? "";
       role.name = String(roleRead("roleName"));
       role.aliases = String(roleRead("roleAliases"));
-      role.intro = String(roleRead("roleIntro"));
-      const variableField = card.querySelector("[name='roleVariables']");
-      role.variables = variableField ? String(variableField.value || "") : encounterDefaultVariableContent(role.name);
-      role.persona = String(roleRead("rolePersona"));
-      nextRoles[index] = role;
-    });
+	      role.intro = String(roleRead("roleIntro"));
+	      const variableField = card.querySelector("[name='roleVariables']");
+	      role.variables = variableField ? String(variableField.value || "") : encounterDefaultVariableContent(role.name);
+	      role.personaTitle = String(roleRead("rolePersonaTitle"));
+	      role.gender = String(roleRead("roleGender"));
+	      role.age = String(roleRead("roleAge"));
+	      role.identity = String(roleRead("roleIdentity"));
+	      role.firstEncounter = String(roleRead("roleFirstEncounter"));
+	      role.socialConnection = String(roleRead("roleSocialConnection"));
+	      role.personality = String(roleRead("rolePersonality"));
+	      role.habit = String(roleRead("roleHabit"));
+	      role.appearance = String(roleRead("roleAppearance"));
+	      role.profileDefault = String(roleRead("roleProfileDefault"));
+	      role.behaviorGuidance = String(roleRead("roleBehaviorGuidance"));
+	      role.persona = String(roleRead("rolePersona"));
+	      nextRoles[index] = role;
+	    });
     draft.roles = nextRoles.length ? nextRoles : [encounterBlankRole()];
     return encounterSaveDraft(draft);
   }
@@ -5832,18 +6154,32 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         '<div class="st-encounter-grid2">' +
           '<label class="st-encounter-field"><span>角色名</span><input name="roleName" value="' + escapeAttr(role.name) + '" placeholder="角色名"></label>' +
           '<label class="st-encounter-field"><span>别名 / 关键词</span><input name="roleAliases" value="' + escapeAttr(role.aliases) + '" placeholder="逗号分隔"></label>' +
-        '</div>' +
-        '<label class="st-encounter-field"><span>介绍 / 档案摘要</span><textarea name="roleIntro" placeholder="身份、外貌、性格、关系、剧情定位">' + escapeHtml(role.intro) + '</textarea></label>' +
-        '<label class="st-encounter-field"><span>人设世界书内容</span><textarea name="rolePersona" placeholder="要写入人设世界书的长期人设与剧情规则">' + escapeHtml(role.persona) + '</textarea></label>' +
-      '</article>' +
-      '<div class="st-encounter-actions">' +
-        '<button type="button" class="st-encounter-button" data-encounter-action="import-role-json">导入角色JSON</button>' +
-        '<button type="button" class="st-encounter-button primary" data-encounter-action="save-library">保存到浏览</button>' +
-      '</div>' +
-      '<input type="file" accept=".json,application/json" data-encounter-import-role-json hidden>' +
-      '<p class="st-encounter-note">人物变量世界书会按角色名自动生成固定 entry；角色JSON导入只覆盖人设等文字内容，不覆盖角色图片。</p>' +
-    '</section>';
-  }
+	        '</div>' +
+	        '<label class="st-encounter-field"><span>介绍 / 档案摘要</span><textarea name="roleIntro" placeholder="身份、外貌、性格、关系、剧情定位">' + escapeHtml(role.intro) + '</textarea></label>' +
+	        '<div class="st-encounter-grid2">' +
+	          '<label class="st-encounter-field"><span>title / 定位</span><input name="rolePersonaTitle" value="' + escapeAttr(role.personaTitle) + '" placeholder="例如：同班同学 / 杀手"></label>' +
+	          '<label class="st-encounter-field"><span>gender / 性别</span><input name="roleGender" value="' + escapeAttr(role.gender) + '" placeholder="女"></label>' +
+	        '</div>' +
+	        '<label class="st-encounter-field"><span>age / 年龄</span><input name="roleAge" value="' + escapeAttr(role.age) + '" placeholder="17"></label>' +
+	        '<label class="st-encounter-field"><span>identity / 身份</span><textarea name="roleIdentity" placeholder="public/hidden 或身份设定">' + escapeHtml(role.identity) + '</textarea></label>' +
+	        '<label class="st-encounter-field"><span>first encounter / 初遇</span><textarea name="roleFirstEncounter" placeholder="首次邂逅、扫描前后的剧情触发规则">' + escapeHtml(role.firstEncounter) + '</textarea></label>' +
+	        '<label class="st-encounter-field"><span>social connection / 关系</span><textarea name="roleSocialConnection" placeholder="与主角、其他角色、组织的关系">' + escapeHtml(role.socialConnection) + '</textarea></label>' +
+	        '<label class="st-encounter-field"><span>personality / 性格</span><textarea name="rolePersonality" placeholder="核心性格、条件反应、隐藏面">' + escapeHtml(role.personality) + '</textarea></label>' +
+	        '<label class="st-encounter-field"><span>habit / 行为习惯</span><textarea name="roleHabit" placeholder="说话、动作、惯用判断、日常习惯">' + escapeHtml(role.habit) + '</textarea></label>' +
+	        '<label class="st-encounter-field"><span>appearance / 外貌</span><textarea name="roleAppearance" placeholder="身高体重、体型、衣着、视觉风格">' + escapeHtml(role.appearance) + '</textarea></label>' +
+	        '<label class="st-encounter-field"><span>profile default / 档案默认值</span><textarea name="roleProfileDefault" placeholder="档案字段默认值，如姓名、年龄、职业、身高、体重、三围等">' + escapeHtml(role.profileDefault) + '</textarea></label>' +
+	        '<label class="st-encounter-field"><span>行为指导</span><textarea name="roleBehaviorGuidance" placeholder="AI叙事时必须遵守的长期行为规则">' + escapeHtml(role.behaviorGuidance) + '</textarea></label>' +
+	        '<label class="st-encounter-field"><span>补充人设 / 未识别片段</span><textarea name="rolePersona" placeholder="额外要写入人设世界书的内容，会放进补充人设块">' + escapeHtml(role.persona) + '</textarea></label>' +
+	      '</article>' +
+	      '<div class="st-encounter-actions">' +
+	        '<button type="button" class="st-encounter-button" data-encounter-action="import-role-json">导入角色JSON</button>' +
+	        '<button type="button" class="st-encounter-button" data-encounter-action="export-role-json">导出角色JSON</button>' +
+	      '</div>' +
+	      '<div class="st-encounter-actions is-single"><button type="button" class="st-encounter-button primary" data-encounter-action="save-library">保存到浏览</button></div>' +
+	      '<input type="file" accept=".json,application/json" data-encounter-import-role-json hidden>' +
+	      '<p class="st-encounter-note">人物变量世界书会按角色名自动生成固定 entry；人设世界书会由 title/gender 等固定字段重新拼成固定格式。角色JSON导入/导出不覆盖角色图片。</p>' +
+	    '</section>';
+	  }
 
   function renderEncounterEdit(page) {
     const draft = encounterReadDraft();
@@ -5865,7 +6201,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     page.innerHTML =
       '<header class="st-lite-header">' +
         '<button class="st-lite-back" data-lite-action="back" title="返回桌面">‹</button>' +
-        '<div class="st-lite-title"><strong>邂逅</strong><span>角色包会写入角色变量，并把包内世界书塞入指定位置。</span></div>' +
+	        '<div class="st-lite-title"><strong>邂逅</strong><span>角色包会写入指定世界书，并提示 AI 生成角色变量。</span></div>' +
       '</header>' +
       '<main class="st-lite-body">' +
         (detailOpen ? '' : '<section class="st-encounter-tabs">' +
@@ -6050,10 +6386,10 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     return text || String(fallback || "item");
   }
 
-  function encounterPackageToZipBlob(pkg) {
-    const normalized = encounterNormalizePackage(pkg);
-    const manifest = encounterClone(normalized) || encounterNormalizePackage(normalized);
-    const files = [];
+	  function encounterPackageToZipBlob(pkg) {
+	    const normalized = encounterNormalizePackage(pkg);
+	    const manifest = encounterClone(normalized) || encounterNormalizePackage(normalized);
+	    const files = [];
     if (normalized.coverDataUrl) {
       const mime = encounterMimeFromDataUrl(normalized.coverDataUrl);
       const ext = encounterExtForMime(mime);
@@ -6061,24 +6397,52 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       delete manifest.coverDataUrl;
       files.push({ name: manifest.cover, bytes: encounterDataUrlToBytes(normalized.coverDataUrl) });
     }
-    manifest.roles = normalized.roles.map((role, index) => {
-      const next = { ...role };
-      delete next.variableEntry;
-      if (role.imageDataUrl) {
-        const mime = encounterMimeFromDataUrl(role.imageDataUrl);
-        const ext = encounterExtForMime(mime);
-        next.image = "roles/" + String(index + 1).padStart(2, "0") + "-" + encounterSafeName(role.name, "role") + "." + ext;
-        files.push({ name: next.image, bytes: encounterDataUrlToBytes(role.imageDataUrl) });
-      }
-      delete next.imageDataUrl;
-      return next;
-    });
+	    manifest.roles = normalized.roles.map((role, index) => {
+	      const normalizedRole = encounterNormalizeRole(role, index);
+	      const next = { ...normalizedRole };
+	      delete next.variableEntry;
+	      const personaEntry = encounterPersonaWorldbookEntry(normalizedRole, normalized.name || "角色包");
+	      if (personaEntry) {
+	        next.personaEntry = personaEntry;
+	        next.personaContent = personaEntry.content;
+	      }
+	      if (normalizedRole.imageDataUrl) {
+	        const mime = encounterMimeFromDataUrl(normalizedRole.imageDataUrl);
+	        const ext = encounterExtForMime(mime);
+	        next.image = "roles/" + String(index + 1).padStart(2, "0") + "-" + encounterSafeName(normalizedRole.name, "role") + "." + ext;
+	        files.push({ name: next.image, bytes: encounterDataUrlToBytes(normalizedRole.imageDataUrl) });
+	      }
+	      delete next.imageDataUrl;
+	      return next;
+	    });
     manifest.format = ENCOUNTER_PACKAGE_FORMAT;
     manifest.version = 1;
     const json = JSON.stringify(manifest, null, 2);
-    files.unshift({ name: "package.json", bytes: new TextEncoder().encode(json) });
-    return encounterCreateZip(files);
-  }
+	    files.unshift({ name: "package.json", bytes: new TextEncoder().encode(json) });
+	    return encounterCreateZip(files);
+	  }
+
+	  function encounterRoleExportObject(role, packageName) {
+	    const normalized = encounterNormalizeRole(role || {});
+	    const exported = { ...normalized };
+	    delete exported.imageDataUrl;
+	    delete exported.variableEntry;
+	    const personaEntry = encounterPersonaWorldbookEntry(normalized, packageName || "角色包");
+	    if (personaEntry) {
+	      exported.personaEntry = personaEntry;
+	      exported.personaContent = personaEntry.content;
+	    }
+	    return {
+	      format: "hypnoos-encounter-role",
+	      version: 1,
+	      role: exported
+	    };
+	  }
+
+	  function encounterRoleToJsonBlob(role, packageName) {
+	    const json = JSON.stringify(encounterRoleExportObject(role, packageName), null, 2);
+	    return new Blob([json], { type: "application/json;charset=utf-8" });
+	  }
 
   async function encounterInflateRaw(bytes) {
     if (typeof DecompressionStream !== "function") throw new Error("浏览器不支持读取压缩 zip，请使用本页面导出的无压缩 zip。");
@@ -6193,12 +6557,14 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     }
   }
 
-  function encounterPickRoleJsonSource(parsed, currentRole) {
-    const name = String(currentRole?.name || "").trim();
-    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-      if (name && parsed[name] && typeof parsed[name] === "object") return { name, source: parsed[name] };
-      const keys = Object.keys(parsed);
-      if (keys.length === 1 && parsed[keys[0]] && typeof parsed[keys[0]] === "object" && !Array.isArray(parsed[keys[0]])) {
+	  function encounterPickRoleJsonSource(parsed, currentRole) {
+	    const name = String(currentRole?.name || "").trim();
+	    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+	      if (parsed.role && typeof parsed.role === "object" && !Array.isArray(parsed.role)) return { name: String(parsed.role.name || parsed.role["角色名"] || name), source: parsed.role };
+	      if (parsed.character && typeof parsed.character === "object" && !Array.isArray(parsed.character)) return { name: String(parsed.character.name || parsed.character["角色名"] || name), source: parsed.character };
+	      if (name && parsed[name] && typeof parsed[name] === "object") return { name, source: parsed[name] };
+	      const keys = Object.keys(parsed);
+	      if (keys.length === 1 && parsed[keys[0]] && typeof parsed[keys[0]] === "object" && !Array.isArray(parsed[keys[0]])) {
         return { name: keys[0], source: parsed[keys[0]] };
       }
     }
@@ -6221,12 +6587,12 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     const direct = encounterNormalizeRole({
       ...source,
       name: source.name || source["角色名"] || picked.name || current.name,
-      imageDataUrl: current.imageDataUrl
-    });
-    const hasDirect = [direct.name, direct.aliases, direct.intro, direct.variables, direct.persona].some((value) => String(value || "").trim());
-    if (hasDirect && (direct.variables || direct.persona || direct.intro || direct.aliases || picked.name)) {
-      return { ...current, ...direct, imageDataUrl: current.imageDataUrl };
-    }
+	      imageDataUrl: current.imageDataUrl
+	    });
+	    const hasDirect = [direct.name, direct.aliases, direct.intro, direct.variables, direct.persona].some((value) => String(value || "").trim()) || encounterHasPersonaFixedFields(direct);
+	    if (hasDirect && (direct.variables || direct.persona || direct.intro || direct.aliases || encounterHasPersonaFixedFields(direct) || picked.name)) {
+	      return { ...current, ...direct, imageDataUrl: current.imageDataUrl };
+	    }
     const entries = encounterWorldbookEntriesFromJson(parsed);
     const roleName = String(current.name || picked.name || "").trim();
     const matched = roleName
@@ -6322,16 +6688,16 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     return [role?.name].concat(String(role?.aliases || "").split(/[，,、]/)).map((item) => String(item || "").trim()).filter(Boolean);
   }
 
-  function encounterPreparedWorldbookEntry(template, fallbackComment, role, fallbackContent) {
-    const base = encounterWorldbookEntry(fallbackComment, role, fallbackContent);
-    const source = encounterNormalizeRoleWorldbookEntry(template);
-    const entry = source ? { ...base, ...source } : base;
-    entry.comment = String(entry.comment || fallbackComment);
-    entry.content = String(entry.content || fallbackContent || "");
-    const keys = Array.isArray(entry.key) && entry.key.length ? entry.key : Array.isArray(entry.keys) ? entry.keys : encounterRoleWorldbookKeys(role);
-    const normalizedKeys = keys.map((item) => String(item || "").trim()).filter(Boolean);
-    entry.key = normalizedKeys.length ? normalizedKeys : [entry.comment];
-    entry.keys = normalizedKeys.length ? normalizedKeys : [entry.comment];
+	  function encounterPreparedWorldbookEntry(template, fallbackComment, role, fallbackContent, options = {}) {
+	    const base = encounterWorldbookEntry(fallbackComment, role, fallbackContent);
+	    const source = encounterNormalizeRoleWorldbookEntry(template);
+	    const entry = source ? { ...base, ...source } : base;
+	    entry.comment = String(entry.comment || fallbackComment);
+	    entry.content = String(options.preferFallbackContent ? (fallbackContent || entry.content || "") : (entry.content || fallbackContent || ""));
+	    const keys = Array.isArray(entry.key) && entry.key.length ? entry.key : Array.isArray(entry.keys) ? entry.keys : encounterRoleWorldbookKeys(role);
+	    const normalizedKeys = keys.map((item) => String(item || "").trim()).filter(Boolean);
+	    entry.key = normalizedKeys.length ? normalizedKeys : [entry.comment];
+	    entry.keys = normalizedKeys.length ? normalizedKeys : [entry.comment];
     delete entry.uid;
     delete entry.id;
     return entry;
@@ -6341,26 +6707,41 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     const normalized = encounterNormalizeRole(role);
     const name = String(normalized.name || "").trim();
     if (!name) return null;
-    return encounterWorldbookEntry("[mvu_update]" + name + "变量", normalized, encounterDefaultVariableContent(name));
-  }
+	    return encounterWorldbookEntry("[mvu_update]" + name + "变量", normalized, encounterDefaultVariableContent(name));
+	  }
 
-  function encounterWorldbookEntryList(pkg) {
-    const list = [];
-    for (const role of pkg.roles || []) {
-      const normalized = encounterNormalizeRole(role);
+	  function encounterPersonaWorldbookEntry(role, packageName) {
+	    const normalized = encounterNormalizeRole(role);
+	    const name = String(normalized.name || "").trim();
+	    const content = encounterPersonaContent(normalized);
+	    if (!name || !String(content || "").trim()) return null;
+	    return encounterPreparedWorldbookEntry(
+	      normalized.personaEntry,
+	      "[邂逅] " + (packageName || "角色包") + " / " + name + " / 人设",
+	      normalized,
+	      content,
+	      { preferFallbackContent: true }
+	    );
+	  }
+
+	  function encounterWorldbookEntryList(pkg) {
+	    const list = [];
+	    for (const role of pkg.roles || []) {
+	      const normalized = encounterNormalizeRole(role);
       const variableEntry = encounterVariableWorldbookEntry(normalized);
       if (variableEntry) {
         list.push({ world: pkg.variableWorldbook || "人物变量世界书", entry: variableEntry });
       }
-      if (normalized.personaEntry || String(normalized.persona || "").trim()) {
-        list.push({
-          world: pkg.personaWorldbook || "人设世界书",
-          entry: encounterPreparedWorldbookEntry(normalized.personaEntry, "[邂逅] " + (pkg.name || "角色包") + " / " + (normalized.name || "角色") + " / 人设", normalized, normalized.persona)
-        });
-      }
-    }
-    return list;
-  }
+	      const personaEntry = encounterPersonaWorldbookEntry(normalized, pkg.name || "角色包");
+	      if (personaEntry) {
+	        list.push({
+	          world: pkg.personaWorldbook || "人设世界书",
+	          entry: personaEntry
+	        });
+	      }
+	    }
+	    return list;
+	  }
 
   function encounterCandidateWindows() {
     const result = [];
@@ -6766,15 +7147,25 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
           page.querySelector("[data-encounter-import-draft]")?.click();
           return;
         }
-        if (action === "import-role-json") {
-          encounterReadDraftFromForm(page);
-          page.querySelector("[data-encounter-import-role-json]")?.click();
-          return;
-        }
-        if (action === "edit-section") {
-          encounterReadDraftFromForm(page);
-          page.dataset.encounterEditSection = button.getAttribute("data-section") || "package";
-          renderEncounterPage(page);
+	        if (action === "import-role-json") {
+	          encounterReadDraftFromForm(page);
+	          page.querySelector("[data-encounter-import-role-json]")?.click();
+	          return;
+	        }
+	        if (action === "export-role-json") {
+	          const draft = encounterReadDraftFromForm(page);
+	          const index = encounterEditRoleIndex(page, draft);
+	          const role = encounterNormalizeRole((draft.roles || [])[index], index);
+	          const blob = encounterRoleToJsonBlob(role, draft.name || "角色包");
+	          const filename = encounterSafeName(role.name || ("角色-" + (index + 1)), "role") + ".json";
+	          encounterDownloadBlob(blob, filename);
+	          encounterSetStatus(page, "已导出当前角色 JSON。");
+	          return;
+	        }
+	        if (action === "edit-section") {
+	          encounterReadDraftFromForm(page);
+	          page.dataset.encounterEditSection = button.getAttribute("data-section") || "package";
+	          renderEncounterPage(page);
           return;
         }
         if (action === "edit-package") {
