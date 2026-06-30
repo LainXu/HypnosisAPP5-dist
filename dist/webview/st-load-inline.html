@@ -5639,6 +5639,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 
 	  function encounterInitialVariablesText(role) {
 	    const raw = role?.initialVariables ?? role?.initialRoleVariables ?? role?.["初始变量"] ?? role?.["角色初始变量"];
+	    if (raw && typeof raw === "object" && !Array.isArray(raw)) return JSON.stringify(raw, null, 2);
 	    const text = String(raw || "").trim();
 	    if (text) return String(raw);
 	    return JSON.stringify(encounterDefaultInitialVariableObject(role), null, 2);
@@ -5948,6 +5949,111 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       '- 她的心理描写应体现成熟理性与夸张自毁愿望的反差；人物档案里的头发/面部/上衣/下衣按当前场景及时更新。',
       '</中村樱行为指导>'
     ]);
+    const ankoInitialVariables = {
+      "好感度": 0,
+      "警戒度": 12,
+      "服从度": 0,
+      "性欲": 0,
+      "快感值": 0,
+      "是否派遣中": false,
+      "身价": 45000,
+      "档案": {
+        "照片": "",
+        "姓名": "白枢暗子",
+        "年龄": "17",
+        "社团/职业": "同班同学 / 灵异研究会边缘成员",
+        "身高": "160cm",
+        "体重": "49kg",
+        "三围": "B84 / W55 / H86",
+        "头发": "黑色长发常被厚重刘海和松散发束遮住眼睛与侧脸，发尾略乱，像是没认真打理；整理后会显出顺滑光泽和精致轮廓。",
+        "面部": "平时眼神被刘海挡住，表情阴郁、缺乏活力，粗看不起眼甚至显得瘦弱难看；认真看人时五官端正细腻，带着冷白而神秘的美感。",
+        "上衣": "宽松校服外套和衬衫把身体线条藏得很深，袖口常盖住手背，口袋里会塞灵异笔记、符纸或旧校舍传闻剪报。",
+        "下衣": "校裙穿得规矩保守，黑色袜子和不起眼鞋子弱化存在感；运动或被撞到时会暴露出远超外表的核心力量和腿部爆发力。"
+      },
+      "心理": "刚才的碰撞力道好像有点暴露身体能力了。只要沉默离开就好，不要被追问，也不要让人注意到刘海下面的脸。",
+      "阴蒂敏感度": 100,
+      "小穴敏感度": 100,
+      "菊穴敏感度": 100,
+      "尿道敏感度": 100,
+      "乳头敏感度": 100,
+      "临时催眠效果": {},
+      "永久催眠效果": {},
+      "阴蒂高潮次数": 0,
+      "小穴高潮次数": 0,
+      "菊穴高潮次数": 0,
+      "尿道高潮次数": 0,
+      "乳头高潮次数": 0
+    };
+    const momokaInitialVariables = {
+      "好感度": -5,
+      "警戒度": 70,
+      "服从度": 0,
+      "性欲": 0,
+      "快感值": 0,
+      "是否派遣中": false,
+      "身价": 80000,
+      "档案": {
+        "照片": "",
+        "姓名": "千杀百花",
+        "年龄": "19",
+        "社团/职业": "异世界杀手 / 前勇者小队成员",
+        "身高": "149cm",
+        "体重": "41kg",
+        "三围": "B78 / W53 / H80",
+        "头发": "浅色短发略显凌乱，便于战斗和遮蔽视线，发梢带着异世界旅途的尘土感。",
+        "面部": "五官小巧可爱，但眼神极其凌厉，观察时会先扫过手部、腰间和退路；放松表情很少出现。",
+        "上衣": "轻便皮革护具和短斗篷贴合行动需求，暗袋里藏着短刃、药草或异世界小工具，衣料带有旅途磨损。",
+        "下衣": "束带短裤或方便移动的护具下装，短靴轻便结实，腿部线条娇小却带着长期训练出的爆发力。"
+      },
+      "心理": "这个现代弱者很可疑，但确实弱得不像召唤者。先确认出口、武器和他的同伴，再决定是否撤离。",
+      "阴蒂敏感度": 100,
+      "小穴敏感度": 100,
+      "菊穴敏感度": 100,
+      "尿道敏感度": 100,
+      "乳头敏感度": 100,
+      "临时催眠效果": {},
+      "永久催眠效果": {},
+      "阴蒂高潮次数": 0,
+      "小穴高潮次数": 0,
+      "菊穴高潮次数": 0,
+      "尿道高潮次数": 0,
+      "乳头高潮次数": 0
+    };
+    const sakuraInitialVariables = {
+      "好感度": 35,
+      "警戒度": 5,
+      "服从度": 15,
+      "性欲": 20,
+      "快感值": 0,
+      "是否派遣中": false,
+      "身价": 300000,
+      "档案": {
+        "照片": "",
+        "姓名": "中村樱",
+        "年龄": "32",
+        "社团/职业": "大公司总裁",
+        "身高": "170cm",
+        "体重": "54kg",
+        "三围": "B92 / W58 / H90",
+        "头发": "保养极好的深色长发打理得顺滑有光泽，公开场合盘起或自然垂落都显得昂贵克制。",
+        "面部": "成熟精致的脸庞，眼神沉静锐利，妆容、香水和高级珠宝都控制得恰到好处；面对{{user}}时会刻意放软表情。",
+        "上衣": "高级西装外套与贴身衬衫勾勒成熟曲线，衣料、胸针和腕表都透露出社会上位者的资源感。",
+        "下衣": "修身西装裙、高跟鞋和黑色丝袜组成冷静性感的总裁形象，走路时姿态稳定、压迫感强。"
+      },
+      "心理": "终于见到了。只要能让他签下协议，樱酱可以给出钱、场地、司机和更多资源；完美人生被他弄乱也没关系。",
+      "阴蒂敏感度": 120,
+      "小穴敏感度": 120,
+      "菊穴敏感度": 110,
+      "尿道敏感度": 100,
+      "乳头敏感度": 120,
+      "临时催眠效果": {},
+      "永久催眠效果": {},
+      "阴蒂高潮次数": 0,
+      "小穴高潮次数": 0,
+      "菊穴高潮次数": 0,
+      "尿道高潮次数": 0,
+      "乳头高潮次数": 0
+    };
     return [encounterNormalizePackage({
       id: "basic-example-role-pack",
       name: "基础邂逅示例包",
@@ -5964,6 +6070,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
           aliases: "暗子, 白枢同学, 灵异女",
           intro: "阴郁邋遢的同班女学生。厚重刘海盖住眼睛，粗看像瘦弱丑女；实际整理后极其美貌，身体也远比外表健壮，喜欢灵异学和怪谈。",
           variables: ankoVariables,
+          initialVariables: ankoInitialVariables,
           persona: ankoPersona,
           personaEntry: encounterBuiltinWorldbookEntry("[mvu_plot]白枢暗子人设", ["白枢暗子", "暗子", "白枢同学", "灵异学", "鬼怪"], ankoPersona),
           imageDataUrl: stAssetUrl("encounter/shirakusu-anko.png")
@@ -5974,6 +6081,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
           aliases: "百花, 千杀, 异世界杀手",
           intro: "来自剑与魔法异世界的小型杀手少女。体型娇小、动作敏捷，眼神凌厉警戒，曾是拯救异世界人类的原勇者小队成员。",
           variables: momokaVariables,
+          initialVariables: momokaInitialVariables,
           persona: momokaPersona,
           personaEntry: encounterBuiltinWorldbookEntry("[mvu_plot]千杀百花人设", ["千杀百花", "百花", "千杀", "异世界杀手", "勇者"], momokaPersona),
           imageDataUrl: stAssetUrl("encounter/senkoro-momoka.png")
@@ -5984,6 +6092,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
           aliases: "樱酱, 中村总裁",
           intro: "32岁的大公司女总裁。成熟优雅、资源充足、判断力强，拥有稳定婚约却隐藏夸张自毁欲，会主动以金钱和渠道支持{{user}}。",
           variables: sakuraVariables,
+          initialVariables: sakuraInitialVariables,
           persona: sakuraPersona,
           personaEntry: encounterBuiltinWorldbookEntry("[mvu_plot]中村樱人设", ["中村樱", "樱酱", "中村总裁", "神宫寺莲", "作弊模式"], sakuraPersona),
           imageDataUrl: stAssetUrl("encounter/nakamura-sakura.png")
@@ -7144,17 +7253,14 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     return "";
   }
 
-  function encounterFindWorldbookEnd(entries, kind) {
-    const pattern = kind === "variable"
-      ? /变量列表结束/
-      : /人设结束/;
-    return (Array.isArray(entries) ? entries : []).find((entry) => pattern.test(encounterEntryText(entry))) || null;
-  }
-
-  function encounterFindWorldbookTemplate(entries, kind) {
+  function encounterFindWorldbookTemplates(entries, kind) {
     const defaults = /西园寺爱丽莎|月咏深雪|犬冢夏美/;
-    const candidates = (Array.isArray(entries) ? entries : []).filter((entry) => encounterEntryKind(entry) === kind);
-    return candidates.find((entry) => defaults.test(encounterEntryText(entry))) || candidates[0] || null;
+    const candidates = (Array.isArray(entries) ? entries : [])
+      .filter((entry) => encounterEntryKind(entry) === kind)
+      .slice()
+      .sort((a, b) => (encounterEntryOrder(a) ?? 999) - (encounterEntryOrder(b) ?? 999));
+    const preferred = candidates.filter((entry) => defaults.test(encounterEntryText(entry)));
+    return preferred.length ? preferred : candidates;
   }
 
   function encounterCloneWorldbookEntry(entry) {
@@ -7237,14 +7343,6 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     return entry;
   }
 
-  function encounterOrderBeforeEnd(end, index, total, fallback) {
-    if (Number.isFinite(end)) {
-      const step = 0.001;
-      return Number((end - (total - index) * step).toFixed(3));
-    }
-    return Number(fallback) + index + 1;
-  }
-
   function encounterApplyCharacterWorldbookLayout(entries, existingEntries) {
     const existing = Array.isArray(existingEntries) ? existingEntries : [];
     if (!existing.length) return entries.map(encounterCloneWorldbookEntry);
@@ -7252,12 +7350,13 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     for (const kind of ["variable", "persona"]) {
       const targets = next.filter((entry) => encounterEntryKind(entry) === kind);
       if (!targets.length) continue;
-      const end = encounterEntryOrder(encounterFindWorldbookEnd(existing, kind));
-      const template = encounterFindWorldbookTemplate(existing, kind);
-      const fallbackOrder = encounterEntryOrder(template) ?? (kind === "variable" ? 30 : 80);
+      const templates = encounterFindWorldbookTemplates(existing, kind);
+      const fallbackOrder = kind === "variable" ? 23 : 75;
       targets.forEach((entry, index) => {
+        const template = templates.length ? templates[index % templates.length] : null;
         encounterApplyWorldbookTemplate(entry, template);
-        const order = encounterOrderBeforeEnd(end, index, targets.length, fallbackOrder);
+        const templateOrder = encounterEntryOrder(template);
+        const order = Number.isFinite(templateOrder) ? templateOrder : fallbackOrder + index;
         entry.insertion_order = order;
         entry.order = order;
       });
