@@ -438,7 +438,7 @@ window.setTimeout(() => {
       const detailText = operationValueToDenseText(record.details || {});
       const haystack = [source, action, detailText].join(" ");
       if (/^监控$/.test(source) && /派遣中提醒/.test(action)) return 0;
-      if (/^打工$/.test(source) && /打工中提醒/.test(action)) return 0;
+      if (/^打工$/.test(source) && /打工中提醒|打工buff提醒/.test(action)) return 0;
       if (/^(时钟|地图|学校地图)$/.test(source)) return 0;
       if (/建议剧情开始时间|建议时间|当前时间|推进到该时间|建议剧情地点|请求新增地点|当前地点变量|建议地点/.test(haystack)) return 0;
       return 10;
@@ -488,7 +488,7 @@ window.setTimeout(() => {
           return "reward:cancel-quest:" + (id || title);
         }
       }
-      if (/^打工$/.test(source) && /开始打工|打工/.test(action)) return "work:active";
+      if (/^打工$/.test(source) && /^(开始打工|打工中提醒)$/.test(action)) return "work:active";
       if (/^邂逅$/.test(source) && /购买角色包|角色包已使用/.test(action)) {
         const id = cleanOperationText(object["角色包ID"] ?? object.id ?? "");
         const name = cleanOperationText(object["角色包名称"] ?? object.name ?? "");
@@ -742,6 +742,26 @@ window.setTimeout(() => {
       const isTarget = (entry) => {
         const item = operationEntryPayload(entry);
         return item?.["来源"] === "打工" && item?.["操作"] === "打工中提醒";
+      };
+      if (!payload) {
+        const before = window.__ST_OPERATION_INPUT_LOG__.length;
+        window.__ST_OPERATION_INPUT_LOG__ = window.__ST_OPERATION_INPUT_LOG__.filter((entry) => !isTarget(entry));
+        const changed = before !== window.__ST_OPERATION_INPUT_LOG__.length;
+        if (changed) emitOperationQueueChanged();
+        return changed;
+      }
+      const nextEntry = makeOperationEntry({ ...payload, 不可删除: true });
+      const existing = window.__ST_OPERATION_INPUT_LOG__.filter(isTarget);
+      if (existing.length === 1 && describeOperationEntry(existing[0]).key === nextEntry.key) return false;
+      window.__ST_OPERATION_INPUT_LOG__ = window.__ST_OPERATION_INPUT_LOG__.filter((entry) => !isTarget(entry));
+      window.__ST_OPERATION_INPUT_LOG__.push(nextEntry);
+      emitOperationQueueChanged();
+      return true;
+    };
+    window.__ST_SET_WORK_BUFF_STATUS_REMINDER__ = (payload) => {
+      const isTarget = (entry) => {
+        const item = operationEntryPayload(entry);
+        return item?.["来源"] === "打工" && item?.["操作"] === "打工buff提醒";
       };
       if (!payload) {
         const before = window.__ST_OPERATION_INPUT_LOG__.length;
@@ -4960,6 +4980,38 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     };
   }
 
+  function workOffsetDateTimeText(startText, hours = 0) {
+    const text = String(startText || "").trim();
+    const dateMatch = text.match(/(d{1,2})月(d{1,2})日/);
+    const timeMatch = text.match(/(d{1,2}):(d{2})/);
+    if (!dateMatch || !timeMatch) return hours ? "开始后" + hours + "小时" : text || "未知";
+    const month = Number(dateMatch[1]);
+    const day = Number(dateMatch[2]);
+    const hour = Number(timeMatch[1]);
+    const minute = Number(timeMatch[2]);
+    if (![month, day, hour, minute].every(Number.isFinite)) return hours ? "开始后" + hours + "小时" : text || "未知";
+    const totalMinutes = hour * 60 + minute + hours * 60;
+    const dayOffset = Math.floor(totalMinutes / 1440);
+    const endMinutes = ((totalMinutes % 1440) + 1440) % 1440;
+    const date = new Date(2026, month - 1, day);
+    date.setDate(date.getDate() + dayOffset);
+    return (date.getMonth() + 1) + "月" + date.getDate() + "日 " + formatPeriodTime(endMinutes);
+  }
+
+  function workStableHash(text) {
+    let hash = 0;
+    const source = String(text || "");
+    for (let index = 0; index < source.length; index += 1) {
+      hash = ((hash << 5) - hash + source.charCodeAt(index)) | 0;
+    }
+    return Math.abs(hash);
+  }
+
+  function workEncounterDelayHours(job, roll) {
+    const seed = [job?.id || "", roll?.roleName || "", roll?.createdAt || ""].join("|");
+    return 1 + (workStableHash(seed) % 4);
+  }
+
   function workCurrentStamp() {
     const system = getSystemState();
     const parsed = parseStoryDate(system["当前日期"] || "");
@@ -5091,7 +5143,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
   function pendingWorkPayloads() {
     return (window.__ST_GET_PENDING_OPERATION_INPUT_LOG__?.() || [])
       .map((entry) => entry?.payload || entry)
-      .filter((payload) => payload?.["来源"] === "打工" && /开始打工|打工/.test(String(payload?.["操作"] || "")));
+      .filter((payload) => payload?.["来源"] === "打工" && /^(开始打工|打工中提醒)$/.test(String(payload?.["操作"] || "")));
   }
 
   function pendingWorkStartPayloads() {
@@ -5120,17 +5172,47 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       return;
     }
     const encounterRole = String(latest["偶遇女角色"] || "无").trim() || "无";
+    const hasEncounter = encounterRole && encounterRole !== "无";
     window.__ST_SET_WORK_STATUS_REMINDER__?.({
       来源: "打工",
       操作: "打工中提醒",
+      阶段: hasEncounter ? "偶遇互动后结算" : "补完结算",
       工作: latest["工作"] || "未记录",
       工作地点: latest["工作地点"] || "未记录",
       开始时间: latest["开始时间"] || "未记录",
       预计结束时间: endText,
       当前时间: monitorCurrentTimeText(),
       偶遇女角色: encounterRole,
-      提醒: "当前仍在上一次打工的预计结束时间前，不能开始新的打工；这条提醒由前端自动锁定。",
-      AI执行规范: "这不是新的打工申请，而是上一轮开始打工后的打工中提醒。若上一轮打工有偶遇女角色，本轮先处理{{user}}对偶遇的行动/选择/催眠机会，随后可以直接补完剩余打工，推进当前日期/当前时间到预计结束时间并按上一轮开始打工字段结算收入、社畜值和buff；不要反复卡在打工途中。若没有偶遇但时间仍未推进到预计结束时间，且剧情条件允许，请直接完成6小时打工结算。"
+      提醒: hasEncounter
+        ? "上一轮打工已到偶遇节点；本轮处理用户与偶遇角色的互动后，直接推进到预计结束时间结算。"
+        : "上一轮普通打工尚未写到结束；本轮直接推进到预计结束时间结算。"
+    });
+  }
+
+  function syncWorkBuffStatusReminder() {
+    const system = getSystemState();
+    const buff = String(system["buff"] || "").trim();
+    if (!buff || buff === "无") {
+      window.__ST_SET_WORK_BUFF_STATUS_REMINDER__?.(null);
+      return;
+    }
+    const latest = latestWorkStartPayloadFromChat();
+    const latestBuff = String(latest?.["打工获得buff"] || "").trim();
+    const startText = latestBuff === buff ? String(latest?.["开始时间"] || "").trim() : "";
+    const endText = latestBuff === buff
+      ? String(latest?.["打工buff预计结束时间"] || workOffsetDateTimeText(startText, 24)).trim()
+      : "";
+    const endStamp = endText ? monitorStampFromText(endText) : 0;
+    const currentStamp = workCurrentStamp();
+    const expired = Boolean(endStamp && currentStamp && currentStamp >= endStamp);
+    window.__ST_SET_WORK_BUFF_STATUS_REMINDER__?.({
+      来源: "打工",
+      操作: "打工buff提醒",
+      当前buff: buff,
+      buff开始时间: startText || "未记录",
+      buff预计结束时间: endText || "按写入后1天由AI判断",
+      当前时间: monitorCurrentTimeText(),
+      提醒: expired ? "buff已到预计结束时间；若没有新buff，请清空/系统/buff。" : "当前buff仍在持续，按世界书规则影响相关操作。"
     });
   }
 
@@ -5145,6 +5227,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 
   function renderWorkPage(page) {
     syncWorkStatusReminder();
+    syncWorkBuffStatusReminder();
     const shachiku = currentShachikuValue();
     const pct = Math.max(0, Math.min(100, Math.round(shachiku / 200 * 100)));
       const pendingWork = hasPendingWorkOperation();
@@ -5219,6 +5302,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         const timingInfo = workStartTimingInfo();
         const latestRoll = readWorkLayerRoll();
         const encounterRole = latestRoll.roleName && latestRoll.rolls?.[job.id] ? latestRoll.roleName : "";
+        const encounterDelayHours = encounterRole ? workEncounterDelayHours(job, latestRoll) : 0;
         const nextValue = Math.min(200, currentValue + job.shachiku);
         const payload = {
           来源: "打工",
@@ -5232,20 +5316,16 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
           开始时间: timeInfo.startText,
           预计结束时间: timeInfo.endText,
           打工时间分类: timingInfo.kind,
-          打工日期规则: timingInfo.dayRule,
           当前buff: timingInfo.currentBuff || "无",
           打工获得buff: timingInfo.buff || "无",
-          打工buff持续时间: timingInfo.buff ? "1天" : "无新增buff",
-          打工buff覆盖规则: timingInfo.buff ? "写入新buff时直接替换/系统/buff中旧buff；所有打工buff最多同时存在一个。" : "本次不新增buff，已有buff保留到自然到期或被其他buff覆盖。",
-          打工buff规则: timingInfo.rule,
+          打工buff预计结束时间: timingInfo.buff ? workOffsetDateTimeText(timeInfo.startText, 24) : "无",
           获得零花钱: job.wage,
           获得社畜值: job.shachiku,
           结算后社畜值上限预览: nextValue,
           社畜值上限: 200,
-          本层偶遇候选: latestRoll.roleName || "无",
           偶遇女角色: encounterRole || "无",
-          本层偶遇判定: encounterRole ? "本层前端已判定会遇到" + encounterRole + "，且本工作按钮触发偶遇；对用户界面隐藏，只交给AI处理。" : "本工作按钮未触发偶遇，不强行安排女角色剧情。",
-          AI执行规范: "同一轮只能处理一次打工；若本轮有多条打工操作，只处理最早一条，后续忽略。若/系统/社畜值不足需要社畜值或剧情条件失败，则不推进时间、不发钱、不加社畜值。打工buff按字段“打工获得buff”处理：若为“社会的蔑视”（逃学被其他人蔑视）、“无精打采”或“全盛出击”，本次打工成功开始/成功结算时replace /系统/buff为该值，所有buff持续1天且会被其他buff覆盖；若为“全盛出击”，还要把/系统/MC能量一次性恢复到/系统/MC能量上限，恢复效果只触发这一次；若为“无”，不要因本次打工新增或清空buff，已有buff保留到自然到期或被其他buff覆盖。" + (encounterRole ? " 本次打工途中会偶遇" + encounterRole + "：本轮只写到自然碰面的节点，保留下一次用户行动/选择/催眠机会；本轮暂不推进到6小时后、不发钱、不加社畜值。打工偶遇时好感度根据剧情、互动结果和催眠影响决定，可正可负且无上限/无下限；但若/系统/buff为“社会的蔑视”（逃学被其他人蔑视），任何角色好感度不得提升。服从度没有打工专属机制，只有剧情或催眠明确改变时才更新。用户下一轮回复后，若剧情仍处于同一次打工且没有新的打工操作，可以直接补完剩余打工，推进当前日期/当前时间到预计结束时间，/系统/持有零花钱增加" + job.wage + "，/系统/社畜值更新为min(200, 当前社畜值+" + job.shachiku + ")，并按本条打工buff规则结算buff，不要反复卡在打工途中。" : " 本次没有偶遇女角色；若/系统/社畜值>=需要社畜值且剧情允许，则直接推进当前日期/当前时间6小时，/系统/持有零花钱增加" + job.wage + "，/系统/社畜值更新为min(200, 当前社畜值+" + job.shachiku + ")，并按本条打工buff规则结算buff。")
+          偶遇发生时间: encounterRole ? workOffsetDateTimeText(timeInfo.startText, encounterDelayHours) : "无",
+          处理方式: encounterRole ? "先写到工作途中偶遇节点；下一轮锁定提醒处理互动后结算。" : "直接写到预计结束时间并结算。"
         };
         Promise.resolve(appendAppOperation(payload)).then((added) => {
           flashWorkButton(button, added ? "已暂存" : "已在暂存区");
@@ -8931,7 +9011,10 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     updatePhoneDarkTheme();
     updateOpenPersonProfilePage();
     if (isLatestPhoneVariableView()) syncMonitorDispatchCompletionReminder();
-    if (isLatestPhoneVariableView()) syncWorkStatusReminder();
+    if (isLatestPhoneVariableView()) {
+      syncWorkStatusReminder();
+      syncWorkBuffStatusReminder();
+    }
     updateOperationSidePanel();
   }
 
