@@ -490,9 +490,7 @@ window.setTimeout(() => {
       }
       if (/^打工$/.test(source) && /^(开始打工|打工中提醒)$/.test(action)) return "work:active";
       if (/^邂逅$/.test(source) && /购买角色包|角色包已使用/.test(action)) {
-        const id = cleanOperationText(object["角色包ID"] ?? object.id ?? "");
-        const name = cleanOperationText(object["角色包名称"] ?? object.name ?? "");
-        return "encounter:purchase:" + (id || name);
+        return "encounter:purchase:active";
       }
       return "";
     };
@@ -6367,6 +6365,16 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     return ids;
   }
 
+  function encounterPendingPurchasePayloads() {
+    return (window.__ST_GET_PENDING_OPERATION_INPUT_LOG__?.() || [])
+      .map((entry) => entry?.payload || entry)
+      .filter((payload) => payload?.["来源"] === "邂逅" && /角色包已使用|购买角色包/.test(String(payload?.["操作"] || "")));
+  }
+
+  function encounterHasPendingPurchaseOperation() {
+    return encounterPendingPurchasePayloads().length > 0;
+  }
+
   function encounterSetStatus(page, message) {
     page.dataset.encounterStatus = String(message || "");
     const status = page.querySelector(".st-encounter-status");
@@ -6453,11 +6461,12 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     const featured = pkg.id === "basic-example-role-pack";
     const roleCount = Array.isArray(pkg.roles) ? pkg.roles.length : 0;
     const used = encounterIsPurchased(pkg.id);
-    return '<button type="button" class="st-encounter-package' + (featured ? " is-featured" : "") + (used ? " is-used" : "") + '" data-encounter-action="open-package" data-package-id="' + escapeAttr(pkg.id) + '">' +
+    const pendingPurchase = encounterHasPendingPurchaseOperation();
+    return '<button type="button" class="st-encounter-package' + (featured ? " is-featured" : "") + (used ? " is-used" : "") + (pendingPurchase && !used ? " is-pending" : "") + '" data-encounter-action="open-package" data-package-id="' + escapeAttr(pkg.id) + '">' +
       '<div class="st-encounter-cover">' + encounterCoverHtml(pkg.coverDataUrl, pkg.name || "角色包") + '</div>' +
       '<div class="st-encounter-package-body">' +
         '<div class="st-encounter-package-title"><strong>' + escapeHtml(pkg.name || "未命名角色包") + '</strong></div>' +
-        '<div class="st-encounter-package-facts"><span>' + roleCount + ' 角色</span><span class="st-encounter-price">' + (used ? "已使用" : price + ' 星光点') + '</span></div>' +
+        '<div class="st-encounter-package-facts"><span>' + roleCount + ' 角色</span><span class="st-encounter-price">' + (used ? "已使用" : (pendingPurchase ? "本轮已使用" : price + ' 星光点')) + '</span></div>' +
       '</div>' +
     '</button>';
   }
@@ -6481,6 +6490,8 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     const roleCount = Array.isArray(pkg.roles) ? pkg.roles.length : 0;
     const price = encounterPackagePrice(pkg);
     const used = encounterIsPurchased(pkg.id);
+    const pendingPurchase = encounterHasPendingPurchaseOperation();
+    const purchaseDisabled = used || pendingPurchase;
     return '<section class="st-encounter-detail-panel">' +
       '<h3>角色包详细内容</h3>' +
       '<p class="st-encounter-detail-text">' + escapeHtml(pkg.intro || "暂无介绍。") + '</p>' +
@@ -6491,9 +6502,10 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         '<span><strong>当前角色卡世界书</strong>写入位置</span>' +
       '</div>' +
       (used ? '<div class="st-encounter-used-note">这个角色包已经使用过。世界书写入不可自动撤销，按钮已锁定。</div>' : '') +
+      (!used && pendingPurchase ? '<div class="st-encounter-used-note">本轮已经有一个角色包在暂存区。确认写入前不能再购买其他角色包。</div>' : '') +
       '<div class="st-encounter-actions">' +
         '<button type="button" class="st-encounter-button" data-encounter-action="edit-package" data-package-id="' + escapeAttr(pkg.id) + '">在此包上更改</button>' +
-        '<button type="button" class="st-encounter-button primary" data-encounter-action="purchase" data-package-id="' + escapeAttr(pkg.id) + '"' + (used ? " disabled" : "") + '>购买 / 使用</button>' +
+        '<button type="button" class="st-encounter-button primary" data-encounter-action="purchase" data-package-id="' + escapeAttr(pkg.id) + '"' + (purchaseDisabled ? " disabled" : "") + '>' + (pendingPurchase && !used ? "本轮已有角色包" : "购买 / 使用") + '</button>' +
       '</div>' +
       '<p class="st-encounter-note">购买会先警告确认；确认后前端直接扣星光点、创建初始角色变量、缓存图片，并把条目写入当前使用角色卡绑定的世界书。</p>' +
     '</section>';
@@ -7801,6 +7813,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     return {
       来源: "邂逅",
       操作: "角色包已使用",
+      不可删除: true,
       角色包ID: pkg.id,
       角色包名称: pkg.name || "未命名角色包",
       角色包介绍: pkg.intro || "无",
@@ -7831,6 +7844,11 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     }
     if (encounterIsPurchased(pkg.id)) {
       encounterSetStatus(page, "这个角色包已经使用过。");
+      renderEncounterPage(page);
+      return;
+    }
+    if (encounterHasPendingPurchaseOperation()) {
+      encounterSetStatus(page, "本轮已经有一个角色包在暂存区。确认写入前不能再购买其他角色包。");
       renderEncounterPage(page);
       return;
     }
@@ -8815,7 +8833,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
                 '<strong class="st-operation-item-action">' + escapeHtml(item.action || "操作") + '</strong>' +
               '</div>' +
               (item.locked
-                ? '<button class="st-operation-item-remove is-locked" type="button" title="这条提醒由当前变量触发，不能手动删除" disabled>锁</button>'
+                ? '<button class="st-operation-item-remove is-locked" type="button" title="这条操作已经产生前端副作用，不能手动删除" disabled>锁</button>'
                 : '<button class="st-operation-item-remove" type="button" title="删除这条操作" data-operation-remove="' + escapeAttr(item.id || item.key) + '">×</button>') +
             '</div>' +
             (conciseSummary ? '<p class="st-operation-item-summary">' + escapeHtml(conciseSummary) + '</p>' : "") +
