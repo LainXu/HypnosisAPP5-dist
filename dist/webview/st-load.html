@@ -7059,7 +7059,209 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     return { entries: {} };
   }
 
+  function encounterWorldEntryValues(data) {
+    if (Array.isArray(data)) return data;
+    if (!data || typeof data !== "object") return [];
+    const entries = data.entries || data.entry || data.world_info || null;
+    if (Array.isArray(entries)) return entries;
+    if (entries && typeof entries === "object") return Object.values(entries);
+    return [];
+  }
+
+  function encounterWorldEntryDuplicate(entries, entry) {
+    const comment = String(entry?.comment || entry?.name || "").trim();
+    const content = String(entry?.content || "").trim();
+    return (Array.isArray(entries) ? entries : []).some((item) => {
+      const itemComment = String(item?.comment || item?.name || "").trim();
+      const itemContent = String(item?.content || "").trim();
+      return Boolean((comment && itemComment === comment) || (content && itemContent === content));
+    });
+  }
+
+  function encounterTavernHelperTargets(win) {
+    const targets = [];
+    const push = (item) => {
+      if (item && typeof item === "object" && !targets.includes(item)) targets.push(item);
+    };
+    try {
+      const context = win.SillyTavern?.getContext?.() || win.getContext?.();
+      [
+        win,
+        win.TavernHelper,
+        win.tavernHelper,
+        win.TH,
+        win.TavernHelper?.api,
+        win.tavernHelper?.api,
+        win.SillyTavern?.TavernHelper,
+        context,
+        context?.TavernHelper,
+        context?.tavernHelper
+      ].forEach(push);
+    } catch {}
+    return targets;
+  }
+
+  function encounterEntryKeys(entry) {
+    const keys = Array.isArray(entry?.key) && entry.key.length ? entry.key : Array.isArray(entry?.keys) ? entry.keys : [];
+    return keys.map((item) => String(item || "").trim()).filter(Boolean);
+  }
+
+  function encounterTavernHelperPosition(entry) {
+    const raw = String(entry?.position || "").trim();
+    if (/after.*example/i.test(raw)) return "after_example_messages";
+    if (/before.*example/i.test(raw)) return "before_example_messages";
+    if (/after.*author|note.*after/i.test(raw)) return "after_author_note";
+    if (/before.*author|note.*before/i.test(raw)) return "before_author_note";
+    if (/after.*char|after_char/i.test(raw)) return "after_character_definition";
+    if (/depth/i.test(raw)) return "at_depth";
+    return "before_character_definition";
+  }
+
+  function encounterTavernHelperRole(entry) {
+    const value = entry?.role;
+    if (value === "assistant" || value === 1) return "assistant";
+    if (value === "user" || value === 2) return "user";
+    return "system";
+  }
+
+  function encounterToTavernHelperEntry(entry) {
+    const keys = encounterEntryKeys(entry);
+    const secondaryKeys = (Array.isArray(entry?.keysecondary) && entry.keysecondary.length ? entry.keysecondary : Array.isArray(entry?.secondary_keys) ? entry.secondary_keys : [])
+      .map((item) => String(item || "").trim())
+      .filter(Boolean);
+    const positionType = encounterTavernHelperPosition(entry);
+    const scanDepth = Number(entry?.scan_depth ?? entry?.scanDepth);
+    return {
+      name: String(entry?.comment || entry?.name || "邂逅世界书条目"),
+      enabled: !Boolean(entry?.disable ?? entry?.disabled),
+      strategy: {
+        type: entry?.constant ? "constant" : (entry?.vectorized ? "vectorized" : "selective"),
+        keys,
+        keys_secondary: {
+          logic: entry?.selectiveLogic || entry?.logic || "and_any",
+          keys: secondaryKeys
+        },
+        scan_depth: Number.isFinite(scanDepth) && scanDepth > 0 ? scanDepth : "same_as_global"
+      },
+      position: {
+        type: positionType,
+        role: encounterTavernHelperRole(entry),
+        depth: Math.max(0, Number(entry?.depth ?? 4) || 4),
+        order: Math.max(0, Number(entry?.order ?? 100) || 100)
+      },
+      content: String(entry?.content || ""),
+      probability: Math.max(0, Math.min(100, Number(entry?.probability ?? 100) || 100)),
+      recursion: {
+        prevent_incoming: Boolean(entry?.excludeRecursion ?? entry?.preventRecursion),
+        prevent_outgoing: Boolean(entry?.preventRecursion),
+        delay_until: Number.isFinite(Number(entry?.delay_until_recursion ?? entry?.delayUntilRecursion)) ? Number(entry?.delay_until_recursion ?? entry?.delayUntilRecursion) : null
+      },
+      effect: {
+        sticky: Number.isFinite(Number(entry?.sticky)) ? Number(entry.sticky) : null,
+        cooldown: Number.isFinite(Number(entry?.cooldown)) ? Number(entry.cooldown) : null,
+        delay: Number.isFinite(Number(entry?.delay)) ? Number(entry.delay) : null
+      },
+      extra: {
+        comment: String(entry?.comment || "")
+      }
+    };
+  }
+
+  async function encounterInsertWithTavernHelper(win, worldName, entry) {
+    for (const target of encounterTavernHelperTargets(win)) {
+      const createEntries = target?.createWorldbookEntries;
+      if (typeof createEntries !== "function") continue;
+      try {
+        let worldbook = null;
+        if (typeof target.getWorldbook === "function") {
+          try {
+            worldbook = await target.getWorldbook(worldName);
+          } catch {}
+        }
+        if (!Array.isArray(worldbook)) {
+          if (typeof target.createWorldbook === "function") {
+            try { await target.createWorldbook(worldName, []); } catch {}
+          }
+          if (typeof target.getWorldbook === "function") {
+            try { worldbook = await target.getWorldbook(worldName); } catch {}
+          }
+        }
+        if (Array.isArray(worldbook) && encounterWorldEntryDuplicate(worldbook, entry)) return true;
+        await createEntries.call(target, worldName, [encounterToTavernHelperEntry(entry)], { render: "immediate" });
+        return true;
+      } catch {}
+    }
+    return false;
+  }
+
+  const ENCOUNTER_WORLD_INFO_MODULE_CACHE = new WeakMap();
+
+  async function encounterImportWorldInfoModule(win) {
+    if (!win || typeof win !== "object") return null;
+    if (ENCOUNTER_WORLD_INFO_MODULE_CACHE.has(win)) return ENCOUNTER_WORLD_INFO_MODULE_CACHE.get(win);
+    const attempts = [
+      () => win.eval?.("import('./scripts/world-info.js')"),
+      () => win.eval?.("import('/scripts/world-info.js')"),
+      () => import("./scripts/world-info.js"),
+      () => import("/scripts/world-info.js")
+    ];
+    for (const attempt of attempts) {
+      try {
+        const mod = await attempt();
+        if (mod && typeof mod.saveWorldInfo === "function") {
+          ENCOUNTER_WORLD_INFO_MODULE_CACHE.set(win, mod);
+          return mod;
+        }
+      } catch {}
+    }
+    ENCOUNTER_WORLD_INFO_MODULE_CACHE.set(win, null);
+    return null;
+  }
+
+  async function encounterInsertWithSillyTavernModule(win, worldName, entry) {
+    const mod = await encounterImportWorldInfoModule(win);
+    if (!mod || typeof mod.saveWorldInfo !== "function") return false;
+    try {
+      let data = null;
+      if (typeof mod.loadWorldInfo === "function") {
+        try { data = await mod.loadWorldInfo(worldName); } catch {}
+      }
+      if (!data && typeof mod.createNewWorldInfo === "function") {
+        try {
+          await mod.createNewWorldInfo(worldName, { interactive: false });
+          data = typeof mod.loadWorldInfo === "function" ? await mod.loadWorldInfo(worldName) : null;
+        } catch {}
+      }
+      if (!data || typeof data !== "object") data = { entries: {} };
+      if (encounterWorldEntryDuplicate(encounterWorldEntryValues(data), entry)) return true;
+      if (typeof mod.createWorldInfoEntry === "function" && data.entries && typeof data.entries === "object" && !Array.isArray(data.entries)) {
+        const created = mod.createWorldInfoEntry(worldName, data);
+        if (!created) return false;
+        const uid = created.uid;
+        Object.assign(created, entry);
+        created.uid = uid;
+      } else {
+        if (!encounterAppendWorldEntry(data, entry)) return false;
+      }
+      await mod.saveWorldInfo(worldName, data, true);
+      try { await mod.updateWorldInfoList?.(); } catch {}
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   async function encounterInsertWorldbookEntry(worldName, entry) {
+    for (const win of encounterCandidateWindows()) {
+      try {
+        if (await encounterInsertWithTavernHelper(win, worldName, entry)) return true;
+      } catch {}
+    }
+    for (const win of encounterCandidateWindows()) {
+      try {
+        if (await encounterInsertWithSillyTavernModule(win, worldName, entry)) return true;
+      } catch {}
+    }
     for (const win of encounterCandidateWindows()) {
       try {
         const data = await encounterLoadWorldData(win, worldName) || await encounterCreateWorldData(win, worldName);
