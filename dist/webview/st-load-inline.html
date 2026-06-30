@@ -1901,17 +1901,24 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-location-current span{color:rgba(203,213,225,.58);font-size:10px;font-weight:850}
 .st-location-current strong{color:#f8fafc;font-size:13px;line-height:1.35;text-align:right}
 .st-location-list{display:grid;gap:8px}
-.st-location-item{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:8px;align-items:center;border:1px solid rgba(255,255,255,.09);border-radius:15px;background:rgba(2,6,23,.34);padding:8px}
+.st-location-item{border:1px solid rgba(255,255,255,.09);border-radius:15px;background:rgba(2,6,23,.34);overflow:hidden}
 .st-location-item.is-current{border-color:rgba(34,211,238,.45);background:linear-gradient(135deg,rgba(34,211,238,.14),rgba(168,85,247,.1))}
 .st-location-item.is-favorite{border-color:rgba(250,204,21,.32);background:linear-gradient(135deg,rgba(250,204,21,.1),rgba(2,6,23,.34))}
-.st-location-main{color:inherit;text-align:left;min-width:0}
-.st-location-main strong{display:flex;align-items:center;gap:6px;font-size:14px;color:#f8fafc;line-height:1.25}
-.st-location-main small{font-size:9px;color:rgba(125,211,252,.72);font-weight:850;white-space:nowrap}
+.st-location-summary{list-style:none;display:grid;grid-template-columns:minmax(0,1fr) 32px auto 18px;gap:8px;align-items:center;padding:8px;cursor:pointer}
+.st-location-summary::-webkit-details-marker{display:none}
+.st-location-title{display:flex;align-items:center;gap:6px;min-width:0}
+.st-location-title strong{min-width:0;color:#f8fafc;font-size:14px;line-height:1.25;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-location-title small{font-size:9px;color:rgba(125,211,252,.72);font-weight:850;white-space:nowrap}
 .st-location-category{display:inline-flex;align-items:center;border:1px solid rgba(34,211,238,.18);border-radius:999px;background:rgba(14,165,233,.1);color:#bae6fd;font-style:normal;font-size:9px;font-weight:850;padding:2px 6px;white-space:nowrap}
-.st-location-main p{margin:5px 0 0;color:rgba(226,232,240,.72);font-size:12px;line-height:1.5;white-space:pre-wrap}
+.st-location-detail{display:grid;gap:8px;border-top:1px solid rgba(255,255,255,.07);padding:0 8px 8px 8px}
+.st-location-detail p{margin:8px 0 0;color:rgba(226,232,240,.72);font-size:12px;line-height:1.5;white-space:pre-wrap}
 .st-location-favorite{align-self:center;width:32px;height:32px;border:1px solid rgba(250,204,21,.22);border-radius:11px;background:rgba(250,204,21,.08);color:rgba(253,230,138,.86);font-size:16px;font-weight:950;line-height:1;display:grid;place-items:center;cursor:pointer}
 .st-location-favorite.active{border-color:rgba(250,204,21,.5);background:rgba(250,204,21,.18);color:#fde68a;box-shadow:0 0 18px rgba(250,204,21,.12)}
 .st-location-suggest{align-self:center;border:1px solid rgba(34,211,238,.24);border-radius:11px;background:rgba(14,165,233,.1);color:#bae6fd;font-size:11px;font-weight:850;padding:7px 9px;cursor:pointer;white-space:nowrap}
+.st-location-chevron{color:rgba(203,213,225,.55);font-size:14px;font-weight:950;transition:transform .16s ease}
+.st-location-item[open] .st-location-chevron{transform:rotate(180deg)}
+.st-graph-category-wrap{display:grid;grid-template-columns:24px minmax(0,1fr) 24px;gap:5px;align-items:center}
+.st-graph-category-arrow{width:24px;height:24px;border:1px solid rgba(255,255,255,.08);border-radius:999px;background:rgba(2,6,23,.34);color:rgba(226,232,240,.72);font-size:14px;font-weight:950;line-height:1;display:grid;place-items:center;cursor:pointer}
 .st-graph-category-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:1px;scrollbar-width:none}
 .st-graph-category-tabs::-webkit-scrollbar{display:none}
 .st-graph-category-tabs button{flex:0 0 auto;border:1px solid rgba(255,255,255,.08);border-radius:999px;background:rgba(2,6,23,.3);color:rgba(203,213,225,.72);font-size:10px;font-weight:850;padding:5px 9px;cursor:pointer}
@@ -1923,6 +1930,11 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-graph-info p{margin:0;color:rgba(226,232,240,.72);font-size:12px;line-height:1.55;white-space:pre-wrap}
 .st-graph-delete{justify-self:end;border:1px solid rgba(244,63,94,.28);border-radius:11px;background:rgba(244,63,94,.12);color:#fecdd3;font-size:11px;font-weight:850;padding:7px 10px;cursor:pointer}
 .st-graph-add{display:grid;gap:8px}
+.st-graph-add-summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer}
+.st-graph-add-summary::-webkit-details-marker{display:none}
+.st-graph-add-summary strong{font-size:14px;color:#f8fafc}
+.st-graph-add-summary span{color:rgba(203,213,225,.55);font-size:10px;font-weight:850}
+.st-graph-add[open] .st-location-chevron{transform:rotate(180deg)}
 .st-graph-add-grid{display:grid;grid-template-columns:1fr;gap:8px}
 .st-graph-add input,.st-graph-add textarea,.st-graph-add select{width:100%;border:1px solid rgba(255,255,255,.1);border-radius:12px;background:rgba(2,6,23,.45);color:#f8fafc;outline:none;padding:9px 10px;font-size:12px;line-height:1.45;font-family:inherit}
 .st-graph-add textarea{min-height:64px;resize:vertical}
@@ -2198,7 +2210,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-encounter-shop-row input{min-width:0;height:33px;border:1px solid rgba(127,88,47,.14);border-radius:8px;background:rgba(255,251,235,.75);color:#352b25;padding:0 9px;font-size:12px;font-weight:900;outline:none}
 .st-encounter-shop-row button{min-height:33px}
 @media (max-width:420px){.st-encounter-grid2{grid-template-columns:1fr}.st-encounter-package{grid-template-columns:88px minmax(0,1fr)}.st-encounter-detail-hero{grid-template-columns:100px minmax(0,1fr)}.st-encounter-actions{grid-template-columns:1fr}.st-encounter-kv{grid-template-columns:1fr}.st-encounter-role-preview{grid-template-columns:70px minmax(0,1fr)}.st-encounter-role-preview-image{width:70px;height:88px}}
-@media (max-width:420px){.st-location-item{grid-template-columns:minmax(0,1fr) auto}.st-location-suggest{grid-column:1 / -1}.st-graph-delete{grid-column:1 / -1}}
+@media (max-width:420px){.st-location-summary{grid-template-columns:minmax(0,1fr) 32px 18px}.st-location-suggest{grid-column:1 / -1}.st-graph-delete{justify-self:stretch}.st-location-title{flex-wrap:wrap}}
 #st-operation-workspace{box-sizing:border-box;width:100%;max-width:680px;min-height:0;margin:0;display:grid;grid-template-columns:minmax(320px,420px) minmax(150px,1fr);gap:8px;align-items:start;justify-content:start;padding:4px 0 4px 4px}
 #st-operation-workspace>#app{min-width:0;width:100%}
 #st-operation-workspace>#app>div:first-child{justify-content:flex-start!important;align-items:flex-start!important;padding:0!important}
@@ -8500,7 +8512,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       ]
     }
   };
-  const GRAPH_LOCATION_CATEGORIES = ["住宅", "学校", "体育", "学习", "商业", "公共", "行政", "灵异"];
+  const GRAPH_LOCATION_CATEGORIES = ["住宅", "学校", "体育", "学习", "商业", "公共", "行政", "灵异", "其他"];
 
 	  function graphScopeKey() {
 	    try {
@@ -8764,6 +8776,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 
   function graphCategoryOptions(locations) {
     const set = new Set();
+    for (const category of GRAPH_LOCATION_CATEGORIES) set.add(category);
     for (const location of locations || []) {
       const category = String(location?.category || "").trim();
       if (category) set.add(category);
@@ -8778,10 +8791,14 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     const selected = graphSelectedCategory(page, scope);
     const favoriteOnly = graphFavoriteOnly(page, scope);
     const button = (value, label) => '<button type="button" class="' + (selected === value ? "active" : "") + '" data-graph-category-filter="' + escapeAttr(value) + '" data-graph-scope="' + escapeAttr(scope) + '">' + escapeHtml(label) + '</button>';
-    return '<div class="st-graph-category-tabs">' +
-      '<button type="button" class="' + (favoriteOnly ? "active" : "") + '" data-graph-favorite-filter data-graph-scope="' + escapeAttr(scope) + '">★ 收藏</button>' +
-      button("", "全部") +
-      options.map((category) => button(category, category)).join("") +
+    return '<div class="st-graph-category-wrap">' +
+      '<button type="button" class="st-graph-category-arrow" data-graph-category-scroll="-1" data-graph-scope="' + escapeAttr(scope) + '" aria-label="向左滚动分类">‹</button>' +
+      '<div class="st-graph-category-tabs" data-graph-category-tabs="' + escapeAttr(scope) + '">' +
+        '<button type="button" class="' + (favoriteOnly ? "active" : "") + '" data-graph-favorite-filter data-graph-scope="' + escapeAttr(scope) + '">★ 收藏</button>' +
+        button("", "全部") +
+        options.map((category) => button(category, category)).join("") +
+      '</div>' +
+      '<button type="button" class="st-graph-category-arrow" data-graph-category-scroll="1" data-graph-scope="' + escapeAttr(scope) + '" aria-label="向右滚动分类">›</button>' +
     '</div>';
   }
 
@@ -8789,17 +8806,18 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     const currentLocation = getCurrentStoryLocation() || "未知";
     const title = scope === "school" ? "新增校内地点" : "新增区域地点";
     const tag = scope === "school" ? "<学校地图更新>" : "<地图更新>";
-    const options = ['<option value="">自动分类</option>'].concat(GRAPH_LOCATION_CATEGORIES.map((category) => '<option value="' + escapeAttr(category) + '">' + escapeHtml(category) + '</option>')).join("");
-    return '<section class="st-lite-card st-graph-add" data-graph-add-scope="' + escapeAttr(scope) + '">' +
-      '<div class="st-graph-head"><strong>' + title + '</strong><span>统一提示词</span></div>' +
+    const options = ['<option value="">自动分类</option>'].concat(graphCategoryOptions(graph.locations).map((category) => '<option value="' + escapeAttr(category) + '">' + escapeHtml(category) + '</option>')).join("");
+    return '<details class="st-lite-card st-graph-add" data-graph-add-scope="' + escapeAttr(scope) + '">' +
+      '<summary class="st-graph-add-summary"><strong>' + title + '</strong><span>统一提示词 <b class="st-location-chevron">⌄</b></span></summary>' +
       '<div class="st-graph-add-grid">' +
         '<input data-graph-add-name autocomplete="off" placeholder="地点名">' +
         '<select data-graph-add-category aria-label="地点分类">' + options + '</select>' +
+        '<input data-graph-add-custom-category autocomplete="off" placeholder="自定义分类（可选，填写后优先使用）">' +
         '<textarea data-graph-add-info placeholder="地点说明、用途、相关角色或剧情倾向"></textarea>' +
       '</div>' +
       '<p class="st-graph-add-hint">提交后只会加入本轮APP操作；AI需要输出完整 ' + escapeHtml(tag) + ' 地点列表 JSON，字段包含 id/name/description/category，前端再写入本地。当前地点变量：' + escapeHtml(currentLocation) + '。</p>' +
       '<button type="button" data-graph-add-submit data-graph-scope="' + escapeAttr(scope) + '">请求新增地点</button>' +
-    '</section>';
+    '</details>';
   }
 
   function renderStaticGraphCard(scope, page) {
@@ -8817,17 +8835,24 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
           const deletable = !defaultGraphNodeIds(scope).has(location.id);
           const isCurrent = isGraphLocationCurrent(location, currentLocation);
           const favorite = favoriteIds.has(String(location.id));
-          return '<article class="st-location-item' + (isCurrent ? " is-current" : "") + (favorite ? " is-favorite" : "") + '">' +
-            '<div class="st-location-main">' +
-              '<strong>' + escapeHtml(location.label) + (isCurrent ? '<small>变量当前</small>' : "") + (location.category ? '<em class="st-location-category">' + escapeHtml(location.category) + '</em>' : "") + '</strong>' +
-              '<p>' + escapeHtml(location.info || "暂无地点信息。") + '</p>' +
-            '</div>' +
+          return '<details class="st-location-item' + (isCurrent ? " is-current" : "") + (favorite ? " is-favorite" : "") + '">' +
+            '<summary class="st-location-summary">' +
+            '<span class="st-location-title">' +
+              '<strong>' + escapeHtml(location.label) + '</strong>' +
+              (isCurrent ? '<small>变量当前</small>' : "") +
+              (location.category ? '<em class="st-location-category">' + escapeHtml(location.category) + '</em>' : "") +
+            '</span>' +
             '<button type="button" class="st-location-favorite ' + (favorite ? "active" : "") + '" data-graph-action="toggle-favorite" data-graph-scope="' + escapeAttr(scope) + '" data-graph-node-id="' + escapeAttr(location.id) + '" title="' + (favorite ? "取消收藏" : "收藏地点") + '" aria-label="' + (favorite ? "取消收藏" : "收藏地点") + '">' + (favorite ? "★" : "☆") + '</button>' +
             '<button type="button" class="st-location-suggest" data-graph-suggest-location="' + escapeAttr(location.id) + '" data-graph-scope="' + escapeAttr(scope) + '">建议设为地点</button>' +
-            (deletable ? '<button class="st-graph-delete" type="button" data-graph-action="delete-node" data-graph-scope="' + escapeAttr(scope) + '" data-graph-node-id="' + escapeAttr(location.id) + '">删除</button>' : "") +
-          '</article>';
+            '<span class="st-location-chevron">⌄</span>' +
+            '</summary>' +
+            '<div class="st-location-detail">' +
+              '<p>' + escapeHtml(location.info || "暂无地点信息。") + '</p>' +
+              (deletable ? '<button class="st-graph-delete" type="button" data-graph-action="delete-node" data-graph-scope="' + escapeAttr(scope) + '" data-graph-node-id="' + escapeAttr(location.id) + '">删除</button>' : "") +
+            '</div>' +
+          '</details>';
         }).join("")
-      : '<div class="st-graph-info"><p>' + (favoriteOnly ? "暂无收藏地点。" : "暂无地点信息。") + '</p></div>';
+      : '<div class="st-graph-info"><p>' + (favoriteOnly ? "暂无收藏地点。" : (selectedCategory ? "暂无该分类地点。" : "暂无地点信息。")) + '</p></div>';
     return '<section class="st-lite-card st-graph-card">' +
       '<div class="st-graph-head"><strong>' + escapeHtml(graph.title) + '</strong><span>' + graph.locations.length + ' 地点 / ' + favoriteIds.size + ' 收藏</span></div>' +
       '<div class="st-location-current"><span>当前地点变量</span><strong>' + escapeHtml(currentLocation || "未记录") + '</strong></div>' +
@@ -8920,9 +8945,11 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         const card = button.closest("[data-graph-add-scope]");
         const nameInput = card?.querySelector("[data-graph-add-name]");
         const categoryInput = card?.querySelector("[data-graph-add-category]");
+        const customCategoryInput = card?.querySelector("[data-graph-add-custom-category]");
         const infoInput = card?.querySelector("[data-graph-add-info]");
         const name = String(nameInput?.value || "").trim();
-        const category = String(categoryInput?.value || "").trim();
+        const customCategory = String(customCategoryInput?.value || "").trim();
+        const category = customCategory || String(categoryInput?.value || "").trim();
         const infoText = String(infoInput?.value || "").trim();
         if (!name && !infoText) return;
         const graph = loadStaticGraph(scope);
@@ -8934,7 +8961,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
           地图类型: graph.title + "（地点列表）",
           新增地点: {
             名称: name || "由AI按剧情命名",
-            分类: category || "由AI按地点用途在住宅/学校/体育/学习/商业/公共/行政/灵异中选择，或留空",
+            分类: category || "由AI按地点用途在住宅/学校/体育/学习/商业/公共/行政/灵异/其他中选择，或使用用户自定义分类，或留空",
             信息: infoText || "由AI按当前剧情补全",
             建议ID: graphSuggestedNodeId(name),
             当前地点变量: currentLocation
@@ -8944,7 +8971,20 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         });
         if (nameInput) nameInput.value = "";
         if (categoryInput) categoryInput.value = "";
+        if (customCategoryInput) customCategoryInput.value = "";
         if (infoInput) infoInput.value = "";
+      });
+    });
+    page.querySelectorAll("[data-graph-category-scroll]").forEach((button) => {
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        const scope = button.getAttribute("data-graph-scope") || "world";
+        const direction = Number(button.getAttribute("data-graph-category-scroll") || 1) < 0 ? -1 : 1;
+        const tabs = page.querySelector('[data-graph-category-tabs="' + scope + '"]');
+        if (!tabs) return;
+        const amount = Math.max(120, Math.floor(tabs.clientWidth * 0.72)) * direction;
+        try { tabs.scrollBy({ left: amount, behavior: "smooth" }); }
+        catch { tabs.scrollLeft += amount; }
       });
     });
     page.querySelectorAll("[data-graph-category-filter]").forEach((button) => {
@@ -8965,7 +9005,9 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       });
     });
     page.querySelectorAll("[data-graph-suggest-location]").forEach((button) => {
-      button.addEventListener("click", () => {
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
         const scope = button.getAttribute("data-graph-scope") || "world";
         const graph = loadStaticGraph(scope);
         const id = button.getAttribute("data-graph-suggest-location") || "";
@@ -8986,7 +9028,9 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       });
     });
     page.querySelectorAll("[data-graph-action]").forEach((button) => {
-      button.addEventListener("click", () => {
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
         const scope = button.getAttribute("data-graph-scope") || "world";
         const action = button.getAttribute("data-graph-action");
         if (action === "toggle-favorite") {
