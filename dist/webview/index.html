@@ -2126,6 +2126,14 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-encounter-field-dots button.is-required-missing{background:#ef4444}
 .st-encounter-field-dots button.is-optional-missing{background:#eab308}
 .st-encounter-field-dots button:focus-visible{outline:2px solid rgba(14,116,144,.45);outline-offset:2px}
+.st-encounter-persona-fields{display:grid;gap:7px;border:1px dashed rgba(127,88,47,.18);border-radius:8px;background:rgba(255,255,255,.48);padding:8px}
+.st-encounter-persona-fields-title{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.st-encounter-persona-fields-title strong{color:#352b25;font-size:12px}
+.st-encounter-persona-fields-title .st-encounter-button{width:auto;min-width:70px;height:28px;padding:0 10px}
+.st-encounter-persona-field{display:grid;gap:6px;border:1px solid rgba(127,88,47,.12);border-radius:8px;background:rgba(255,251,235,.7);padding:7px}
+.st-encounter-persona-field-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:end}
+.st-encounter-mini-danger{height:30px;border:1px solid rgba(225,29,72,.2);border-radius:8px;background:rgba(255,228,230,.76);color:#be123c;font-size:10px;font-weight:950;padding:0 9px;cursor:pointer}
+.st-encounter-mini-danger:active{transform:scale(.98)}
 .st-encounter-role-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .st-encounter-role-head strong{color:#352b25;font-size:12px}
 .st-encounter-role-head button{height:24px;border:1px solid rgba(225,29,72,.2);border-radius:999px;background:rgba(255,228,230,.72);color:#be123c;font-size:10px;font-weight:900;padding:0 8px;cursor:pointer}
@@ -5123,6 +5131,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 	      profileDefault: "",
 	      behaviorGuidance: "",
 	      persona: "",
+	      personaFields: [],
 	      variableEntry: null,
 	      personaEntry: null,
 	      imageDataUrl: ""
@@ -5166,6 +5175,15 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 	    { field: "appearance", key: "appearance", aliases: ["外貌"] },
 	    { field: "profileDefault", key: "profile default", aliases: ["档案默认值", "人物档案默认值", "档案"] }
 	  ];
+
+	  function encounterPersonaFixedLabelSet() {
+	    const labels = ["title", "gender", "age", "行为指导", "behavior guidance"];
+	    for (const spec of ENCOUNTER_PERSONA_SECTION_SPECS) {
+	      labels.push(spec.key);
+	      for (const alias of spec.aliases || []) labels.push(alias);
+	    }
+	    return new Set(labels.map((label) => String(label || "").trim().toLowerCase()).filter(Boolean));
+	  }
 
 	  function encounterNormalizeNewlines(value) {
 	    return String(value || "").replace(/\r\n?/g, "\n");
@@ -5263,6 +5281,79 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 	    return "";
 	  }
 
+	  function encounterReadPersonaCustomSections(lines, roleName) {
+	    const source = Array.isArray(lines) ? lines : [];
+	    const fixedLabels = encounterPersonaFixedLabelSet();
+	    const name = String(roleName || "").trim();
+	    const fields = [];
+	    for (let index = 0; index < source.length; index += 1) {
+	      const line = String(source[index] || "");
+	      const trimmed = line.trim();
+	      if (!trimmed) continue;
+	      const indent = encounterLeadingSpaces(line);
+	      if (indent > 2) continue;
+	      const match = trimmed.match(/^([^:：]{1,80})[:：]s*(.*)$/);
+	      if (!match) continue;
+	      const key = String(match[1] || "").trim();
+	      if (!key || (name && key === name)) continue;
+	      const inline = String(match[2] || "").trim();
+	      const body = [];
+	      let next = index + 1;
+	      for (; next < source.length; next += 1) {
+	        const child = String(source[next] || "");
+	        const childTrimmed = child.trim();
+	        if (childTrimmed && encounterLeadingSpaces(child) <= indent && /^([^:：]{1,80})[:：]/.test(childTrimmed)) break;
+	        body.push(child);
+	      }
+	      const content = inline || encounterStripIndent(body, indent + 2);
+	      index = next - 1;
+	      if (fixedLabels.has(key.toLowerCase())) continue;
+	      if (!String(content || "").trim()) continue;
+	      fields.push({ key, content });
+	    }
+	    return fields;
+	  }
+
+	  function encounterNormalizePersonaField(field, index = 0) {
+	    const source = field && typeof field === "object" && !Array.isArray(field) ? field : { content: field };
+	    const key = String(source.key ?? source.name ?? source.label ?? source.title ?? source["字段名"] ?? source["字段"] ?? "").trim();
+	    const content = String(source.content ?? source.value ?? source.text ?? source.body ?? source["内容"] ?? "");
+	    if (!key && !content.trim()) return null;
+	    return {
+	      id: String(source.id || source.fieldId || encounterId("persona-field-" + index)),
+	      key: key || ("自定义字段" + String(index + 1)),
+	      content
+	    };
+	  }
+
+	  function encounterNormalizePersonaFields(fields) {
+	    let source = [];
+	    if (Array.isArray(fields)) source = fields;
+	    else if (fields && typeof fields === "object") {
+	      source = Object.entries(fields).map(([key, content]) => ({ key, content }));
+	    }
+	    return source
+	      .map((field, index) => encounterNormalizePersonaField(field, index))
+	      .filter(Boolean);
+	  }
+
+	  function encounterRolePersonaFields(role) {
+	    const sources = [
+	      role?.personaFields,
+	      role?.customPersonaFields,
+	      role?.["自定义人设字段"],
+	      role?.["人设字段"],
+	      role?.["模板字段"]
+	    ];
+	    const fields = [];
+	    for (const source of sources) fields.push(...encounterNormalizePersonaFields(source));
+	    return fields;
+	  }
+
+	  function encounterRoleHasPersonaFields(role) {
+	    return encounterRolePersonaFields(role).some((field) => String(field.key || field.content || "").trim());
+	  }
+
 	  function encounterParsePersonaFixedContent(content, roleName) {
 	    const raw = encounterNormalizeNewlines(content);
 	    const mainBlock = encounterExtractTaggedBlock(raw, "人设") || raw;
@@ -5277,6 +5368,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 	    for (const spec of ENCOUNTER_PERSONA_SECTION_SPECS) {
 	      parsed[spec.field] = encounterReadPersonaSection(lines, spec.key) || spec.aliases.map((alias) => encounterReadPersonaSection(lines, alias)).find(Boolean) || "";
 	    }
+	    parsed.personaFields = encounterReadPersonaCustomSections(lines, roleName);
 	    parsed.hasFixed = Boolean([parsed.personaTitle, parsed.gender, parsed.age, parsed.behaviorGuidance]
 	      .concat(ENCOUNTER_PERSONA_SECTION_SPECS.map((spec) => parsed[spec.field]))
 	      .some((value) => String(value || "").trim()));
@@ -5300,6 +5392,10 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 	    ].some((value) => String(value || "").trim()));
 	  }
 
+	  function encounterHasPersonaContent(role) {
+	    return encounterHasPersonaFixedFields(role) || encounterRoleHasPersonaFields(role) || Boolean(String(role?.persona || "").trim());
+	  }
+
 	  function encounterIndentPersonaBlock(value, indent) {
 	    const prefix = " ".repeat(Math.max(0, Number(indent) || 0));
 	    return encounterPersonaLines(value).map((line) => prefix + line).join("\n");
@@ -5307,7 +5403,8 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 
 	  function encounterPersonaContent(role) {
 	    const normalized = encounterNormalizeRole(role || {});
-	    if (!encounterHasPersonaFixedFields(normalized)) return String(normalized.persona || "");
+	    const personaFields = encounterRolePersonaFields(normalized);
+	    if (!encounterHasPersonaFixedFields(normalized) && !personaFields.length && !String(normalized.persona || "").trim()) return "";
 	    const name = String(normalized.name || "角色").trim() || "角色";
 	    const lines = ["<" + name + "人设>", name + ":"];
 	    const addScalar = (key, value) => {
@@ -5324,16 +5421,13 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 	    addScalar("gender", normalized.gender);
 	    addScalar("age", normalized.age);
 	    for (const spec of ENCOUNTER_PERSONA_SECTION_SPECS) addBlock(spec.key, normalized[spec.field]);
+	    for (const field of personaFields) addBlock(field.key || "自定义字段", field.content);
+	    if (String(normalized.persona || "").trim() && !personaFields.length) addBlock("额外人设", normalized.persona);
 	    lines.push("</" + name + "人设>");
 	    if (String(normalized.behaviorGuidance || "").trim()) {
 	      lines.push("", "<" + name + "行为指导>");
 	      lines.push(encounterNormalizeNewlines(normalized.behaviorGuidance).trim());
 	      lines.push("</" + name + "行为指导>");
-	    }
-	    if (String(normalized.persona || "").trim()) {
-	      lines.push("", "<" + name + "补充人设>");
-	      lines.push(encounterNormalizeNewlines(normalized.persona).trim());
-	      lines.push("</" + name + "补充人设>");
 	    }
 	    return lines.join("\n");
 	  }
@@ -5458,6 +5552,16 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 	    const personaExtra = explicitPersonaExtra !== undefined && explicitPersonaExtra !== null
 	      ? String(explicitPersonaExtra)
 	      : (parsedPersona.hasFixed ? parsedPersona.extra : rawPersona);
+	    const explicitPersonaFields = encounterRolePersonaFields(source);
+	    const parsedPersonaFields = encounterNormalizePersonaFields(parsedPersona.personaFields);
+	    const personaFields = explicitPersonaFields.length ? explicitPersonaFields : parsedPersonaFields;
+	    if (String(personaExtra || "").trim() && (!explicitPersonaFields.length || explicitPersonaExtra !== undefined)) {
+	      personaFields.push({
+	        id: encounterId("persona-field-extra"),
+	        key: "额外人设",
+	        content: String(personaExtra || "")
+	      });
+	    }
 	    return {
 	      id: String(source.id || source.roleId || encounterId("role-" + index)),
 	      name,
@@ -5477,7 +5581,8 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 	      appearance: encounterFirstText(source.appearance, source["外貌"], parsedPersona.appearance),
 	      profileDefault: encounterFirstText(source.profileDefault, source.profile_default, source["档案默认值"], source["人物档案默认值"], parsedPersona.profileDefault),
 	      behaviorGuidance: encounterFirstText(source.behaviorGuidance, source.behavior_guidance, source["行为指导"], parsedPersona.behaviorGuidance),
-	      persona: String(personaExtra || ""),
+	      persona: "",
+	      personaFields,
 	      variableEntry: encounterNormalizeRoleWorldbookEntry(source.variableEntry || source["人物变量世界书条目"] || source["人物变量条目"]),
 	      personaEntry: encounterNormalizeRoleWorldbookEntry(source.personaEntry || source["人设世界书条目"] || source["人设条目"]),
 	      imageDataUrl: String(source.imageDataUrl || source.image || source["图片"] || "")
@@ -5956,7 +6061,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     try {
       const normalized = (Array.isArray(roles) ? roles : [])
         .map((role, index) => encounterNormalizeRole(role, index))
-        .filter((role) => String(role.name || role.intro || role.persona || "").trim());
+        .filter((role) => String(role.name || role.intro || "").trim() || encounterHasPersonaContent(role));
       localStorage.setItem(ENCOUNTER_ROLE_STORAGE_KEY, JSON.stringify(normalized));
     } catch {}
   }
@@ -6016,7 +6121,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     for (const pkg of encounterReadPackages()) {
       (pkg.roles || []).forEach((role, index) => {
         const normalized = encounterNormalizeRole(role, index);
-        if (!String(normalized.name || normalized.intro || normalized.persona || "").trim()) return;
+        if (!String(normalized.name || normalized.intro || "").trim() && !encounterHasPersonaContent(normalized)) return;
         const singlePackage = encounterPackageForRole(normalized, pkg);
         items.push({
           id: singlePackage.id,
@@ -6030,7 +6135,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     }
     encounterReadStandaloneRoles().forEach((role, index) => {
       const normalized = encounterNormalizeRole(role, index);
-      if (!String(normalized.name || normalized.intro || normalized.persona || "").trim()) return;
+      if (!String(normalized.name || normalized.intro || "").trim() && !encounterHasPersonaContent(normalized)) return;
       const singlePackage = encounterPackageForRole(normalized, null);
       items.push({
         id: singlePackage.id,
@@ -6448,7 +6553,16 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     role.appearance = String(roleRead("roleAppearance"));
     role.profileDefault = String(roleRead("roleProfileDefault"));
     role.behaviorGuidance = String(roleRead("roleBehaviorGuidance"));
-    role.persona = String(roleRead("rolePersona"));
+    role.persona = "";
+    role.personaFields = Array.from(card.querySelectorAll("[data-encounter-persona-field]")).map((row, index) => {
+      const key = row.querySelector("[name='rolePersonaFieldKey-" + index + "']")?.value ?? row.querySelector("[data-encounter-persona-field-key]")?.value ?? "";
+      const content = row.querySelector("[name='rolePersonaFieldContent-" + index + "']")?.value ?? row.querySelector("[data-encounter-persona-field-content]")?.value ?? "";
+      return {
+        id: row.getAttribute("data-field-id") || encounterId("persona-field-" + index),
+        key: String(key),
+        content: String(content)
+      };
+    });
     return encounterNormalizeRole(role);
   }
 
@@ -6682,8 +6796,9 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     '</section>';
   }
 
-  function encounterRoleFieldSpecs() {
-    return [
+  function encounterRoleFieldSpecs(role) {
+    const normalized = encounterNormalizeRole(role || {});
+    const specs = [
       { name: "roleName", label: "角色名", required: true, value: (role) => role.name },
       { name: "roleAliases", label: "别名", required: false, value: (role) => role.aliases },
       { name: "roleIntro", label: "介绍", required: true, value: (role) => role.intro },
@@ -6699,9 +6814,17 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       { name: "roleHabit", label: "habit", required: false, value: (role) => role.habit },
       { name: "roleAppearance", label: "appearance", required: true, value: (role) => role.appearance },
       { name: "roleProfileDefault", label: "profile default", required: false, value: (role) => role.profileDefault },
-      { name: "roleBehaviorGuidance", label: "行为指导", required: false, value: (role) => role.behaviorGuidance },
-      { name: "rolePersona", label: "补充人设", required: false, value: (role) => role.persona }
+      { name: "roleBehaviorGuidance", label: "行为指导", required: false, value: (role) => role.behaviorGuidance }
     ];
+    encounterRolePersonaFields(normalized).forEach((field, index) => {
+      specs.push({
+        name: "rolePersonaFieldContent-" + index,
+        label: field.key || ("自定义字段" + String(index + 1)),
+        required: false,
+        value: () => field.content
+      });
+    });
+    return specs;
   }
 
   function encounterFieldStateClass(value, required) {
@@ -6711,11 +6834,28 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 
   function encounterRoleFieldDotsHtml(role) {
     const normalized = encounterNormalizeRole(role || {});
-    return '<div class="st-encounter-field-dots" aria-label="字段状态导航">' + encounterRoleFieldSpecs().map((spec) => {
+    return '<div class="st-encounter-field-dots" aria-label="字段状态导航">' + encounterRoleFieldSpecs(normalized).map((spec) => {
       const state = encounterFieldStateClass(spec.value(normalized), spec.required);
       const status = state === "is-filled" ? "已填写" : (spec.required ? "必填未填" : "选填未填");
       return '<button type="button" class="' + state + '" data-encounter-field-jump="' + escapeAttr(spec.name) + '" data-required="' + (spec.required ? "1" : "0") + '" title="' + escapeAttr(spec.label + "：" + status) + '" aria-label="' + escapeAttr(spec.label + "：" + status) + '"></button>';
     }).join("") + '</div>';
+  }
+
+  function encounterRoleCustomFieldsHtml(role, selectedIndex, single) {
+    const fields = encounterRolePersonaFields(role);
+    const rows = fields.length ? fields.map((field, index) => (
+      '<div class="st-encounter-persona-field" data-encounter-persona-field data-field-id="' + escapeAttr(field.id || "") + '">' +
+        '<div class="st-encounter-persona-field-head">' +
+          '<label class="st-encounter-field"><span>字段名</span><input name="rolePersonaFieldKey-' + index + '" data-encounter-persona-field-key value="' + escapeAttr(field.key) + '" placeholder="例如：能力 / 家庭 / 校园传闻"></label>' +
+          '<button type="button" class="st-encounter-mini-danger" data-encounter-action="remove-persona-field" data-field-index="' + index + '" data-role-index="' + selectedIndex + '"' + (single ? ' data-single="1"' : "") + '>删除</button>' +
+        '</div>' +
+        '<label class="st-encounter-field"><span>字段内容</span><textarea name="rolePersonaFieldContent-' + index + '" data-encounter-persona-field-content placeholder="这个字段会按字段名写入角色人设世界书">' + escapeHtml(field.content) + '</textarea></label>' +
+      '</div>'
+    )).join("") : '<p class="st-encounter-note">可以添加模板外字段，例如能力、家庭、弱点、特殊规则。字段会按原名写入人设世界书。</p>';
+    return '<section class="st-encounter-persona-fields">' +
+      '<div class="st-encounter-persona-fields-title"><strong>自定义人设字段</strong><button type="button" class="st-encounter-button" data-encounter-action="add-persona-field" data-role-index="' + selectedIndex + '"' + (single ? ' data-single="1"' : "") + '>添加字段</button></div>' +
+      rows +
+    '</section>';
   }
 
   function renderEncounterRoleFormCard(role, selectedIndex, options = {}) {
@@ -6747,7 +6887,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       '<label class="st-encounter-field"><span>appearance / 外貌</span><textarea name="roleAppearance" placeholder="身高体重、体型、衣着、视觉风格">' + escapeHtml(normalized.appearance) + '</textarea></label>' +
       '<label class="st-encounter-field"><span>profile default / 档案默认值</span><textarea name="roleProfileDefault" placeholder="档案字段默认值，如姓名、年龄、职业、身高、体重、三围等">' + escapeHtml(normalized.profileDefault) + '</textarea></label>' +
       '<label class="st-encounter-field"><span>行为指导</span><textarea name="roleBehaviorGuidance" placeholder="AI叙事时必须遵守的长期行为规则">' + escapeHtml(normalized.behaviorGuidance) + '</textarea></label>' +
-      '<label class="st-encounter-field"><span>补充人设 / 未识别片段</span><textarea name="rolePersona" placeholder="额外要写入当前角色卡世界书的内容，会放进补充人设块">' + escapeHtml(normalized.persona) + '</textarea></label>' +
+      encounterRoleCustomFieldsHtml(normalized, selectedIndex, single) +
     '</article>';
   }
 
@@ -6776,7 +6916,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
   function renderEncounterSingleRoleEdit(page) {
     const role = encounterReadSingleRoleDraft();
     const rolePackage = encounterPackageForRole(role, null);
-    const hasContent = Boolean(String(role.name || role.intro || role.persona || "").trim());
+    const hasContent = Boolean(String(role.name || role.intro || "").trim() || encounterHasPersonaContent(role));
     const used = hasContent && encounterIsPurchased(rolePackage.id);
     const pendingPurchase = encounterHasPendingPurchaseOperation();
     const purchaseDisabled = !hasContent || used || pendingPurchase;
@@ -7253,8 +7393,8 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       name: source.name || source["角色名"] || picked.name || current.name,
 	      imageDataUrl: current.imageDataUrl
 	    });
-	    const hasDirect = [direct.name, direct.aliases, direct.intro, direct.encounterPrompt, direct.variables, direct.initialVariables, direct.persona].some((value) => String(value || "").trim()) || encounterHasPersonaFixedFields(direct);
-	    if (hasDirect && (direct.variables || direct.initialVariables || direct.persona || direct.intro || direct.encounterPrompt || direct.aliases || encounterHasPersonaFixedFields(direct) || picked.name)) {
+	    const hasDirect = [direct.name, direct.aliases, direct.intro, direct.encounterPrompt, direct.variables, direct.initialVariables].some((value) => String(value || "").trim()) || encounterHasPersonaContent(direct);
+	    if (hasDirect && (direct.variables || direct.initialVariables || direct.intro || direct.encounterPrompt || direct.aliases || encounterHasPersonaContent(direct) || picked.name)) {
 	      return { ...current, ...direct, imageDataUrl: current.imageDataUrl };
 	    }
     const entries = encounterWorldbookEntriesFromJson(parsed);
@@ -7269,11 +7409,11 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       const content = readContent(entry);
       if (!content.trim()) continue;
       if (/变量|stat|mvu|角色变量/.test(label)) continue;
-      if (/人设|persona|设定|角色设定/.test(label) && !role.persona) {
-        role.persona = content;
+      if (/人设|persona|设定|角色设定/.test(label) && !encounterHasPersonaContent(role)) {
+        role.personaFields = [{ id: encounterId("persona-field-import"), key: "导入人设", content }];
         role.personaEntry = encounterNormalizeRoleWorldbookEntry(entry);
       }
-      else if (!role.persona) role.persona = content;
+      else if (!encounterHasPersonaContent(role)) role.personaFields = [{ id: encounterId("persona-field-import"), key: "导入内容", content }];
     }
     if (!role.name && roleName) role.name = roleName;
     return encounterNormalizeRole(role);
@@ -8349,6 +8489,61 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
           page.dataset.encounterEditSection = "role";
           page.dataset.encounterEditRoleIndex = String(Math.max(0, Math.min((draft.roles?.length || 1) - 1, index)));
           page.dataset.encounterStatus = "已删除角色。";
+          renderEncounterPage(page);
+          return;
+        }
+        if (action === "add-persona-field") {
+          const isSingle = button.getAttribute("data-single") === "1" || page.dataset.encounterTab === "role";
+          if (isSingle) {
+            const role = encounterReadSingleRoleFromForm(page);
+            const fields = encounterRolePersonaFields(role);
+            fields.push({ id: encounterId("persona-field"), key: "自定义字段" + String(fields.length + 1), content: "" });
+            role.personaFields = fields;
+            encounterSaveSingleRoleDraft(role);
+            page.dataset.encounterStatus = "已新增自定义人设字段。";
+            renderEncounterPage(page);
+            return;
+          }
+          const draft = encounterReadDraftFromForm(page);
+          const index = Number(button.getAttribute("data-role-index"));
+          const safeIndex = Number.isInteger(index) && index >= 0 ? index : encounterEditRoleIndex(page, draft);
+          const role = encounterNormalizeRole(draft.roles[safeIndex] || encounterBlankRole(), safeIndex);
+          const fields = encounterRolePersonaFields(role);
+          fields.push({ id: encounterId("persona-field"), key: "自定义字段" + String(fields.length + 1), content: "" });
+          role.personaFields = fields;
+          draft.roles[safeIndex] = role;
+          encounterSaveDraft(draft);
+          page.dataset.encounterEditSection = "role";
+          page.dataset.encounterEditRoleIndex = String(safeIndex);
+          page.dataset.encounterStatus = "已新增自定义人设字段。";
+          renderEncounterPage(page);
+          return;
+        }
+        if (action === "remove-persona-field") {
+          const fieldIndex = Number(button.getAttribute("data-field-index"));
+          const isSingle = button.getAttribute("data-single") === "1" || page.dataset.encounterTab === "role";
+          if (isSingle) {
+            const role = encounterReadSingleRoleFromForm(page);
+            const fields = encounterRolePersonaFields(role);
+            if (Number.isInteger(fieldIndex) && fieldIndex >= 0) fields.splice(fieldIndex, 1);
+            role.personaFields = fields;
+            encounterSaveSingleRoleDraft(role);
+            page.dataset.encounterStatus = "已删除自定义人设字段。";
+            renderEncounterPage(page);
+            return;
+          }
+          const draft = encounterReadDraftFromForm(page);
+          const index = Number(button.getAttribute("data-role-index"));
+          const safeIndex = Number.isInteger(index) && index >= 0 ? index : encounterEditRoleIndex(page, draft);
+          const role = encounterNormalizeRole(draft.roles[safeIndex] || encounterBlankRole(), safeIndex);
+          const fields = encounterRolePersonaFields(role);
+          if (Number.isInteger(fieldIndex) && fieldIndex >= 0) fields.splice(fieldIndex, 1);
+          role.personaFields = fields;
+          draft.roles[safeIndex] = role;
+          encounterSaveDraft(draft);
+          page.dataset.encounterEditSection = "role";
+          page.dataset.encounterEditRoleIndex = String(safeIndex);
+          page.dataset.encounterStatus = "已删除自定义人设字段。";
           renderEncounterPage(page);
           return;
         }
