@@ -5045,7 +5045,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         kind: "上学时间逃课",
         buff: "社会的蔑视",
         currentBuff,
-        rule: "上学时间逃课打工；成功开始/结算本次打工时将/系统/buff替换为“社会的蔑视”。该buff持续1天，会被其他buff覆盖；存在期间所有角色好感度不能提升，只能不变或按剧情下降。"
+        rule: "上学时间逃课打工，被其他人发现或议论后遭到蔑视；成功开始/结算本次打工时将/系统/buff替换为“社会的蔑视”。该buff本质是“逃学被其他人蔑视”，持续1天，会被其他buff覆盖；存在期间所有角色好感度不能提升，只能不变或按剧情下降。"
       };
     }
     if (isNormalWorkStart) {
@@ -5221,7 +5221,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
           本层偶遇候选: latestRoll.roleName || "无",
           偶遇女角色: encounterRole || "无",
           本层偶遇判定: encounterRole ? "本层前端已判定会遇到" + encounterRole + "，且本工作按钮触发偶遇；对用户界面隐藏，只交给AI处理。" : "本工作按钮未触发偶遇，不强行安排女角色剧情。",
-          AI执行规范: "同一轮只能处理一次打工；若本轮有多条打工操作，只处理最早一条，后续忽略。若/系统/社畜值不足需要社畜值或剧情条件失败，则不推进时间、不发钱、不加社畜值。打工buff按字段“打工获得buff”处理：若为“社会的蔑视”“无精打采”或“全盛出击”，本次打工成功开始/成功结算时replace /系统/buff为该值，所有buff持续1天且会被其他buff覆盖；若为“全盛出击”，还要把/系统/MC能量一次性恢复到/系统/MC能量上限，恢复效果只触发这一次；若为“无”，不要因本次打工新增或清空buff，已有buff保留到自然到期或被其他buff覆盖。" + (encounterRole ? " 本次打工途中会偶遇" + encounterRole + "：本轮只写到自然碰面的节点，保留下一次用户行动/选择/催眠机会；本轮暂不推进到6小时后、不发钱、不加社畜值。打工偶遇时好感度根据剧情、互动结果和催眠影响决定，可正可负且无上限/无下限；但若/系统/buff为“社会的蔑视”，任何角色好感度不得提升。服从度没有打工专属机制，只有剧情或催眠明确改变时才更新。用户下一轮回复后，若剧情仍处于同一次打工且没有新的打工操作，可以直接补完剩余打工，推进当前日期/当前时间到预计结束时间，/系统/持有零花钱增加" + job.wage + "，/系统/社畜值更新为min(200, 当前社畜值+" + job.shachiku + ")，并按本条打工buff规则结算buff，不要反复卡在打工途中。" : " 本次没有偶遇女角色；若/系统/社畜值>=需要社畜值且剧情允许，则直接推进当前日期/当前时间6小时，/系统/持有零花钱增加" + job.wage + "，/系统/社畜值更新为min(200, 当前社畜值+" + job.shachiku + ")，并按本条打工buff规则结算buff。")
+          AI执行规范: "同一轮只能处理一次打工；若本轮有多条打工操作，只处理最早一条，后续忽略。若/系统/社畜值不足需要社畜值或剧情条件失败，则不推进时间、不发钱、不加社畜值。打工buff按字段“打工获得buff”处理：若为“社会的蔑视”（逃学被其他人蔑视）、“无精打采”或“全盛出击”，本次打工成功开始/成功结算时replace /系统/buff为该值，所有buff持续1天且会被其他buff覆盖；若为“全盛出击”，还要把/系统/MC能量一次性恢复到/系统/MC能量上限，恢复效果只触发这一次；若为“无”，不要因本次打工新增或清空buff，已有buff保留到自然到期或被其他buff覆盖。" + (encounterRole ? " 本次打工途中会偶遇" + encounterRole + "：本轮只写到自然碰面的节点，保留下一次用户行动/选择/催眠机会；本轮暂不推进到6小时后、不发钱、不加社畜值。打工偶遇时好感度根据剧情、互动结果和催眠影响决定，可正可负且无上限/无下限；但若/系统/buff为“社会的蔑视”（逃学被其他人蔑视），任何角色好感度不得提升。服从度没有打工专属机制，只有剧情或催眠明确改变时才更新。用户下一轮回复后，若剧情仍处于同一次打工且没有新的打工操作，可以直接补完剩余打工，推进当前日期/当前时间到预计结束时间，/系统/持有零花钱增加" + job.wage + "，/系统/社畜值更新为min(200, 当前社畜值+" + job.shachiku + ")，并按本条打工buff规则结算buff，不要反复卡在打工途中。" : " 本次没有偶遇女角色；若/系统/社畜值>=需要社畜值且剧情允许，则直接推进当前日期/当前时间6小时，/系统/持有零花钱增加" + job.wage + "，/系统/社畜值更新为min(200, 当前社畜值+" + job.shachiku + ")，并按本条打工buff规则结算buff。")
         };
         Promise.resolve(appendAppOperation(payload)).then((added) => {
           flashWorkButton(button, added ? "已暂存" : "已在暂存区");
@@ -5254,10 +5254,11 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     window.addEventListener("HYPNOOS_OPERATION_QUEUE_CHANGED", refreshFromOperationQueue);
   }
 
-  const ENCOUNTER_PACKAGE_STORAGE_KEY = "hypnoos.encounter.packages.v1";
-  const ENCOUNTER_DRAFT_STORAGE_KEY = "hypnoos.encounter.draft.v1";
-  const ENCOUNTER_PURCHASE_STORAGE_PREFIX = "hypnoos.encounter.purchases.v1";
-  const ENCOUNTER_PACKAGE_FORMAT = "hypnoos-role-package";
+	  const ENCOUNTER_PACKAGE_STORAGE_KEY = "hypnoos.encounter.packages.v1";
+	  const ENCOUNTER_DRAFT_STORAGE_KEY = "hypnoos.encounter.draft.v1";
+	  const ENCOUNTER_PURCHASE_STORAGE_PREFIX = "hypnoos.encounter.purchases.v1";
+	  const ENCOUNTER_PURCHASE_SESSION_SCOPE = "session:" + Math.random().toString(36).slice(2);
+	  const ENCOUNTER_PACKAGE_FORMAT = "hypnoos-role-package";
 
   function encounterId(prefix) {
     return String(prefix || "encounter") + "-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
@@ -5872,21 +5873,120 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     return normalized;
   }
 
-  function encounterPurchaseStorageKey() {
-    let scope = "global";
+  function encounterPurchaseScopeText(value) {
+    const text = String(value ?? "").trim();
+    return text ? text : "";
+  }
+
+  function encounterPurchaseScopeHash(value) {
+    const text = String(value ?? "");
+    let hash = 2166136261;
+    for (let index = 0; index < text.length; index += 1) {
+      hash ^= text.charCodeAt(index);
+      hash = Math.imul(hash, 16777619);
+    }
+    return (hash >>> 0).toString(36);
+  }
+
+  function encounterChatMessagesForScope() {
+    const sources = [];
     try {
-      if (typeof frontendRewardStateScope === "function") scope = frontendRewardStateScope();
+      if (typeof getChatMessages === "function") {
+        const messages = getChatMessages(-1);
+        if (Array.isArray(messages) && messages.length) sources.push(messages);
+      }
     } catch {}
-    return ENCOUNTER_PURCHASE_STORAGE_PREFIX + ":" + String(scope || "global");
+    try {
+      const context = window.SillyTavern?.getContext?.() || (typeof getContext === "function" ? getContext() : null);
+      if (Array.isArray(context?.chat) && context.chat.length) sources.push(context.chat);
+    } catch {}
+    try {
+      if (Array.isArray(window.chat) && window.chat.length) sources.push(window.chat);
+    } catch {}
+    return sources.sort((a, b) => b.length - a.length).find((items) => Array.isArray(items) && items.length) || [];
+  }
+
+  function encounterPurchaseStorageScope() {
+    try {
+      const chatId = window.SillyTavern?.getCurrentChatId?.();
+      const text = encounterPurchaseScopeText(chatId);
+      if (text) return "chat:" + text;
+    } catch {}
+    try {
+      const context = window.SillyTavern?.getContext?.() || (typeof getContext === "function" ? getContext() : null);
+      const candidates = [
+        context?.chatId,
+        context?.chat_id,
+        context?.chatFile,
+        context?.chat_file,
+        context?.chat?.id,
+        context?.chat?.chatId,
+        context?.chat?.file_name,
+        context?.chat?.filename,
+        context?.chatMetadata?.chat_id,
+        context?.chatMetadata?.file_name,
+        context?.chatMetadata?.filename
+      ].map(encounterPurchaseScopeText).filter(Boolean);
+      if (candidates.length) return "ctx:" + candidates.join(":");
+    } catch {}
+    try {
+      const messages = encounterChatMessagesForScope();
+      if (messages.length) {
+        const first = messages[0] || {};
+        const raw = [
+          first.message_id ?? first.mesid ?? first.id ?? "",
+          first.send_date ?? first.date ?? first.create_date ?? "",
+          first.name ?? first.sender ?? "",
+          String(first.mes ?? first.message ?? first.text ?? first.content ?? "").slice(0, 240)
+        ].join("|");
+        const hash = encounterPurchaseScopeHash(raw);
+        if (hash) return "messages:" + hash;
+      }
+    } catch {}
+    return ENCOUNTER_PURCHASE_SESSION_SCOPE;
+  }
+
+  function encounterPurchaseStorageKey() {
+    return ENCOUNTER_PURCHASE_STORAGE_PREFIX + ":" + encounterPurchaseStorageScope();
+  }
+
+  function encounterMessageBody(message) {
+    if (typeof message === "string") return message;
+    if (!message || typeof message !== "object") return "";
+    return String(message.message ?? message.mes ?? message.text ?? message.content ?? message.raw ?? "");
+  }
+
+  function encounterPurchasedIdsFromChat() {
+    const ids = new Set();
+    for (const message of encounterChatMessagesForScope()) {
+      const body = encounterMessageBody(message);
+      if (!body || !body.includes("<邂逅>")) continue;
+      const blocks = body.match(/<本轮APP操作>[\s\S]*?<\/本轮APP操作>/g) || [];
+      for (const block of blocks) {
+        const sections = block.match(/<邂逅>[\s\S]*?<\/邂逅>/g) || [];
+        for (const section of sections) {
+          for (const line of section.split(/\n+/)) {
+            if (!/角色包已使用|购买角色包/.test(line)) continue;
+            const id = line.match(/角色包ID=([^｜\n<]+)/)?.[1];
+            if (id) ids.add(String(id).trim());
+          }
+        }
+      }
+    }
+    return ids;
   }
 
   function encounterReadPurchasedIds() {
+    const ids = encounterPurchasedIdsFromChat();
     try {
       const parsed = JSON.parse(localStorage.getItem(encounterPurchaseStorageKey()) || "[]");
-      return new Set(Array.isArray(parsed) ? parsed.map(String).filter(Boolean) : []);
+      if (Array.isArray(parsed)) {
+        for (const item of parsed.map(String).filter(Boolean)) ids.add(item);
+      }
     } catch {
-      return new Set();
+      // ignore local storage parse failures; chat history remains authoritative.
     }
+    return ids;
   }
 
   function encounterIsPurchased(packageId) {
