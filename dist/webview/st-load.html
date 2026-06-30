@@ -1840,13 +1840,16 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-location-current span{color:rgba(203,213,225,.58);font-size:10px;font-weight:850}
 .st-location-current strong{color:#f8fafc;font-size:13px;line-height:1.35;text-align:right}
 .st-location-list{display:grid;gap:8px}
-.st-location-item{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;border:1px solid rgba(255,255,255,.09);border-radius:15px;background:rgba(2,6,23,.34);padding:8px}
+.st-location-item{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:8px;align-items:center;border:1px solid rgba(255,255,255,.09);border-radius:15px;background:rgba(2,6,23,.34);padding:8px}
 .st-location-item.is-current{border-color:rgba(34,211,238,.45);background:linear-gradient(135deg,rgba(34,211,238,.14),rgba(168,85,247,.1))}
+.st-location-item.is-favorite{border-color:rgba(250,204,21,.32);background:linear-gradient(135deg,rgba(250,204,21,.1),rgba(2,6,23,.34))}
 .st-location-main{color:inherit;text-align:left;min-width:0}
 .st-location-main strong{display:flex;align-items:center;gap:6px;font-size:14px;color:#f8fafc;line-height:1.25}
 .st-location-main small{font-size:9px;color:rgba(125,211,252,.72);font-weight:850;white-space:nowrap}
 .st-location-category{display:inline-flex;align-items:center;border:1px solid rgba(34,211,238,.18);border-radius:999px;background:rgba(14,165,233,.1);color:#bae6fd;font-style:normal;font-size:9px;font-weight:850;padding:2px 6px;white-space:nowrap}
 .st-location-main p{margin:5px 0 0;color:rgba(226,232,240,.72);font-size:12px;line-height:1.5;white-space:pre-wrap}
+.st-location-favorite{align-self:center;width:32px;height:32px;border:1px solid rgba(250,204,21,.22);border-radius:11px;background:rgba(250,204,21,.08);color:rgba(253,230,138,.86);font-size:16px;font-weight:950;line-height:1;display:grid;place-items:center;cursor:pointer}
+.st-location-favorite.active{border-color:rgba(250,204,21,.5);background:rgba(250,204,21,.18);color:#fde68a;box-shadow:0 0 18px rgba(250,204,21,.12)}
 .st-location-suggest{align-self:center;border:1px solid rgba(34,211,238,.24);border-radius:11px;background:rgba(14,165,233,.1);color:#bae6fd;font-size:11px;font-weight:850;padding:7px 9px;cursor:pointer;white-space:nowrap}
 .st-graph-category-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:1px;scrollbar-width:none}
 .st-graph-category-tabs::-webkit-scrollbar{display:none}
@@ -2134,6 +2137,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-encounter-shop-row input{min-width:0;height:33px;border:1px solid rgba(127,88,47,.14);border-radius:8px;background:rgba(255,251,235,.75);color:#352b25;padding:0 9px;font-size:12px;font-weight:900;outline:none}
 .st-encounter-shop-row button{min-height:33px}
 @media (max-width:420px){.st-encounter-grid2{grid-template-columns:1fr}.st-encounter-package{grid-template-columns:88px minmax(0,1fr)}.st-encounter-detail-hero{grid-template-columns:100px minmax(0,1fr)}.st-encounter-actions{grid-template-columns:1fr}.st-encounter-kv{grid-template-columns:1fr}.st-encounter-role-preview{grid-template-columns:70px minmax(0,1fr)}.st-encounter-role-preview-image{width:70px;height:88px}}
+@media (max-width:420px){.st-location-item{grid-template-columns:minmax(0,1fr) auto}.st-location-suggest{grid-column:1 / -1}.st-graph-delete{grid-column:1 / -1}}
 #st-operation-workspace{box-sizing:border-box;width:100%;max-width:680px;min-height:0;margin:0;display:grid;grid-template-columns:minmax(320px,420px) minmax(150px,1fr);gap:8px;align-items:start;justify-content:start;padding:4px 0 4px 4px}
 #st-operation-workspace>#app{min-width:0;width:100%}
 #st-operation-workspace>#app>div:first-child{justify-content:flex-start!important;align-items:flex-start!important;padding:0!important}
@@ -8453,6 +8457,10 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     return "hypnoos.static-map." + scope + ".v1:" + graphScopeKey();
   }
 
+  function graphFavoriteStorageKey(scope) {
+    return "hypnoos.static-map.favorites." + scope + ".v1:" + graphScopeKey();
+  }
+
   function graphUpdateSeenStorageKey() {
     return "hypnoos.static-map.update-seen.v1:" + graphScopeKey();
   }
@@ -8539,7 +8547,36 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       locations: graph.locations.filter((location) => location.id !== nodeId)
     };
     saveStaticGraph(scope, next);
+    const favorites = readGraphFavoriteIds(scope);
+    if (favorites.delete(String(nodeId))) writeGraphFavoriteIds(scope, favorites);
     return true;
+  }
+
+  function readGraphFavoriteIds(scope) {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(graphFavoriteStorageKey(scope)) || "[]");
+      if (Array.isArray(parsed)) return new Set(parsed.map(String).filter(Boolean));
+    } catch {}
+    return new Set();
+  }
+
+  function writeGraphFavoriteIds(scope, ids) {
+    try {
+      localStorage.setItem(graphFavoriteStorageKey(scope), JSON.stringify(Array.from(ids || []).map(String).filter(Boolean)));
+    } catch {}
+  }
+
+  function toggleGraphFavorite(scope, nodeId) {
+    const id = String(nodeId || "").trim();
+    if (!id) return false;
+    const favorites = readGraphFavoriteIds(scope);
+    if (favorites.has(id)) {
+      favorites.delete(id);
+    } else {
+      favorites.add(id);
+    }
+    writeGraphFavoriteIds(scope, favorites);
+    return favorites.has(id);
   }
 
   function parseStaticGraphUpdateText(text) {
@@ -8652,8 +8689,16 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     return scope === "school" ? "graphCategorySchool" : "graphCategoryWorld";
   }
 
+  function graphFavoriteDatasetKey(scope) {
+    return scope === "school" ? "graphFavoritesSchool" : "graphFavoritesWorld";
+  }
+
   function graphSelectedCategory(page, scope) {
     return String(page?.dataset?.[graphCategoryDatasetKey(scope)] || "").trim();
+  }
+
+  function graphFavoriteOnly(page, scope) {
+    return String(page?.dataset?.[graphFavoriteDatasetKey(scope)] || "") === "true";
   }
 
   function graphCategoryOptions(locations) {
@@ -8667,10 +8712,16 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 
   function graphCategoryFilterHtml(scope, page, locations) {
     const options = graphCategoryOptions(locations);
-    if (!options.length) return "";
+    const favorites = readGraphFavoriteIds(scope);
+    if (!options.length && !favorites.size) return "";
     const selected = graphSelectedCategory(page, scope);
+    const favoriteOnly = graphFavoriteOnly(page, scope);
     const button = (value, label) => '<button type="button" class="' + (selected === value ? "active" : "") + '" data-graph-category-filter="' + escapeAttr(value) + '" data-graph-scope="' + escapeAttr(scope) + '">' + escapeHtml(label) + '</button>';
-    return '<div class="st-graph-category-tabs">' + button("", "全部") + options.map((category) => button(category, category)).join("") + '</div>';
+    return '<div class="st-graph-category-tabs">' +
+      '<button type="button" class="' + (favoriteOnly ? "active" : "") + '" data-graph-favorite-filter data-graph-scope="' + escapeAttr(scope) + '">★ 收藏</button>' +
+      button("", "全部") +
+      options.map((category) => button(category, category)).join("") +
+    '</div>';
   }
 
   function renderGraphAddLocationCard(scope, graph) {
@@ -8693,24 +8744,31 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
   function renderStaticGraphCard(scope, page) {
     const graph = loadStaticGraph(scope);
     const currentLocation = getCurrentStoryLocation();
+    const favoriteIds = readGraphFavoriteIds(scope);
     const selectedCategory = graphSelectedCategory(page, scope);
-    const visibleLocations = selectedCategory ? graph.locations.filter((location) => String(location.category || "").trim() === selectedCategory) : graph.locations;
+    const favoriteOnly = graphFavoriteOnly(page, scope);
+    const visibleLocations = (selectedCategory ? graph.locations.filter((location) => String(location.category || "").trim() === selectedCategory) : graph.locations)
+      .filter((location) => !favoriteOnly || favoriteIds.has(String(location.id)))
+      .slice()
+      .sort((left, right) => Number(favoriteIds.has(String(right.id))) - Number(favoriteIds.has(String(left.id))));
     const locations = visibleLocations.length
       ? visibleLocations.map((location) => {
           const deletable = !defaultGraphNodeIds(scope).has(location.id);
           const isCurrent = isGraphLocationCurrent(location, currentLocation);
-          return '<article class="st-location-item' + (isCurrent ? " is-current" : "") + '">' +
+          const favorite = favoriteIds.has(String(location.id));
+          return '<article class="st-location-item' + (isCurrent ? " is-current" : "") + (favorite ? " is-favorite" : "") + '">' +
             '<div class="st-location-main">' +
               '<strong>' + escapeHtml(location.label) + (isCurrent ? '<small>变量当前</small>' : "") + (location.category ? '<em class="st-location-category">' + escapeHtml(location.category) + '</em>' : "") + '</strong>' +
               '<p>' + escapeHtml(location.info || "暂无地点信息。") + '</p>' +
             '</div>' +
+            '<button type="button" class="st-location-favorite ' + (favorite ? "active" : "") + '" data-graph-action="toggle-favorite" data-graph-scope="' + escapeAttr(scope) + '" data-graph-node-id="' + escapeAttr(location.id) + '" title="' + (favorite ? "取消收藏" : "收藏地点") + '" aria-label="' + (favorite ? "取消收藏" : "收藏地点") + '">' + (favorite ? "★" : "☆") + '</button>' +
             '<button type="button" class="st-location-suggest" data-graph-suggest-location="' + escapeAttr(location.id) + '" data-graph-scope="' + escapeAttr(scope) + '">建议设为地点</button>' +
             (deletable ? '<button class="st-graph-delete" type="button" data-graph-action="delete-node" data-graph-scope="' + escapeAttr(scope) + '" data-graph-node-id="' + escapeAttr(location.id) + '">删除</button>' : "") +
           '</article>';
         }).join("")
-      : '<div class="st-graph-info"><p>暂无地点信息。</p></div>';
+      : '<div class="st-graph-info"><p>' + (favoriteOnly ? "暂无收藏地点。" : "暂无地点信息。") + '</p></div>';
     return '<section class="st-lite-card st-graph-card">' +
-      '<div class="st-graph-head"><strong>' + escapeHtml(graph.title) + '</strong><span>' + graph.locations.length + ' 地点</span></div>' +
+      '<div class="st-graph-head"><strong>' + escapeHtml(graph.title) + '</strong><span>' + graph.locations.length + ' 地点 / ' + favoriteIds.size + ' 收藏</span></div>' +
       '<div class="st-location-current"><span>当前地点变量</span><strong>' + escapeHtml(currentLocation || "未记录") + '</strong></div>' +
       graphCategoryFilterHtml(scope, page, graph.locations) +
       '<div class="st-location-list">' + locations + '</div>' +
@@ -8836,6 +8894,15 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         else renderMapPage(page);
       });
     });
+    page.querySelectorAll("[data-graph-favorite-filter]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const scope = button.getAttribute("data-graph-scope") || "world";
+        const key = graphFavoriteDatasetKey(scope);
+        page.dataset[key] = page.dataset[key] === "true" ? "" : "true";
+        if (page.classList.contains("st-school-app")) renderSchoolPage(page);
+        else renderMapPage(page);
+      });
+    });
     page.querySelectorAll("[data-graph-suggest-location]").forEach((button) => {
       button.addEventListener("click", () => {
         const scope = button.getAttribute("data-graph-scope") || "world";
@@ -8861,6 +8928,9 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       button.addEventListener("click", () => {
         const scope = button.getAttribute("data-graph-scope") || "world";
         const action = button.getAttribute("data-graph-action");
+        if (action === "toggle-favorite") {
+          toggleGraphFavorite(scope, button.getAttribute("data-graph-node-id") || "");
+        }
         if (action === "delete-node") {
           const nodeId = button.getAttribute("data-graph-node-id") || "";
           const graph = loadStaticGraph(scope);
