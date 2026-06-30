@@ -6123,15 +6123,14 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       '<div class="st-encounter-kv">' +
         '<span><strong>' + roleCount + ' 角色</strong>角色数量</span>' +
         '<span><strong>' + price + ' 星光点</strong>购买价格</span>' +
-        '<span><strong>' + escapeHtml(pkg.variableWorldbook || "人物变量世界书") + '</strong>人物变量世界书位置</span>' +
-        '<span><strong>' + escapeHtml(pkg.personaWorldbook || "人设世界书") + '</strong>人设世界书位置</span>' +
+        '<span><strong>当前角色卡世界书</strong>写入位置</span>' +
       '</div>' +
       (used ? '<div class="st-encounter-used-note">这个角色包已经使用过。世界书写入不可自动撤销，按钮已锁定。</div>' : '') +
       '<div class="st-encounter-actions">' +
         '<button type="button" class="st-encounter-button" data-encounter-action="edit-package" data-package-id="' + escapeAttr(pkg.id) + '">在此包上更改</button>' +
         '<button type="button" class="st-encounter-button primary" data-encounter-action="purchase" data-package-id="' + escapeAttr(pkg.id) + '"' + (used ? " disabled" : "") + '>购买 / 使用</button>' +
       '</div>' +
-      '<p class="st-encounter-note">购买会先警告确认；确认后前端直接扣星光点、缓存图片并尝试写入世界书。角色变量交给 AI 在本轮生成时添加。</p>' +
+      '<p class="st-encounter-note">购买会先警告确认；确认后前端直接扣星光点、缓存图片，并把条目写入当前使用角色卡绑定的世界书。角色变量交给 AI 在本轮生成时添加。</p>' +
     '</section>';
   }
 
@@ -6181,7 +6180,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         '<div class="st-encounter-detail-cover">' + encounterCoverHtml(pkg.coverDataUrl, pkg.name || "角色包") + '</div>' +
         '<div class="st-encounter-detail-main">' +
           '<h2>' + escapeHtml(pkg.name || "未命名角色包") + '</h2>' +
-          '<div class="st-encounter-package-facts"><span>' + roleCount + ' 角色</span><span>' + escapeHtml(pkg.variableWorldbook || "人物变量世界书") + '</span></div>' +
+          '<div class="st-encounter-package-facts"><span>' + roleCount + ' 角色</span><span>当前角色卡世界书</span></div>' +
           '<p>' + escapeHtml(pkg.intro || "暂无介绍。") + '</p>' +
         '</div>' +
       '</section>' +
@@ -6219,11 +6218,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       '<label class="st-encounter-field"><span>角色包名字</span><input name="name" value="' + escapeAttr(draft.name) + '" placeholder="例如：斋明学园扩展角色包"></label>' +
       '<label class="st-encounter-field"><span>介绍</span><textarea name="intro" placeholder="用户在浏览页会看到的角色包简介">' + escapeHtml(draft.intro) + '</textarea></label>' +
       '<label class="st-encounter-field"><span>AI邂逅提示词</span><textarea name="encounterPrompt" placeholder="购买/使用后交给 AI 的角色登场、相遇顺序或剧情钩子">' + escapeHtml(draft.encounterPrompt) + '</textarea></label>' +
-      '<div class="st-encounter-grid2">' +
-        '<label class="st-encounter-field"><span>价格（星光点）</span><input name="price" type="number" min="0" step="1" value="' + escapeAttr(draft.price) + '" placeholder="默认人数 × 4"></label>' +
-        '<label class="st-encounter-field"><span>人物变量世界书位置</span><input name="variableWorldbook" value="' + escapeAttr(draft.variableWorldbook) + '" placeholder="人物变量世界书"></label>' +
-      '</div>' +
-      '<label class="st-encounter-field"><span>人设世界书位置</span><input name="personaWorldbook" value="' + escapeAttr(draft.personaWorldbook) + '" placeholder="人设世界书"></label>' +
+      '<label class="st-encounter-field"><span>价格（星光点）</span><input name="price" type="number" min="0" step="1" value="' + escapeAttr(draft.price) + '" placeholder="默认人数 × 4"></label>' +
       '<div class="st-encounter-actions">' +
         '<button type="button" class="st-encounter-button" data-encounter-action="save-library">保存到浏览</button>' +
         '<button type="button" class="st-encounter-button" data-encounter-action="import-draft">导入 ZIP 修改</button>' +
@@ -6231,7 +6226,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       '</div>' +
       '<div class="st-encounter-actions is-single"><button type="button" class="st-encounter-button" data-encounter-action="clear-draft">清空草稿</button></div>' +
       '<input type="file" accept=".zip,application/zip" data-encounter-import-draft hidden>' +
-      '<p class="st-encounter-note">购买后前端会尝试直接写入世界书；世界书写入不可撤销，只能之后手动删除。角色变量由 AI 在生成角色内容时添加。</p>' +
+      '<p class="st-encounter-note">购买后前端会尝试写入当前使用角色卡绑定的世界书；如果当前角色卡没有绑定世界书，会先创建并绑定一个。世界书写入不可撤销，只能之后手动删除。</p>' +
     '</section>';
   }
 
@@ -6269,7 +6264,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 	        '<label class="st-encounter-field"><span>appearance / 外貌</span><textarea name="roleAppearance" placeholder="身高体重、体型、衣着、视觉风格">' + escapeHtml(role.appearance) + '</textarea></label>' +
 	        '<label class="st-encounter-field"><span>profile default / 档案默认值</span><textarea name="roleProfileDefault" placeholder="档案字段默认值，如姓名、年龄、职业、身高、体重、三围等">' + escapeHtml(role.profileDefault) + '</textarea></label>' +
 	        '<label class="st-encounter-field"><span>行为指导</span><textarea name="roleBehaviorGuidance" placeholder="AI叙事时必须遵守的长期行为规则">' + escapeHtml(role.behaviorGuidance) + '</textarea></label>' +
-	        '<label class="st-encounter-field"><span>补充人设 / 未识别片段</span><textarea name="rolePersona" placeholder="额外要写入人设世界书的内容，会放进补充人设块">' + escapeHtml(role.persona) + '</textarea></label>' +
+	        '<label class="st-encounter-field"><span>补充人设 / 未识别片段</span><textarea name="rolePersona" placeholder="额外要写入当前角色卡世界书的内容，会放进补充人设块">' + escapeHtml(role.persona) + '</textarea></label>' +
 	      '</article>' +
 	      '<div class="st-encounter-actions">' +
 	        '<button type="button" class="st-encounter-button" data-encounter-action="import-role-json">导入角色JSON</button>' +
@@ -6277,7 +6272,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 	      '</div>' +
 	      '<div class="st-encounter-actions is-single"><button type="button" class="st-encounter-button primary" data-encounter-action="save-library">保存到浏览</button></div>' +
 	      '<input type="file" accept=".json,application/json" data-encounter-import-role-json hidden>' +
-	      '<p class="st-encounter-note">人物变量世界书会按角色名自动生成固定 entry；人设世界书会由 title/gender 等固定字段重新拼成固定格式。角色JSON导入/导出不覆盖角色图片。</p>' +
+	      '<p class="st-encounter-note">人物变量 entry 会按角色名自动生成固定格式；人设 entry 会由 title/gender 等固定字段重新拼成固定格式，并统一写入当前角色卡世界书。角色JSON导入/导出不覆盖角色图片。</p>' +
 	    '</section>';
 	  }
 
@@ -6301,7 +6296,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     page.innerHTML =
       '<header class="st-lite-header">' +
         '<button class="st-lite-back" data-lite-action="back" title="返回桌面">‹</button>' +
-	        '<div class="st-lite-title"><strong>邂逅</strong><span>角色包会写入指定世界书，并提示 AI 生成角色变量。</span></div>' +
+	        '<div class="st-lite-title"><strong>邂逅</strong><span>角色包会写入当前角色卡世界书，并提示 AI 生成角色变量。</span></div>' +
       '</header>' +
       '<main class="st-lite-body">' +
         (detailOpen ? '' : '<section class="st-encounter-tabs">' +
@@ -6829,16 +6824,9 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 	    for (const role of pkg.roles || []) {
 	      const normalized = encounterNormalizeRole(role);
       const variableEntry = encounterVariableWorldbookEntry(normalized);
-      if (variableEntry) {
-        list.push({ world: pkg.variableWorldbook || "人物变量世界书", entry: variableEntry });
-      }
+      if (variableEntry) list.push(variableEntry);
 	      const personaEntry = encounterPersonaWorldbookEntry(normalized, pkg.name || "角色包");
-	      if (personaEntry) {
-	        list.push({
-	          world: pkg.personaWorldbook || "人设世界书",
-	          entry: personaEntry
-	        });
-	      }
+	      if (personaEntry) list.push(personaEntry);
 	    }
 	    return list;
 	  }
@@ -6851,110 +6839,6 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       } catch {}
     }
     return result;
-  }
-
-  function encounterWorldApiTargets(win) {
-    const targets = [];
-    try {
-      if (win && !targets.includes(win)) targets.push(win);
-      const context = win.SillyTavern?.getContext?.() || win.getContext?.();
-      if (context && !targets.includes(context)) targets.push(context);
-      for (const api of [context?.worldInfo, context?.world_info, context?.lorebook, win.worldInfo, win.world_info_api]) {
-        if (api && !targets.includes(api)) targets.push(api);
-      }
-    } catch {}
-    return targets;
-  }
-
-  function encounterLooksLikeWorldData(value) {
-    return Boolean(value && typeof value === "object" && !Array.isArray(value) && ("entries" in value || "entry" in value || "world_info" in value));
-  }
-
-  function encounterWorldDataStores(win) {
-    const stores = [];
-    const push = (store) => {
-      if (store && typeof store === "object" && !Array.isArray(store) && !encounterLooksLikeWorldData(store) && !stores.includes(store)) stores.push(store);
-    };
-    try {
-      const context = win.SillyTavern?.getContext?.() || win.getContext?.();
-      const api = context?.worldInfo || context?.world_info || context?.lorebook;
-      [
-        win.world_info_data,
-        win.worldInfoData,
-        win.worldInfoDataByName,
-        win.worlds,
-        context?.world_info_data,
-        context?.worldInfoData,
-        context?.worldInfoDataByName,
-        context?.worlds,
-        api?.world_info_data,
-        api?.worldInfoData,
-        api?.worlds
-      ].forEach(push);
-    } catch {}
-    return stores;
-  }
-
-  function encounterFindWorldDataInStores(win, worldName) {
-    const target = String(worldName || "").trim();
-    if (!target) return null;
-    for (const store of encounterWorldDataStores(win)) {
-      const exact = store[target];
-      if (exact && typeof exact === "object") return exact;
-      const key = Object.keys(store).find((item) => String(item || "").trim() === target);
-      if (key && store[key] && typeof store[key] === "object") return store[key];
-    }
-    return null;
-  }
-
-  function encounterCreateWorldDataInStore(win, worldName) {
-    const target = String(worldName || "").trim();
-    if (!target) return null;
-    for (const store of encounterWorldDataStores(win)) {
-      if (!store[target] || typeof store[target] !== "object") store[target] = { entries: {} };
-      return store[target];
-    }
-    return null;
-  }
-
-  function encounterRequestHeaders(win) {
-    const headers = { "Content-Type": "application/json" };
-    const apply = (extra) => {
-      if (!extra) return;
-      try {
-        if (typeof extra.forEach === "function") {
-          extra.forEach((value, key) => { headers[key] = value; });
-        } else if (typeof extra === "object") {
-          Object.assign(headers, extra);
-        }
-      } catch {}
-    };
-    for (const target of encounterWorldApiTargets(win)) {
-      try {
-        if (typeof target.getRequestHeaders === "function") apply(target.getRequestHeaders());
-      } catch {}
-    }
-    try {
-      if (typeof win.getRequestHeaders === "function") apply(win.getRequestHeaders());
-    } catch {}
-    return headers;
-  }
-
-  async function encounterWorldInfoRequest(win, path, payload) {
-    if (typeof win.fetch !== "function") return null;
-    const response = await win.fetch(path, {
-      method: "POST",
-      headers: encounterRequestHeaders(win),
-      body: JSON.stringify(payload || {})
-    });
-    if (!response.ok) throw new Error("HTTP " + response.status);
-    const text = await response.text();
-    if (!text.trim()) return {};
-    try {
-      return JSON.parse(text);
-    } catch {
-      return {};
-    }
   }
 
   function encounterNextWorldUid(entries) {
@@ -6986,77 +6870,6 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     data.entries = {};
     data.entries[1] = { ...entry, uid: 1 };
     return true;
-  }
-
-  async function encounterLoadWorldData(win, worldName) {
-    const stored = encounterFindWorldDataInStores(win, worldName);
-    if (stored) return stored;
-    const loaders = ["loadWorldInfoData", "loadWorldInfo", "getWorldInfo", "getWorldInfoData"];
-    for (const target of encounterWorldApiTargets(win)) {
-      for (const name of loaders) {
-        try {
-          if (typeof target[name] === "function") {
-            const data = await target[name](worldName);
-            if (data && typeof data === "object") return data;
-          }
-        } catch {
-          try {
-            const data = await target[name]({ name: worldName });
-            if (data && typeof data === "object") return data;
-          } catch {}
-        }
-      }
-    }
-    try {
-      const selected = win.selected_world_info || win.selectedWorldInfo || win.world_info?.name;
-      const selectedText = Array.isArray(selected) ? selected.join("\n") : String(selected || "");
-      if ((!worldName || selectedText.includes(worldName)) && win.world_info && typeof win.world_info === "object") return win.world_info;
-    } catch {}
-    try {
-      const data = await encounterWorldInfoRequest(win, "/api/worldinfo/get", { name: worldName });
-      if (data && typeof data === "object") return data;
-    } catch {}
-    return null;
-  }
-
-  async function encounterSaveWorldData(win, worldName, data) {
-    const savers = ["saveWorldInfo", "saveWorldInfoData", "setWorldInfo", "setWorldInfoData"];
-    for (const target of encounterWorldApiTargets(win)) {
-      for (const name of savers) {
-        if (typeof target?.[name] !== "function") continue;
-        const calls = [
-          () => target[name](worldName, data, true),
-          () => target[name](worldName, data),
-          () => target[name](data, worldName, true),
-          () => target[name](data, worldName),
-          () => target[name](worldName, true),
-          () => target[name](worldName),
-          () => target[name](data)
-        ];
-        for (const call of calls) {
-          try {
-            const result = await call();
-            if (result !== false) return true;
-          } catch {}
-        }
-      }
-    }
-    try {
-      await encounterWorldInfoRequest(win, "/api/worldinfo/edit", { name: worldName, data });
-      return true;
-    } catch {}
-    return false;
-  }
-
-  async function encounterCreateWorldData(win, worldName) {
-    try {
-      await encounterWorldInfoRequest(win, "/api/worldinfo/create", { name: worldName });
-      const loaded = await encounterLoadWorldData(win, worldName);
-      if (loaded) return loaded;
-    } catch {}
-    const stored = encounterCreateWorldDataInStore(win, worldName);
-    if (stored) return stored;
-    return { entries: {} };
   }
 
   function encounterWorldEntryValues(data) {
@@ -7167,31 +6980,96 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     };
   }
 
-  async function encounterInsertWithTavernHelper(win, worldName, entry) {
+  function encounterBoundWorldbookNameFromBooks(books) {
+    if (!books || typeof books !== "object") return "";
+    const primary = String(books.primary || "").trim();
+    if (primary) return primary;
+    const additional = Array.isArray(books.additional) ? books.additional.map((item) => String(item || "").trim()).filter(Boolean) : [];
+    return additional[0] || "";
+  }
+
+  function encounterReadCurrentCharacter(win) {
+    try {
+      const context = win.SillyTavern?.getContext?.() || win.getContext?.();
+      const id = context?.characterId;
+      if (id !== undefined && id !== null && context?.characters?.[id]) return context.characters[id];
+    } catch {}
+    try {
+      const chid = win.this_chid;
+      if (chid !== undefined && chid !== null && win.characters?.[chid]) return win.characters[chid];
+    } catch {}
+    return null;
+  }
+
+  function encounterCurrentCharacterName() {
+    for (const win of encounterCandidateWindows()) {
+      const character = encounterReadCurrentCharacter(win);
+      const name = String(character?.name || character?.data?.name || "").trim();
+      if (name) return name;
+    }
+    return "";
+  }
+
+  function encounterSafeWorldbookName(value) {
+    return String(value || "当前角色卡世界书").trim().replace(/[\/:*?"<>|]+/g, "-").replace(/\s+/g, " ").slice(0, 80) || "当前角色卡世界书";
+  }
+
+  function encounterDefaultCharacterWorldbookName(pkg) {
+    const charName = encounterCurrentCharacterName() || "当前角色卡";
+    return encounterSafeWorldbookName(charName + " 邂逅世界书");
+  }
+
+  function encounterCurrentCharacterPrimaryWorldName(win) {
+    try {
+      const character = encounterReadCurrentCharacter(win);
+      const value = String(character?.data?.extensions?.world || character?.extensions?.world || character?.world || "").trim();
+      if (value) return value;
+    } catch {}
+    try {
+      const value = String(win.document?.querySelector?.("#character_world")?.value || "").trim();
+      if (value) return value;
+    } catch {}
+    return "";
+  }
+
+  async function encounterEnsureCharacterWorldbookWithTavernHelper(win, fallbackName) {
     for (const target of encounterTavernHelperTargets(win)) {
-      const createEntries = target?.createWorldbookEntries;
-      if (typeof createEntries !== "function") continue;
+      if (typeof target?.getCharWorldbookNames !== "function") continue;
       try {
-        let worldbook = null;
-        if (typeof target.getWorldbook === "function") {
-          try {
-            worldbook = await target.getWorldbook(worldName);
-          } catch {}
+        const books = target.getCharWorldbookNames("current") || {};
+        const existing = encounterBoundWorldbookNameFromBooks(books);
+        if (existing) return { target, worldName: existing, method: "TavernHelper" };
+        const worldName = encounterSafeWorldbookName(fallbackName);
+        if (typeof target.createWorldbook === "function") {
+          try { await target.createWorldbook(worldName, []); } catch {}
         }
-        if (!Array.isArray(worldbook)) {
-          if (typeof target.createWorldbook === "function") {
-            try { await target.createWorldbook(worldName, []); } catch {}
-          }
-          if (typeof target.getWorldbook === "function") {
-            try { worldbook = await target.getWorldbook(worldName); } catch {}
-          }
-        }
-        if (Array.isArray(worldbook) && encounterWorldEntryDuplicate(worldbook, entry)) return true;
-        await createEntries.call(target, worldName, [encounterToTavernHelperEntry(entry)], { render: "immediate" });
-        return true;
+        if (typeof target.rebindCharWorldbooks !== "function") continue;
+        await target.rebindCharWorldbooks("current", {
+          primary: worldName,
+          additional: Array.isArray(books.additional) ? books.additional : []
+        });
+        return { target, worldName, method: "TavernHelper" };
       } catch {}
     }
-    return false;
+    return null;
+  }
+
+  async function encounterInsertEntriesWithTavernHelper(win, entries, fallbackName) {
+    const bound = await encounterEnsureCharacterWorldbookWithTavernHelper(win, fallbackName);
+    if (!bound || typeof bound.target?.createWorldbookEntries !== "function") return null;
+    try {
+      let worldbook = null;
+      if (typeof bound.target.getWorldbook === "function") {
+        try { worldbook = await bound.target.getWorldbook(bound.worldName); } catch {}
+      }
+      const pending = entries.filter((entry) => !Array.isArray(worldbook) || !encounterWorldEntryDuplicate(worldbook, entry));
+      if (pending.length) {
+        await bound.target.createWorldbookEntries(bound.worldName, pending.map(encounterToTavernHelperEntry), { render: "immediate" });
+      }
+      return { ok: true, count: entries.length, insertedCount: pending.length, targetWorldbook: bound.worldName, method: bound.method };
+    } catch {
+      return null;
+    }
   }
 
   const ENCOUNTER_WORLD_INFO_MODULE_CACHE = new WeakMap();
@@ -7218,72 +7096,77 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     return null;
   }
 
-  async function encounterInsertWithSillyTavernModule(win, worldName, entry) {
+  async function encounterEnsureCharacterWorldbookWithSillyTavernModule(win, fallbackName) {
     const mod = await encounterImportWorldInfoModule(win);
-    if (!mod || typeof mod.saveWorldInfo !== "function") return false;
+    if (!mod || typeof mod.saveWorldInfo !== "function") return null;
     try {
-      let data = null;
-      if (typeof mod.loadWorldInfo === "function") {
-        try { data = await mod.loadWorldInfo(worldName); } catch {}
+      let worldName = encounterCurrentCharacterPrimaryWorldName(win);
+      if (!worldName) {
+        worldName = encounterSafeWorldbookName(fallbackName);
+        if (typeof mod.createNewWorldInfo === "function") {
+          try { await mod.createNewWorldInfo(worldName, { interactive: false }); } catch {}
+        }
+        if (typeof mod.charUpdatePrimaryWorld !== "function") return null;
+        await mod.charUpdatePrimaryWorld(worldName);
       }
-      if (!data && typeof mod.createNewWorldInfo === "function") {
-        try {
-          await mod.createNewWorldInfo(worldName, { interactive: false });
-          data = typeof mod.loadWorldInfo === "function" ? await mod.loadWorldInfo(worldName) : null;
-        } catch {}
-      }
-      if (!data || typeof data !== "object") data = { entries: {} };
-      if (encounterWorldEntryDuplicate(encounterWorldEntryValues(data), entry)) return true;
-      if (typeof mod.createWorldInfoEntry === "function" && data.entries && typeof data.entries === "object" && !Array.isArray(data.entries)) {
-        const created = mod.createWorldInfoEntry(worldName, data);
-        if (!created) return false;
-        const uid = created.uid;
-        Object.assign(created, entry);
-        created.uid = uid;
-      } else {
-        if (!encounterAppendWorldEntry(data, entry)) return false;
-      }
-      await mod.saveWorldInfo(worldName, data, true);
-      try { await mod.updateWorldInfoList?.(); } catch {}
-      return true;
+      return { mod, worldName, method: "SillyTavern" };
     } catch {
-      return false;
+      return null;
     }
   }
 
-  async function encounterInsertWorldbookEntry(worldName, entry) {
-    for (const win of encounterCandidateWindows()) {
-      try {
-        if (await encounterInsertWithTavernHelper(win, worldName, entry)) return true;
-      } catch {}
+  async function encounterInsertEntriesWithSillyTavernModule(win, entries, fallbackName) {
+    const bound = await encounterEnsureCharacterWorldbookWithSillyTavernModule(win, fallbackName);
+    if (!bound) return null;
+    try {
+      let data = null;
+      if (typeof bound.mod.loadWorldInfo === "function") {
+        try { data = await bound.mod.loadWorldInfo(bound.worldName); } catch {}
+      }
+      if (!data && typeof bound.mod.createNewWorldInfo === "function") {
+        try {
+          await bound.mod.createNewWorldInfo(bound.worldName, { interactive: false });
+          data = typeof bound.mod.loadWorldInfo === "function" ? await bound.mod.loadWorldInfo(bound.worldName) : null;
+        } catch {}
+      }
+      if (!data || typeof data !== "object") data = { entries: {} };
+      const pending = entries.filter((entry) => !encounterWorldEntryDuplicate(encounterWorldEntryValues(data), entry));
+      for (const entry of pending) {
+        if (typeof bound.mod.createWorldInfoEntry === "function" && data.entries && typeof data.entries === "object" && !Array.isArray(data.entries)) {
+          const created = bound.mod.createWorldInfoEntry(bound.worldName, data);
+          if (!created) return null;
+          const uid = created.uid;
+          Object.assign(created, entry);
+          created.uid = uid;
+        } else if (!encounterAppendWorldEntry(data, entry)) {
+          return null;
+        }
+      }
+      if (pending.length) await bound.mod.saveWorldInfo(bound.worldName, data, true);
+      try { await bound.mod.updateWorldInfoList?.(); } catch {}
+      return { ok: true, count: entries.length, insertedCount: pending.length, targetWorldbook: bound.worldName, method: bound.method };
+    } catch {
+      return null;
     }
-    for (const win of encounterCandidateWindows()) {
-      try {
-        if (await encounterInsertWithSillyTavernModule(win, worldName, entry)) return true;
-      } catch {}
-    }
-    for (const win of encounterCandidateWindows()) {
-      try {
-        const data = await encounterLoadWorldData(win, worldName) || await encounterCreateWorldData(win, worldName);
-        if (!data) continue;
-        if (!encounterAppendWorldEntry(data, entry)) continue;
-        if (await encounterSaveWorldData(win, worldName, data)) return true;
-      } catch {}
-    }
-    return false;
   }
 
   async function encounterInsertPackageWorldbooks(pkg) {
     const entries = encounterWorldbookEntryList(pkg);
     if (!entries.length) return { ok: true, count: 0, failed: [] };
-    const failed = [];
-    let count = 0;
-    for (const item of entries) {
-      const ok = await encounterInsertWorldbookEntry(item.world, item.entry);
-      if (ok) count += 1;
-      else failed.push(item.world + " / " + item.entry.comment);
+    const fallbackName = encounterDefaultCharacterWorldbookName(pkg);
+    for (const win of encounterCandidateWindows()) {
+      const result = await encounterInsertEntriesWithTavernHelper(win, entries, fallbackName);
+      if (result?.ok) return { ...result, failed: [] };
     }
-    return { ok: failed.length === 0, count, failed };
+    for (const win of encounterCandidateWindows()) {
+      const result = await encounterInsertEntriesWithSillyTavernModule(win, entries, fallbackName);
+      if (result?.ok) return { ...result, failed: [] };
+    }
+    return {
+      ok: false,
+      count: 0,
+      failed: entries.map((entry) => "当前角色卡世界书 / " + String(entry.comment || entry.name || "未命名条目"))
+    };
   }
 
   function encounterPurchasePayload(pkg, result = {}) {
@@ -7295,18 +7178,19 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       角色包名称: pkg.name || "未命名角色包",
       角色包介绍: pkg.intro || "无",
       AI邂逅提示词: pkg.encounterPrompt || "无",
-      前端处理: "已由前端扣除星光点、缓存角色图片，并尝试写入世界书；前端不会直接添加角色变量。",
+      前端处理: "已由前端扣除星光点、缓存角色图片，并尝试写入当前使用角色卡绑定的世界书；前端不会直接添加角色变量。",
       消耗星光点: result.price ?? encounterPackagePrice(pkg),
       世界书写入条目数: result.worldbookCount ?? 0,
-      人物变量世界书位置: pkg.variableWorldbook || "人物变量世界书",
-      人设世界书位置: pkg.personaWorldbook || "人设世界书",
+      世界书新增条目数: result.insertedCount ?? result.worldbookCount ?? 0,
+      当前角色卡世界书: result.targetWorldbook || "当前角色卡绑定世界书",
+      世界书写入方式: result.method || "前端自动写入",
       角色列表: roles.map((role) => ({
         角色名: role.name || "由AI按角色包内容命名",
         别名: role.aliases || "",
         档案摘要: role.intro || "",
         前端图片缓存: role.imageDataUrl ? "角色图片已由前端缓存到人物档案本地照片，变量出现后自动显示。" : "无"
       })),
-      AI执行规范: "这个角色包已经被前端使用。不要重复扣星光点，不要重复插入世界书。请根据角色包和已写入世界书内容，在本轮剧情中生成对应角色导入/登场内容，并在需要时用/update或/add补充/角色变量；角色变量由AI生成，前端不会直接添加。"
+      AI执行规范: "这个角色包已经被前端使用。不要重复扣星光点，不要重复插入世界书。世界书条目已写入当前使用角色卡绑定的世界书；请根据角色包和已写入世界书内容，在本轮剧情中生成对应角色导入/登场内容，并在需要时用/update或/add补充/角色变量；角色变量由AI生成，前端不会直接添加。"
     };
   }
 
@@ -7322,7 +7206,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       return;
     }
     const price = encounterPackagePrice(pkg);
-    const ok = window.confirm("购买后会直接写入世界书；世界书增加不可撤销，只能之后手动删除。角色变量不由前端添加，会交给 AI 生成。确认使用这个角色包？");
+    const ok = window.confirm("购买后会直接向当前使用角色卡绑定的世界书新增条目；如果当前角色卡没有绑定世界书，会先创建并绑定一个。世界书增加不可撤销，只能之后手动删除。角色变量不由前端添加，会交给 AI 生成。确认使用这个角色包？");
     if (!ok) return;
     encounterSetStatus(page, "正在使用角色包...");
     const deduct = await encounterDeductStarlight(price);
@@ -7333,14 +7217,20 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     const worldbook = await encounterInsertPackageWorldbooks(pkg);
     if (!worldbook.ok) {
       if (deduct.previous !== undefined) await encounterSetStarlight(deduct.previous);
-      encounterSetStatus(page, "世界书写入失败，已尝试退回星光点。失败位置：" + worldbook.failed.slice(0, 2).join("；"));
+      encounterSetStatus(page, "当前角色卡世界书写入失败，已尝试退回星光点。失败条目：" + worldbook.failed.slice(0, 2).join("；"));
       return;
     }
     const cached = encounterCacheRoleImages(pkg);
     encounterMarkPurchased(pkg.id);
-    Promise.resolve(appendAppOperation(encounterPurchasePayload(pkg, { price, worldbookCount: worldbook.count }))).then((added) => {
+    Promise.resolve(appendAppOperation(encounterPurchasePayload(pkg, {
+      price,
+      worldbookCount: worldbook.count,
+      insertedCount: worldbook.insertedCount,
+      targetWorldbook: worldbook.targetWorldbook,
+      method: worldbook.method
+    }))).then((added) => {
       page.dataset.encounterStatus = added
-        ? ("已使用：" + (pkg.name || "角色包") + "；世界书写入 " + worldbook.count + " 条" + (cached.length ? "；图片已缓存。" : "。"))
+        ? ("已使用：" + (pkg.name || "角色包") + "；已写入 " + (worldbook.targetWorldbook || "当前角色卡世界书") + " " + worldbook.count + " 条" + (cached.length ? "；图片已缓存。" : "。"))
         : "角色包已使用，AI提示已存在于暂存区。";
       renderEncounterPage(page);
     });
