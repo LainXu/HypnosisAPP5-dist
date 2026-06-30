@@ -7015,8 +7015,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       ...(Array.isArray(entry?.keys) ? entry.keys : []),
       ...(Array.isArray(entry?.strategy?.keys) ? entry.strategy.keys : []),
       entry?.content
-    ].map((item) => String(item || "")).join("
-");
+    ].map((item) => String(item || "")).join("\n");
   }
 
   function encounterEntryTitle(entry) {
@@ -7077,11 +7076,10 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     const title = encounterEntryTitle(entry);
     const text = encounterEntryText(entry);
     if (/变量列表开始|变量列表结束|角色变量开始|人设开始|人设结束/.test(text)) return "";
-    if (/format_message_variable::stat_data.角色./.test(text)) return "variable";
-    if (/[mvu_update].*变量s*$/.test(title)) return "variable";
-    if (/[mvu_plot].*人设s*$/.test(title) || /(?:^|/)s*人设s*$/.test(title)) return "persona";
-    if (/^<[^>
-]{1,40}人设>/.test(String(entry?.content || "").trim())) return "persona";
+    if (/format_message_variable::stat_data\.角色\./.test(text)) return "variable";
+    if (/\[mvu_update\].*变量\s*$/.test(title)) return "variable";
+    if (/\[mvu_plot\].*人设\s*$/.test(title) || /(?:^|\/)\s*人设\s*$/.test(title)) return "persona";
+    if (/^<[^>\n]{1,40}人设>/.test(String(entry?.content || "").trim())) return "persona";
     return "";
   }
 
