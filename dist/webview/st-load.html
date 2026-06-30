@@ -2092,7 +2092,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-encounter-status{min-height:16px;color:#0f766e;font-size:10px;line-height:1.45;font-weight:850}
 .st-encounter-form{display:grid;gap:8px;border:1px solid rgba(127,88,47,.15)!important;border-radius:8px!important;background:rgba(255,255,255,.76)!important;box-shadow:0 12px 28px rgba(75,54,35,.08)}
 .st-encounter-form [data-encounter-package-form],.st-encounter-form>section{display:grid;gap:8px}
-.st-encounter-field{display:grid;gap:4px}
+.st-encounter-field{display:grid;gap:4px;scroll-margin-top:18px}
 .st-encounter-field span{color:rgba(70,57,47,.64);font-size:10px;font-weight:900}
 .st-encounter-field input,.st-encounter-field textarea{width:100%;box-sizing:border-box;border:1px solid rgba(127,88,47,.14);border-radius:8px;background:rgba(255,251,235,.7);color:#352b25;padding:8px 9px;font-size:12px;line-height:1.4;outline:none}
 .st-encounter-field textarea{min-height:64px;resize:vertical}
@@ -2104,7 +2104,13 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-encounter-role-tools{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .st-encounter-role-tools strong{color:#352b25;font-size:13px}
 .st-encounter-role-tools span{color:rgba(70,57,47,.58);font-size:10px;white-space:nowrap;font-weight:850}
-.st-encounter-role-card{border:1px solid rgba(127,88,47,.13);border-radius:8px;background:rgba(255,247,237,.72);padding:9px;display:grid;gap:8px}
+.st-encounter-role-card{position:relative;border:1px solid rgba(127,88,47,.13);border-radius:8px;background:rgba(255,247,237,.72);padding:9px 24px 9px 9px;display:grid;gap:8px}
+.st-encounter-field-dots{position:absolute;right:7px;top:9px;display:grid;gap:5px;z-index:2}
+.st-encounter-field-dots button{width:8px;height:8px;border:1px solid rgba(255,255,255,.82);border-radius:999px;padding:0;cursor:pointer;box-shadow:0 0 0 1px rgba(75,54,35,.13)}
+.st-encounter-field-dots button.is-filled{background:#22c55e}
+.st-encounter-field-dots button.is-required-missing{background:#ef4444}
+.st-encounter-field-dots button.is-optional-missing{background:#eab308}
+.st-encounter-field-dots button:focus-visible{outline:2px solid rgba(14,116,144,.45);outline-offset:2px}
 .st-encounter-role-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .st-encounter-role-head strong{color:#352b25;font-size:12px}
 .st-encounter-role-head button{height:24px;border:1px solid rgba(225,29,72,.2);border-radius:999px;background:rgba(255,228,230,.72);color:#be123c;font-size:10px;font-weight:900;padding:0 8px;cursor:pointer}
@@ -5083,9 +5089,10 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
   function encounterBlankRole() {
     return {
       id: encounterId("role"),
-      name: "",
+	      name: "",
 	      aliases: "",
 	      intro: "",
+	      encounterPrompt: "",
 	      variables: "",
 	      initialVariables: "",
 	      personaTitle: "",
@@ -5440,6 +5447,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 	      name,
 	      aliases: String(source.aliases || source["别名"] || source["关键词"] || ""),
 	      intro: String(source.intro || source.profile || source.summary || source["介绍"] || source["档案"] || ""),
+	      encounterPrompt: String(source.encounterPrompt || source.roleEncounterPrompt || source.appearancePrompt || source.storyPrompt || source.prompt || source["出场提示词"] || source["角色出场提示词"] || source["AI出场提示词"] || source["邂逅提示词"] || ""),
 	      variables: String(source.variables || source.variableWorldbook || source["人物变量"] || source["变量设定"] || encounterDefaultVariableContent(name)),
 	      initialVariables: encounterInitialVariablesText({ ...source, name }),
 	      personaTitle: encounterFirstText(source.personaTitle, source.title, source["title"], source["称号"], source["定位"], parsedPersona.personaTitle),
@@ -5480,6 +5488,31 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       coverDataUrl: String(source.coverDataUrl || source.cover || source["封面"] || ""),
       roles: normalizedRoles
     };
+  }
+
+  function encounterRoleEncounterPrompt(role) {
+    const normalized = encounterNormalizeRole(role || {});
+    const name = String(normalized.name || "").trim();
+    const text = String(normalized.encounterPrompt || "").trim()
+      || String(normalized.firstEncounter || "").trim()
+      || (name ? "请让" + name + "在当前剧情中自然登场，并由AI判断是否与已有角色重复；若重复则不新增。" : "");
+    return text;
+  }
+
+  function encounterPackageCombinedPrompt(pkg) {
+    const packagePrompt = String(pkg?.encounterPrompt || "").trim();
+    const roles = (Array.isArray(pkg?.roles) ? pkg.roles : [])
+      .map((role, index) => encounterNormalizeRole(role, index))
+      .filter((role) => String(role.name || role.intro || role.encounterPrompt || role.firstEncounter || "").trim());
+    const lines = [];
+    roles.forEach((role, index) => {
+      const prompt = encounterRoleEncounterPrompt(role, pkg);
+      if (!prompt) return;
+      const name = String(role.name || ("角色" + (index + 1))).trim();
+      lines.push(String(index + 1) + ". " + name + "：" + prompt);
+    });
+    if (packagePrompt) lines.push("整体串联：" + packagePrompt);
+    return lines.join("\n").trim();
   }
 
   function encounterPackagePrice(pkg) {
@@ -5794,7 +5827,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       id: "basic-example-role-pack",
       name: "基础邂逅示例包",
       intro: "三个可直接导入的示例角色：阴郁同学、异世界杀手、成熟总裁。适合测试角色包导入、人物档案图片和世界书写入流程。",
-      encounterPrompt: "{{user}}可以在连续的日常事件里邂逅这个示例包的三位角色：先在楼梯上和白枢暗子撞到一起，结果看起来瘦弱的她反而把{{user}}撞飞；她几乎不解释，只沉默地直接离开。放学路上，{{user}}又碰到千杀百花，被她误认为可疑对象按在地上盘问；确认{{user}}很弱后，她冷淡地嘲讽{{user}}是弱鸡。随后{{user}}遇到中村樱，她主动制造独处机会，拉着{{user}}签下她写好并先签名的《人权自愿放弃协议》。AI可以按当前剧情合理调整顺序和细节，但要保留“撞飞、被按住怀疑并嘲讽、协议签署”三个核心邂逅节点。",
+      encounterPrompt: "三位角色可以按当前剧情连续登场，也可以分散到同一天不同场景；保留各自出场提示词里的核心邂逅节点即可。",
       price: 12,
       variableWorldbook: "人物变量世界书",
       personaWorldbook: "人设世界书",
@@ -5805,6 +5838,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
           name: "白枢暗子",
           aliases: "暗子, 白枢同学, 灵异女",
           intro: "阴郁邋遢的同班女学生。厚重刘海盖住眼睛，粗看像瘦弱丑女；实际整理后极其美貌，身体也远比外表健壮，喜欢灵异学和怪谈。",
+          encounterPrompt: "在楼梯或走廊转角让{{user}}和白枢暗子撞到一起；她外表瘦弱阴郁却把{{user}}撞飞，短暂停顿后几乎不解释，只沉默地直接离开。AI要强调她粗看不起眼、实际力量异常的反差。",
           variables: ankoVariables,
           initialVariables: ankoInitialVariables,
           persona: ankoPersona,
@@ -5816,6 +5850,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
           name: "千杀百花",
           aliases: "百花, 千杀, 异世界杀手",
           intro: "来自剑与魔法异世界的小型杀手少女。体型娇小、动作敏捷，眼神凌厉警戒，曾是拯救异世界人类的原勇者小队成员。",
+          encounterPrompt: "在放学路上或偏僻校外路口让{{user}}遇到千杀百花；她误认{{user}}可疑，迅速把{{user}}按在地上盘问，确认{{user}}很弱后用极短冷淡的话嘲讽弱鸡并准备离开。",
           variables: momokaVariables,
           initialVariables: momokaInitialVariables,
           persona: momokaPersona,
@@ -5827,6 +5862,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
           name: "中村樱",
           aliases: "樱酱, 中村总裁",
           intro: "32岁的大公司女总裁。成熟优雅、资源充足、判断力强，拥有稳定婚约却隐藏夸张自毁欲，会主动以金钱和渠道支持{{user}}。",
+          encounterPrompt: "让中村樱主动制造与{{user}}独处的空间，优雅而急切地拉近距离；她痴笑着写下《人权自愿放弃协议》，自己先签好名字，再递给{{user}}要求签字。",
           variables: sakuraVariables,
           initialVariables: sakuraInitialVariables,
           persona: sakuraPersona,
@@ -5950,7 +5986,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       id: encounterSingleRolePackageId(normalizedRole, sourcePackage),
       name: name + "｜单独角色",
       intro: normalizedRole.intro || ("从「" + sourceName + "」拆出的单独角色。"),
-      encounterPrompt: normalizedRole.firstEncounter || sourcePackage?.encounterPrompt || ("请让" + name + "在当前剧情中自然登场，并由AI判断是否与已有角色重复；若重复则不新增。"),
+      encounterPrompt: "",
       price: SCAN_ROLE_COST_STARLIGHT,
       variableWorldbook: sourcePackage?.variableWorldbook || "人物变量世界书",
       personaWorldbook: sourcePackage?.personaWorldbook || "人设世界书",
@@ -6380,6 +6416,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     role.name = String(roleRead("roleName"));
     role.aliases = String(roleRead("roleAliases"));
     role.intro = String(roleRead("roleIntro"));
+    role.encounterPrompt = String(roleRead("roleEncounterPrompt"));
     const variableField = card.querySelector("[name='roleVariables']");
     role.variables = variableField ? String(variableField.value || "") : encounterDefaultVariableContent(role.name);
     const initialVariableField = card.querySelector("[name='roleInitialVariables']");
@@ -6511,10 +6548,11 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     const used = encounterIsPurchased(pkg.id);
     const pendingPurchase = encounterHasPendingPurchaseOperation();
     const purchaseDisabled = used || pendingPurchase;
+    const combinedPrompt = encounterPackageCombinedPrompt(pkg);
     return '<section class="st-encounter-detail-panel">' +
       '<h3>角色包详细内容</h3>' +
       '<p class="st-encounter-detail-text">' + escapeHtml(pkg.intro || "暂无介绍。") + '</p>' +
-      (pkg.encounterPrompt ? '<div class="st-encounter-prompt-preview"><strong>AI邂逅提示词</strong><p>' + escapeHtml(pkg.encounterPrompt) + '</p></div>' : '') +
+      (combinedPrompt ? '<div class="st-encounter-prompt-preview"><strong>AI邂逅提示词（角色组合）</strong><p>' + escapeHtml(combinedPrompt) + '</p></div>' : '') +
       '<div class="st-encounter-kv">' +
         '<span><strong>' + roleCount + ' 角色</strong>角色数量</span>' +
         '<span><strong>' + price + ' 星光点</strong>购买价格</span>' +
@@ -6536,6 +6574,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     const selectedIndex = encounterDetailRoleIndex(page, pkg);
     page.dataset.encounterRoleIndex = String(selectedIndex);
     const selected = encounterNormalizeRole(roles[selectedIndex], selectedIndex);
+    const rolePrompt = encounterRoleEncounterPrompt(selected);
     const names = roles.map((role, index) => {
       const normalized = encounterNormalizeRole(role, index);
       const active = index === selectedIndex;
@@ -6554,6 +6593,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
           '<strong>' + escapeHtml(selected.name || ("角色 " + (selectedIndex + 1))) + '</strong>' +
           '<small>' + escapeHtml(selected.aliases || "无别名") + '</small>' +
           '<p>' + escapeHtml(selected.intro || "暂无介绍。") + '</p>' +
+          (rolePrompt ? '<div class="st-encounter-prompt-preview"><strong>出场提示词</strong><p>' + escapeHtml(rolePrompt) + '</p></div>' : '') +
         '</div>' +
       '</div>' +
     '</section>';
@@ -6613,7 +6653,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       '</div>' +
       '<label class="st-encounter-field"><span>角色包名字</span><input name="name" value="' + escapeAttr(draft.name) + '" placeholder="例如：斋明学园扩展角色包"></label>' +
       '<label class="st-encounter-field"><span>介绍</span><textarea name="intro" placeholder="用户在偶遇页会看到的角色包简介">' + escapeHtml(draft.intro) + '</textarea></label>' +
-      '<label class="st-encounter-field"><span>AI邂逅提示词</span><textarea name="encounterPrompt" placeholder="购买/使用后交给 AI 的角色登场、相遇顺序或剧情钩子">' + escapeHtml(draft.encounterPrompt) + '</textarea></label>' +
+      '<label class="st-encounter-field"><span>包级串联补充</span><textarea name="encounterPrompt" placeholder="可留空；实际提示词会由角色页每个角色的出场提示词组合，包级内容只作为整体顺序或连接补充">' + escapeHtml(draft.encounterPrompt) + '</textarea></label>' +
       '<label class="st-encounter-field"><span>价格（星光点）</span><input name="price" type="number" min="0" step="1" value="' + escapeAttr(draft.price) + '" placeholder="默认人数 × 4"></label>' +
       '<div class="st-encounter-actions">' +
         '<button type="button" class="st-encounter-button" data-encounter-action="save-library">保存到偶遇</button>' +
@@ -6626,10 +6666,47 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     '</section>';
   }
 
+  function encounterRoleFieldSpecs() {
+    return [
+      { name: "roleName", label: "角色名", required: true, value: (role) => role.name },
+      { name: "roleAliases", label: "别名", required: false, value: (role) => role.aliases },
+      { name: "roleIntro", label: "介绍", required: true, value: (role) => role.intro },
+      { name: "roleEncounterPrompt", label: "出场提示词", required: true, value: (role) => role.encounterPrompt || role.firstEncounter },
+      { name: "roleInitialVariables", label: "初始变量", required: true, value: (role) => encounterInitialVariablesText(role) },
+      { name: "rolePersonaTitle", label: "title", required: true, value: (role) => role.personaTitle },
+      { name: "roleGender", label: "gender", required: true, value: (role) => role.gender },
+      { name: "roleAge", label: "age", required: true, value: (role) => role.age },
+      { name: "roleIdentity", label: "identity", required: true, value: (role) => role.identity },
+      { name: "roleFirstEncounter", label: "first encounter", required: false, value: (role) => role.firstEncounter },
+      { name: "roleSocialConnection", label: "social connection", required: false, value: (role) => role.socialConnection },
+      { name: "rolePersonality", label: "personality", required: true, value: (role) => role.personality },
+      { name: "roleHabit", label: "habit", required: false, value: (role) => role.habit },
+      { name: "roleAppearance", label: "appearance", required: true, value: (role) => role.appearance },
+      { name: "roleProfileDefault", label: "profile default", required: false, value: (role) => role.profileDefault },
+      { name: "roleBehaviorGuidance", label: "行为指导", required: false, value: (role) => role.behaviorGuidance },
+      { name: "rolePersona", label: "补充人设", required: false, value: (role) => role.persona }
+    ];
+  }
+
+  function encounterFieldStateClass(value, required) {
+    if (String(value ?? "").trim()) return "is-filled";
+    return required ? "is-required-missing" : "is-optional-missing";
+  }
+
+  function encounterRoleFieldDotsHtml(role) {
+    const normalized = encounterNormalizeRole(role || {});
+    return '<div class="st-encounter-field-dots" aria-label="字段状态导航">' + encounterRoleFieldSpecs().map((spec) => {
+      const state = encounterFieldStateClass(spec.value(normalized), spec.required);
+      const status = state === "is-filled" ? "已填写" : (spec.required ? "必填未填" : "选填未填");
+      return '<button type="button" class="' + state + '" data-encounter-field-jump="' + escapeAttr(spec.name) + '" data-required="' + (spec.required ? "1" : "0") + '" title="' + escapeAttr(spec.label + "：" + status) + '" aria-label="' + escapeAttr(spec.label + "：" + status) + '"></button>';
+    }).join("") + '</div>';
+  }
+
   function renderEncounterRoleFormCard(role, selectedIndex, options = {}) {
     const single = Boolean(options.single);
     const normalized = encounterNormalizeRole(role || {}, selectedIndex);
     return '<article class="st-encounter-role-card" data-encounter-role-card data-role-index="' + selectedIndex + '">' +
+      encounterRoleFieldDotsHtml(normalized) +
       '<div class="st-encounter-role-image-row">' +
         '<div class="st-encounter-role-image">' + encounterCoverHtml(normalized.imageDataUrl, "角色图") + '</div>' +
         '<label class="st-encounter-field"><span>角色图片</span><input type="file" accept="image/*" ' + (single ? "data-encounter-single-role-image" : 'data-encounter-role-image="' + selectedIndex + '"') + '></label>' +
@@ -6639,6 +6716,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         '<label class="st-encounter-field"><span>别名 / 关键词</span><input name="roleAliases" value="' + escapeAttr(normalized.aliases) + '" placeholder="逗号分隔"></label>' +
       '</div>' +
       '<label class="st-encounter-field"><span>介绍 / 档案摘要</span><textarea name="roleIntro" placeholder="身份、外貌、性格、关系、剧情定位">' + escapeHtml(normalized.intro) + '</textarea></label>' +
+      '<label class="st-encounter-field"><span>角色出场提示词</span><textarea name="roleEncounterPrompt" placeholder="购买/使用后交给AI的这个角色单独登场方式、触发场景或剧情钩子">' + escapeHtml(normalized.encounterPrompt) + '</textarea></label>' +
       '<label class="st-encounter-field"><span>初始变量（JSON）</span><textarea name="roleInitialVariables" placeholder="购买/使用时写入 stat_data.角色.角色名 的初始变量">' + escapeHtml(encounterInitialVariablesText(normalized)) + '</textarea></label>' +
       '<div class="st-encounter-grid2">' +
         '<label class="st-encounter-field"><span>title / 定位</span><input name="rolePersonaTitle" value="' + escapeAttr(normalized.personaTitle) + '" placeholder="例如：同班同学 / 杀手"></label>' +
@@ -7159,8 +7237,8 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       name: source.name || source["角色名"] || picked.name || current.name,
 	      imageDataUrl: current.imageDataUrl
 	    });
-	    const hasDirect = [direct.name, direct.aliases, direct.intro, direct.variables, direct.initialVariables, direct.persona].some((value) => String(value || "").trim()) || encounterHasPersonaFixedFields(direct);
-	    if (hasDirect && (direct.variables || direct.initialVariables || direct.persona || direct.intro || direct.aliases || encounterHasPersonaFixedFields(direct) || picked.name)) {
+	    const hasDirect = [direct.name, direct.aliases, direct.intro, direct.encounterPrompt, direct.variables, direct.initialVariables, direct.persona].some((value) => String(value || "").trim()) || encounterHasPersonaFixedFields(direct);
+	    if (hasDirect && (direct.variables || direct.initialVariables || direct.persona || direct.intro || direct.encounterPrompt || direct.aliases || encounterHasPersonaFixedFields(direct) || picked.name)) {
 	      return { ...current, ...direct, imageDataUrl: current.imageDataUrl };
 	    }
     const entries = encounterWorldbookEntriesFromJson(parsed);
@@ -7914,7 +7992,8 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
   }
 
   function encounterPurchasePayload(pkg, result = {}) {
-    const roles = (pkg.roles || []).filter((role) => String(role.name || role.intro || "").trim());
+    const roles = (pkg.roles || []).map((role, index) => encounterNormalizeRole(role, index)).filter((role) => String(role.name || role.intro || "").trim());
+    const combinedPrompt = encounterPackageCombinedPrompt(pkg);
     return {
       来源: "邂逅",
       操作: "角色包已使用",
@@ -7922,7 +8001,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       角色包ID: pkg.id,
       角色包名称: pkg.name || "未命名角色包",
       角色包介绍: pkg.intro || "无",
-      AI邂逅提示词: pkg.encounterPrompt || "无",
+      AI邂逅提示词: combinedPrompt || "无",
       前端处理: "已由前端扣除星光点、创建初始角色变量、缓存角色图片，并尝试写入当前使用角色卡绑定的世界书。",
       消耗星光点: result.price ?? encounterPackagePrice(pkg),
       初始变量新增角色: Array.isArray(result.createdRoles) && result.createdRoles.length ? result.createdRoles.join("、") : "无",
@@ -7935,9 +8014,10 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         角色名: role.name || "由AI按角色包内容命名",
         别名: role.aliases || "",
         档案摘要: role.intro || "",
+        角色出场提示词: encounterRoleEncounterPrompt(role) || "",
         前端图片缓存: role.imageDataUrl ? "角色图片已由前端缓存到人物档案本地照片，变量出现后自动显示。" : "无"
       })),
-      AI执行规范: "这个角色包已经被前端使用。不要重复扣星光点，不要重复插入世界书，不要对已新增角色重复/add。世界书条目已写入当前使用角色卡绑定的世界书；初始角色变量已由前端创建，若有同名旧角色则前端已跳过不覆盖。请根据角色包、已写入世界书和AI邂逅提示词，在本轮剧情中安排对应角色登场；后续只按剧情变化更新变量。"
+      AI执行规范: "这个角色包已经被前端使用。不要重复扣星光点，不要重复插入世界书，不要对已新增角色重复/add。世界书条目已写入当前使用角色卡绑定的世界书；初始角色变量已由前端创建，若有同名旧角色则前端已跳过不覆盖。请根据角色包、已写入世界书和各角色出场提示词，在本轮剧情中安排对应角色登场；后续只按剧情变化更新变量。"
     };
   }
 
@@ -8004,6 +8084,26 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     });
   }
 
+  function encounterRefreshRoleFieldDots(page) {
+    if (!page) return;
+    page.querySelectorAll("[data-encounter-role-card]").forEach((card) => {
+      card.querySelectorAll("[data-encounter-field-jump]").forEach((button) => {
+        const name = button.getAttribute("data-encounter-field-jump") || "";
+        const required = button.getAttribute("data-required") === "1";
+        const field = card.querySelector("[name='" + name + "']");
+        const filled = Boolean(String(field?.value || "").trim());
+        const state = filled ? "is-filled" : (required ? "is-required-missing" : "is-optional-missing");
+        const label = (button.getAttribute("aria-label") || "").split("：")[0] || name;
+        const status = filled ? "已填写" : (required ? "必填未填" : "选填未填");
+        button.classList.toggle("is-filled", state === "is-filled");
+        button.classList.toggle("is-required-missing", state === "is-required-missing");
+        button.classList.toggle("is-optional-missing", state === "is-optional-missing");
+        button.setAttribute("title", label + "：" + status);
+        button.setAttribute("aria-label", label + "：" + status);
+      });
+    });
+  }
+
   function bindEncounterPage(page) {
     page.querySelector('[data-lite-action="back"]')?.addEventListener("click", () => {
       if (page.dataset.encounterTab === "edit") encounterReadDraftFromForm(page);
@@ -8042,6 +8142,16 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       page.dataset.encounterEditRoleIndex = String(event.target.value || "0");
       renderEncounterPage(page);
     });
+    page.querySelectorAll("[data-encounter-field-jump]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const card = button.closest("[data-encounter-role-card]");
+        const name = button.getAttribute("data-encounter-field-jump") || "";
+        const field = card?.querySelector("[name='" + name + "']");
+        const target = field?.closest(".st-encounter-field") || field;
+        try { target?.scrollIntoView?.({ block: "center", behavior: "smooth" }); } catch {}
+        try { field?.focus?.({ preventScroll: true }); } catch { field?.focus?.(); }
+      });
+    });
     page.querySelector("[data-encounter-cover-file]")?.addEventListener("change", async (event) => {
       const file = event.target.files?.[0];
       if (!file) return;
@@ -8075,10 +8185,12 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     });
     page.querySelector("[data-encounter-form]")?.addEventListener("input", () => {
       encounterReadDraftFromForm(page);
+      encounterRefreshRoleFieldDots(page);
       encounterSetStatus(page, "草稿已自动保存。");
     });
     page.querySelector("[data-encounter-single-role-form]")?.addEventListener("input", () => {
       encounterReadSingleRoleFromForm(page);
+      encounterRefreshRoleFieldDots(page);
       encounterSetStatus(page, "角色草稿已自动保存。");
     });
     page.querySelectorAll("[data-encounter-action]").forEach((button) => {
@@ -8281,6 +8393,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         }
       });
     });
+    encounterRefreshRoleFieldDots(page);
   }
 
   function openEncounterPage(tile, initialTab = "browse") {
