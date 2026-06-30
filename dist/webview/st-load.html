@@ -2005,9 +2005,13 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-work-meta{display:flex;flex-wrap:wrap;gap:6px}
 .st-work-meta span{border:1px solid rgba(255,255,255,.08);border-radius:999px;background:rgba(2,6,23,.34);color:rgba(226,232,240,.72);padding:4px 7px;font-size:10px;font-weight:850;line-height:1.2}
 .st-work-meta span.is-encounter{border-color:rgba(244,114,182,.28);background:rgba(244,114,182,.11);color:#fbcfe8}
+.st-work-meta span.is-buff{border-color:rgba(250,204,21,.25);background:rgba(250,204,21,.1);color:#fde68a}
 .st-work-button{height:36px;border:1px solid rgba(255,255,255,.12);border-radius:13px;background:linear-gradient(135deg,#0ea5e9,#d97706);color:white;font-size:13px;font-weight:950;cursor:pointer;box-shadow:0 12px 24px rgba(14,165,233,.18)}
 .st-work-button:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.35);box-shadow:none}
 .st-work-button:not(:disabled):active{transform:scale(.98)}
+.st-work-buff-note{border:1px solid rgba(250,204,21,.16);border-radius:14px;background:rgba(2,6,23,.25);padding:8px 9px;display:grid;gap:5px}
+.st-work-buff-note strong{color:#fde68a;font-size:12px;line-height:1.25}
+.st-work-buff-note span{color:rgba(226,232,240,.68);font-size:10.5px;line-height:1.45}
 .st-work-note{margin:0;color:rgba(203,213,225,.58);font-size:11px;line-height:1.55}
 .st-encounter-app{background:linear-gradient(180deg,#fff9f3 0%,#f6fbf5 48%,#edf7ff 100%)!important;color:#352b25}
 .st-encounter-app .st-lite-header{padding:42px 15px 12px;background:linear-gradient(180deg,rgba(255,250,243,.97),rgba(246,251,245,.9));border-bottom:1px solid rgba(127,88,47,.16);color:#352b25}
@@ -4877,6 +4881,11 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     return "¥" + Math.max(0, Math.floor(workNumber(value, 0))).toLocaleString();
   }
 
+  function workChanceText(value) {
+    const percent = Math.max(0, Math.min(100, workNumber(value, 0) * 100));
+    return (Number.isInteger(percent) ? String(percent) : percent.toFixed(1)) + "%";
+  }
+
   function workStorageKey() {
     return "hypnoos.work.roll.v1:" + graphScopeKey();
   }
@@ -5040,12 +5049,16 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     const isNormalWorkStart = minutes >= 970 && minutes <= 1080;
     const isNightWork = minutes > 1080 || minutes < 360;
     const currentBuff = String(system["buff"] || "").trim();
+    const dayRule = isSchoolDay
+      ? "当前是上课日，8:30-16:10内开始打工算逃学。"
+      : "当前是周末或假日，不算逃学，不会因白天打工触发“社会的蔑视”；但夜班仍会触发“无精打采”。";
     if (isSchoolTime) {
       return {
         kind: "上学时间逃课",
         buff: "社会的蔑视",
         currentBuff,
-        rule: "上学时间逃课打工，被其他人发现或议论后遭到蔑视；成功开始/结算本次打工时将/系统/buff替换为“社会的蔑视”。该buff本质是“逃学被其他人蔑视”，持续1天，会被其他buff覆盖；存在期间所有角色好感度不能提升，只能不变或按剧情下降。"
+        dayRule,
+        rule: "上课日8:30-16:10内逃课打工，被其他人发现或议论后遭到蔑视；成功开始/结算本次打工时将/系统/buff替换为“社会的蔑视”。该buff本质是“逃学被其他人蔑视”，持续1天，会被其他buff覆盖；存在期间所有角色好感度不能提升，只能不变或按剧情下降。周末或假日不触发该buff。"
       };
     }
     if (isNormalWorkStart) {
@@ -5053,6 +5066,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         kind: "正常时间",
         buff: "全盛出击",
         currentBuff,
+        dayRule,
         rule: "16:10-18:00期间开始打工，视为正常时间；成功开始/结算本次打工时将/系统/buff替换为“全盛出击”，并把/系统/MC能量一次性恢复到/系统/MC能量上限。该buff效果只触发一次但显示持续1天，会被其他buff覆盖。"
       };
     }
@@ -5061,6 +5075,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         kind: "夜班",
         buff: "无精打采",
         currentBuff,
+        dayRule,
         rule: "夜班打工；成功开始/结算本次打工时将/系统/buff替换为“无精打采”。该buff持续1天，会被其他buff覆盖；存在期间补充MC能量时获得量减半。"
       };
     }
@@ -5068,6 +5083,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       kind: "非标准空档",
       buff: "",
       currentBuff,
+      dayRule,
       rule: "当前不是上学时间逃课，也不是夜班；但只有16:10-18:00期间开始才算完全正常。本次打工不新增、不替换buff，已有buff照常保留到自然到期或被其他buff覆盖。"
     };
   }
@@ -5131,8 +5147,9 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     syncWorkStatusReminder();
     const shachiku = currentShachikuValue();
     const pct = Math.max(0, Math.min(100, Math.round(shachiku / 200 * 100)));
-    const pendingWork = hasPendingWorkOperation();
+      const pendingWork = hasPendingWorkOperation();
     readWorkLayerRoll();
+    const timingInfo = workStartTimingInfo();
     const unlockedCount = ST_WORK_JOBS.filter((job) => shachiku >= job.threshold).length;
     const jobsHtml = ST_WORK_JOBS.map((job) => {
       const unlocked = shachiku >= job.threshold;
@@ -5147,7 +5164,8 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         '<div class="st-work-meta">' +
           '<span>门槛 ' + job.threshold + '</span>' +
           '<span>' + (unlocked ? "可接" : "未解锁") + '</span>' +
-          '<span>可能偶遇</span>' +
+          '<span class="is-encounter">偶遇率 ' + workChanceText(job.chance) + '</span>' +
+          '<span class="is-buff">当前会得 ' + escapeHtml(timingInfo.buff || "无buff") + '</span>' +
         '</div>' +
         '<button type="button" class="st-work-button" data-work-job="' + escapeAttr(job.id) + '"' + (disabled ? " disabled" : "") + '>' + (pendingWork ? "已有打工" : (unlocked ? "开始打工" : "未解锁")) + '</button>' +
       '</article>';
@@ -5164,7 +5182,12 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
             '<div class="st-work-status-value">' + shachiku + ' / 200</div>' +
           '</div>' +
           '<div class="st-work-progress" style="--pct:' + pct + '%"><span></span></div>' +
-          '<small>打工可能会偶遇女角色，越高级的工作偶遇概率越高。</small>' +
+          '<small>打工可能会偶遇女角色，越高级的工作偶遇概率越高；具体是否偶遇不会在界面暴露。</small>' +
+        '</section>' +
+        '<section class="st-work-buff-note">' +
+          '<strong>当前开始：' + escapeHtml(timingInfo.kind) + ' · ' + escapeHtml(timingInfo.buff || "无新增buff") + '</strong>' +
+          '<span>' + escapeHtml(timingInfo.dayRule || "") + '</span>' +
+          '<span>社会的蔑视：逃学被其他人蔑视，1天内好感不提升。无精打采：夜班后1天内补充MC能量减半。全盛出击：正常时间开始时一次性恢复全部MC能量。所有buff最多一个，新buff覆盖旧buff。</span>' +
         '</section>' +
         '<section class="st-work-list">' + jobsHtml + '</section>' +
         '<p class="st-work-note">每次打工按6小时结算。前端只暂存一个打工操作，确认发送后由 AI 按当前剧情结算。</p>' +
@@ -5209,6 +5232,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
           开始时间: timeInfo.startText,
           预计结束时间: timeInfo.endText,
           打工时间分类: timingInfo.kind,
+          打工日期规则: timingInfo.dayRule,
           当前buff: timingInfo.currentBuff || "无",
           打工获得buff: timingInfo.buff || "无",
           打工buff持续时间: timingInfo.buff ? "1天" : "无新增buff",
@@ -5271,6 +5295,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 	      aliases: "",
 	      intro: "",
 	      variables: "",
+	      initialVariables: "",
 	      personaTitle: "",
 	      gender: "",
 	      age: "",
@@ -5506,6 +5531,93 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     ]) : "";
   }
 
+	  function encounterPlainLine(value) {
+	    return String(value || "").replace(/s+/g, " ").trim();
+	  }
+
+	  function encounterDefaultInitialVariableObject(role) {
+	    const normalized = role && typeof role === "object" && !Array.isArray(role) ? role : {};
+	    const name = String(normalized.name || normalized["角色名"] || "").trim();
+	    const title = encounterPlainLine(normalized.personaTitle || normalized.title || normalized["定位"] || normalized.intro || "");
+	    return {
+	      "好感度": 0,
+	      "警戒度": 0,
+	      "服从度": 0,
+	      "性欲": 0,
+	      "快感值": 0,
+	      "是否派遣中": false,
+	      "身价": 30000,
+	      "档案": {
+	        "照片": "",
+	        "姓名": name,
+	        "年龄": encounterPlainLine(normalized.age || normalized["年龄"] || ""),
+	        "社团/职业": title,
+	        "身高": "",
+	        "体重": "",
+	        "三围": "",
+	        "头发": "",
+	        "面部": "",
+	        "上衣": "",
+	        "下衣": ""
+	      },
+	      "心理": "",
+	      "阴蒂敏感度": 100,
+	      "小穴敏感度": 100,
+	      "菊穴敏感度": 100,
+	      "尿道敏感度": 100,
+	      "乳头敏感度": 100,
+	      "临时催眠效果": {},
+	      "永久催眠效果": {},
+	      "阴蒂高潮次数": 0,
+	      "小穴高潮次数": 0,
+	      "菊穴高潮次数": 0,
+	      "尿道高潮次数": 0,
+	      "乳头高潮次数": 0
+	    };
+	  }
+
+	  function encounterInitialVariablesText(role) {
+	    const raw = role?.initialVariables ?? role?.initialRoleVariables ?? role?.["初始变量"] ?? role?.["角色初始变量"];
+	    const text = String(raw || "").trim();
+	    if (text) return String(raw);
+	    return JSON.stringify(encounterDefaultInitialVariableObject(role), null, 2);
+	  }
+
+	  function encounterDeepMergeObject(base, patch) {
+	    const output = encounterClone(base) || {};
+	    if (!patch || typeof patch !== "object" || Array.isArray(patch)) return output;
+	    for (const [key, value] of Object.entries(patch)) {
+	      if (value && typeof value === "object" && !Array.isArray(value) && output[key] && typeof output[key] === "object" && !Array.isArray(output[key])) {
+	        output[key] = encounterDeepMergeObject(output[key], value);
+	      } else {
+	        output[key] = value;
+	      }
+	    }
+	    return output;
+	  }
+
+	  function encounterInitialVariablesObject(role) {
+	    const normalized = encounterNormalizeRole(role || {});
+	    const name = String(normalized.name || "").trim();
+	    const fallback = encounterDefaultInitialVariableObject(normalized);
+	    const text = encounterInitialVariablesText(normalized).trim();
+	    if (!text) return fallback;
+	    let parsed;
+	    try {
+	      parsed = JSON.parse(text);
+	    } catch (error) {
+	      throw new Error((name || "未命名角色") + " 的初始变量不是有效 JSON。");
+	    }
+	    if (parsed?.stat_data?.["角色"]?.[name] && typeof parsed.stat_data["角色"][name] === "object") parsed = parsed.stat_data["角色"][name];
+	    else if (parsed?.["角色"]?.[name] && typeof parsed["角色"][name] === "object") parsed = parsed["角色"][name];
+	    else if (name && parsed?.[name] && typeof parsed[name] === "object" && !Array.isArray(parsed[name])) parsed = parsed[name];
+	    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error((name || "未命名角色") + " 的初始变量必须是对象。");
+	    const merged = encounterDeepMergeObject(fallback, parsed);
+	    merged["档案"] = merged["档案"] && typeof merged["档案"] === "object" && !Array.isArray(merged["档案"]) ? merged["档案"] : {};
+	    if (name && !String(merged["档案"]["姓名"] || "").trim()) merged["档案"]["姓名"] = name;
+	    return merged;
+	  }
+
 	  function encounterNormalizeRole(role, index = 0) {
 	    const source = role && typeof role === "object" && !Array.isArray(role) ? role : {};
 	    const name = String(source.name || source["角色名"] || "");
@@ -5532,6 +5644,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 	      aliases: String(source.aliases || source["别名"] || source["关键词"] || ""),
 	      intro: String(source.intro || source.profile || source.summary || source["介绍"] || source["档案"] || ""),
 	      variables: String(source.variables || source.variableWorldbook || source["人物变量"] || source["变量设定"] || encounterDefaultVariableContent(name)),
+	      initialVariables: encounterInitialVariablesText({ ...source, name }),
 	      personaTitle: encounterFirstText(source.personaTitle, source.title, source["title"], source["称号"], source["定位"], parsedPersona.personaTitle),
 	      gender: encounterFirstText(source.gender, source["gender"], source["性别"], parsedPersona.gender),
 	      age: encounterFirstText(source.age, source["age"], source["年龄"], parsedPersona.age),
@@ -6048,6 +6161,8 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 	      role.intro = String(roleRead("roleIntro"));
 	      const variableField = card.querySelector("[name='roleVariables']");
 	      role.variables = variableField ? String(variableField.value || "") : encounterDefaultVariableContent(role.name);
+	      const initialVariableField = card.querySelector("[name='roleInitialVariables']");
+	      role.initialVariables = initialVariableField ? String(initialVariableField.value || "") : encounterInitialVariablesText(role);
 	      role.personaTitle = String(roleRead("rolePersonaTitle"));
 	      role.gender = String(roleRead("roleGender"));
 	      role.age = String(roleRead("roleAge"));
@@ -6130,7 +6245,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         '<button type="button" class="st-encounter-button" data-encounter-action="edit-package" data-package-id="' + escapeAttr(pkg.id) + '">在此包上更改</button>' +
         '<button type="button" class="st-encounter-button primary" data-encounter-action="purchase" data-package-id="' + escapeAttr(pkg.id) + '"' + (used ? " disabled" : "") + '>购买 / 使用</button>' +
       '</div>' +
-      '<p class="st-encounter-note">购买会先警告确认；确认后前端直接扣星光点、缓存图片，并把条目写入当前使用角色卡绑定的世界书。角色变量交给 AI 在本轮生成时添加。</p>' +
+      '<p class="st-encounter-note">购买会先警告确认；确认后前端直接扣星光点、创建初始角色变量、缓存图片，并把条目写入当前使用角色卡绑定的世界书。</p>' +
     '</section>';
   }
 
@@ -6226,7 +6341,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       '</div>' +
       '<div class="st-encounter-actions is-single"><button type="button" class="st-encounter-button" data-encounter-action="clear-draft">清空草稿</button></div>' +
       '<input type="file" accept=".zip,application/zip" data-encounter-import-draft hidden>' +
-      '<p class="st-encounter-note">购买后前端会尝试写入当前使用角色卡绑定的世界书；如果当前角色卡没有绑定世界书，会先创建并绑定一个。世界书写入不可撤销，只能之后手动删除。</p>' +
+      '<p class="st-encounter-note">购买后前端会创建初始角色变量，并尝试写入当前使用角色卡绑定的世界书；如果当前角色卡没有绑定世界书，会先创建并绑定一个。世界书写入不可撤销，只能之后手动删除。</p>' +
     '</section>';
   }
 
@@ -6251,6 +6366,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
           '<label class="st-encounter-field"><span>别名 / 关键词</span><input name="roleAliases" value="' + escapeAttr(role.aliases) + '" placeholder="逗号分隔"></label>' +
 	        '</div>' +
 	        '<label class="st-encounter-field"><span>介绍 / 档案摘要</span><textarea name="roleIntro" placeholder="身份、外貌、性格、关系、剧情定位">' + escapeHtml(role.intro) + '</textarea></label>' +
+	        '<label class="st-encounter-field"><span>初始变量（JSON）</span><textarea name="roleInitialVariables" placeholder="购买/使用角色包时写入 stat_data.角色.角色名 的初始变量">' + escapeHtml(encounterInitialVariablesText(role)) + '</textarea></label>' +
 	        '<div class="st-encounter-grid2">' +
 	          '<label class="st-encounter-field"><span>title / 定位</span><input name="rolePersonaTitle" value="' + escapeAttr(role.personaTitle) + '" placeholder="例如：同班同学 / 杀手"></label>' +
 	          '<label class="st-encounter-field"><span>gender / 性别</span><input name="roleGender" value="' + escapeAttr(role.gender) + '" placeholder="女"></label>' +
@@ -6272,7 +6388,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 	      '</div>' +
 	      '<div class="st-encounter-actions is-single"><button type="button" class="st-encounter-button primary" data-encounter-action="save-library">保存到浏览</button></div>' +
 	      '<input type="file" accept=".json,application/json" data-encounter-import-role-json hidden>' +
-	      '<p class="st-encounter-note">人物变量 entry 会按角色名自动生成固定格式；人设 entry 会由 title/gender 等固定字段重新拼成固定格式，并统一写入当前角色卡世界书。角色JSON导入/导出不覆盖角色图片。</p>' +
+	      '<p class="st-encounter-note">人物变量 entry 会按角色名自动生成固定格式；初始变量会在购买/使用时写入当前楼层变量；人设 entry 会由 title/gender 等固定字段重新拼成固定格式，并统一写入当前角色卡世界书。角色JSON导入/导出不覆盖角色图片。</p>' +
 	    '</section>';
 	  }
 
@@ -6296,7 +6412,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     page.innerHTML =
       '<header class="st-lite-header">' +
         '<button class="st-lite-back" data-lite-action="back" title="返回桌面">‹</button>' +
-	        '<div class="st-lite-title"><strong>邂逅</strong><span>角色包会写入当前角色卡世界书，并提示 AI 生成角色变量。</span></div>' +
+	        '<div class="st-lite-title"><strong>邂逅</strong><span>角色包会写入当前角色卡世界书，并创建初始角色变量。</span></div>' +
       '</header>' +
       '<main class="st-lite-body">' +
         (detailOpen ? '' : '<section class="st-encounter-tabs">' +
@@ -6684,8 +6800,8 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       name: source.name || source["角色名"] || picked.name || current.name,
 	      imageDataUrl: current.imageDataUrl
 	    });
-	    const hasDirect = [direct.name, direct.aliases, direct.intro, direct.variables, direct.persona].some((value) => String(value || "").trim()) || encounterHasPersonaFixedFields(direct);
-	    if (hasDirect && (direct.variables || direct.persona || direct.intro || direct.aliases || encounterHasPersonaFixedFields(direct) || picked.name)) {
+	    const hasDirect = [direct.name, direct.aliases, direct.intro, direct.variables, direct.initialVariables, direct.persona].some((value) => String(value || "").trim()) || encounterHasPersonaFixedFields(direct);
+	    if (hasDirect && (direct.variables || direct.initialVariables || direct.persona || direct.intro || direct.aliases || encounterHasPersonaFixedFields(direct) || picked.name)) {
 	      return { ...current, ...direct, imageDataUrl: current.imageDataUrl };
 	    }
     const entries = encounterWorldbookEntriesFromJson(parsed);
@@ -6756,6 +6872,52 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     data.stat["系统"]["星光点"] = Math.max(0, Math.floor(previous - cost));
     await globalThis.Mvu.replaceMvuData(data.mvu, data.option);
     return { ok: true, previous, current: data.stat["系统"]["星光点"] };
+  }
+
+  function encounterPackageInitialRoleEntries(pkg) {
+    const entries = [];
+    for (const role of pkg?.roles || []) {
+      const normalized = encounterNormalizeRole(role);
+      const name = String(normalized.name || "").trim();
+      if (!name) continue;
+      entries.push({ name, value: encounterInitialVariablesObject(normalized) });
+    }
+    return entries;
+  }
+
+  async function encounterRestoreRoleVariables(snapshot) {
+    if (!snapshot || typeof snapshot !== "object") return false;
+    const data = encounterCurrentMvuData();
+    if (!data) return false;
+    data.stat["角色"] = data.stat["角色"] && typeof data.stat["角色"] === "object" && !Array.isArray(data.stat["角色"]) ? data.stat["角色"] : {};
+    for (const [name, previous] of Object.entries(snapshot)) {
+      if (previous === undefined) delete data.stat["角色"][name];
+      else data.stat["角色"][name] = previous;
+    }
+    await globalThis.Mvu.replaceMvuData(data.mvu, data.option);
+    return true;
+  }
+
+  async function encounterCreateInitialRoleVariables(initialEntries) {
+    const data = encounterCurrentMvuData();
+    if (!data) return { ok: false, reason: "MVU变量接口未就绪。", created: [], skipped: [], snapshot: {} };
+    data.stat["角色"] = data.stat["角色"] && typeof data.stat["角色"] === "object" && !Array.isArray(data.stat["角色"]) ? data.stat["角色"] : {};
+    const created = [];
+    const skipped = [];
+    const snapshot = {};
+    for (const item of initialEntries || []) {
+      const name = String(item?.name || "").trim();
+      if (!name) continue;
+      if (Object.prototype.hasOwnProperty.call(data.stat["角色"], name)) {
+        skipped.push(name);
+        continue;
+      }
+      snapshot[name] = undefined;
+      data.stat["角色"][name] = encounterClone(item.value) || item.value || {};
+      created.push(name);
+    }
+    if (created.length) await globalThis.Mvu.replaceMvuData(data.mvu, data.option);
+    return { ok: true, created, skipped, snapshot };
   }
 
   function encounterWorldbookEntry(comment, role, content) {
@@ -7405,8 +7567,10 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       角色包名称: pkg.name || "未命名角色包",
       角色包介绍: pkg.intro || "无",
       AI邂逅提示词: pkg.encounterPrompt || "无",
-      前端处理: "已由前端扣除星光点、缓存角色图片，并尝试写入当前使用角色卡绑定的世界书；前端不会直接添加角色变量。",
+      前端处理: "已由前端扣除星光点、创建初始角色变量、缓存角色图片，并尝试写入当前使用角色卡绑定的世界书。",
       消耗星光点: result.price ?? encounterPackagePrice(pkg),
+      初始变量新增角色: Array.isArray(result.createdRoles) && result.createdRoles.length ? result.createdRoles.join("、") : "无",
+      初始变量跳过角色: Array.isArray(result.skippedRoles) && result.skippedRoles.length ? result.skippedRoles.join("、") : "无",
       世界书写入条目数: result.worldbookCount ?? 0,
       世界书新增条目数: result.insertedCount ?? result.worldbookCount ?? 0,
       当前角色卡世界书: result.targetWorldbook || "当前角色卡绑定世界书",
@@ -7417,7 +7581,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         档案摘要: role.intro || "",
         前端图片缓存: role.imageDataUrl ? "角色图片已由前端缓存到人物档案本地照片，变量出现后自动显示。" : "无"
       })),
-      AI执行规范: "这个角色包已经被前端使用。不要重复扣星光点，不要重复插入世界书。世界书条目已写入当前使用角色卡绑定的世界书；请根据角色包和已写入世界书内容，在本轮剧情中生成对应角色导入/登场内容，并在需要时用/update或/add补充/角色变量；角色变量由AI生成，前端不会直接添加。"
+      AI执行规范: "这个角色包已经被前端使用。不要重复扣星光点，不要重复插入世界书，不要对已新增角色重复/add。世界书条目已写入当前使用角色卡绑定的世界书；初始角色变量已由前端创建，若有同名旧角色则前端已跳过不覆盖。请根据角色包、已写入世界书和AI邂逅提示词，在本轮剧情中安排对应角色登场；后续只按剧情变化更新变量。"
     };
   }
 
@@ -7433,7 +7597,14 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       return;
     }
     const price = encounterPackagePrice(pkg);
-    const ok = window.confirm("购买后会直接向当前使用角色卡绑定的世界书新增条目；如果当前角色卡没有绑定世界书，会先创建并绑定一个。世界书增加不可撤销，只能之后手动删除。角色变量不由前端添加，会交给 AI 生成。确认使用这个角色包？");
+    let initialEntries = [];
+    try {
+      initialEntries = encounterPackageInitialRoleEntries(pkg);
+    } catch (error) {
+      encounterSetStatus(page, "初始变量校验失败：" + (error?.message || error));
+      return;
+    }
+    const ok = window.confirm("购买后会直接向当前使用角色卡绑定的世界书新增条目，并在当前变量中创建角色初始变量；如果当前角色卡没有绑定世界书，会先创建并绑定一个。世界书增加不可撤销，只能之后手动删除；变量可以通过删除楼层恢复。确认使用这个角色包？");
     if (!ok) return;
     encounterSetStatus(page, "正在使用角色包...");
     const deduct = await encounterDeductStarlight(price);
@@ -7441,8 +7612,15 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       encounterSetStatus(page, deduct.reason || "星光点扣除失败。");
       return;
     }
+    const variables = await encounterCreateInitialRoleVariables(initialEntries);
+    if (!variables.ok) {
+      if (deduct.previous !== undefined) await encounterSetStarlight(deduct.previous);
+      encounterSetStatus(page, variables.reason || "初始变量写入失败，已尝试退回星光点。");
+      return;
+    }
     const worldbook = await encounterInsertPackageWorldbooks(pkg);
     if (!worldbook.ok) {
+      await encounterRestoreRoleVariables(variables.snapshot);
       if (deduct.previous !== undefined) await encounterSetStarlight(deduct.previous);
       encounterSetStatus(page, "当前角色卡世界书写入失败，已尝试退回星光点。失败条目：" + worldbook.failed.slice(0, 2).join("；"));
       return;
@@ -7451,13 +7629,15 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     encounterMarkPurchased(pkg.id);
     Promise.resolve(appendAppOperation(encounterPurchasePayload(pkg, {
       price,
+      createdRoles: variables.created,
+      skippedRoles: variables.skipped,
       worldbookCount: worldbook.count,
       insertedCount: worldbook.insertedCount,
       targetWorldbook: worldbook.targetWorldbook,
       method: worldbook.method
     }))).then((added) => {
       page.dataset.encounterStatus = added
-        ? ("已使用：" + (pkg.name || "角色包") + "；已写入 " + (worldbook.targetWorldbook || "当前角色卡世界书") + " " + worldbook.count + " 条" + (cached.length ? "；图片已缓存。" : "。"))
+        ? ("已使用：" + (pkg.name || "角色包") + "；已创建变量 " + variables.created.length + " 个；已写入 " + (worldbook.targetWorldbook || "当前角色卡世界书") + " " + worldbook.count + " 条" + (cached.length ? "；图片已缓存。" : "。"))
         : "角色包已使用，AI提示已存在于暂存区。";
       renderEncounterPage(page);
     });
