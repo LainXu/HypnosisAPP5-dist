@@ -1,0 +1,53 @@
+{
+  "key": [
+    "浅野桃花"
+  ],
+  "keysecondary": [],
+  "comment": "[mvu_update]浅野桃花变量",
+  "content": "浅野桃花:\n  {{format_message_variable::stat_data.角色.浅野桃花}}",
+  "constant": false,
+  "vectorized": false,
+  "selective": true,
+  "selectiveLogic": 0,
+  "addMemo": true,
+  "order": 30,
+  "position": 0,
+  "disable": false,
+  "excludeRecursion": true,
+  "preventRecursion": true,
+  "matchPersonaDescription": false,
+  "matchCharacterDescription": false,
+  "matchCharacterPersonality": false,
+  "matchCharacterDepthPrompt": false,
+  "matchScenario": false,
+  "matchCreatorNotes": false,
+  "delayUntilRecursion": false,
+  "probability": 100,
+  "useProbability": true,
+  "depth": 4,
+  "group": "",
+  "groupOverride": false,
+  "groupWeight": 100,
+  "scanDepth": null,
+  "caseSensitive": null,
+  "matchWholeWords": null,
+  "useGroupScoring": null,
+  "automationId": "",
+  "role": null,
+  "sticky": 0,
+  "cooldown": 0,
+  "delay": 0,
+  "displayIndex": 47,
+  "ignoreBudget": false,
+  "triggers": [],
+  "characterFilter": {
+    "isExclude": false,
+    "names": [],
+    "tags": []
+  },
+  "outletName": "",
+  "keys": [
+    "浅野桃花"
+  ],
+  "secondary_keys": []
+}

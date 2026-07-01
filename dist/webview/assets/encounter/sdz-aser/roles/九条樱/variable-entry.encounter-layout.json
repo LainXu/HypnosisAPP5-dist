@@ -1,0 +1,36 @@
+{
+  "key": [
+    "九条樱"
+  ],
+  "keys": [
+    "九条樱"
+  ],
+  "keysecondary": [],
+  "secondary_keys": [],
+  "comment": "[mvu_update]九条樱变量",
+  "content": "  九条樱:\n    {{format_message_variable::stat_data.角色.九条樱}}\n",
+  "constant": false,
+  "vectorized": false,
+  "selective": true,
+  "selectiveLogic": 0,
+  "addMemo": true,
+  "order": 23,
+  "insertion_order": 23,
+  "position": "before_char",
+  "disable": false,
+  "excludeRecursion": true,
+  "preventRecursion": true,
+  "probability": 100,
+  "useProbability": true,
+  "depth": 4,
+  "role": 0,
+  "extensions": {
+    "position": 0,
+    "depth": 4,
+    "role": 0,
+    "probability": 100,
+    "useProbability": true,
+    "exclude_recursion": true,
+    "prevent_recursion": true
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "key": [
+    "五十岚诗织"
+  ],
+  "keysecondary": [],
+  "comment": "[mvu_update]五十岚诗织变量",
+  "content": "五十岚诗织:\n  {{format_message_variable::stat_data.角色.五十岚诗织}}",
+  "constant": false,
+  "vectorized": false,
+  "selective": true,
+  "selectiveLogic": 0,
+  "addMemo": true,
+  "order": 23,
+  "position": "before_char",
+  "disable": false,
+  "excludeRecursion": true,
+  "preventRecursion": true,
+  "matchPersonaDescription": false,
+  "matchCharacterDescription": false,
+  "matchCharacterPersonality": false,
+  "matchCharacterDepthPrompt": false,
+  "matchScenario": false,
+  "matchCreatorNotes": false,
+  "delayUntilRecursion": false,
+  "probability": 100,
+  "useProbability": true,
+  "depth": 4,
+  "group": "",
+  "groupOverride": false,
+  "groupWeight": 100,
+  "scanDepth": null,
+  "caseSensitive": null,
+  "matchWholeWords": null,
+  "useGroupScoring": null,
+  "automationId": "",
+  "role": 0,
+  "sticky": 0,
+  "cooldown": 0,
+  "delay": 0,
+  "displayIndex": 49,
+  "ignoreBudget": false,
+  "triggers": [],
+  "characterFilter": {
+    "isExclude": false,
+    "names": [],
+    "tags": []
+  },
+  "outletName": "",
+  "keys": [
+    "五十岚诗织"
+  ],
+  "secondary_keys": [],
+  "insertion_order": 23,
+  "extensions": {
+    "depth": 4,
+    "role": 0,
+    "position": 0
+  }
+}
