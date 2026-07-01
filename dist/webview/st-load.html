@@ -2003,6 +2003,8 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-inventory-app .st-lite-body{padding:0;gap:0;overflow:hidden;background:#07131e}
 .st-inventory-app .st-lite-header{position:absolute;top:0;left:0;right:0;z-index:8}
 .st-inventory-room,.st-inventory-locker{position:relative;min-height:100%;height:100%;background-color:#07131e;background-image:none;background-position:center;background-size:cover;background-repeat:no-repeat;overflow:hidden;color:#edf4fb}
+.st-inventory-locker::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(28,48,68,.95) 0 16%,rgba(5,12,20,.92) 16% 57%,rgba(51,76,101,.92) 57% 100%),linear-gradient(180deg,rgba(255,255,255,.08),transparent 18%,rgba(0,0,0,.28));z-index:0}
+.st-inventory-locker[style*="background-image"]::before{opacity:.18}
 .st-inventory-locker::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(1,8,17,.05),rgba(1,8,17,.16));pointer-events:none}
 .st-inventory-note{position:absolute;z-index:2;left:61.4%;top:16.5%;width:27.5%;height:30.2%;padding:46px 14px 16px;display:grid;align-content:start;gap:8px;color:#3b2a18;font-family:"STKaiti","KaiTi","Noto Serif SC",serif;text-align:left;transform:rotate(.2deg);pointer-events:auto}
 .st-inventory-note strong{display:block;color:#2e2115;font-size:18px;line-height:1.25;font-weight:950;word-break:break-word;text-shadow:0 1px 0 rgba(255,255,255,.45)}
@@ -2378,6 +2380,9 @@ button.st-work-notice{cursor:pointer}
 .st-hypnosis-island-row small{font-size:9px;color:rgba(203,213,225,.62);font-weight:850;white-space:nowrap}
 .st-app-island-recording{display:flex;align-items:center;justify-content:center;gap:8px;min-width:0}
 .st-app-island-recording .st-app-island-dot{width:8px;height:8px}
+.st-starlight-island{display:flex;align-items:center;justify-content:center;gap:7px;min-width:0}
+.st-starlight-island i{font-style:normal;color:#c4b5fd;font-size:15px;line-height:1;text-shadow:0 0 12px rgba(196,181,253,.58)}
+.st-starlight-island strong{min-width:0}
 .st-react-native-header-hidden{opacity:0!important;visibility:hidden!important;pointer-events:none!important;background:transparent!important;border-color:transparent!important;box-shadow:none!important}
 .st-react-native-header-removed{height:0!important;min-height:0!important;padding:0!important;margin:0!important;overflow:hidden!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;background:transparent!important;border:0!important;box-shadow:none!important}
 [data-st-phone-app="achievements"]>div>div:first-child,[data-st-phone-app="inventory"]>div>div:first-child,[data-st-phone-app="calendar"]>div>div:first-child{min-height:54px!important;height:54px!important;padding:9px 12px 7px!important;background:transparent!important;border-bottom:0!important;box-shadow:none!important;backdrop-filter:none!important}
@@ -2888,7 +2893,7 @@ button.st-work-notice{cursor:pointer}
     }
     if (app === "achievements") {
       const starlight = Math.max(0, Math.floor(Number(system["星光点"] ?? system["starlight"] ?? 0) || 0));
-      return { title: "成就和任务", html: '<strong>' + starlight.toLocaleString() + ' 星光点</strong>' };
+      return { title: "成就和任务", html: '<span class="st-starlight-island"><i aria-hidden="true">☆</i><strong>' + starlight.toLocaleString() + ' 星光点</strong></span>' };
     }
     if (app === "inventory") return { title: "库存", html: recordingIslandHtml() };
     if (app === "calendar") {
@@ -3362,7 +3367,7 @@ button.st-work-notice{cursor:pointer}
             '<button class="st-reward-button" type="button" data-reward-new-submit>写入新增任务请求</button>' +
           '</section>';
     page.innerHTML =
-      renderLiteHeader(page, { title: "成就和任务", html: '<strong>' + starlight.toLocaleString() + ' 星光点</strong>' }) +
+      renderLiteHeader(page, { title: "成就和任务", html: '<span class="st-starlight-island"><i aria-hidden="true">☆</i><strong>' + starlight.toLocaleString() + ' 星光点</strong></span>' }) +
       '<main class="st-lite-body">' +
         '<section class="st-graph-tabs">' +
           '<button type="button" class="st-graph-tab ' + (active === "achievements" ? "active" : "") + '" data-reward-tab="achievements">成就</button>' +
@@ -4522,8 +4527,13 @@ button.st-work-notice{cursor:pointer}
     const app = detectPhoneApp(root);
     if ((root.dataset.stPhoneApp || "") !== (app || "")) setPhoneActiveApp(root, app || "");
     root.querySelectorAll(".st-help-author-card,.st-author-credit-line").forEach((element) => element.remove());
-    if (app === "inventory") renderInventoryBackpack(root);
-    else removeInventoryBackpack(root);
+    if (app === "inventory") {
+      globalThis.__ST_HYPNOOS_LAST_REACT_APP__ = "";
+      removeInventoryBackpack(root);
+      if (!root.querySelector(".st-inventory-app")) openInventoryPage(root);
+      return;
+    }
+    removeInventoryBackpack(root);
     removeHypnosisSegmentPanel(root);
     hideReactNativeTopbar(root, app);
     renderReactAppIsland(root, app);
