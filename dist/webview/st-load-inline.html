@@ -4432,9 +4432,6 @@ button.st-work-notice{cursor:pointer}
 
   function dedupeHomeTilesByText(text) {
     const tiles = homeTilesByText(text);
-    for (let index = 1; index < tiles.length; index += 1) {
-      tiles[index]?.remove?.();
-    }
     return tiles[0] || null;
   }
 
@@ -11394,15 +11391,17 @@ button.st-work-notice{cursor:pointer}
     const parent = anchorTile.parentElement;
     if (!parent) return;
     let tile = dedupeHomeTilesByText("人物档案");
+    let createdTile = false;
     if (!tile) {
       tile = anchorTile.cloneNode(true);
+      createdTile = true;
       tile.removeAttribute("data-st-mchan-internal-patched");
       replaceExactTextInTile(tile, "催眠APP", "人物档案");
       tile.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
       anchorTile.insertAdjacentElement("afterend", tile);
     }
     tile.dataset.stProfileTile = "true";
-    setHomeTileIcon(tile, ST_APP_ICONS.profile, "人物档案");
+    if (createdTile) setHomeTileIcon(tile, ST_APP_ICONS.profile, "人物档案");
     bindHomeTileAction(tile, "stProfileTilePatched", "打开人物档案", openPersonProfilePage);
   }
 
@@ -11424,19 +11423,23 @@ button.st-work-notice{cursor:pointer}
     const parent = calendarTile.parentElement;
     if (!parent) return;
     let timetableTile = dedupeHomeTilesByText("课程表") || parent.querySelector('[data-st-timetable-tile="true"]');
+    let createdTimetable = false;
     if (!timetableTile) {
       timetableTile = calendarTile.cloneNode(true);
+      createdTimetable = true;
       timetableTile.dataset.stLiteCalendarPatched = "";
       replaceExactTextInTile(timetableTile, "日历", "课程表");
       timetableTile.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
       calendarTile.insertAdjacentElement("afterend", timetableTile);
     }
     timetableTile.dataset.stTimetableTile = "true";
-    setHomeTileIcon(timetableTile, ST_APP_ICONS.timetable, "课程表");
+    if (createdTimetable) setHomeTileIcon(timetableTile, ST_APP_ICONS.timetable, "课程表");
     bindHomeTileAction(timetableTile, "stTimetableTilePatched", "打开课程表", openTimetablePage);
     let clockTile = dedupeHomeTilesByText("时钟") || parent.querySelector('[data-st-clock-tile="true"]');
+    let createdClock = false;
     if (!clockTile) {
       clockTile = timetableTile.cloneNode(true);
+      createdClock = true;
       clockTile.removeAttribute("data-st-timetable-tile");
       setHomeTileLabel(clockTile, "时钟");
       clockTile.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
@@ -11444,8 +11447,10 @@ button.st-work-notice{cursor:pointer}
     }
     clockTile.dataset.stClockTile = "true";
     clockTile.removeAttribute("data-st-timetable-tile");
-    setHomeTileLabel(clockTile, "时钟");
-    setHomeTileIcon(clockTile, ST_APP_ICONS.clock, "时钟");
+    if (createdClock) {
+      setHomeTileLabel(clockTile, "时钟");
+      setHomeTileIcon(clockTile, ST_APP_ICONS.clock, "时钟");
+    }
     bindHomeTileAction(clockTile, "stClockTilePatched", "打开时钟", openClockPage);
   }
 
@@ -11456,19 +11461,23 @@ button.st-work-notice{cursor:pointer}
     if (!anchor?.parentElement) return;
     const parent = anchor.parentElement;
     let mapTile = dedupeHomeTilesByText("地图") || parent.querySelector('[data-st-map-tile="true"]');
+    let createdMap = false;
     if (!mapTile) {
       mapTile = anchor.cloneNode(true);
+      createdMap = true;
       mapTile.removeAttribute("data-st-mchan-internal-patched");
       setHomeTileLabel(mapTile, "地图");
       mapTile.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
       anchor.insertAdjacentElement("afterend", mapTile);
     }
     mapTile.dataset.stMapTile = "true";
-    setHomeTileIcon(mapTile, ST_APP_ICONS.map, "地图");
+    if (createdMap) setHomeTileIcon(mapTile, ST_APP_ICONS.map, "地图");
     bindHomeTileAction(mapTile, "stMapTilePatched", "打开地图", (tile) => openTodoPage(tile, "map", "st-map-app", "地图", "区域信息"));
     let schoolTile = dedupeHomeTilesByText("学校") || parent.querySelector('[data-st-school-tile="true"]');
+    let createdSchool = false;
     if (!schoolTile) {
       schoolTile = mapTile.cloneNode(true);
+      createdSchool = true;
       schoolTile.removeAttribute("data-st-map-tile");
       setHomeTileLabel(schoolTile, "学校");
       schoolTile.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
@@ -11476,8 +11485,10 @@ button.st-work-notice{cursor:pointer}
     }
     schoolTile.dataset.stSchoolTile = "true";
     schoolTile.removeAttribute("data-st-map-tile");
-    setHomeTileLabel(schoolTile, "学校");
-    setHomeTileIcon(schoolTile, ST_APP_ICONS.school, "学校");
+    if (createdSchool) {
+      setHomeTileLabel(schoolTile, "学校");
+      setHomeTileIcon(schoolTile, ST_APP_ICONS.school, "学校");
+    }
     bindHomeTileAction(schoolTile, "stSchoolTilePatched", "打开学校", (tile) => openTodoPage(tile, "school", "st-school-app", "学校", "学校地图与校规", true));
   }
 
