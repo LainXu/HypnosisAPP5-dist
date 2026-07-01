@@ -2572,17 +2572,18 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     if (root.querySelector(".st-encounter-app")) return "encounter";
     if (root.querySelector(".st-placeholder-app")) return "placeholder";
     const text = root.innerText || "";
-    const isHome = text.includes("催眠APP") && text.includes("成就和任务") && text.includes("MC匿名版");
-    if (isHome) return "";
     const compactPhoneText = text.replace(/s+/g, " ");
-    if ((text.includes("MC ENERGY") || text.includes("快速补给")) && (text.includes("MC") || text.includes("能量"))) return "hypnosis";
+    const hasHypnosisScreen =
+      ((text.includes("MC ENERGY") || text.includes("MC能量") || text.includes("快速补给")) && (text.includes("能量") || text.includes("VIP买断") || text.includes("当前买断"))) ||
+      text.includes("启动催眠") || text.includes("追加催眠") || text.includes("补充 1 能量") || text.includes("上限 +1");
+    if (hasHypnosisScreen) return "hypnosis";
     if (
       (text.includes("日历") && (text.includes("当前日期") || text.includes("当前时间") || text.includes("新增日程") || text.includes("Calendar"))) ||
       (text.includes("今日") && (text.includes("今日无记录事件") || text.includes("入学式") || text.includes("社团招新周"))) ||
       /日s*一s*二s*三s*四s*五s*六/.test(compactPhoneText)
     ) return "calendar";
     if (
-      (text.includes("成就和任务") || text.includes("成就筛选") || text.includes("任务筛选") || (compactPhoneText.includes("成就") && compactPhoneText.includes("任务") && compactPhoneText.includes("新增"))) &&
+      (text.includes("成就筛选") || text.includes("任务筛选") || text.includes("新增任务") || (compactPhoneText.includes("成就") && compactPhoneText.includes("任务") && compactPhoneText.includes("新增"))) &&
       (text.includes("成就") || text.includes("任务"))
     ) return "achievements";
     if (
@@ -2594,6 +2595,8 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       (text.includes("库存") && (text.includes("暂无持有物品") || text.includes("数量:") || text.includes("描述:"))) ||
       text.includes("背包说明") || text.includes("获得道具后会显示")
     ) return "inventory";
+    const isHome = text.includes("催眠APP") && text.includes("成就和任务") && text.includes("MC匿名版");
+    if (isHome) return "";
     if (["hypnosis", "achievements", "inventory", "help", "calendar"].includes(previousApp)) return previousApp;
     return "";
   }
