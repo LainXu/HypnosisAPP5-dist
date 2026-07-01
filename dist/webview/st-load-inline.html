@@ -8656,11 +8656,13 @@ button.st-work-notice{cursor:pointer}
   function renderEncounterDetailRoles(page, pkg) {
     const roles = Array.isArray(pkg.roles) ? pkg.roles : [];
     if (!roles.length) return '<section class="st-encounter-detail-panel"><div class="st-encounter-empty">这个角色包还没有角色。</div></section>';
-    const selectedIndex = encounterDetailRoleIndex(page, pkg);
+    const detailRoles = roles.slice(0, 4);
+    const hiddenRoleCount = Math.max(0, roles.length - detailRoles.length);
+    const selectedIndex = Math.min(encounterDetailRoleIndex(page, pkg), detailRoles.length - 1);
     page.dataset.encounterRoleIndex = String(selectedIndex);
     const selected = encounterNormalizeRole(roles[selectedIndex], selectedIndex);
     const rolePrompt = encounterRoleEncounterPrompt(selected);
-    const names = roles.map((role, index) => {
+    const names = detailRoles.map((role, index) => {
       const normalized = encounterNormalizeRole(role, index);
       const active = index === selectedIndex;
       const alias = String(normalized.aliases || "").split(/[，,、]/).map((item) => item.trim()).filter(Boolean)[0] || "";
@@ -8672,6 +8674,7 @@ button.st-work-notice{cursor:pointer}
     return '<section class="st-encounter-detail-panel">' +
       '<h3>角色列表</h3>' +
       '<div class="st-encounter-name-list">' + names + '</div>' +
+      (hiddenRoleCount ? '<p class="st-encounter-note">另有 ' + hiddenRoleCount + ' 名角色会在购买 / 使用时一并导入。</p>' : '') +
       '<div class="st-encounter-role-preview">' +
         '<div class="st-encounter-role-preview-image">' + encounterCoverHtml(selected.imageDataUrl, selected.name || "角色图") + '</div>' +
         '<div class="st-encounter-role-preview-body">' +
