@@ -821,6 +821,9 @@ window.setTimeout(() => {
         const target = window.parent && window.parent !== window ? window.parent : window.top;
         if (target && target !== window) {
           target.postMessage({ type: "HYPNOOS_APPEND_OPERATION", block }, "*");
+          window.__ST_OPERATION_INPUT_LOG__ = [];
+          emitOperationQueueChanged();
+          return true;
         }
       } catch {}
       console.info("[HypnoOS] 已记录APP操作", block);
@@ -2062,6 +2065,11 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-hypnosis-param{display:grid;gap:4px}
 .st-hypnosis-param span{color:rgba(253,242,248,.58);font-size:10px;font-weight:850}
 .st-hypnosis-summary span,.st-hypnosis-vip-row{border-color:rgba(244,114,182,.14);background:rgba(255,255,255,.06);color:rgba(253,242,248,.72)}
+.st-hypnosis-submit-row{display:grid;grid-template-columns:minmax(104px,.7fr) minmax(0,1fr);gap:8px;align-items:stretch}
+.st-hypnosis-submit-row .st-hypnosis-button{height:100%}
+.st-hypnosis-total{min-width:0;border:1px solid rgba(244,114,182,.2);border-radius:12px;background:linear-gradient(180deg,rgba(9,4,18,.56),rgba(255,255,255,.04));padding:8px 9px;display:grid;align-content:center;gap:2px;color:#fdf2f8;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.st-hypnosis-total small{font-size:9px;color:rgba(253,242,248,.54);font-weight:900;letter-spacing:0}
+.st-hypnosis-total strong{font-size:15px;line-height:1.1;color:#fff;font-weight:950;white-space:nowrap}
 .st-inventory-app{background:#07131e;color:#edf4fb}
 .st-inventory-app .st-lite-body{position:absolute;inset:0;z-index:1;display:block;padding:0;gap:0;overflow:hidden;background:#07131e}
 .st-inventory-app .st-lite-header{position:absolute;top:0;left:0;right:0;z-index:8}
@@ -3693,6 +3701,8 @@ button.st-work-notice{cursor:pointer}
     const enabled = draft.enabled && typeof draft.enabled === "object" ? draft.enabled : {};
     const tiersOpen = draft.tiersOpen && typeof draft.tiersOpen === "object" ? draft.tiersOpen : {};
     const actionText = liteIslandHypnosisInfo() ? "追加催眠" : "启动催眠";
+    const selectedFeatures = hypnosisLiteSelectedFeatures(draft);
+    const totalCost = selectedFeatures.reduce((sum, feature) => sum + hypnosisLiteFeatureCost(feature, draft), 0);
     const currentRank = reactVipRank(reactCurrentVipTier(system));
     const tiers = ["TRIAL", ...HYP_REACT_VIP_TIERS];
     const groups = tiers.map((tier) => {
@@ -3711,7 +3721,10 @@ button.st-work-notice{cursor:pointer}
     return '<section class="st-lite-card st-graph-paper st-hypnosis-form">' +
       '<div class="st-graph-head"><strong>催眠指令</strong><span>每条指令独立设置参数</span></div>' +
       '<section class="st-hypnosis-list">' + groups + '</section>' +
-      '<button class="st-hypnosis-button" type="button" data-hypnosis-start>' + actionText + '</button>' +
+      '<div class="st-hypnosis-submit-row">' +
+        '<span class="st-hypnosis-total"><small>总消耗</small><strong>' + escapeHtml(String(totalCost)) + ' MC</strong></span>' +
+        '<button class="st-hypnosis-button" type="button" data-hypnosis-start>' + actionText + '</button>' +
+      '</div>' +
     '</section>';
   }
 
