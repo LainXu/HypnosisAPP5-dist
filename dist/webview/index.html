@@ -6962,7 +6962,16 @@ button.st-work-notice{cursor:pointer}
     const parsed = parseStoryDate(dateText);
     const minutes = minutesFromTimeText(timeText || "00:00");
     if (!parsed || !Number.isFinite(minutes)) {
-      return { startText, endText: "当前时间 + " + hours + "小时", minutes: hours * 60, timeSource: clock.source, pendingTime: clock.pendingTime };
+      return {
+        startText,
+        endText: "当前时间 + " + hours + "小时",
+        minutes: hours * 60,
+        timeSource: clock.source,
+        pendingTime: clock.pendingTime,
+        pendingTargetText: clock.pendingTargetText,
+        postWorkTargetText: clock.postWorkTargetText,
+        selectionRule: clock.selectionRule
+      };
     }
     const totalMinutes = minutes + hours * 60;
     const dayOffset = Math.floor(totalMinutes / 1440);
@@ -6974,7 +6983,10 @@ button.st-work-notice{cursor:pointer}
       endText: (date.getMonth() + 1) + "月" + date.getDate() + "日 " + formatPeriodTime(endMinutes),
       minutes: hours * 60,
       timeSource: clock.source,
-      pendingTime: clock.pendingTime
+      pendingTime: clock.pendingTime,
+      pendingTargetText: clock.pendingTargetText,
+      postWorkTargetText: clock.postWorkTargetText,
+      selectionRule: clock.selectionRule
     };
   }
 
@@ -7091,16 +7103,77 @@ button.st-work-notice{cursor:pointer}
     return "";
   }
 
+  function workDateTextWithOffset(dateText, dayOffset = 0) {
+    const parsed = parseStoryDate(dateText);
+    const offset = Math.trunc(Number(dayOffset) || 0);
+    if (!parsed || !offset) return String(dateText || "").trim();
+    const date = new Date(2026, parsed.month - 1, parsed.day);
+    date.setDate(date.getDate() + offset);
+    const nextDate = (date.getMonth() + 1) + "月" + date.getDate() + "日";
+    const weekday = weekdayForStoryDate(nextDate);
+    return [nextDate, weekday].filter(Boolean).join(" ");
+  }
+
+  function workMinutesUntilNext(currentMinutes, targetMinutes) {
+    if (!Number.isFinite(currentMinutes) || !Number.isFinite(targetMinutes)) return NaN;
+    return ((targetMinutes - currentMinutes) % 1440 + 1440) % 1440;
+  }
+
+  function workTimingBenefitScore(dateText, minutes) {
+    const parsed = parseStoryDate(dateText);
+    const weekdayText = weekdayForStoryDate(dateText);
+    const weekdayIndex = ST_WEEKDAY_INDEX[weekdayText];
+    const special = specialDayForDate(parsed);
+    const isSchoolDay = weekdayIndex >= 1 && weekdayIndex <= 5 && !special?.holiday;
+    if (isSchoolDay && minutes >= 510 && minutes < 970) return 0;
+    if (minutes > 1080 || minutes < 360) return 1;
+    if (minutes >= 970 && minutes <= 1080) return 4;
+    return 2;
+  }
+
   function workEffectiveClockInfo() {
     const system = getSystemState();
     const dateText = String(system["当前日期"] || "").trim();
     const pendingTime = latestPendingClockTimeText();
-    const timeText = pendingTime || storyTimeOnly(system["当前时间"], "00:00");
+    const currentTimeText = storyTimeOnly(system["当前时间"], "00:00");
+    if (!pendingTime) {
+      return {
+        dateText,
+        timeText: currentTimeText,
+        pendingTime,
+        pendingTargetText: "",
+        postWorkTargetText: "",
+        pendingDistanceMinutes: NaN,
+        selectionRule: "没有暂存区时钟建议，按当前变量时间开始打工。",
+        source: "当前变量时间"
+      };
+    }
+    const currentMinutes = minutesFromTimeText(currentTimeText || "00:00");
+    const pendingMinutes = minutesFromTimeText(pendingTime || "00:00");
+    const distance = workMinutesUntilNext(currentMinutes, pendingMinutes);
+    const pendingDayOffset = Number.isFinite(distance) && distance > 0 && pendingMinutes <= currentMinutes ? 1 : 0;
+    const pendingDateText = workDateTextWithOffset(dateText, pendingDayOffset);
+    const currentScore = workTimingBenefitScore(dateText, currentMinutes);
+    const pendingScore = workTimingBenefitScore(pendingDateText, pendingMinutes);
+    const pendingTargetText = [pendingDateText, pendingTime].filter(Boolean).join(" ");
+    const choosePending = Number.isFinite(distance) && (distance < 360 || pendingScore > currentScore);
+    const timeText = choosePending ? pendingTime : currentTimeText;
+    const chosenDateText = choosePending ? pendingDateText : dateText;
+    const postWorkTargetText = !choosePending && Number.isFinite(distance) && distance >= 360 ? pendingTargetText : "";
+    const selectionRule = choosePending
+      ? (distance < 360
+        ? "暂存区建议时间距离当前时间小于6小时，无论是否偶遇，都从暂存区建议时间开始打工。"
+        : "暂存区建议时间比当前时间的打工buff结果更有利，因此从暂存区建议时间开始打工。")
+      : "当前变量时间比暂存区建议时间的打工buff结果更有利，因此立刻开始打工；若暂存目标晚于6小时结算点，结算后再推进到暂存目标时间。";
     return {
-      dateText,
+      dateText: chosenDateText,
       timeText,
       pendingTime,
-      source: pendingTime ? "暂存区时钟建议时间" : "当前变量时间"
+      pendingTargetText,
+      postWorkTargetText,
+      pendingDistanceMinutes: distance,
+      selectionRule,
+      source: choosePending ? "暂存区时钟建议时间（有利选择）" : "当前变量时间（有利选择）"
     };
   }
 
@@ -7226,6 +7299,7 @@ button.st-work-notice{cursor:pointer}
     }
     const encounterRole = String(latest["偶遇女角色"] || "无").trim() || "无";
     const hasEncounter = encounterRole && encounterRole !== "无";
+    const postWorkTargetText = String(latest["结算后建议时间"] || "").trim();
     window.__ST_SET_WORK_STATUS_REMINDER__?.({
       来源: "打工",
       操作: "打工中提醒",
@@ -7234,6 +7308,8 @@ button.st-work-notice{cursor:pointer}
       工作地点: latest["工作地点"] || "未记录",
       开始时间: latest["开始时间"] || "未记录",
       预计结束时间: endText,
+      结算后建议时间: postWorkTargetText || "无",
+      结算后时间处理: postWorkTargetText && postWorkTargetText !== "无" ? "先按预计结束时间完成6小时打工并结算；随后把剧情时间推进到结算后建议时间。这段等待/过渡不是额外打工，不增加额外工资或社畜值。" : "无",
       当前时间: workEffectiveCurrentTimeText(),
       偶遇女角色: encounterRole,
       时间范围说明: "开始打工的6小时总时段已经包含赶路去工作场所、到场交接、实际劳动、收工和必要返回时间；本提醒补完到预计结束时间即可，不要额外追加路程时间。",
@@ -7386,6 +7462,7 @@ button.st-work-notice{cursor:pointer}
         const latestRoll = readWorkLayerRoll();
         const encounterRole = latestRoll.roleName && latestRoll.rolls?.[job.id] ? latestRoll.roleName : "";
         const encounterDelayHours = encounterRole ? workEncounterDelayHours(job, latestRoll) : 0;
+        const postWorkTargetText = String(timeInfo.postWorkTargetText || "").trim();
         const shachikuGain = workShachikuGain(job, currentValue);
         const nextValue = Math.min(200, currentValue + shachikuGain);
         const payload = {
@@ -7401,7 +7478,11 @@ button.st-work-notice{cursor:pointer}
           开始时间: timeInfo.startText,
           开始时间来源: timeInfo.timeSource || "当前变量时间",
           暂存区建议时间: timeInfo.pendingTime || "无",
+          暂存区目标时间: timeInfo.pendingTargetText || "无",
+          暂存区时间选择规则: timeInfo.selectionRule || "无",
           预计结束时间: timeInfo.endText,
+          结算后建议时间: postWorkTargetText || "无",
+          结算后时间处理: postWorkTargetText ? "先按预计结束时间完成6小时打工并结算；随后把剧情时间推进到结算后建议时间。这段等待/过渡不是额外打工，不增加额外工资或社畜值。" : "无",
           buff判定规则: "若开始时间为上课日8:30-16:10，获得“社会的蔑视”，所有角色好感不能提升；若开始时间为16:10-18:00，获得“全盛出击”，并一次性恢复MC能量到上限；若开始时间为夜班（18:00后或6:00前），获得“无精打采”，补充MC能量获得量减半；其他时间无新增buff。若产生buff，则从预计结束时间起持续1天；任意当前buff持续期间不能开始打工。",
           buff持续时间: "若本次按规则产生buff，从预计结束时间起持续1天；到期前不能再次打工。",
           获得零花钱: job.wage,
@@ -7411,7 +7492,7 @@ button.st-work-notice{cursor:pointer}
           社畜值上限: 200,
           偶遇女角色: encounterRole || "无",
           偶遇发生时间: encounterRole ? workOffsetDateTimeText(timeInfo.startText, encounterDelayHours) : "无",
-          处理方式: encounterRole ? "先写到工作途中偶遇节点；下一轮锁定提醒处理互动后结算。" : "直接写到预计结束时间并结算。"
+          处理方式: (encounterRole ? "先写到工作途中偶遇节点；下一轮锁定提醒处理互动后结算。" : "直接写到预计结束时间并结算。") + (postWorkTargetText ? " 结算后再推进到结算后建议时间。" : "")
         };
         Promise.resolve(appendAppOperation(payload)).then((added) => {
           flashWorkButton(button, added ? "已暂存" : "已在暂存区");
