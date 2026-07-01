@@ -201,7 +201,20 @@ window.setTimeout(() => {
     const OPERATION_BLOCK_RE = /<本轮APP操作>[\s\S]*?<\/本轮APP操作>/g;
     const OPERATION_SOURCE_KEYS = ["来源", "应用", "模块", "source", "app"];
     const OPERATION_ACTION_KEYS = ["操作", "动作", "类型", "action", "type"];
+    const OPERATION_KEEP_AFTER_FLUSH_KEY = "hypnoos.operation.keepAfterFlush.v1";
     window.__ST_OPERATION_INPUT_LOG__ = Array.isArray(window.__ST_OPERATION_INPUT_LOG__) ? window.__ST_OPERATION_INPUT_LOG__ : [];
+    const readOperationKeepAfterFlush = () => {
+      try {
+        return localStorage.getItem(OPERATION_KEEP_AFTER_FLUSH_KEY) === "1";
+      } catch {
+        return false;
+      }
+    };
+    const writeOperationKeepAfterFlush = (value) => {
+      try {
+        localStorage.setItem(OPERATION_KEEP_AFTER_FLUSH_KEY, value ? "1" : "0");
+      } catch {}
+    };
 	    const cleanOperationText = (value) => String(value ?? "").replace(/[<>]/g, "").trim();
 	    const readOperationKey = (object, keys, fallback = "") => {
 	      if (!object || typeof object !== "object" || Array.isArray(object)) return fallback;
@@ -813,7 +826,9 @@ window.setTimeout(() => {
           if (!proceed) return false;
         }
         writeOperationBlockToInput(input, block);
-        window.__ST_OPERATION_INPUT_LOG__ = [];
+        if (!readOperationKeepAfterFlush()) {
+          window.__ST_OPERATION_INPUT_LOG__ = window.__ST_OPERATION_INPUT_LOG__.filter((entry) => Boolean(entry?.locked));
+        }
         emitOperationQueueChanged();
         return true;
       }
@@ -821,7 +836,9 @@ window.setTimeout(() => {
         const target = window.parent && window.parent !== window ? window.parent : window.top;
         if (target && target !== window) {
           target.postMessage({ type: "HYPNOOS_APPEND_OPERATION", block }, "*");
-          window.__ST_OPERATION_INPUT_LOG__ = [];
+          if (!readOperationKeepAfterFlush()) {
+            window.__ST_OPERATION_INPUT_LOG__ = window.__ST_OPERATION_INPUT_LOG__.filter((entry) => Boolean(entry?.locked));
+          }
           emitOperationQueueChanged();
           return true;
         }
@@ -2398,6 +2415,9 @@ button.st-work-notice{cursor:pointer}
 .st-operation-panel-preview summary{cursor:pointer;list-style:none;color:rgba(203,213,225,.64);font-size:10px;font-weight:800}
 .st-operation-panel-preview summary::-webkit-details-marker{display:none}
 .st-operation-panel-preview pre{max-height:92px;overflow:auto;margin:6px 0 0;padding:7px;border-radius:10px;background:rgba(2,6,23,.6);border:1px solid rgba(255,255,255,.08);color:rgba(226,232,240,.72);font:9px/1.4 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;white-space:pre-wrap;word-break:break-word}
+.st-operation-keep{flex:0 0 auto;margin:0 9px 8px;min-height:30px;border:1px solid rgba(148,163,184,.16);border-radius:11px;background:rgba(15,23,42,.34);color:rgba(226,232,240,.76);display:flex;align-items:center;gap:7px;padding:6px 8px;font-size:10px;font-weight:850;line-height:1.25;cursor:pointer;user-select:none}
+.st-operation-keep input{width:14px;height:14px;margin:0;accent-color:#38bdf8;cursor:pointer}
+.st-operation-keep span{min-width:0}
 .st-operation-panel-actions{flex:0 0 auto;padding:9px;border-top:1px solid rgba(255,255,255,.08);display:grid;grid-template-columns:1fr;gap:7px}
 .st-operation-panel-actions button{height:34px;border-radius:11px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.07);color:rgba(226,232,240,.88);font-size:11px;font-weight:900;cursor:pointer}
 .st-operation-panel-actions button.primary{background:linear-gradient(135deg,#8b5cf6,#ec4899);border-color:rgba(255,255,255,.18);color:white;box-shadow:0 10px 22px rgba(131,24,67,.22)}
@@ -12330,7 +12350,8 @@ button.st-work-notice{cursor:pointer}
     try {
       block = window.__ST_BUILD_PENDING_OPERATION_BLOCK__?.() || "";
     } catch {}
-    const signature = JSON.stringify(items.map((item) => [item.id, item.key, item.source, item.action, item.summary, item.line, item.at, item.locked])) + "\n" + block;
+    const keepAfterFlush = readOperationKeepAfterFlush();
+    const signature = JSON.stringify(items.map((item) => [item.id, item.key, item.source, item.action, item.summary, item.line, item.at, item.locked])) + "\n" + block + "\nkeep=" + String(keepAfterFlush);
     if (panel.dataset.signature === signature) return;
     panel.dataset.signature = signature;
     const listHtml = items.length
@@ -12362,6 +12383,10 @@ button.st-work-notice{cursor:pointer}
         '<summary>将写入输入框的内容</summary>' +
         '<pre>' + escapeHtml(block || "暂无待写入内容") + '</pre>' +
       '</details>' +
+      '<label class="st-operation-keep">' +
+        '<input type="checkbox" data-operation-keep-after-flush ' + (keepAfterFlush ? "checked" : "") + ' />' +
+        '<span>写入后不清空暂存</span>' +
+      '</label>' +
       '<div class="st-operation-panel-actions">' +
         '<button type="button" data-operation-panel-action="clear" ' + (count ? "" : "disabled") + '>清空</button>' +
         '<button class="primary" type="button" data-operation-panel-action="flush" ' + (count ? "" : "disabled") + '>确认写入</button>' +
@@ -12371,6 +12396,13 @@ button.st-work-notice{cursor:pointer}
   function bindOperationSidePanel(panel) {
     if (!panel || panel.dataset.bound === "true") return;
     panel.dataset.bound = "true";
+    panel.addEventListener("change", (event) => {
+      const toggle = event.target?.closest?.("[data-operation-keep-after-flush]");
+      if (!toggle) return;
+      writeOperationKeepAfterFlush(Boolean(toggle.checked));
+      panel.dataset.signature = "";
+      updateOperationSidePanel();
+    });
     panel.addEventListener("click", async (event) => {
       const target = event.target;
       const removeButton = target?.closest?.("[data-operation-remove]");
