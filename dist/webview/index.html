@@ -6890,6 +6890,7 @@ button.st-work-notice{cursor:pointer}
       预计结束时间: endText,
       当前时间: workEffectiveCurrentTimeText(),
       偶遇女角色: encounterRole,
+      时间范围说明: "开始打工的6小时总时段已经包含赶路去工作场所、到场交接、实际劳动、收工和必要返回时间；本提醒补完到预计结束时间即可，不要额外追加路程时间。",
       提醒: hasEncounter
         ? "上一轮打工已到偶遇节点；本轮处理用户与偶遇角色的互动后，直接推进到预计结束时间结算。"
         : "上一轮普通打工尚未写到结束；本轮直接推进到预计结束时间结算。"
@@ -6954,7 +6955,7 @@ button.st-work-notice{cursor:pointer}
     const open = focused ? '<div class="st-work-focus-top"><span class="st-work-notice-kicker">寻工启事</span><button type="button" class="st-work-wall-button" data-work-wall>返回墙面</button></div>' : '<span class="st-work-notice-kicker">寻工启事</span>';
     const body =
       open +
-      '<div class="st-work-notice-title"><strong>' + escapeHtml(workNoticeHeading(job)) + '</strong><span>' + escapeHtml(workNoticePlace(job) + ' · ' + job.title + ' · 6小时') + '</span></div>' +
+      '<div class="st-work-notice-title"><strong>' + escapeHtml(workNoticeHeading(job)) + '</strong><span>' + escapeHtml(workNoticePlace(job) + ' · ' + job.title + ' · 6小时含路程') + '</span></div>' +
       '<p>' + escapeHtml(job.detail) + '</p>' +
       '<div class="st-work-meta">' +
         '<span>门槛 ' + job.threshold + '</span>' +
@@ -7001,7 +7002,7 @@ button.st-work-notice{cursor:pointer}
             '<span>打工可能会偶遇女角色，越高级的工作偶遇概率越高；具体是否偶遇不会在界面暴露。</span>' +
             '<span>社会的蔑视：逃学被其他人蔑视，结束后1天内好感不提升。无精打采：夜班结束后1天内补充MC能量减半。全盛出击：正常时间开始时一次性恢复全部MC能量，并显示到结束后1天。任意buff持续期间不能再次打工。</span>' +
           '</section>' +
-          '<p class="st-work-note">墙上共有 ' + ST_WORK_JOBS.length + ' 张寻工启事，已解锁 ' + unlockedCount + ' 张。每次打工按6小时结算。</p>' +
+          '<p class="st-work-note">墙上共有 ' + ST_WORK_JOBS.length + ' 张寻工启事，已解锁 ' + unlockedCount + ' 张。每次打工按6小时结算，赶路去工作场所、到场交接、收工和必要返回时间都包含在这6小时内。</p>' +
         '</section>' +
       '</main>';
     bindLiteHeader(page, () => renderWorkPage(page));
@@ -7048,6 +7049,7 @@ button.st-work-notice{cursor:pointer}
           当前社畜值: currentValue,
           需要社畜值: job.threshold,
           跳过时间: "6小时",
+          时间范围说明: "6小时总时段已经包含准备、赶路去工作场所、到场交接、实际劳动、收工和必要返回时间；不要在预计结束时间之外额外追加路程时间。",
           开始时间: timeInfo.startText,
           开始时间来源: timeInfo.timeSource || "当前变量时间",
           暂存区建议时间: timeInfo.pendingTime || "无",
