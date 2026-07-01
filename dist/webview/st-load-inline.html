@@ -4526,7 +4526,7 @@ button.st-work-notice{cursor:pointer}
   function requestDeleteProfileRole(roleName) {
     const name = String(roleName || "").trim();
     if (!name) return;
-    const ok = window.confirm("删除人物变量「" + name + "」？\n\n这只会请求 AI 删除 /角色/" + name + " 变量，不会删除或禁用当前角色卡世界书条目。若需要彻底停用该角色，请到邂逅的管理开关里禁用对应世界书，或之后手动删除世界书条目。");
+    const ok = window.confirm("删除人物变量「" + name + "」？\n\n这只会请求 AI 删除 /角色/" + name + " 变量，不会删除或禁用邂逅写入的当前对话世界书条目。若需要彻底停用该角色，请到邂逅的管理开关里禁用对应世界书，或之后手动删除世界书条目。");
     if (!ok) return;
     appendAppOperation({
       来源: "人物档案",
@@ -8992,7 +8992,7 @@ button.st-work-notice{cursor:pointer}
       '<div class="st-encounter-kv">' +
         '<span><strong>' + roleCount + ' 角色</strong>角色数量</span>' +
         '<span><strong>' + price + ' 星光点</strong>购买价格</span>' +
-        '<span><strong>当前角色卡世界书</strong>写入位置</span>' +
+        '<span><strong>当前对话世界书</strong>写入位置</span>' +
       '</div>' +
       (used ? '<div class="st-encounter-used-note">这个角色包已经使用过。世界书写入不可自动撤销，按钮已锁定。</div>' : '') +
       (conflict ? '<div class="st-encounter-used-note is-warning">这个角色包与「' + escapeHtml(conflict.name) + '」存在重复角色；对方已' + (conflict.pending ? "在本轮暂存区" : "使用") + '，因此本包禁止购买。</div>' : '') +
@@ -9002,7 +9002,7 @@ button.st-work-notice{cursor:pointer}
         '<button type="button" class="st-encounter-button primary" data-encounter-action="purchase" data-package-id="' + escapeAttr(pkg.id) + '"' + (purchaseDisabled ? " disabled" : "") + '>' + (pendingPurchase && !used ? "本轮已有购买" : "购买 / 使用") + '</button>' +
       '</div>' +
       '<div class="st-encounter-actions is-single"><button type="button" class="st-encounter-button" data-encounter-action="toggle-worldbook" data-target-type="package" data-target-id="' + escapeAttr(pkg.id) + '">' + (managed ? "管理：开启世界书条目" : "管理：已禁用世界书条目") + '</button></div>' +
-      '<p class="st-encounter-note">购买会先警告确认；确认后前端直接扣星光点、创建初始角色变量、缓存图片，并把条目写入当前使用角色卡绑定的世界书。</p>' +
+      '<p class="st-encounter-note">购买会先警告确认；确认后前端直接扣星光点、创建初始角色变量、缓存图片，并把条目写入当前对话独有的 Chat Lorebook。</p>' +
     '</section>';
   }
 
@@ -9057,7 +9057,7 @@ button.st-work-notice{cursor:pointer}
         '<div class="st-encounter-detail-cover">' + encounterCoverHtml(pkg.coverDataUrl, pkg.name || "角色包") + '</div>' +
         '<div class="st-encounter-detail-main">' +
           '<h2>' + escapeHtml(pkg.name || "未命名角色包") + '</h2>' +
-          '<div class="st-encounter-package-facts"><span>' + roleCount + ' 角色</span><span>当前角色卡世界书</span></div>' +
+          '<div class="st-encounter-package-facts"><span>' + roleCount + ' 角色</span><span>当前对话世界书</span></div>' +
           '<p>' + escapeHtml(pkg.intro || "暂无介绍。") + '</p>' +
         '</div>' +
       '</section>' +
@@ -9108,7 +9108,7 @@ button.st-work-notice{cursor:pointer}
       '</div>' +
       '<div class="st-encounter-actions is-single"><button type="button" class="st-encounter-button" data-encounter-action="clear-draft">清空草稿</button></div>' +
       '<input type="file" accept=".zip,application/zip" data-encounter-import-draft hidden>' +
-      '<p class="st-encounter-note">购买后前端会创建初始角色变量，并尝试写入当前使用角色卡绑定的世界书；如果当前角色卡没有绑定世界书，会先创建并绑定一个。世界书写入不可撤销，只能之后手动删除。</p>' +
+      '<p class="st-encounter-note">购买后前端会创建初始角色变量，并尝试写入当前对话独有的 Chat Lorebook；如果当前对话没有绑定世界书，会先创建并绑定一本。世界书写入不可撤销，只能之后手动删除。</p>' +
     '</section>';
   }
 
@@ -9234,7 +9234,7 @@ button.st-work-notice{cursor:pointer}
       '</div>' +
       '<div class="st-encounter-actions is-single"><button type="button" class="st-encounter-button primary" data-encounter-action="save-library">保存到偶遇</button></div>' +
       '<input type="file" accept=".json,application/json" data-encounter-import-role-json hidden>' +
-      '<p class="st-encounter-note">人物变量 entry 会按角色名自动生成固定格式；初始变量会在购买/使用时写入当前楼层变量；人设 entry 会由 title/gender 等固定字段重新拼成固定格式，并统一写入当前角色卡世界书。角色JSON导入/导出不覆盖角色图片。</p>' +
+      '<p class="st-encounter-note">人物变量 entry 会按角色名自动生成固定格式；初始变量会在购买/使用时写入当前楼层变量；人设 entry 会由 title/gender 等固定字段重新拼成固定格式，并统一写入当前对话 Chat Lorebook。角色JSON导入/导出不覆盖角色图片。</p>' +
     '</section>';
   }
 
@@ -9259,7 +9259,7 @@ button.st-work-notice{cursor:pointer}
       '</div>' +
       '<div class="st-encounter-actions is-single"><button type="button" class="st-encounter-button primary" data-encounter-action="use-single-role" data-package-id="' + escapeAttr(rolePackage.id) + '"' + (purchaseDisabled ? " disabled" : "") + '>' + (used ? "已使用" : (pendingPurchase ? "本轮已有购买" : "购买 / 使用（" + SCAN_ROLE_COST_STARLIGHT + "星光点）")) + '</button></div>' +
       '<input type="file" accept=".json,application/json" data-encounter-import-role-json hidden>' +
-      '<p class="st-encounter-note">使用单独角色时会被临时视为一个只有此角色的角色包；前端会扣星光点、创建初始变量、写入当前角色卡世界书，并锁定暂存区。</p>' +
+      '<p class="st-encounter-note">使用单独角色时会被临时视为一个只有此角色的角色包；前端会扣星光点、创建初始变量、写入当前对话 Chat Lorebook，并锁定暂存区。</p>' +
     '</section>';
   }
 
@@ -10307,12 +10307,24 @@ button.st-work-notice{cursor:pointer}
   }
 
   function encounterSafeWorldbookName(value) {
-    return String(value || "当前角色卡世界书").trim().replace(/[\/:*?"<>|]+/g, "-").replace(/\s+/g, " ").slice(0, 80) || "当前角色卡世界书";
+    return String(value || "邂逅世界书").trim().replace(/[\/:*?"<>|]+/g, "-").replace(/\s+/g, " ").slice(0, 80) || "邂逅世界书";
   }
 
   function encounterDefaultCharacterWorldbookName(pkg) {
     const charName = encounterCurrentCharacterName() || "当前角色卡";
     return encounterSafeWorldbookName(charName + " 邂逅世界书");
+  }
+
+  function encounterDefaultChatWorldbookName(pkg) {
+    const roleHint = String(pkg?.name || "邂逅").trim();
+    for (const win of encounterCandidateWindows()) {
+      try {
+        const scriptMod = ENCOUNTER_SCRIPT_MODULE_CACHE.get(win);
+        const chatId = encounterCurrentChatId(win, scriptMod);
+        if (chatId) return encounterSafeWorldbookName("[邂逅] " + chatId + " " + roleHint);
+      } catch {}
+    }
+    return encounterSafeWorldbookName("[邂逅] 当前对话 " + roleHint);
   }
 
   function encounterCurrentCharacterPrimaryWorldName(win) {
@@ -10370,11 +10382,13 @@ button.st-work-notice{cursor:pointer}
     }
   }
 
-  const ENCOUNTER_WORLD_INFO_MODULE_CACHE = new WeakMap();
+	  const ENCOUNTER_WORLD_INFO_MODULE_CACHE = new WeakMap();
+	  const ENCOUNTER_SCRIPT_MODULE_CACHE = new WeakMap();
+	  const ENCOUNTER_CHAT_WORLD_INFO_METADATA_KEY = "world_info";
 
-  async function encounterImportWorldInfoModule(win) {
-    if (!win || typeof win !== "object") return null;
-    if (ENCOUNTER_WORLD_INFO_MODULE_CACHE.has(win)) return ENCOUNTER_WORLD_INFO_MODULE_CACHE.get(win);
+	  async function encounterImportWorldInfoModule(win) {
+	    if (!win || typeof win !== "object") return null;
+	    if (ENCOUNTER_WORLD_INFO_MODULE_CACHE.has(win)) return ENCOUNTER_WORLD_INFO_MODULE_CACHE.get(win);
     const attempts = [
       () => win.eval?.("import('./scripts/world-info.js')"),
       () => win.eval?.("import('/scripts/world-info.js')"),
@@ -10390,13 +10404,135 @@ button.st-work-notice{cursor:pointer}
         }
       } catch {}
     }
-    ENCOUNTER_WORLD_INFO_MODULE_CACHE.set(win, null);
-    return null;
-  }
+	    ENCOUNTER_WORLD_INFO_MODULE_CACHE.set(win, null);
+	    return null;
+	  }
 
-  async function encounterEnsureCharacterWorldbookWithSillyTavernModule(win, fallbackName) {
-    const mod = await encounterImportWorldInfoModule(win);
-    if (!mod || typeof mod.saveWorldInfo !== "function") return null;
+	  async function encounterImportScriptModule(win) {
+	    if (!win || typeof win !== "object") return null;
+	    if (ENCOUNTER_SCRIPT_MODULE_CACHE.has(win)) return ENCOUNTER_SCRIPT_MODULE_CACHE.get(win);
+	    const attempts = [
+	      () => win.eval?.("import('./script.js')"),
+	      () => win.eval?.("import('/script.js')"),
+	      () => import("./script.js"),
+	      () => import("/script.js")
+	    ];
+	    for (const attempt of attempts) {
+	      try {
+	        const mod = await attempt();
+	        if (mod && typeof mod.saveMetadata === "function") {
+	          ENCOUNTER_SCRIPT_MODULE_CACHE.set(win, mod);
+	          return mod;
+	        }
+	      } catch {}
+	    }
+	    ENCOUNTER_SCRIPT_MODULE_CACHE.set(win, null);
+	    return null;
+	  }
+
+	  function encounterCurrentChatId(win, scriptMod) {
+	    try {
+	      const value = String(scriptMod?.getCurrentChatId?.() || "").trim();
+	      if (value) return value;
+	    } catch {}
+	    try {
+	      const context = win.SillyTavern?.getContext?.() || win.getContext?.();
+	      const value = String(context?.chatId || context?.chat_id || context?.chat?.id || "").trim();
+	      if (value) return value;
+	    } catch {}
+	    return "";
+	  }
+
+	  function encounterUniqueWorldbookName(base, names) {
+	    const taken = new Set((Array.isArray(names) ? names : []).map((item) => String(item || "")));
+	    let candidate = encounterSafeWorldbookName(base);
+	    if (!taken.has(candidate)) return candidate;
+	    for (let index = 2; index < 100; index += 1) {
+	      const suffix = " " + index;
+	      candidate = encounterSafeWorldbookName(String(base || "邂逅当前对话世界书").slice(0, 80 - suffix.length) + suffix);
+	      if (!taken.has(candidate)) return candidate;
+	    }
+	    return encounterSafeWorldbookName(String(base || "邂逅当前对话世界书") + " " + Date.now());
+	  }
+
+	  async function encounterReadCharacterWorldEntriesForLayout(win) {
+	    for (const target of encounterTavernHelperTargets(win)) {
+	      if (typeof target?.getCharWorldbookNames !== "function" || typeof target?.getWorldbook !== "function") continue;
+	      try {
+	        const existing = encounterBoundWorldbookNameFromBooks(target.getCharWorldbookNames("current") || {});
+	        if (!existing) continue;
+	        const worldbook = await target.getWorldbook(existing);
+	        const entries = encounterWorldEntryValues(worldbook);
+	        if (entries.length) return entries;
+	      } catch {}
+	    }
+	    const mod = await encounterImportWorldInfoModule(win);
+	    if (mod && typeof mod.loadWorldInfo === "function") {
+	      try {
+	        const worldName = encounterCurrentCharacterPrimaryWorldName(win);
+	        if (worldName) {
+	          const data = await mod.loadWorldInfo(worldName);
+	          const entries = encounterWorldEntryValues(data);
+	          if (entries.length) return entries;
+	        }
+	      } catch {}
+	    }
+	    return [];
+	  }
+
+	  function encounterSetChatWorldbookMetadata(win, scriptMod, worldName) {
+	    const value = String(worldName || "").trim();
+	    if (!value) return false;
+	    try {
+	      if (typeof scriptMod?.updateChatMetadata === "function") scriptMod.updateChatMetadata({ [ENCOUNTER_CHAT_WORLD_INFO_METADATA_KEY]: value });
+	      else if (scriptMod?.chat_metadata && typeof scriptMod.chat_metadata === "object") scriptMod.chat_metadata[ENCOUNTER_CHAT_WORLD_INFO_METADATA_KEY] = value;
+	      else if (win.chat_metadata && typeof win.chat_metadata === "object") win.chat_metadata[ENCOUNTER_CHAT_WORLD_INFO_METADATA_KEY] = value;
+	    } catch {
+	      return false;
+	    }
+	    try { win.document?.querySelectorAll?.(".chat_lorebook_button")?.forEach((element) => element.classList.add("world_set")); } catch {}
+	    return true;
+	  }
+
+	  async function encounterEnsureChatWorldbookWithSillyTavernModule(win, fallbackName, options = {}) {
+	    const create = options.create !== false;
+	    const mod = await encounterImportWorldInfoModule(win);
+	    const scriptMod = await encounterImportScriptModule(win);
+	    if (!mod || typeof mod.saveWorldInfo !== "function" || !scriptMod) return null;
+	    try {
+	      const chatId = encounterCurrentChatId(win, scriptMod);
+	      if (!chatId) return null;
+	      try { await mod.updateWorldInfoList?.(); } catch {}
+	      const names = Array.isArray(mod.world_names) ? mod.world_names : [];
+	      const metadata = scriptMod.chat_metadata && typeof scriptMod.chat_metadata === "object" ? scriptMod.chat_metadata : (win.chat_metadata || {});
+	      let worldName = String(metadata?.[ENCOUNTER_CHAT_WORLD_INFO_METADATA_KEY] || "").trim();
+	      if (!worldName) {
+	        if (!create) return null;
+	        const baseName = fallbackName || ("[邂逅] Chat Book " + chatId);
+	        let created = false;
+	        for (let attempt = 0; attempt < 6 && !created; attempt += 1) {
+	          worldName = encounterUniqueWorldbookName(attempt ? baseName + " " + (attempt + 1) : baseName, names);
+	          if (typeof mod.createNewWorldInfo === "function") {
+	            try { created = await mod.createNewWorldInfo(worldName, { interactive: false }); } catch { created = false; }
+	          } else {
+	            created = true;
+	          }
+	        }
+	        if (!created && typeof mod.createNewWorldInfo === "function") return null;
+	        if (!encounterSetChatWorldbookMetadata(win, scriptMod, worldName)) return null;
+	        try { await scriptMod.saveMetadata(); } catch {}
+	      } else if (create && typeof mod.createNewWorldInfo === "function" && Array.isArray(names) && !names.includes(worldName)) {
+	        try { await mod.createNewWorldInfo(worldName, { interactive: false }); } catch {}
+	      }
+	      return { mod, scriptMod, worldName, method: "Chat Lorebook" };
+	    } catch {
+	      return null;
+	    }
+	  }
+
+	  async function encounterEnsureCharacterWorldbookWithSillyTavernModule(win, fallbackName) {
+	    const mod = await encounterImportWorldInfoModule(win);
+	    if (!mod || typeof mod.saveWorldInfo !== "function") return null;
     try {
       let worldName = encounterCurrentCharacterPrimaryWorldName(win);
       if (!worldName) {
@@ -10413,9 +10549,9 @@ button.st-work-notice{cursor:pointer}
     }
   }
 
-  async function encounterInsertEntriesWithSillyTavernModule(win, entries, fallbackName) {
-    const bound = await encounterEnsureCharacterWorldbookWithSillyTavernModule(win, fallbackName);
-    if (!bound) return null;
+	  async function encounterInsertEntriesWithSillyTavernModule(win, entries, fallbackName) {
+	    const bound = await encounterEnsureCharacterWorldbookWithSillyTavernModule(win, fallbackName);
+	    if (!bound) return null;
     try {
       let data = null;
       if (typeof bound.mod.loadWorldInfo === "function") {
@@ -10450,26 +10586,59 @@ button.st-work-notice{cursor:pointer}
       return { ok: true, count: entries.length, insertedCount: pending.length, targetWorldbook: bound.worldName, method: bound.method };
     } catch {
       return null;
-    }
-  }
+	    }
+	  }
 
-  async function encounterReadCharacterWorldEntries(pkg) {
-    const fallbackName = encounterDefaultCharacterWorldbookName(pkg);
-    for (const win of encounterCandidateWindows()) {
-      const bound = await encounterEnsureCharacterWorldbookWithTavernHelper(win, fallbackName);
-      if (!bound || typeof bound.target?.getWorldbook !== "function") continue;
-      try {
-        const worldbook = await bound.target.getWorldbook(bound.worldName);
-        return { ok: true, entries: encounterWorldEntryValues(worldbook), targetWorldbook: bound.worldName, method: bound.method, raw: worldbook };
-      } catch {}
-    }
-    for (const win of encounterCandidateWindows()) {
-      const bound = await encounterEnsureCharacterWorldbookWithSillyTavernModule(win, fallbackName);
-      if (!bound || typeof bound.mod?.loadWorldInfo !== "function") continue;
-      try {
-        const data = await bound.mod.loadWorldInfo(bound.worldName);
-        return { ok: true, entries: encounterWorldEntryValues(data), targetWorldbook: bound.worldName, method: bound.method, raw: data, mod: bound.mod };
-      } catch {}
+	  async function encounterInsertEntriesWithChatWorldbook(win, entries, fallbackName) {
+	    const bound = await encounterEnsureChatWorldbookWithSillyTavernModule(win, fallbackName, { create: true });
+	    if (!bound) return null;
+	    try {
+	      let data = null;
+	      if (typeof bound.mod.loadWorldInfo === "function") {
+	        try { data = await bound.mod.loadWorldInfo(bound.worldName); } catch {}
+	      }
+	      if (!data && typeof bound.mod.createNewWorldInfo === "function") {
+	        try {
+	          await bound.mod.createNewWorldInfo(bound.worldName, { interactive: false });
+	          data = typeof bound.mod.loadWorldInfo === "function" ? await bound.mod.loadWorldInfo(bound.worldName) : null;
+	        } catch {}
+	      }
+	      if (!data || typeof data !== "object") data = { entries: {} };
+	      const currentEntries = encounterWorldEntryValues(data);
+	      const layoutEntries = currentEntries.length ? currentEntries : await encounterReadCharacterWorldEntriesForLayout(win);
+	      const laidOutEntries = encounterApplyCharacterWorldbookLayout(entries, layoutEntries);
+	      const pending = laidOutEntries.filter((entry) => !encounterWorldEntryDuplicate(currentEntries, entry));
+	      for (const entry of pending) {
+	        if (typeof bound.mod.createWorldInfoEntry === "function" && data.entries && typeof data.entries === "object" && !Array.isArray(data.entries)) {
+	          const created = bound.mod.createWorldInfoEntry(bound.worldName, data);
+	          if (!created) return null;
+	          const uid = created.uid;
+	          const createdExtensions = created.extensions && typeof created.extensions === "object" && !Array.isArray(created.extensions) ? { ...created.extensions } : {};
+	          const entryExtensions = entry.extensions && typeof entry.extensions === "object" && !Array.isArray(entry.extensions) ? entry.extensions : {};
+	          Object.assign(created, entry);
+	          created.extensions = { ...createdExtensions, ...entryExtensions };
+	          created.uid = uid;
+	        } else if (!encounterAppendWorldEntry(data, entry)) {
+	          return null;
+	        }
+	      }
+	      if (pending.length) await bound.mod.saveWorldInfo(bound.worldName, data, true);
+	      try { await bound.mod.updateWorldInfoList?.(); } catch {}
+	      return { ok: true, count: entries.length, insertedCount: pending.length, targetWorldbook: bound.worldName, method: bound.method };
+	    } catch {
+	      return null;
+	    }
+	  }
+
+	  async function encounterReadCharacterWorldEntries(pkg) {
+	    const fallbackName = encounterDefaultChatWorldbookName(pkg);
+	    for (const win of encounterCandidateWindows()) {
+	      const bound = await encounterEnsureChatWorldbookWithSillyTavernModule(win, fallbackName, { create: false });
+	      if (!bound || typeof bound.mod?.loadWorldInfo !== "function") continue;
+	      try {
+	        const data = await bound.mod.loadWorldInfo(bound.worldName);
+	        return { ok: true, entries: encounterWorldEntryValues(data), targetWorldbook: bound.worldName, method: bound.method, raw: data, mod: bound.mod };
+	      } catch {}
     }
     return { ok: false, entries: [], targetWorldbook: "", method: "" };
   }
@@ -10519,15 +10688,15 @@ button.st-work-notice{cursor:pointer}
     return true;
   }
 
-  async function encounterSetWorldbookEntriesEnabled(pkg, enabled) {
-    const comments = new Set(encounterWorldbookEntryList(pkg).map((entry) => String(entry.comment || "").trim()).filter(Boolean));
-    if (!comments.size) return { ok: false, count: 0, reason: "没有可管理的世界书条目。" };
-    const fallbackName = encounterDefaultCharacterWorldbookName(pkg);
-    for (const win of encounterCandidateWindows()) {
-      const bound = await encounterEnsureCharacterWorldbookWithSillyTavernModule(win, fallbackName);
-      if (!bound || typeof bound.mod?.loadWorldInfo !== "function" || typeof bound.mod?.saveWorldInfo !== "function") continue;
-      try {
-        const data = await bound.mod.loadWorldInfo(bound.worldName);
+	  async function encounterSetWorldbookEntriesEnabled(pkg, enabled) {
+	    const comments = new Set(encounterWorldbookEntryList(pkg).map((entry) => String(entry.comment || "").trim()).filter(Boolean));
+	    if (!comments.size) return { ok: false, count: 0, reason: "没有可管理的世界书条目。" };
+	    const fallbackName = encounterDefaultChatWorldbookName(pkg);
+	    for (const win of encounterCandidateWindows()) {
+	      const bound = await encounterEnsureChatWorldbookWithSillyTavernModule(win, fallbackName, { create: false });
+	      if (!bound || typeof bound.mod?.loadWorldInfo !== "function" || typeof bound.mod?.saveWorldInfo !== "function") continue;
+	      try {
+	        const data = await bound.mod.loadWorldInfo(bound.worldName);
         const entries = encounterWorldEntryValues(data);
         let count = 0;
         for (const entry of entries) {
@@ -10538,50 +10707,26 @@ button.st-work-notice{cursor:pointer}
           await bound.mod.saveWorldInfo(bound.worldName, data, true);
           try { await bound.mod.updateWorldInfoList?.(); } catch {}
           return { ok: true, count, targetWorldbook: bound.worldName, method: bound.method };
-        }
-      } catch {}
-    }
-    for (const win of encounterCandidateWindows()) {
-      const bound = await encounterEnsureCharacterWorldbookWithTavernHelper(win, fallbackName);
-      if (!bound || typeof bound.target?.getWorldbook !== "function") continue;
-      try {
-        const worldbook = await bound.target.getWorldbook(bound.worldName);
-        const entries = encounterWorldEntryValues(worldbook);
-        let count = 0;
-        for (const entry of entries) {
-          if (!encounterEntryMatchesComments(entry, comments)) continue;
-          if (encounterSetEntryEnabled(entry, enabled)) count += 1;
-        }
-        if (count > 0) {
-          if (typeof bound.target.setWorldbook === "function") await bound.target.setWorldbook(bound.worldName, worldbook);
-          else if (typeof bound.target.saveWorldbook === "function") await bound.target.saveWorldbook(bound.worldName, worldbook);
-          else if (typeof bound.target.updateWorldbook === "function") await bound.target.updateWorldbook(bound.worldName, worldbook);
-          else return { ok: false, count: 0, reason: "找到了条目，但当前接口不支持保存禁用状态。" };
-          return { ok: true, count, targetWorldbook: bound.worldName, method: bound.method };
-        }
-      } catch {}
-    }
-    return { ok: false, count: 0, reason: "没有在当前角色卡世界书中找到对应条目。" };
-  }
+	        }
+	      } catch {}
+	    }
+	    return { ok: false, count: 0, reason: "没有在当前对话世界书中找到对应条目。" };
+	  }
 
-  async function encounterInsertPackageWorldbooks(pkg) {
-    const entries = encounterWorldbookEntryList(pkg);
-    if (!entries.length) return { ok: true, count: 0, failed: [] };
-    const fallbackName = encounterDefaultCharacterWorldbookName(pkg);
-    for (const win of encounterCandidateWindows()) {
-      const result = await encounterInsertEntriesWithTavernHelper(win, entries, fallbackName);
-      if (result?.ok) return { ...result, failed: [] };
-    }
-    for (const win of encounterCandidateWindows()) {
-      const result = await encounterInsertEntriesWithSillyTavernModule(win, entries, fallbackName);
-      if (result?.ok) return { ...result, failed: [] };
-    }
-    return {
-      ok: false,
-      count: 0,
-      failed: entries.map((entry) => "当前角色卡世界书 / " + String(entry.comment || entry.name || "未命名条目"))
-    };
-  }
+	  async function encounterInsertPackageWorldbooks(pkg) {
+	    const entries = encounterWorldbookEntryList(pkg);
+	    if (!entries.length) return { ok: true, count: 0, failed: [] };
+	    const fallbackName = encounterDefaultChatWorldbookName(pkg);
+	    for (const win of encounterCandidateWindows()) {
+	      const result = await encounterInsertEntriesWithChatWorldbook(win, entries, fallbackName);
+	      if (result?.ok) return { ...result, failed: [] };
+	    }
+	    return {
+	      ok: false,
+	      count: 0,
+	      failed: entries.map((entry) => "当前对话世界书 / " + String(entry.comment || entry.name || "未命名条目"))
+	    };
+	  }
 
   function encounterPurchasePayload(pkg, result = {}) {
     const roles = (pkg.roles || []).map((role, index) => encounterNormalizeRole(role, index)).filter((role) => String(role.name || role.intro || "").trim());
@@ -10597,7 +10742,7 @@ button.st-work-notice{cursor:pointer}
         前端图片缓存: role.imageDataUrl ? "角色图片已由前端缓存到人物档案本地照片，变量出现后自动显示。" : "无",
         前端初始变量: encounterInitialVariablePromptSnapshot(initialVariable),
         待AI补充变量字段: missingFields.length ? missingFields.join("、") : "无",
-        补全依据: "以当前角色卡世界书中已经写入的 " + (role.name ? "[mvu_plot]" + role.name + "人设" : "对应人设") + " 为准，补齐待补变量字段。"
+	        补全依据: "以当前对话 Chat Lorebook 中已经写入的 " + (role.name ? "[mvu_plot]" + role.name + "人设" : "对应人设") + " 为准，补齐待补变量字段。"
       };
     });
     const fillSummary = rolePayloads
@@ -10611,19 +10756,19 @@ button.st-work-notice{cursor:pointer}
       角色包名称: pkg.name || "未命名角色包",
       角色包介绍: pkg.intro || "无",
       AI邂逅提示词: combinedPrompt || "无",
-      前端处理: "已由前端扣除星光点、创建初始角色变量、缓存角色图片，并尝试写入当前使用角色卡绑定的世界书。",
+	      前端处理: "已由前端扣除星光点、创建初始角色变量、缓存角色图片，并尝试写入当前对话独有的 Chat Lorebook。",
       消耗星光点: result.price ?? encounterPackagePrice(pkg),
       初始变量新增角色: Array.isArray(result.createdRoles) && result.createdRoles.length ? result.createdRoles.join("、") : "无",
       初始变量覆盖角色: Array.isArray(result.overwrittenRoles) && result.overwrittenRoles.length ? result.overwrittenRoles.join("、") : "无",
       初始变量跳过角色: Array.isArray(result.skippedRoles) && result.skippedRoles.length ? result.skippedRoles.join("、") : "无",
       世界书写入条目数: result.worldbookCount ?? 0,
       世界书新增条目数: result.insertedCount ?? result.worldbookCount ?? 0,
-      当前角色卡世界书: result.targetWorldbook || "当前角色卡绑定世界书",
-      世界书写入方式: result.method || "前端自动写入",
-      角色变量补全要求: "每个角色都已由前端提供并写入一份初始变量；角色列表里的“前端初始变量”就是当前变量骨架。AI只需要补齐“待AI补充变量字段”列出的字段，补齐时必须参照已导入当前角色卡世界书里的对应 [mvu_plot]角色名人设 / [mvu_update]角色名变量 条目。不要把世界书原文整段塞进档案字段。工作价值由AI按角色身份、资源、派遣变现潜力和默认三角色尺度生成 0-20 的星光点/日数字。",
+	      当前对话世界书: result.targetWorldbook || "当前对话 Chat Lorebook",
+	      世界书写入方式: result.method || "前端自动写入",
+	      角色变量补全要求: "每个角色都已由前端提供并写入一份初始变量；角色列表里的“前端初始变量”就是当前变量骨架。AI只需要补齐“待AI补充变量字段”列出的字段，补齐时必须参照已导入当前对话 Chat Lorebook 里的对应 [mvu_plot]角色名人设 / [mvu_update]角色名变量 条目。不要把世界书原文整段塞进档案字段。工作价值由AI按角色身份、资源、派遣变现潜力和默认三角色尺度生成 0-20 的星光点/日数字。",
       待AI补充变量总览: fillSummary.length ? fillSummary : "无",
       角色列表: rolePayloads,
-      AI执行规范: "这个角色包已经被前端使用。不要重复扣星光点，不要重复插入世界书，不要对已新增角色重复/add。世界书条目已写入当前使用角色卡绑定的世界书；初始角色变量已由前端创建，若有同名旧角色则前端已用本角色包初始变量覆盖。请根据角色包、已写入世界书、前端初始变量和各角色出场提示词，在本轮剧情中安排对应角色登场；第一回合必须按“待AI补充变量字段”逐项补齐变量，尤其是档案、第一人称心理和工作价值；后续只按剧情变化更新变量。"
+	      AI执行规范: "这个角色包已经被前端使用。不要重复扣星光点，不要重复插入世界书，不要对已新增角色重复/add。世界书条目已写入当前对话独有的 Chat Lorebook；初始角色变量已由前端创建，若有同名旧角色则前端已用本角色包初始变量覆盖。请根据角色包、已写入世界书、前端初始变量和各角色出场提示词，在本轮剧情中安排对应角色登场；第一回合必须按“待AI补充变量字段”逐项补齐变量，尤其是档案、第一人称心理和工作价值；后续只按剧情变化更新变量。"
     };
   }
 
@@ -10657,7 +10802,7 @@ button.st-work-notice{cursor:pointer}
       encounterSetStatus(page, "初始变量校验失败：" + (error?.message || error));
       return;
     }
-    const ok = window.confirm("购买后会直接向当前使用角色卡绑定的世界书新增条目，并在当前变量中创建角色初始变量；如果当前角色卡没有绑定世界书，会先创建并绑定一个。世界书增加不可撤销，只能之后手动删除；变量可以通过删除楼层恢复。确认使用这个角色包？");
+	    const ok = window.confirm("购买后会直接向当前对话独有的 Chat Lorebook 新增条目，并在当前变量中创建角色初始变量；如果当前对话没有绑定世界书，会先创建并绑定一本。世界书增加不可撤销，只能之后手动删除；变量可以通过删除楼层恢复。确认使用这个角色包？");
     if (!ok) return;
     encounterSetStatus(page, "正在使用角色包...");
     const snapshot = await encounterReadCharacterWorldEntries(pkg);
@@ -10665,12 +10810,12 @@ button.st-work-notice{cursor:pointer}
     const effectivePkg = filtered.pkg;
     const skippedByWorldbook = filtered.skipped;
     if (!effectivePkg.roles.length) {
-      encounterSetStatus(page, "当前角色卡世界书中已经存在这些角色，已阻止重复购买：" + skippedByWorldbook.join("、"));
+	      encounterSetStatus(page, "当前对话世界书中已经存在这些角色，已阻止重复购买：" + skippedByWorldbook.join("、"));
       renderEncounterPage(page);
       return;
     }
     if (skippedByWorldbook.length) {
-      const continueOk = window.confirm("检测到当前角色卡世界书中已存在以下角色，将在本次角色包使用中跳过：\n" + skippedByWorldbook.join("、") + "\n\n继续购买剩余角色？");
+	      const continueOk = window.confirm("检测到当前对话世界书中已存在以下角色，将在本次角色包使用中跳过：\n" + skippedByWorldbook.join("、") + "\n\n继续购买剩余角色？");
       if (!continueOk) return;
     }
     const deduct = await encounterDeductStarlight(price);
@@ -10695,7 +10840,7 @@ button.st-work-notice{cursor:pointer}
     if (!worldbook.ok) {
       await encounterRestoreRoleVariables(variables.snapshot);
       if (deduct.previous !== undefined) await encounterSetStarlight(deduct.previous);
-      encounterSetStatus(page, "当前角色卡世界书写入失败，已尝试退回星光点。失败条目：" + worldbook.failed.slice(0, 2).join("；"));
+	      encounterSetStatus(page, "当前对话世界书写入失败，已尝试退回星光点。失败条目：" + worldbook.failed.slice(0, 2).join("；"));
       return;
     }
     const cached = encounterCacheRoleImages(effectivePkg);
@@ -10711,7 +10856,7 @@ button.st-work-notice{cursor:pointer}
       method: worldbook.method
     }))).then((added) => {
       page.dataset.encounterStatus = added
-        ? ("已使用：" + (pkg.name || "角色包") + "；已创建变量 " + variables.created.length + " 个；已写入 " + (worldbook.targetWorldbook || "当前角色卡世界书") + " " + worldbook.count + " 条" + (cached.length ? "；图片已缓存。" : "。"))
+	        ? ("已使用：" + (pkg.name || "角色包") + "；已创建变量 " + variables.created.length + " 个；已写入 " + (worldbook.targetWorldbook || "当前对话世界书") + " " + worldbook.count + " 条" + (cached.length ? "；图片已缓存。" : "。"))
         : "角色包已使用，AI提示已存在于暂存区。";
       renderEncounterPage(page);
     });
@@ -10736,7 +10881,7 @@ button.st-work-notice{cursor:pointer}
     const nextEnabled = !currentlyEnabled;
     if (!nextEnabled) {
       const label = type === "role" ? ((pkg.roles || [])[0]?.name || pkg.name || "这个角色") : (pkg.name || "这个角色包");
-      const ok = window.confirm("关闭管理会把「" + label + "」对应的当前角色卡世界书条目标记为 disable。\n\n不建议在角色已经有剧情时这样做，可能导致后续引用断裂。确认关闭？");
+	      const ok = window.confirm("关闭管理会把「" + label + "」对应的当前对话世界书条目标记为 disable。\n\n不建议在角色已经有剧情时这样做，可能导致后续引用断裂。确认关闭？");
       if (!ok) return;
     }
     encounterSetStatus(page, nextEnabled ? "正在启用世界书条目..." : "正在禁用世界书条目...");
