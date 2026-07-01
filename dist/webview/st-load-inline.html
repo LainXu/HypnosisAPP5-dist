@@ -2606,6 +2606,8 @@ button.st-work-notice{cursor:pointer}
 .st-person-delete-role span{position:absolute;left:13px;right:13px;bottom:7px;top:12px;border-left:1px solid currentColor;border-right:1px solid currentColor}
 .st-person-delete-role:hover{opacity:.95;color:rgba(151,40,31,.78)}
 .st-person-delete-role:active{transform:scale(.94)}
+.st-person-detail-actions{position:relative;z-index:3;width:min(88%,520px);margin:9px auto 0;min-height:28px;display:flex;justify-content:flex-end;align-items:center;pointer-events:auto}
+.st-person-detail-actions .st-person-delete-role{position:relative;right:auto;bottom:auto;width:32px;height:22px;background:rgba(68,28,22,.12);color:rgba(151,40,31,.52);box-shadow:0 3px 10px rgba(30,14,8,.14)}
 .st-person-card.is-enter-left,.st-person-paper.is-enter-left{animation:stPersonEnterLeft .22s ease-out}
 .st-person-card.is-enter-right,.st-person-paper.is-enter-right{animation:stPersonEnterRight .22s ease-out}
 @keyframes stPersonEnterLeft{from{opacity:.55;transform:translateX(-18px)}to{opacity:1;transform:translateX(0)}}
@@ -5308,12 +5310,31 @@ button.st-work-notice{cursor:pointer}
     return "global";
   }
 
+  function profileStableStorageScope() {
+    try {
+      const id = window?.SillyTavern?.getCurrentChatId?.();
+      if (id !== undefined && id !== null && String(id)) return "chat:" + String(id);
+    } catch {}
+    try {
+      const context = window.SillyTavern?.getContext?.() || (typeof getContext === "function" ? getContext() : null);
+      for (const value of [context?.chatId, context?.chat_id, context?.chatFile, context?.chat_file, context?.characterId, context?.groupId]) {
+        const text = String(value ?? "").trim();
+        if (text) return "ctx:" + text;
+      }
+    } catch {}
+    return "global";
+  }
+
   function profilePhotoStorageKey(roleName) {
     return PROFILE_PHOTO_STORAGE_PREFIX + ":" + profileStorageScope() + ":" + roleName;
   }
 
   function profilePhotoStorageKeyForScope(scope, roleName) {
     return PROFILE_PHOTO_STORAGE_PREFIX + ":" + String(scope || profileStorageScope()) + ":" + roleName;
+  }
+
+  function profileStablePhotoStorageKey(roleName) {
+    return PROFILE_PHOTO_STORAGE_PREFIX + ":stable:" + profileStableStorageScope() + ":" + roleName;
   }
 
   function profilePhotoReadKeys(roleName) {
@@ -5327,7 +5348,21 @@ button.st-work-notice{cursor:pointer}
       const previous = window.__ST_HYPNOOS_PREVIOUS_FRONTEND_MESSAGE_SCOPE__?.();
       if (previous) addKey(profilePhotoStorageKeyForScope(previous, roleName));
     } catch {}
+    addKey(profileStablePhotoStorageKey(roleName));
     return keys;
+  }
+
+  function profileSaveLocalPhoto(roleName, value) {
+    const image = String(value || "");
+    if (!roleName || !image) return false;
+    let saved = false;
+    for (const key of [profilePhotoStorageKey(roleName), profileStablePhotoStorageKey(roleName)]) {
+      try {
+        localStorage.setItem(key, image);
+        saved = true;
+      } catch {}
+    }
+    return saved;
   }
 
   function localProfilePhoto(roleName) {
@@ -5351,7 +5386,9 @@ button.st-work-notice{cursor:pointer}
     const value = effectScalar(profile[field.key]).trim();
     if (value) {
       if (field.key === "工作价值") {
-        const number = Number(value.replace(/[,，¥￥円]/g, ""));
+        const digits = value.replace(/[^d.-]/g, "");
+        if (!digits) return value;
+        const number = Number(digits);
         return Number.isFinite(number) ? Math.max(0, Math.floor(number)).toLocaleString() + "星光点/日" : value;
       }
       return value;
@@ -5644,7 +5681,6 @@ button.st-work-notice{cursor:pointer}
   function profileDeskCardHtml(roleName, roleData) {
     const profile = roleProfileData(roleName, roleData);
     const photo = profilePhotoSource(roleName, roleData);
-    const canDelete = roleName && !ST_LOCKED_PROFILE_ROLES.has(roleName);
     const lines = PERSON_PROFILE_CLOTHING_FIELDS.map((field) => (
       '<div class="st-profile-mini-line">' +
         '<b>' + escapeHtml(field.label.replace(/s+/g, "")) + '</b>' +
@@ -5659,7 +5695,6 @@ button.st-work-notice{cursor:pointer}
         '<nav class="st-profile-mini-tabs" aria-hidden="true"><span>衣着</span><span>信息</span><span>状态</span><span>敏感</span><span>效果</span></nav>' +
         '<section class="st-profile-mini-lines">' + lines + '</section>' +
       '</button>' +
-      (canDelete ? '<button class="st-person-delete-role" type="button" data-profile-desk-delete-role="' + escapeAttr(roleName) + '" aria-label="删除角色" title="删除角色"><span aria-hidden="true"></span></button>' : "") +
     '</article>';
   }
 
@@ -5729,6 +5764,7 @@ button.st-work-notice{cursor:pointer}
           ? renderPersonEffectsPanel(roleName, roleData)
           : '<section class="st-person-lines">' + fieldsHtml + '</section>';
     const activeTabLabel = PERSON_PROFILE_TABS.find((tab) => tab.id === activeTab)?.label || "档案";
+    const canDeleteRole = !staticIsaac && roleName && !ST_LOCKED_PROFILE_ROLES.has(roleName);
     page.innerHTML =
       renderLiteHeader(page, { title: "人物档案", html: recordingIslandHtml() }) +
       '<main class="st-lite-body st-profile-body is-detail">' +
@@ -5751,6 +5787,7 @@ button.st-work-notice{cursor:pointer}
             contentHtml +
             '<div class="st-person-page-count">' + escapeHtml((staticIsaac ? "彩蛋档案" : String(index + 1) + " / " + roleNames.length) + " · " + activeTabLabel) + '</div>' +
           '</section>' +
+          (canDeleteRole ? '<div class="st-person-detail-actions"><button class="st-person-delete-role" type="button" data-profile-action="delete-role" aria-label="删除角色" title="删除角色"><span aria-hidden="true"></span></button></div>' : "") +
         '</section>' +
       '</main>';
     page.dataset.profileSignature = personProfileSignature(page);
@@ -5764,9 +5801,7 @@ button.st-work-notice{cursor:pointer}
       if (!file || !/^image\//i.test(file.type || "")) return;
       const reader = new FileReader();
       reader.onload = () => {
-        try {
-          localStorage.setItem(profilePhotoStorageKey(roleName), String(reader.result || ""));
-        } catch {}
+        profileSaveLocalPhoto(roleName, String(reader.result || ""));
         renderPersonProfilePage(page);
       };
       reader.readAsDataURL(file);
@@ -7386,7 +7421,6 @@ button.st-work-notice{cursor:pointer}
 	  function encounterDefaultInitialVariableObject(role) {
 	    const normalized = role && typeof role === "object" && !Array.isArray(role) ? role : {};
 	    const name = String(normalized.name || normalized["角色名"] || "").trim();
-	    const title = encounterPlainLine(normalized.personaTitle || normalized.title || normalized["定位"] || normalized.intro || "");
 	    return {
 	      "好感度": 0,
 	      "警戒度": 0,
@@ -7394,21 +7428,21 @@ button.st-work-notice{cursor:pointer}
 	      "性欲": 0,
 	      "快感值": 0,
 	      "是否派遣中": false,
-		      "工作价值": 3,
+	      "工作价值": "未记录",
 	      "档案": {
 	        "照片": "",
 	        "姓名": name,
-	        "年龄": encounterPlainLine(normalized.age || normalized["年龄"] || ""),
-	        "社团/职业": title,
-	        "身高": "",
-	        "体重": "",
-	        "三围": "",
-	        "头发": "",
-	        "面部": "",
-	        "上衣": "",
-	        "下衣": ""
+	        "年龄": "未记录",
+	        "社团/职业": "未记录",
+	        "身高": "未记录",
+	        "体重": "未记录",
+	        "三围": "未记录",
+	        "头发": "未记录",
+	        "面部": "未记录",
+	        "上衣": "未记录",
+	        "下衣": "未记录"
 	      },
-	      "心理": "",
+	      "心理": "未记录",
 	      "阴蒂敏感度": 100,
 	      "小穴敏感度": 100,
 	      "菊穴敏感度": 100,
@@ -7422,6 +7456,41 @@ button.st-work-notice{cursor:pointer}
 	      "尿道高潮次数": 0,
 	      "乳头高潮次数": 0
 	    };
+	  }
+
+	  function encounterLooksLikeWorldbookChunk(value) {
+	    const text = encounterPlainLine(value);
+	    if (!text) return false;
+	    if (text.length > 80) return true;
+	    return /(title|identity|public|hidden|personality|appearance|behavior|habit|gender|age)s*:/i.test(text);
+	  }
+
+	  function encounterSanitizeProfileValue(value, fallback = "未记录") {
+	    const text = encounterPlainLine(value);
+	    if (!text || /^未记录$/u.test(text) || encounterLooksLikeWorldbookChunk(text)) return fallback;
+	    return text;
+	  }
+
+	  function encounterSanitizeInitialRoleVariableObject(merged, roleName) {
+	    const output = merged && typeof merged === "object" && !Array.isArray(merged) ? merged : {};
+	    output["档案"] = output["档案"] && typeof output["档案"] === "object" && !Array.isArray(output["档案"]) ? output["档案"] : {};
+	    const profile = output["档案"];
+	    profile["照片"] = encounterPlainLine(profile["照片"] || "");
+	    profile["姓名"] = encounterSanitizeProfileValue(profile["姓名"], roleName || "未记录");
+	    if (roleName && (!profile["姓名"] || profile["姓名"] === "未记录")) profile["姓名"] = roleName;
+	    for (const key of ["年龄", "社团/职业", "身高", "体重", "三围", "头发", "面部", "上衣", "下衣"]) {
+	      profile[key] = encounterSanitizeProfileValue(profile[key], "未记录");
+	    }
+	    const rawWorkValue = String(output["工作价值"] ?? "").trim();
+	    const normalizedWorkValue = rawWorkValue.replace(/[^d.-]/g, "");
+	    if (!rawWorkValue || rawWorkValue === "未记录" || !normalizedWorkValue) {
+	      output["工作价值"] = "未记录";
+	    } else {
+	      const workValue = Number(normalizedWorkValue);
+	      output["工作价值"] = Number.isFinite(workValue) ? Math.max(0, Math.min(20, Math.floor(workValue))) : "未记录";
+	    }
+	    if (encounterLooksLikeWorldbookChunk(output["心理"])) output["心理"] = "未记录";
+	    return output;
 	  }
 
 	  function encounterInitialVariablesText(role) {
@@ -7466,9 +7535,7 @@ button.st-work-notice{cursor:pointer}
 	      merged["工作价值"] = merged["身" + "价"];
 	    }
 	    delete merged["身" + "价"];
-	    merged["档案"] = merged["档案"] && typeof merged["档案"] === "object" && !Array.isArray(merged["档案"]) ? merged["档案"] : {};
-	    if (name && !String(merged["档案"]["姓名"] || "").trim()) merged["档案"]["姓名"] = name;
-	    return merged;
+	    return encounterSanitizeInitialRoleVariableObject(merged, name);
 	  }
 
 	  function encounterNormalizeRole(role, index = 0) {
@@ -9288,7 +9355,7 @@ button.st-work-notice{cursor:pointer}
       const name = String(role.name || "").trim();
       if (!name || !role.imageDataUrl) continue;
       try {
-        localStorage.setItem(profilePhotoStorageKey(name), role.imageDataUrl);
+        profileSaveLocalPhoto(name, role.imageDataUrl);
         cached.push(name);
       } catch {}
     }
@@ -10122,14 +10189,16 @@ button.st-work-notice{cursor:pointer}
       世界书新增条目数: result.insertedCount ?? result.worldbookCount ?? 0,
       当前角色卡世界书: result.targetWorldbook || "当前角色卡绑定世界书",
       世界书写入方式: result.method || "前端自动写入",
+      角色变量补全要求: "前端只创建安全初始变量骨架。若角色变量里任何字段为“未记录”，AI必须在本轮第一次处理该角色时，参照已导入当前角色卡世界书里的对应 [mvu_plot]角色名人设 / [mvu_update]角色名变量 条目补齐；重点包括档案中的年龄、社团/职业、身高、体重、三围、头发、面部、上衣、下衣、第一人称心理，以及工作价值。不要把世界书原文整段塞进档案字段。工作价值由AI按角色身份、资源、派遣变现潜力和默认三角色尺度生成 0-20 的星光点/日数字。",
       角色列表: roles.map((role) => ({
         角色名: role.name || "由AI按角色包内容命名",
         别名: role.aliases || "",
         档案摘要: role.intro || "",
         角色出场提示词: encounterRoleEncounterPrompt(role) || "",
-        前端图片缓存: role.imageDataUrl ? "角色图片已由前端缓存到人物档案本地照片，变量出现后自动显示。" : "无"
+        前端图片缓存: role.imageDataUrl ? "角色图片已由前端缓存到人物档案本地照片，变量出现后自动显示。" : "无",
+        补全依据: "以当前角色卡世界书中已经写入的 " + (role.name ? "[mvu_plot]" + role.name + "人设" : "对应人设") + " 为准，补齐未记录档案与工作价值。"
       })),
-      AI执行规范: "这个角色包已经被前端使用。不要重复扣星光点，不要重复插入世界书，不要对已新增角色重复/add。世界书条目已写入当前使用角色卡绑定的世界书；初始角色变量已由前端创建，若有同名旧角色则前端已跳过不覆盖。请根据角色包、已写入世界书和各角色出场提示词，在本轮剧情中安排对应角色登场；后续只按剧情变化更新变量。"
+      AI执行规范: "这个角色包已经被前端使用。不要重复扣星光点，不要重复插入世界书，不要对已新增角色重复/add。世界书条目已写入当前使用角色卡绑定的世界书；初始角色变量已由前端创建，若有同名旧角色则前端已跳过不覆盖。请根据角色包、已写入世界书和各角色出场提示词，在本轮剧情中安排对应角色登场；第一回合必须参照各角色已导入世界书补齐未记录档案、第一人称心理和工作价值，工作价值范围为0-20星光点/日；后续只按剧情变化更新变量。"
     };
   }
 
