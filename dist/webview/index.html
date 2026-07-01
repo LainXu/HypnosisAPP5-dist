@@ -6591,14 +6591,14 @@ button.st-work-notice{cursor:pointer}
   }
 
   function workCurrentTimeInfo(hours = 6) {
-    const system = getSystemState();
-    const dateText = String(system["当前日期"] || "").trim();
-    const timeText = storyTimeOnly(system["当前时间"], "00:00");
+    const clock = workEffectiveClockInfo();
+    const dateText = clock.dateText;
+    const timeText = storyTimeOnly(clock.timeText, "00:00");
     const startText = [dateText, timeText].filter(Boolean).join(" ") || "未知";
     const parsed = parseStoryDate(dateText);
     const minutes = minutesFromTimeText(timeText || "00:00");
     if (!parsed || !Number.isFinite(minutes)) {
-      return { startText, endText: "当前时间 + " + hours + "小时", minutes: hours * 60 };
+      return { startText, endText: "当前时间 + " + hours + "小时", minutes: hours * 60, timeSource: clock.source, pendingTime: clock.pendingTime };
     }
     const totalMinutes = minutes + hours * 60;
     const dayOffset = Math.floor(totalMinutes / 1440);
@@ -6608,7 +6608,9 @@ button.st-work-notice{cursor:pointer}
     return {
       startText,
       endText: (date.getMonth() + 1) + "月" + date.getDate() + "日 " + formatPeriodTime(endMinutes),
-      minutes: hours * 60
+      minutes: hours * 60,
+      timeSource: clock.source,
+      pendingTime: clock.pendingTime
     };
   }
 
@@ -6645,9 +6647,9 @@ button.st-work-notice{cursor:pointer}
   }
 
   function workCurrentStamp() {
-    const system = getSystemState();
-    const parsed = parseStoryDate(system["当前日期"] || "");
-    const minutes = minutesFromTimeText(storyTimeOnly(system["当前时间"], "00:00"));
+    const clock = workEffectiveClockInfo();
+    const parsed = parseStoryDate(clock.dateText || "");
+    const minutes = minutesFromTimeText(storyTimeOnly(clock.timeText, "00:00"));
     if (!parsed || !Number.isFinite(minutes)) return 0;
     return schoolYearDay(parsed.month, parsed.day) * 1440 + minutes;
   }
@@ -6709,6 +6711,41 @@ button.st-work-notice{cursor:pointer}
     return result;
   }
 
+  function pendingOperationPayloads() {
+    return (window.__ST_GET_PENDING_OPERATION_INPUT_LOG__?.() || []).map((entry) => entry?.payload || entry);
+  }
+
+  function latestPendingClockTimeText() {
+    const payloads = pendingOperationPayloads();
+    for (let index = payloads.length - 1; index >= 0; index -= 1) {
+      const payload = payloads[index];
+      if (payload?.["来源"] !== "时钟") continue;
+      if (!/建议剧情开始时间|建议时间|当前时间|推进到该时间/.test(String(payload?.["操作"] || ""))) continue;
+      const timeText = storyTimeOnly(payload["建议时间"] || payload["目标时间"] || payload["当前时间变量"] || "", "");
+      if (/^d{1,2}:d{2}$/.test(timeText)) return timeText;
+    }
+    return "";
+  }
+
+  function workEffectiveClockInfo() {
+    const system = getSystemState();
+    const dateText = String(system["当前日期"] || "").trim();
+    const pendingTime = latestPendingClockTimeText();
+    const timeText = pendingTime || storyTimeOnly(system["当前时间"], "00:00");
+    return {
+      dateText,
+      timeText,
+      pendingTime,
+      source: pendingTime ? "暂存区时钟建议时间" : "当前变量时间"
+    };
+  }
+
+  function workEffectiveCurrentTimeText() {
+    const clock = workEffectiveClockInfo();
+    const text = [clock.dateText, storyTimeOnly(clock.timeText, "未知")].filter(Boolean).join(" ");
+    return text || monitorCurrentTimeText();
+  }
+
   function latestWorkStartPayloadFromChat() {
     let latest = null;
     for (const message of workChatMessages()) {
@@ -6721,8 +6758,9 @@ button.st-work-notice{cursor:pointer}
 
   function workStartTimingInfo() {
     const system = getSystemState();
-    const dateText = String(system["当前日期"] || "").trim();
-    const timeText = storyTimeOnly(system["当前时间"], "00:00");
+    const clock = workEffectiveClockInfo();
+    const dateText = clock.dateText;
+    const timeText = storyTimeOnly(clock.timeText, "00:00");
     const parsed = parseStoryDate(dateText);
     const minutes = minutesFromTimeText(timeText || "00:00");
     const weekdayText = weekdayForStoryDate(dateText);
@@ -6733,6 +6771,10 @@ button.st-work-notice{cursor:pointer}
     const isNormalWorkStart = minutes >= 970 && minutes <= 1080;
     const isNightWork = minutes > 1080 || minutes < 360;
     const currentBuff = String(system["buff"] || "").trim();
+    const hasCurrentBuff = Boolean(currentBuff && currentBuff !== "无");
+    const buffLockRule = hasCurrentBuff
+      ? "当前仍处于“" + currentBuff + "”状态，精力不足，任意buff持续期间不能开始新的打工。"
+      : "";
     const dayRule = isSchoolDay
       ? "当前是上课日，8:30-16:10内开始打工算逃学。"
       : "当前是周末或假日，不算逃学，不会因白天打工触发“社会的蔑视”；但夜班仍会触发“无精打采”。";
@@ -6741,8 +6783,12 @@ button.st-work-notice{cursor:pointer}
         kind: "上学时间逃课",
         buff: "社会的蔑视",
         currentBuff,
+        buffLocked: hasCurrentBuff,
+        buffLockRule,
+        timeSource: clock.source,
+        pendingTime: clock.pendingTime,
         dayRule,
-        rule: "上课日8:30-16:10内逃课打工，被其他人发现或议论后遭到蔑视；成功开始/结算本次打工时将/系统/buff替换为“社会的蔑视”。该buff本质是“逃学被其他人蔑视”，持续1天，会被其他buff覆盖；存在期间所有角色好感度不能提升，只能不变或按剧情下降。周末或假日不触发该buff。"
+        rule: "上课日8:30-16:10内逃课打工，被其他人发现或议论后遭到蔑视；成功开始/结算本次打工时将/系统/buff写为“社会的蔑视”。该buff本质是“逃学被其他人蔑视”，从预计结束时间起持续1天；存在期间所有角色好感度不能提升，只能不变或按剧情下降，且不能开始新的打工。周末或假日不触发该buff。"
       };
     }
     if (isNormalWorkStart) {
@@ -6750,8 +6796,12 @@ button.st-work-notice{cursor:pointer}
         kind: "正常时间",
         buff: "全盛出击",
         currentBuff,
+        buffLocked: hasCurrentBuff,
+        buffLockRule,
+        timeSource: clock.source,
+        pendingTime: clock.pendingTime,
         dayRule,
-        rule: "16:10-18:00期间开始打工，视为正常时间；成功开始/结算本次打工时将/系统/buff替换为“全盛出击”，并把/系统/MC能量一次性恢复到/系统/MC能量上限。该buff效果只触发一次但显示持续1天，会被其他buff覆盖。"
+        rule: "16:10-18:00期间开始打工，视为正常时间；成功开始/结算本次打工时将/系统/buff写为“全盛出击”，并把/系统/MC能量一次性恢复到/系统/MC能量上限。该buff效果只触发一次但显示从预计结束时间起持续1天；持续期间不能开始新的打工。"
       };
     }
     if (isNightWork) {
@@ -6759,22 +6809,29 @@ button.st-work-notice{cursor:pointer}
         kind: "夜班",
         buff: "无精打采",
         currentBuff,
+        buffLocked: hasCurrentBuff,
+        buffLockRule,
+        timeSource: clock.source,
+        pendingTime: clock.pendingTime,
         dayRule,
-        rule: "夜班打工；成功开始/结算本次打工时将/系统/buff替换为“无精打采”。该buff持续1天，会被其他buff覆盖；存在期间补充MC能量时获得量减半。"
+        rule: "夜班打工；成功开始/结算本次打工时将/系统/buff写为“无精打采”。该buff从预计结束时间起持续1天；存在期间补充MC能量时获得量减半，且不能开始新的打工。"
       };
     }
     return {
       kind: "非标准空档",
       buff: "",
       currentBuff,
+      buffLocked: hasCurrentBuff,
+      buffLockRule,
+      timeSource: clock.source,
+      pendingTime: clock.pendingTime,
       dayRule,
-      rule: "当前不是上学时间逃课，也不是夜班；但只有16:10-18:00期间开始才算完全正常。本次打工不新增、不替换buff，已有buff照常保留到自然到期或被其他buff覆盖。"
+      rule: "当前不是上学时间逃课，也不是夜班；但只有16:10-18:00期间开始才算完全正常。本次打工不新增buff；若已有buff则因精力不足不能开始新的打工。"
     };
   }
 
   function pendingWorkPayloads() {
-    return (window.__ST_GET_PENDING_OPERATION_INPUT_LOG__?.() || [])
-      .map((entry) => entry?.payload || entry)
+    return pendingOperationPayloads()
       .filter((payload) => payload?.["来源"] === "打工" && /^(开始打工|打工中提醒)$/.test(String(payload?.["操作"] || "")));
   }
 
@@ -6813,7 +6870,7 @@ button.st-work-notice{cursor:pointer}
       工作地点: latest["工作地点"] || "未记录",
       开始时间: latest["开始时间"] || "未记录",
       预计结束时间: endText,
-      当前时间: monitorCurrentTimeText(),
+      当前时间: workEffectiveCurrentTimeText(),
       偶遇女角色: encounterRole,
       提醒: hasEncounter
         ? "上一轮打工已到偶遇节点；本轮处理用户与偶遇角色的互动后，直接推进到预计结束时间结算。"
@@ -6830,9 +6887,12 @@ button.st-work-notice{cursor:pointer}
     }
     const latest = latestWorkStartPayloadFromChat();
     const latestBuff = String(latest?.["打工获得buff"] || "").trim();
-    const startText = latestBuff === buff ? String(latest?.["开始时间"] || "").trim() : "";
-    const endText = latestBuff === buff
-      ? String(latest?.["打工buff预计结束时间"] || workOffsetDateTimeText(startText, 24)).trim()
+    const startText = latest && (latestBuff === buff || !latestBuff || latestBuff === "按世界书判定")
+      ? String(latest?.["开始时间"] || "").trim()
+      : "";
+    const workEndText = latest && startText ? String(latest?.["预计结束时间"] || "").trim() : "";
+    const endText = startText
+      ? String(latest?.["打工buff预计结束时间"] || workOffsetDateTimeText(workEndText || startText, 24)).trim()
       : "";
     const endStamp = endText ? monitorStampFromText(endText) : 0;
     const currentStamp = workCurrentStamp();
@@ -6843,7 +6903,7 @@ button.st-work-notice{cursor:pointer}
       当前buff: buff,
       buff开始时间: startText || "未记录",
       buff预计结束时间: endText || "按写入后1天由AI判断",
-      当前时间: monitorCurrentTimeText(),
+      当前时间: workEffectiveCurrentTimeText(),
       提醒: expired ? "buff已到预计结束时间；若没有新buff，请清空/系统/buff。" : "当前buff仍在持续，按世界书规则影响相关操作。"
     });
   }
@@ -6869,8 +6929,10 @@ button.st-work-notice{cursor:pointer}
     const timingInfo = options?.timingInfo || {};
     const focused = Boolean(options?.focused);
     const unlocked = shachiku >= job.threshold;
-    const disabled = !unlocked || pendingWork;
-    const className = "st-work-notice" + (focused ? " st-work-focus-poster" : "") + (unlocked ? "" : " is-locked") + (pendingWork ? " is-pending" : "");
+    const buffLocked = Boolean(timingInfo.buffLocked);
+    const disabled = !unlocked || pendingWork || buffLocked;
+    const buttonText = pendingWork ? "已有打工" : buffLocked ? "精力不足" : (unlocked ? "开始打工" : "未解锁");
+    const className = "st-work-notice" + (focused ? " st-work-focus-poster" : "") + (unlocked ? "" : " is-locked") + (pendingWork ? " is-pending" : "") + (buffLocked ? " is-pending" : "");
     const open = focused ? '<div class="st-work-focus-top"><span class="st-work-notice-kicker">寻工启事</span><button type="button" class="st-work-wall-button" data-work-wall>返回墙面</button></div>' : '<span class="st-work-notice-kicker">寻工启事</span>';
     const body =
       open +
@@ -6880,11 +6942,11 @@ button.st-work-notice{cursor:pointer}
         '<span>门槛 ' + job.threshold + '</span>' +
         '<span>' + (unlocked ? "可接" : "未解锁") + '</span>' +
         '<span class="is-encounter">偶遇率 ' + workChanceText(job.chance) + '</span>' +
-        '<span class="is-buff">当前会得 ' + escapeHtml(timingInfo.buff || "无buff") + '</span>' +
+        '<span class="is-buff">buff ' + escapeHtml(timingInfo.buff || "无新增") + '</span>' +
       '</div>' +
       (focused
         ? '<div class="st-work-pay"><strong>' + escapeHtml(workMoneyText(job.wage)) + '</strong><small>社畜值 +' + job.shachiku + '</small></div>' +
-          '<button type="button" class="st-work-button" data-work-job="' + escapeAttr(job.id) + '"' + (disabled ? " disabled" : "") + '>' + (pendingWork ? "已有打工" : (unlocked ? "开始打工" : "未解锁")) + '</button>'
+          '<button type="button" class="st-work-button" data-work-job="' + escapeAttr(job.id) + '"' + (disabled ? " disabled" : "") + '>' + escapeHtml(buttonText) + '</button>'
         : "");
     return focused
       ? '<article class="' + className + '">' + body + '</article>'
@@ -6915,9 +6977,11 @@ button.st-work-notice{cursor:pointer}
           wallHtml +
           '<section class="st-work-buff-note">' +
             '<strong>当前开始：' + escapeHtml(timingInfo.kind) + ' · ' + escapeHtml(timingInfo.buff || "无新增buff") + '</strong>' +
+            '<span>' + escapeHtml((timingInfo.timeSource || "当前变量时间") + (timingInfo.pendingTime ? " " + timingInfo.pendingTime : "")) + '</span>' +
             '<span>' + escapeHtml(timingInfo.dayRule || "") + '</span>' +
+            (timingInfo.buffLockRule ? '<span>' + escapeHtml(timingInfo.buffLockRule) + '</span>' : '') +
             '<span>打工可能会偶遇女角色，越高级的工作偶遇概率越高；具体是否偶遇不会在界面暴露。</span>' +
-            '<span>社会的蔑视：逃学被其他人蔑视，1天内好感不提升。无精打采：夜班后1天内补充MC能量减半。全盛出击：正常时间开始时一次性恢复全部MC能量。所有buff最多一个，新buff覆盖旧buff。</span>' +
+            '<span>社会的蔑视：逃学被其他人蔑视，结束后1天内好感不提升。无精打采：夜班结束后1天内补充MC能量减半。全盛出击：正常时间开始时一次性恢复全部MC能量，并显示到结束后1天。任意buff持续期间不能再次打工。</span>' +
           '</section>' +
           '<p class="st-work-note">墙上共有 ' + ST_WORK_JOBS.length + ' 张寻工启事，已解锁 ' + unlockedCount + ' 张。每次打工按6小时结算。</p>' +
         '</section>' +
@@ -6942,12 +7006,17 @@ button.st-work-notice{cursor:pointer}
           renderWorkPage(page);
           return;
         }
+        const timingInfo = workStartTimingInfo();
+        if (timingInfo.buffLocked) {
+          flashWorkButton(button, "精力不足");
+          renderWorkPage(page);
+          return;
+        }
         if (currentValue < job.threshold) {
           flashWorkButton(button, "未解锁");
           return;
         }
         const timeInfo = workCurrentTimeInfo(6);
-        const timingInfo = workStartTimingInfo();
         const latestRoll = readWorkLayerRoll();
         const encounterRole = latestRoll.roleName && latestRoll.rolls?.[job.id] ? latestRoll.roleName : "";
         const encounterDelayHours = encounterRole ? workEncounterDelayHours(job, latestRoll) : 0;
@@ -6962,11 +7031,11 @@ button.st-work-notice{cursor:pointer}
           需要社畜值: job.threshold,
           跳过时间: "6小时",
           开始时间: timeInfo.startText,
+          开始时间来源: timeInfo.timeSource || "当前变量时间",
+          暂存区建议时间: timeInfo.pendingTime || "无",
           预计结束时间: timeInfo.endText,
-          打工时间分类: timingInfo.kind,
-          当前buff: timingInfo.currentBuff || "无",
-          打工获得buff: timingInfo.buff || "无",
-          打工buff预计结束时间: timingInfo.buff ? workOffsetDateTimeText(timeInfo.startText, 24) : "无",
+          buff判定规则: "若开始时间为上课日8:30-16:10，获得“社会的蔑视”，所有角色好感不能提升；若开始时间为16:10-18:00，获得“全盛出击”，并一次性恢复MC能量到上限；若开始时间为夜班（18:00后或6:00前），获得“无精打采”，补充MC能量获得量减半；其他时间无新增buff。若产生buff，则从预计结束时间起持续1天；任意当前buff持续期间不能开始打工。",
+          buff持续时间: "若本次按规则产生buff，从预计结束时间起持续1天；到期前不能再次打工。",
           获得零花钱: job.wage,
           获得社畜值: job.shachiku,
           结算后社畜值上限预览: nextValue,
