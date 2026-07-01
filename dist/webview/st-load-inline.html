@@ -2067,7 +2067,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-inventory-room,.st-inventory-locker{position:absolute;inset:0;width:100%;min-height:100%;height:100%;background-color:#07131e;background-image:none;background-position:center;background-size:cover;background-repeat:no-repeat;overflow:hidden;color:#edf4fb}
 .st-inventory-locker::before,.st-inventory-locker::after{content:none}
 .st-inventory-bags{position:absolute;inset:0;z-index:3;pointer-events:none}
-/* 库存坐标记录：18:19 截图中袋子文字 left 18.3/top 22.2 偏右下，详情 left 63.2/top 23.4 偏左下；18:29 后按柜子隔板节奏微调每层 top。 */
+/* 库存坐标记录：19:51 截图中下层袋子逐层偏低；按背景图五个袋面中心重算 top，不再使用等距外推。 */
 .st-inventory-note{position:absolute;z-index:2;left:65.2%;top:20.8%;width:23.4%;height:26.5%;padding:8px 8px 10px;display:grid;align-content:start;gap:8px;color:#3b2a18;font-family:"STKaiti","KaiTi","Noto Serif SC",serif;text-align:left;transform:rotate(.2deg);pointer-events:auto;background:transparent;border:0;box-shadow:none}
 .st-inventory-note strong{display:block;color:#2e2115;font-size:17px;line-height:1.24;font-weight:950;word-break:break-word;text-shadow:0 1px 0 rgba(255,255,255,.38)}
 .st-inventory-note p{margin:0;color:rgba(46,33,21,.9);font-size:12px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
@@ -2075,11 +2075,11 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-inventory-locker-pager button{width:25px;height:25px;border:1px solid rgba(191,219,254,.32);border-radius:999px;background:rgba(15,23,42,.62);color:#f8fbff;font-size:17px;font-weight:950;line-height:1;cursor:pointer;box-shadow:0 3px 8px rgba(0,0,0,.34)}
 .st-inventory-locker-pager span{min-width:40px;border:1px solid rgba(191,219,254,.22);border-radius:999px;background:rgba(15,23,42,.52);color:#e0f2fe;padding:4px 8px;font-size:10px;font-weight:950;text-align:center;text-shadow:0 1px 3px rgba(0,0,0,.75)}
 .st-inventory-bag{position:absolute;z-index:3;left:15.8%;width:31%;height:7.8%;border:0;border-radius:20px;background:transparent;box-shadow:none;color:#f8fbff;padding:5px 18px 5px 10px;display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;overflow:hidden;text-shadow:0 2px 5px rgba(0,0,0,.9),0 0 10px rgba(39,68,94,.55);backdrop-filter:none;pointer-events:auto}
-.st-inventory-bag:nth-child(1){top:19.1%}
-.st-inventory-bag:nth-child(2){top:35.8%}
-.st-inventory-bag:nth-child(3){top:52.0%}
-.st-inventory-bag:nth-child(4){top:68.3%}
-.st-inventory-bag:nth-child(5){top:84.4%}
+.st-inventory-bag:nth-child(1){top:19.0%}
+.st-inventory-bag:nth-child(2){top:34.6%}
+.st-inventory-bag:nth-child(3){top:49.9%}
+.st-inventory-bag:nth-child(4){top:65.2%}
+.st-inventory-bag:nth-child(5){top:80.3%}
 .st-inventory-bag.is-active{background:transparent;box-shadow:none;outline:0}
 .st-inventory-bag.is-active .st-inventory-bag-name{text-shadow:0 2px 5px rgba(0,0,0,.95),0 0 12px rgba(191,219,254,.72)}
 .st-inventory-bag.is-empty{visibility:hidden;pointer-events:none}
