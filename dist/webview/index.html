@@ -1308,6 +1308,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     "犬冢夏美": stAssetUrl("profiles/inuzuka-natsumi.png"),
     "阿宅": stAssetUrl("profiles/otaku.png")
   };
+  const ST_OTAKU_FEMALE_PROFILE_PHOTO = stAssetUrl("profiles/otaku-female.png");
   const ST_LOCKED_PROFILE_ROLES = new Set(["西园寺爱丽莎", "月咏深雪", "犬冢夏美", "阿宅"]);
   const BOARD_NAMES = DEFAULT_BOARDS.map((board) => board.name);
   const BOARD_ID_BY_NAME = Object.fromEntries(DEFAULT_BOARDS.map((board) => [board.name, board.id]));
@@ -2659,8 +2660,12 @@ button.st-work-notice{cursor:pointer}
 .st-person-delete-role span{position:absolute;left:13px;right:13px;bottom:7px;top:12px;border-left:1px solid currentColor;border-right:1px solid currentColor}
 .st-person-delete-role:hover{opacity:.95;color:rgba(151,40,31,.78)}
 .st-person-delete-role:active{transform:scale(.94)}
-.st-person-detail-actions{position:relative;z-index:3;width:min(88%,520px);margin:9px auto 0;min-height:28px;display:flex;justify-content:flex-end;align-items:center;pointer-events:auto}
+.st-person-detail-actions{position:relative;z-index:3;width:min(88%,520px);margin:9px auto 0;min-height:28px;display:flex;justify-content:flex-end;align-items:center;gap:8px;pointer-events:auto}
 .st-person-detail-actions .st-person-delete-role{position:relative;right:auto;bottom:auto;width:32px;height:22px;background:rgba(68,28,22,.12);color:rgba(151,40,31,.52);box-shadow:0 3px 10px rgba(30,14,8,.14)}
+.st-person-action-note{margin:0 auto 0 0;color:rgba(68,54,42,.46);font-size:10px;font-weight:850;line-height:1.35;max-width:210px}
+.st-person-transform-role{min-width:0;height:26px;border:1px solid rgba(123,78,126,.28);border-radius:999px;background:rgba(142,86,145,.12);color:rgba(88,51,94,.72);padding:0 12px;font-size:10px;font-weight:950;letter-spacing:.02em;box-shadow:0 3px 10px rgba(45,25,48,.08),inset 0 1px 0 rgba(255,255,255,.36);cursor:pointer;white-space:nowrap}
+.st-person-transform-role:hover{background:rgba(142,86,145,.18);color:rgba(88,51,94,.9)}
+.st-person-transform-role:active{transform:scale(.97)}
 .st-person-card.is-enter-left,.st-person-paper.is-enter-left{animation:stPersonEnterLeft .22s ease-out}
 .st-person-card.is-enter-right,.st-person-paper.is-enter-right{animation:stPersonEnterRight .22s ease-out}
 @keyframes stPersonEnterLeft{from{opacity:.55;transform:translateX(-18px)}to{opacity:1;transform:translateX(0)}}
@@ -5712,11 +5717,33 @@ button.st-work-notice{cursor:pointer}
     return "";
   }
 
+  function isOtakuRoleName(roleName) {
+    return roleName === "阿宅" || roleName === "阿宅君";
+  }
+
+  function isOtakuFemaleForm(roleName, roleData) {
+    if (!isOtakuRoleName(roleName)) return false;
+    const profile = roleProfileData(roleName, roleData);
+    const hasFemaleProfile = Boolean(effectScalar(profile?.["三围"]).trim());
+    const hasFemaleStats = ST_SENSITIVITY_STATS.some((label) => roleData && Object.prototype.hasOwnProperty.call(roleData, label))
+      || ST_COUNT_STATS.some((label) => roleData && Object.prototype.hasOwnProperty.call(roleData, label));
+    const hasMaleLength = Boolean(effectScalar(profile?.["阴茎长度"]).trim());
+    const hasMaleStats = ST_MALE_SENSITIVITY_STATS.some((label) => roleData && Object.prototype.hasOwnProperty.call(roleData, label))
+      || ST_MALE_COUNT_STATS.some((label) => roleData && Object.prototype.hasOwnProperty.call(roleData, label));
+    return hasFemaleProfile || (hasFemaleStats && !hasMaleStats && !hasMaleLength);
+  }
+
+  function canRequestOtakuFemaleTransform(roleName, roleData) {
+    if (!isOtakuRoleName(roleName) || isOtakuFemaleForm(roleName, roleData)) return false;
+    return statNumber(statValue(roleData, "好感度"), 0) >= 100
+      && statNumber(statValue(roleData, "服从度"), 0) >= 100;
+  }
+
   function profilePhotoSource(roleName, roleData) {
     const profile = roleProfileData(roleName, roleData);
     const source = effectScalar(profile["照片"]).trim();
     if (source && !["无", "空", "未记录"].includes(source)) return source;
-    return localProfilePhoto(roleName) || ST_DEFAULT_PROFILE_PHOTOS[roleName] || "";
+    return localProfilePhoto(roleName) || (isOtakuFemaleForm(roleName, roleData) ? ST_OTAKU_FEMALE_PROFILE_PHOTO : ST_DEFAULT_PROFILE_PHOTOS[roleName]) || "";
   }
 
   function profileFieldText(profile, roleName, field) {
@@ -5735,11 +5762,74 @@ button.st-work-notice{cursor:pointer}
   }
 
   function personProfileInfoFields(roleName, profile) {
-    const hasMaleLength = Boolean(effectScalar(profile?.["阴茎长度"]).trim()) || roleName === "阿宅" || roleName === "阿宅君";
+    const hasFemaleMeasurement = Boolean(effectScalar(profile?.["三围"]).trim());
+    const hasMaleLength = !hasFemaleMeasurement && (Boolean(effectScalar(profile?.["阴茎长度"]).trim()) || isOtakuRoleName(roleName));
     if (!hasMaleLength) return PERSON_PROFILE_INFO_FIELDS;
     return PERSON_PROFILE_INFO_FIELDS.map((field) => field.key === "三围"
       ? { key: "阴茎长度", label: "阴茎长度" }
       : field);
+  }
+
+  function otakuFemaleVariableTemplate(roleName, roleData) {
+    return {
+      "好感度": statNumber(statValue(roleData, "好感度"), 100),
+      "警戒度": statNumber(statValue(roleData, "警戒度"), 0),
+      "服从度": statNumber(statValue(roleData, "服从度"), 100),
+      "性欲": statNumber(statValue(roleData, "性欲"), 0),
+      "快感值": statNumber(statValue(roleData, "快感值"), 0),
+      "是否派遣中": Boolean(roleData?.["是否派遣中"]),
+      "工作价值": roleWorkValueNumber(roleData),
+      "档案": {
+        "照片": "",
+        "姓名": roleName || "阿宅",
+        "年龄": "17",
+        "社团/职业": "归宅部 / 二次元爱好者",
+        "身高": "162cm",
+        "体重": "48kg",
+        "三围": "B82 / W56 / H84",
+        "头发": "黑色中长乱发仍旧缺少打理，发梢蓬乱地贴在脸侧，刘海经常遮住眼镜边框。",
+        "面部": "黑框眼镜后是躲闪又不安的灰黑色眼睛，脸颊容易因为紧张泛红，表情比过去更软弱却仍带着宅式认真。",
+        "上衣": "改造后换上的女式校服外套略显宽松，白衬衫和深色领结整理得不太熟练，袖口常被她不安地捏皱。",
+        "下衣": "深色百褶裙和黑色过膝袜让她走路时格外拘谨，皮鞋擦得普通，站姿仍习惯微微缩着肩。"
+      },
+      "心理": "这也太像奇怪的角色改造事件了吧……可身体真的变成这样了。我还是阿宅，只是现在连照镜子都像在看陌生角色卡，绝对不能慌，先把设定记清楚。",
+      "阴蒂敏感度": 100,
+      "小穴敏感度": 100,
+      "菊穴敏感度": 100,
+      "尿道敏感度": 100,
+      "乳头敏感度": 100,
+      "临时催眠效果": isPlainObject(roleData?.["临时催眠效果"]) ? roleData["临时催眠效果"] : {},
+      "永久催眠效果": isPlainObject(roleData?.["永久催眠效果"]) ? roleData["永久催眠效果"] : {},
+      "阴蒂高潮次数": 0,
+      "小穴高潮次数": 0,
+      "菊穴高潮次数": 0,
+      "尿道高潮次数": 0,
+      "乳头高潮次数": 0
+    };
+  }
+
+  function requestOtakuFemaleTransform(page) {
+    const roles = getStatsRoles();
+    const roleNames = orderedProfileRoleNames(roles);
+    const roleName = roleNames[normalizeProfileIndex(page, roleNames.length)] || "";
+    const roleData = isPlainObject(roles[roleName]) ? roles[roleName] : {};
+    if (!canRequestOtakuFemaleTransform(roleName, roleData)) return;
+    const payload = {
+      "来源": "人物档案",
+      "操作": "请求女性化改造阿宅",
+      "角色名": roleName,
+      "当前好感度": statNumber(statValue(roleData, "好感度"), 0),
+      "当前服从度": statNumber(statValue(roleData, "服从度"), 0),
+      "预计耗时": "3小时",
+      "用户选择": "接受催眠APP提供的可拒绝选项，让APP暂时带走阿宅并在数小时后归还女性化后的阿宅；未点击此按钮即视为拒绝。",
+      "变量改写": "replace /角色/" + roleName + " 为女性格式；保留好感度、警戒度、服从度、性欲、快感值、是否派遣中、工作价值、临时催眠效果和永久催眠效果；移除阴茎长度、男性敏感度和男性高潮次数字段；改用三围、女性敏感度和女性高潮次数。",
+      "女性化变量模板": otakuFemaleVariableTemplate(roleName, roleData),
+      "AI执行规范": "仅当" + roleName + "好感度>=100且服从度>=100并且尚未女性化时成功；成功后推进当前时间约3小时并更新阿宅变量。若条件不满足、用户反悔或剧情强阻碍，则不改变量。"
+    };
+    Promise.resolve(appendAppOperation(payload)).then((added) => {
+      page.dataset.profileTransformNotice = added ? "改造请求已暂存，确认发送后由AI带走并归还阿宅。" : "暂存区已有相同请求。";
+      renderPersonProfilePage(page);
+    });
   }
 
   function renderPersonPanel(title, body, note = "") {
@@ -5791,6 +5881,7 @@ button.st-work-notice{cursor:pointer}
 
   function turnPersonProfilePage(page, delta) {
     const roleNames = orderedProfileRoleNames(getStatsRoles());
+    delete page.dataset.profileTransformNotice;
     if (isIsaacProfilePage(page)) {
       delete page.dataset.profileStatic;
       page.dataset.profileIndex = String(delta < 0 && roleNames.length ? roleNames.length - 1 : 0);
@@ -5834,6 +5925,11 @@ button.st-work-notice{cursor:pointer}
       requestDeleteProfileRole(roleName);
       return;
     }
+    if (action === "otaku-female-transform") {
+      if (isIsaacProfilePage(page)) return;
+      requestOtakuFemaleTransform(page);
+      return;
+    }
     if (PERSON_PROFILE_TABS.some((tab) => tab.id === action)) {
       page.dataset.profileTab = action;
       renderPersonProfilePage(page);
@@ -5845,6 +5941,7 @@ button.st-work-notice{cursor:pointer}
     const nextValue = String(value || "");
     delete page.dataset.profileStatic;
     delete page.dataset.profilePickerOpen;
+    delete page.dataset.profileTransformNotice;
     const roleNames = orderedProfileRoleNames(getStatsRoles());
     const index = roleNames.indexOf(nextValue);
     page.dataset.profileIndex = String(index >= 0 ? index : 0);
@@ -6117,6 +6214,21 @@ button.st-work-notice{cursor:pointer}
           : '<section class="st-person-lines">' + fieldsHtml + '</section>';
     const activeTabLabel = PERSON_PROFILE_TABS.find((tab) => tab.id === activeTab)?.label || "档案";
     const canDeleteRole = !staticIsaac && roleName && !ST_LOCKED_PROFILE_ROLES.has(roleName);
+    const canTransformOtaku = !staticIsaac && canRequestOtakuFemaleTransform(roleName, roleData);
+    const profileActionNotice = page.dataset.profileTransformNotice || "";
+    const transformActionHtml = canTransformOtaku
+      ? '<button class="st-person-transform-role" type="button" data-profile-action="otaku-female-transform">APP改造为女性</button>'
+      : "";
+    const deleteActionHtml = canDeleteRole
+      ? '<button class="st-person-delete-role" type="button" data-profile-action="delete-role" aria-label="删除角色" title="删除角色"><span aria-hidden="true"></span></button>'
+      : "";
+    const detailActionsHtml = (transformActionHtml || deleteActionHtml || profileActionNotice)
+      ? '<div class="st-person-detail-actions">' +
+          (profileActionNotice ? '<p class="st-person-action-note">' + escapeHtml(profileActionNotice) + '</p>' : "") +
+          transformActionHtml +
+          deleteActionHtml +
+        '</div>'
+      : "";
     page.innerHTML =
       renderLiteHeader(page, { title: "人物档案", html: recordingIslandHtml() }) +
       '<main class="st-lite-body st-profile-body is-detail">' +
@@ -6140,7 +6252,7 @@ button.st-work-notice{cursor:pointer}
             contentHtml +
             '<div class="st-person-page-count">' + escapeHtml((staticIsaac ? "彩蛋档案" : String(index + 1) + " / " + roleNames.length) + " · " + activeTabLabel) + '</div>' +
           '</section>' +
-          (canDeleteRole ? '<div class="st-person-detail-actions"><button class="st-person-delete-role" type="button" data-profile-action="delete-role" aria-label="删除角色" title="删除角色"><span aria-hidden="true"></span></button></div>' : "") +
+          detailActionsHtml +
         '</section>' +
       '</main>';
     page.dataset.profileSignature = personProfileSignature(page);
