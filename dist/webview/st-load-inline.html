@@ -1800,10 +1800,11 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-mchan-header,.st-lite-header{position:relative;z-index:7;flex:0 0 auto;min-height:54px;padding:9px 12px 7px;display:grid;grid-template-columns:36px minmax(0,1fr) 36px;align-items:center;gap:8px;background:transparent!important;border-bottom:0!important;box-shadow:none!important;backdrop-filter:none!important;color:white}
 .st-mchan-back,.st-lite-back{grid-column:1;width:34px;height:34px;border:1px solid rgba(255,255,255,.12);border-radius:999px;background:rgba(7,11,22,.48);color:white;font-size:24px;line-height:1;display:grid;place-items:center;cursor:pointer;box-shadow:0 10px 22px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.06)}
 .st-mchan-title,.st-lite-title{display:none!important}
-.st-app-island{grid-column:2;justify-self:center;width:100%;max-width:300px;min-width:0;height:36px;border:1px solid rgba(255,255,255,.12);border-radius:999px;background:linear-gradient(180deg,rgba(7,10,24,.92),rgba(2,5,16,.82));box-shadow:0 12px 28px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;gap:7px;padding:0 12px;overflow:hidden;color:#f8fafc;text-align:center}
+.st-app-island{position:relative;grid-column:2;justify-self:center;width:100%;max-width:300px;min-width:0;height:36px;border:1px solid rgba(255,255,255,.12);border-radius:999px;background:linear-gradient(180deg,rgba(7,10,24,.92),rgba(2,5,16,.82));box-shadow:0 12px 28px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;gap:7px;padding:0 12px;overflow:hidden;color:#f8fafc;text-align:center}
 .st-app-island.is-switchable{border-color:rgba(103,232,249,.64);box-shadow:0 0 0 1px rgba(103,232,249,.18),0 0 22px rgba(34,211,238,.18),0 12px 28px rgba(0,0,0,.22);cursor:pointer}
 .st-app-island.is-status{border-color:rgba(250,204,21,.48);box-shadow:0 0 0 1px rgba(250,204,21,.14),0 12px 28px rgba(0,0,0,.22)}
 .st-app-island.is-hypnosis{border-color:rgba(244,114,182,.55);box-shadow:0 0 0 1px rgba(244,114,182,.16),0 0 22px rgba(244,114,182,.16),0 12px 28px rgba(0,0,0,.22)}
+.st-app-island.is-status,.st-app-island.is-hypnosis{display:block;padding:0;touch-action:pan-x}
 .st-app-island small{font-size:9px;line-height:1;color:rgba(203,213,225,.66);font-weight:900;letter-spacing:.04em;white-space:nowrap}
 .st-app-island strong{display:block;min-width:0;color:#fff;font-size:13px;line-height:1.1;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .st-app-island .st-app-island-stack{min-width:0;width:100%;display:grid;gap:4px;align-content:center}
@@ -1814,7 +1815,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-app-island-calendar button{width:24px;height:24px;border:1px solid rgba(255,255,255,.08);border-radius:999px;background:rgba(255,255,255,.06);color:#f8fafc;font-size:16px;font-weight:950;line-height:1;display:grid;place-items:center;cursor:pointer}
 .st-app-island-dot{width:7px;height:7px;border-radius:999px;background:#67e8f9;box-shadow:0 0 14px rgba(103,232,249,.7);flex:0 0 auto}
 .st-app-island-dot.is-camera{background:#34d399;box-shadow:0 0 14px rgba(52,211,153,.86)}
-.st-encounter-island-pattern{display:block;width:100%;font-size:13px;font-weight:950;color:#fed7aa;letter-spacing:.12em;white-space:nowrap;overflow:hidden;text-overflow:clip;text-shadow:0 0 10px rgba(251,146,60,.22)}
+.st-encounter-island-pattern{display:block;width:100%;font-size:13px;font-weight:950;color:#fff;letter-spacing:.12em;white-space:nowrap;overflow:hidden;text-overflow:clip}
 .st-mchan-boards{flex:0 0 auto;display:flex;gap:8px;padding:10px 12px;overflow-x:auto;background:rgba(3,6,14,.76);border-bottom:1px solid rgba(255,255,255,.08)}
 .st-mchan-boards,.st-mchan-threads,.st-mchan-detail{scrollbar-width:none}
 .st-mchan-boards::-webkit-scrollbar,.st-mchan-threads::-webkit-scrollbar,.st-mchan-detail::-webkit-scrollbar{display:none}
@@ -2058,11 +2059,15 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-help-author-card p{margin:6px 0 0;color:rgba(226,232,240,.78);font-size:12px;line-height:1.5}
 .st-author-credit-line{margin-top:8px;padding-top:7px;border-top:1px solid rgba(255,255,255,.08);color:rgba(125,211,252,.78)!important;font-size:10px!important;font-weight:800!important;line-height:1.3!important}
 .st-home-author-status{display:block!important;max-width:112px!important;overflow:hidden!important;text-overflow:ellipsis!important;font-size:10px!important;font-weight:900!important;letter-spacing:0!important;white-space:nowrap!important;line-height:1.1!important}
-.st-home-hypnosis-island{position:absolute!important}
+.st-home-hypnosis-island{position:absolute!important;top:9px!important;width:min(300px,calc(100% - 96px))!important;height:36px!important;border:1px solid rgba(255,255,255,.12)!important;background:linear-gradient(180deg,rgba(7,10,24,.92),rgba(2,5,16,.82))!important;box-shadow:0 12px 28px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.06)!important;color:#f8fafc!important}
+.st-home-hypnosis-island.is-switchable{border-color:rgba(103,232,249,.64)!important;box-shadow:0 0 0 1px rgba(103,232,249,.18),0 0 22px rgba(34,211,238,.18),0 12px 28px rgba(0,0,0,.22)!important}
 .st-home-hypnosis-fixed{position:absolute!important;left:10px!important;top:50%!important;transform:translateY(-50%)!important;z-index:3!important;display:flex!important;align-items:center!important;gap:6px!important;pointer-events:none!important}
 .st-home-hypnosis-fixed svg{width:15px!important;height:15px!important;color:#f0abfc!important;filter:drop-shadow(0 0 8px rgba(240,171,252,.55))!important;flex:0 0 auto!important}
 .st-home-hypnosis-fixed strong{font-size:12px!important;color:#fff!important;font-weight:850!important;line-height:1!important;white-space:nowrap!important}
-.st-home-hypnosis-scroll{margin-left:74px!important;width:calc(100% - 84px)!important;padding:0 10px 0 0!important;min-width:0!important}
+.st-home-hypnosis-scroll{display:flex!important;height:100%!important;margin-left:74px!important;width:calc(100% - 84px)!important;align-items:center!important;justify-content:flex-start!important;overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:none!important;padding:0 10px 0 0!important;min-width:0!important;white-space:nowrap!important}
+.st-home-hypnosis-scroll span{min-width:max-content;white-space:nowrap;color:rgba(226,232,240,.76)}
+.st-app-island.is-status .st-home-hypnosis-scroll span{color:rgba(165,243,252,.86)}
+.st-app-island.is-hypnosis .st-home-hypnosis-scroll span{color:rgba(226,232,240,.76)}
 .st-home-hypnosis-scroll::-webkit-scrollbar{display:none}
 .st-custom-icon-box{background:transparent!important;box-shadow:none!important;overflow:visible!important}
 .st-custom-icon-box>svg:not(.st-custom-app-icon){display:none!important}
@@ -2108,8 +2113,6 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-encounter-app .st-lite-header{padding:9px 12px 7px;background:transparent;border-bottom:0;color:#352b25}
 .st-encounter-app .st-lite-title{display:none!important}
 .st-encounter-app .st-lite-back{color:#8a3a1c;border-color:rgba(138,58,28,.2);background:rgba(255,255,255,.74)}
-.st-encounter-app .st-app-island{border-color:rgba(217,119,6,.28);background:linear-gradient(180deg,rgba(255,252,246,.92),rgba(255,244,230,.82));color:#352b25}
-.st-encounter-app .st-app-island strong{color:#8a3a1c}
 .st-encounter-app .st-lite-body{gap:8px;padding:9px 12px 15px}
 .st-encounter-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;border:1px solid rgba(127,88,47,.13);border-radius:8px;background:rgba(255,255,255,.58);padding:3px;box-shadow:0 8px 20px rgba(75,54,35,.07)}
 .st-encounter-tab{height:29px;border:0;border-radius:6px;background:transparent;color:rgba(70,57,47,.64);font-size:12px;font-weight:950;cursor:pointer}
@@ -2321,11 +2324,12 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-inventory-count{position:absolute;right:7px;top:6px;border:1px solid rgba(77,42,17,.32);border-radius:999px;background:rgba(255,231,174,.78);color:#7c2d12;padding:1px 5px;font-size:9px;font-weight:950;line-height:1.3}
 .st-react-app-island-layer{position:absolute;top:9px;left:12px;right:12px;height:36px;z-index:220;display:grid;grid-template-columns:36px minmax(0,1fr) 36px;align-items:center;gap:8px;pointer-events:none}
 .st-react-app-island-layer .st-lite-back,.st-react-app-island-layer .st-app-island,.st-react-app-island-layer .st-island-back,.st-react-app-island-layer .st-island-chevron{pointer-events:auto}
-.st-react-app-island-layer.is-hypnosis-layer{height:44px;grid-template-columns:minmax(0,1fr)}
-.st-react-app-island-layer.is-hypnosis-layer .st-app-island{width:100%;max-width:none;height:44px;display:grid;grid-template-columns:34px minmax(0,1fr) 28px;gap:8px;padding:0 8px}
+.st-react-app-island-layer.is-hypnosis-layer{height:36px;grid-template-columns:minmax(0,1fr)}
+.st-react-app-island-layer.is-hypnosis-layer .st-app-island{width:100%;max-width:none;height:36px;display:grid;grid-template-columns:34px minmax(0,1fr) 28px;gap:6px;padding:0 8px}
 .st-island-back,.st-island-chevron{width:28px;height:28px;border:1px solid rgba(255,255,255,.1);border-radius:999px;background:rgba(255,255,255,.055);color:#f8fafc;display:grid;place-items:center;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
 .st-island-back{font-size:24px;line-height:1}
 .st-island-chevron{font-size:16px;font-weight:950;color:rgba(203,213,225,.78)}
+.st-react-app-island-layer.is-hypnosis-layer .st-island-chevron{width:28px;height:30px;border-width:0 0 0 1px;border-radius:0;background:transparent;color:rgba(203,213,225,.86)}
 .st-hypnosis-island-center{min-width:0;display:grid;gap:3px;align-content:center}
 .st-hypnosis-island-row{min-width:0;display:flex;align-items:center;justify-content:space-between;gap:8px}
 .st-hypnosis-island-row strong{font-size:12px!important}
@@ -2336,8 +2340,8 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-react-native-header-removed{height:0!important;min-height:0!important;padding:0!important;margin:0!important;overflow:hidden!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;background:transparent!important;border:0!important;box-shadow:none!important}
 [data-st-phone-app="hypnosis"]>div>div:first-child,[data-st-phone-app="achievements"]>div>div:first-child,[data-st-phone-app="inventory"]>div>div:first-child,[data-st-phone-app="help"]>div>div:first-child,[data-st-phone-app="calendar"]>div>div:first-child{min-height:54px!important;height:54px!important;padding:9px 12px 7px!important;background:transparent!important;border-bottom:0!important;box-shadow:none!important;backdrop-filter:none!important}
 [data-st-phone-app="hypnosis"]>div>div:first-child>*,[data-st-phone-app="achievements"]>div>div:first-child>*,[data-st-phone-app="inventory"]>div>div:first-child>*,[data-st-phone-app="help"]>div>div:first-child>*,[data-st-phone-app="calendar"]>div>div:first-child>*{opacity:0!important;pointer-events:none!important}
-[data-st-phone-app="achievements"]>div>div:first-child,[data-st-phone-app="inventory"]>div>div:first-child{height:0!important;min-height:0!important;padding:0!important;margin:0!important;overflow:hidden!important;border:0!important}
-[data-st-phone-app="achievements"]>div{box-sizing:border-box!important;padding-top:54px!important}
+[data-st-phone-app="hypnosis"]>div>div:first-child,[data-st-phone-app="achievements"]>div>div:first-child,[data-st-phone-app="inventory"]>div>div:first-child,[data-st-phone-app="help"]>div>div:first-child{height:0!important;min-height:0!important;padding:0!important;margin:0!important;overflow:hidden!important;border:0!important}
+[data-st-phone-app="hypnosis"]>div,[data-st-phone-app="achievements"]>div,[data-st-phone-app="help"]>div{box-sizing:border-box!important;padding-top:54px!important}
 .st-profile-app .st-lite-header{position:absolute;top:0;left:0;right:0;z-index:12;background:transparent!important;pointer-events:none}
 .st-profile-app .st-lite-back,.st-profile-app .st-app-island{pointer-events:auto}
 .st-profile-app .st-lite-back{border-color:rgba(81,64,49,.14);background:rgba(247,241,229,.2);color:#5a4737;box-shadow:none}
@@ -2883,7 +2887,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     if (!root || !reactApps.has(app)) return;
     const rootRect = root.getBoundingClientRect?.();
     if (!rootRect?.width) return;
-    const removeNativeHeader = app === "achievements" || app === "inventory";
+    const removeNativeHeader = app === "hypnosis" || app === "achievements" || app === "inventory" || app === "help";
     const shouldHide = (element) => {
       const rect = element?.getBoundingClientRect?.();
       if (!rect || rect.width < rootRect.width * 0.65 || rect.height < 28 || rect.height > 120 || rect.top - rootRect.top > 100) return false;
@@ -2896,8 +2900,8 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         (app === "calendar" && text.includes("日历"))
       );
     };
-    const markHeader = (element) => {
-      if (!shouldHide(element)) return;
+    const markHeader = (element, force = false) => {
+      if (!element || (!force && !shouldHide(element))) return;
       element.classList.remove("st-react-native-header-hidden", "st-react-native-header-removed");
       element.classList.add(removeNativeHeader ? "st-react-native-header-removed" : "st-react-native-header-hidden");
     };
@@ -2905,7 +2909,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       if (!shouldHide(element)) element.classList.remove("st-react-native-header-hidden", "st-react-native-header-removed");
     });
     const header = root.querySelector(":scope > div > div:first-child");
-    markHeader(header);
+    markHeader(header, removeNativeHeader);
     const appRoot = root.firstElementChild;
     const candidates = Array.from(appRoot?.querySelectorAll?.(":scope > div, :scope > header") || []);
     for (const element of candidates.slice(0, 4)) {
@@ -3593,6 +3597,23 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     return '<span class="st-app-island-recording"><span class="st-app-island-dot is-camera"></span><strong>录制中</strong></span>';
   }
 
+  function sharedIslandModeIcon(kind) {
+    const body = kind === "status"
+      ? '<path d="M12 3l7 4v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V7l7-4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 12l2 2 4-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+      : '<path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="currentColor"/>';
+    return '<svg viewBox="0 0 24 24" aria-hidden="true">' + body + '</svg>';
+  }
+
+  function sharedIslandModeHtml(kind, fixedText, label) {
+    return '<div class="st-home-hypnosis-fixed">' +
+      sharedIslandModeIcon(kind) +
+      '<strong>' + escapeHtml(fixedText) + '</strong>' +
+    '</div>' +
+    '<div class="st-home-hypnosis-scroll">' +
+      '<span>' + escapeHtml(label || fixedText) + '</span>' +
+    '</div>';
+  }
+
   function hypnosisSubscriptionText(system) {
     const raw = system?.["订阅"] ?? system?.["催眠APP订阅"] ?? system?.["MC订阅"] ?? system?.["买断"] ?? "";
     const text = String(raw || "").trim();
@@ -3619,7 +3640,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       modes.push({
         id: "status",
         className: "is-status",
-        html: '<small>状态</small><strong>' + escapeHtml(buff.title) + '</strong>'
+        html: sharedIslandModeHtml("status", "状态", buff.title)
       });
     }
     const hypnosis = liteIslandHypnosisInfo();
@@ -3627,7 +3648,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       modes.push({
         id: "hypnosis",
         className: "is-hypnosis",
-        html: '<small>催眠中</small><strong>' + escapeHtml((hypnosis.roleName ? hypnosis.roleName + " · " : "") + hypnosis.title) + '</strong>'
+        html: sharedIslandModeHtml("hypnosis", "催眠中", (hypnosis.roleName ? hypnosis.roleName + " · " : "") + hypnosis.title)
       });
     }
     return modes;
