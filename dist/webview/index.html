@@ -2170,11 +2170,17 @@ button.st-work-notice{cursor:pointer}
 .st-encounter-toolbar span{color:rgba(70,57,47,.58);font-size:10px;font-weight:850;white-space:nowrap}
 .st-encounter-empty{border:1px dashed rgba(127,88,47,.22);border-radius:8px;background:rgba(255,255,255,.58);padding:13px 10px;text-align:center;color:rgba(70,57,47,.62);font-size:12px;line-height:1.5}
 .st-encounter-packages{display:grid;gap:7px}
-.st-encounter-package{position:relative;width:100%;min-height:98px;display:grid;grid-template-columns:92px minmax(0,1fr);gap:0;border:1px solid rgba(127,88,47,.16);border-radius:8px;background:rgba(255,255,255,.78);box-shadow:0 10px 24px rgba(75,54,35,.08);overflow:hidden;text-align:left;padding:0;color:inherit;cursor:pointer}
+.st-encounter-package{position:relative;width:100%;min-height:98px;display:grid;grid-template-columns:minmax(0,1fr);gap:0;border:1px solid rgba(127,88,47,.16);border-radius:8px;background:rgba(255,255,255,.78);box-shadow:0 10px 24px rgba(75,54,35,.08);overflow:hidden;text-align:left;padding:0;color:inherit}
+.st-encounter-package-open{width:100%;min-height:98px;display:grid;grid-template-columns:92px minmax(0,1fr);gap:0;border:0;background:transparent;text-align:left;color:inherit;padding:0;cursor:pointer}
 .st-encounter-package.is-featured{border-color:rgba(217,155,55,.36);box-shadow:0 12px 26px rgba(217,155,55,.14)}
-.st-encounter-package:active{transform:scale(.99)}
+.st-encounter-package-open:active{transform:scale(.99)}
 .st-encounter-package.is-used{opacity:.68;cursor:default;filter:saturate(.72)}
-.st-encounter-package.is-used:active{transform:none}
+.st-encounter-package.is-conflict{border-color:rgba(225,29,72,.22);background:rgba(255,241,242,.74)}
+.st-encounter-package.is-used .st-encounter-package-open:active{transform:none}
+.st-encounter-card-manage{position:absolute;right:7px;bottom:6px;z-index:2}
+.st-encounter-card-manage button{height:22px;border:1px solid rgba(127,88,47,.14);border-radius:999px;background:rgba(255,250,243,.82);color:rgba(70,57,47,.62);padding:0 8px;font-size:9px;font-weight:950;cursor:pointer;box-shadow:0 4px 10px rgba(75,54,35,.08)}
+.st-encounter-card-manage button:active{transform:scale(.96)}
+.st-encounter-card-manage.is-role{position:static;justify-self:start}
 .st-encounter-cover{height:100%;min-height:98px;background:linear-gradient(135deg,#fff6ed,#e8f7f2);display:grid;place-items:center;overflow:hidden;color:rgba(70,57,47,.46);font-size:11px;font-weight:900}
 .st-encounter-cover img{width:100%;height:100%;object-fit:cover;display:block}
 .st-encounter-package-body{padding:10px 10px 9px;display:grid;align-content:center;gap:9px;min-width:0}
@@ -2186,6 +2192,10 @@ button.st-work-notice{cursor:pointer}
 .st-encounter-browse-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .st-encounter-browse-tabs button{height:30px;border:1px solid rgba(127,88,47,.14);border-radius:8px;background:rgba(255,255,255,.66);color:rgba(70,57,47,.66);font-size:11px;font-weight:950;cursor:pointer}
 .st-encounter-browse-tabs button.active{border-color:rgba(14,116,144,.24);background:linear-gradient(135deg,rgba(14,116,144,.14),rgba(217,155,55,.14));color:#2f4f4d}
+.st-encounter-browse-tools{display:grid;grid-template-columns:minmax(0,1fr) 112px;gap:6px;align-items:center}
+.st-encounter-browse-tools input,.st-encounter-browse-tools select{height:30px;min-width:0;border:1px solid rgba(127,88,47,.14);border-radius:8px;background:rgba(255,255,255,.72);color:#352b25;padding:0 9px;font-size:11px;font-weight:900;outline:none}
+.st-encounter-browse-tools span{height:30px;border:1px solid rgba(127,88,47,.12);border-radius:8px;background:rgba(255,250,243,.62);color:rgba(70,57,47,.56);display:grid;place-items:center;font-size:10px;font-weight:950}
+.st-encounter-browse-tools input:focus,.st-encounter-browse-tools select:focus{border-color:rgba(217,155,55,.42);box-shadow:0 0 0 3px rgba(217,155,55,.1)}
 .st-encounter-role-card-entry{cursor:default;grid-template-columns:82px minmax(0,1fr);min-height:104px}
 .st-encounter-role-card-entry:active{transform:none}
 .st-encounter-role-card-entry .st-encounter-cover{min-height:104px}
@@ -2213,6 +2223,7 @@ button.st-work-notice{cursor:pointer}
 .st-encounter-prompt-preview strong{color:#244c4a;font-size:11px;line-height:1.2;font-weight:950}
 .st-encounter-prompt-preview p{margin:0;color:rgba(47,79,77,.76);font-size:11px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
 .st-encounter-used-note{border:1px solid rgba(15,118,110,.18);border-radius:8px;background:rgba(204,251,241,.42);color:#0f766e;padding:8px 9px;font-size:11px;font-weight:900;line-height:1.4}
+.st-encounter-used-note.is-warning{border-color:rgba(225,29,72,.2);background:rgba(255,228,230,.52);color:#be123c}
 .st-encounter-kv{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .st-encounter-kv span{min-width:0;border:1px solid rgba(127,88,47,.12);border-radius:8px;background:rgba(255,250,243,.68);padding:7px 8px;color:rgba(70,57,47,.66);font-size:10px;font-weight:850;line-height:1.35;overflow:hidden;text-overflow:ellipsis}
 .st-encounter-kv strong{display:block;color:#352b25;font-size:12px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -2230,6 +2241,11 @@ button.st-work-notice{cursor:pointer}
 .st-encounter-edit-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .st-encounter-edit-tabs button{height:30px;border:1px solid rgba(127,88,47,.14);border-radius:8px;background:rgba(255,255,255,.66);color:rgba(70,57,47,.66);font-size:11px;font-weight:950;cursor:pointer}
 .st-encounter-edit-tabs button.active{border-color:rgba(217,155,55,.28);background:linear-gradient(135deg,rgba(217,155,55,.16),rgba(14,116,144,.12));color:#4b3b24}
+.st-encounter-role-content-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.st-encounter-role-content-tabs button{height:30px;border:1px solid rgba(127,88,47,.14);border-radius:8px;background:rgba(255,255,255,.62);color:rgba(70,57,47,.62);font-size:11px;font-weight:950;cursor:pointer}
+.st-encounter-role-content-tabs button.active{border-color:rgba(14,116,144,.24);background:linear-gradient(135deg,rgba(14,116,144,.14),rgba(217,155,55,.12));color:#244c4a}
+.st-encounter-role-pane{display:none;gap:8px}
+.st-encounter-role-pane.active{display:grid}
 .st-encounter-role-select-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px;align-items:center}
 .st-encounter-role-select{min-width:0;height:31px;border:1px solid rgba(127,88,47,.16);border-radius:8px;background:rgba(255,250,243,.78);color:#352b25;padding:0 8px;font-size:12px;font-weight:900;outline:none}
 .st-encounter-role-select:focus{border-color:rgba(217,155,55,.42);box-shadow:0 0 0 3px rgba(217,155,55,.12)}
@@ -4449,12 +4465,14 @@ button.st-work-notice{cursor:pointer}
   function requestDeleteProfileRole(roleName) {
     const name = String(roleName || "").trim();
     if (!name) return;
+    const ok = window.confirm("删除人物变量「" + name + "」？\n\n这只会请求 AI 删除 /角色/" + name + " 变量，不会删除或禁用当前角色卡世界书条目。若需要彻底停用该角色，请到邂逅的管理开关里禁用对应世界书，或之后手动删除世界书条目。");
+    if (!ok) return;
     appendAppOperation({
       来源: "人物档案",
       操作: "删除角色",
       角色名: name,
       目标变量路径: "/角色/" + name,
-      AI执行规范: "这是用户在人物档案中主动请求删除这个角色。若剧情与变量允许，使用remove删除stat_data.角色下对应角色；不要顺手删除其他角色、系统变量、任务、成就、校规、地点或资源。若无法删除，在正文说明原因。"
+      AI执行规范: "这是用户在人物档案中主动请求删除这个角色变量。若剧情与变量允许，只使用remove删除stat_data.角色下对应角色；不要删除或改写任何世界书条目，不要顺手删除其他角色、系统变量、任务、成就、校规、地点或资源。若无法删除，在正文说明原因。"
     });
   }
 
@@ -7100,8 +7118,10 @@ button.st-work-notice{cursor:pointer}
 	  const ENCOUNTER_ROLE_STORAGE_KEY = "hypnoos.encounter.roles.v1";
 	  const ENCOUNTER_ROLE_DRAFT_STORAGE_KEY = "hypnoos.encounter.role-draft.v1";
 	  const ENCOUNTER_PURCHASE_STORAGE_PREFIX = "hypnoos.encounter.purchases.v1";
+	  const ENCOUNTER_MANAGEMENT_STORAGE_KEY = "hypnoos.encounter.worldbook-management.v1";
 	  const ENCOUNTER_PURCHASE_SESSION_SCOPE = "session:" + Math.random().toString(36).slice(2);
 	  const ENCOUNTER_PACKAGE_FORMAT = "hypnoos-role-package";
+	  const ENCOUNTER_DUPLICATE_PACKAGE_GROUPS = [["orjenrn-role-pack", "sdz-aser-role-pack"]];
 
   function encounterId(prefix) {
     return String(prefix || "encounter") + "-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
@@ -8412,6 +8432,69 @@ button.st-work-notice{cursor:pointer}
     return ids;
   }
 
+  function encounterPendingPurchasedIds() {
+    const ids = new Set();
+    for (const payload of encounterPendingPurchasePayloads()) {
+      const id = String(payload?.["角色包ID"] || "").trim();
+      if (id) ids.add(id);
+    }
+    return ids;
+  }
+
+  function encounterDuplicatePackageConflict(pkg) {
+    const id = String(pkg?.id || "").trim();
+    if (!id) return null;
+    const purchased = encounterReadPurchasedIds();
+    const pending = encounterPendingPurchasedIds();
+    for (const group of ENCOUNTER_DUPLICATE_PACKAGE_GROUPS) {
+      if (!group.includes(id)) continue;
+      for (const otherId of group) {
+        if (otherId === id) continue;
+        if (purchased.has(otherId) || pending.has(otherId)) {
+          const other = encounterFindPackage(otherId);
+          return {
+            id: otherId,
+            name: other?.name || otherId,
+            pending: pending.has(otherId) && !purchased.has(otherId)
+          };
+        }
+      }
+    }
+    return null;
+  }
+
+  function encounterReadManagementState() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(ENCOUNTER_MANAGEMENT_STORAGE_KEY) || "{}");
+      return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+    } catch {
+      return {};
+    }
+  }
+
+  function encounterWriteManagementState(state) {
+    try {
+      localStorage.setItem(ENCOUNTER_MANAGEMENT_STORAGE_KEY, JSON.stringify(state && typeof state === "object" ? state : {}));
+    } catch {}
+  }
+
+  function encounterManagementKey(type, id) {
+    return String(type || "item") + ":" + String(id || "");
+  }
+
+  function encounterManagedEnabled(type, id) {
+    const key = encounterManagementKey(type, id);
+    const state = encounterReadManagementState();
+    return state[key] !== false;
+  }
+
+  function encounterSetManagedEnabled(type, id, enabled) {
+    const key = encounterManagementKey(type, id);
+    const state = encounterReadManagementState();
+    state[key] = Boolean(enabled);
+    encounterWriteManagementState(state);
+  }
+
   function encounterPendingPurchasePayloads() {
     return (window.__ST_GET_PENDING_OPERATION_INPUT_LOG__?.() || [])
       .map((entry) => entry?.payload || entry)
@@ -8740,13 +8823,21 @@ button.st-work-notice{cursor:pointer}
     const roleCount = Array.isArray(pkg.roles) ? pkg.roles.length : 0;
     const used = encounterIsPurchased(pkg.id);
     const pendingPurchase = encounterHasPendingPurchaseOperation();
-    return '<button type="button" class="st-encounter-package' + (featured ? " is-featured" : "") + (used ? " is-used" : "") + (pendingPurchase && !used ? " is-pending" : "") + '" data-encounter-action="open-package" data-package-id="' + escapeAttr(pkg.id) + '">' +
-      '<div class="st-encounter-cover">' + encounterCoverHtml(pkg.coverDataUrl, pkg.name || "角色包") + '</div>' +
-      '<div class="st-encounter-package-body">' +
-        '<div class="st-encounter-package-title"><strong>' + escapeHtml(pkg.name || "未命名角色包") + '</strong></div>' +
-        '<div class="st-encounter-package-facts"><span>' + roleCount + ' 角色</span><span class="st-encounter-price">' + (used ? "已使用" : (pendingPurchase ? "本轮已使用" : price + ' 星光点')) + '</span></div>' +
-      '</div>' +
-    '</button>';
+    const conflict = encounterDuplicatePackageConflict(pkg);
+    const managed = encounterManagedEnabled("package", pkg.id);
+    const status = conflict
+      ? "与 " + conflict.name + (conflict.pending ? " 本轮使用冲突" : " 重复")
+      : (used ? "已使用" : (pendingPurchase ? "本轮已使用" : price + ' 星光点'));
+    return '<article class="st-encounter-package' + (featured ? " is-featured" : "") + (used ? " is-used" : "") + (conflict ? " is-conflict" : "") + (pendingPurchase && !used ? " is-pending" : "") + '">' +
+      '<button type="button" class="st-encounter-package-open" data-encounter-action="open-package" data-package-id="' + escapeAttr(pkg.id) + '">' +
+        '<div class="st-encounter-cover">' + encounterCoverHtml(pkg.coverDataUrl, pkg.name || "角色包") + '</div>' +
+        '<div class="st-encounter-package-body">' +
+          '<div class="st-encounter-package-title"><strong>' + escapeHtml(pkg.name || "未命名角色包") + '</strong></div>' +
+          '<div class="st-encounter-package-facts"><span>' + roleCount + ' 角色</span><span class="st-encounter-price">' + escapeHtml(status) + '</span></div>' +
+        '</div>' +
+      '</button>' +
+      '<div class="st-encounter-card-manage"><button type="button" data-encounter-action="toggle-worldbook" data-target-type="package" data-target-id="' + escapeAttr(pkg.id) + '">' + (managed ? "管理开" : "管理关") + '</button></div>' +
+    '</article>';
   }
 
   function encounterRoleCardHtml(item) {
@@ -8756,10 +8847,9 @@ button.st-work-notice{cursor:pointer}
     const pendingPurchase = encounterHasPendingPurchaseOperation();
     const firstAlias = String(role.aliases || "").split(/[，,、]/).map((part) => part.trim()).filter(Boolean)[0] || "";
     const packageRole = item?.sourceType === "package";
-    const priceText = packageRole ? "随角色包" : (used ? "已使用" : (pendingPurchase ? "本轮已使用" : SCAN_ROLE_COST_STARLIGHT + ' 星光点'));
-    const useButton = packageRole
-      ? '<button type="button" class="primary" disabled title="角色包内角色不能单独购买">随角色包使用</button>'
-      : '<button type="button" class="primary" data-encounter-action="purchase" data-package-id="' + escapeAttr(pkg.id) + '"' + ((used || pendingPurchase) ? " disabled" : "") + '>' + (pendingPurchase && !used ? "本轮已有" : "使用") + '</button>';
+    const managed = encounterManagedEnabled("role", pkg.id);
+    const priceText = used ? "已使用" : (pendingPurchase ? "本轮已使用" : SCAN_ROLE_COST_STARLIGHT + ' 星光点');
+    const useButton = '<button type="button" class="primary" data-encounter-action="purchase" data-package-id="' + escapeAttr(pkg.id) + '"' + ((used || pendingPurchase) ? " disabled" : "") + '>' + (pendingPurchase && !used ? "本轮已有" : (packageRole ? "单独使用" : "使用")) + '</button>';
     return '<article class="st-encounter-package st-encounter-role-card-entry' + (used ? " is-used" : "") + (pendingPurchase && !used ? " is-pending" : "") + '">' +
       '<div class="st-encounter-cover">' + encounterCoverHtml(role.imageDataUrl, role.name || "角色") + '</div>' +
       '<div class="st-encounter-package-body">' +
@@ -8770,6 +8860,7 @@ button.st-work-notice{cursor:pointer}
           '<button type="button" data-encounter-action="edit-role-item" data-role-item-id="' + escapeAttr(item?.id || pkg.id) + '">定制</button>' +
           useButton +
         '</div>' +
+        '<div class="st-encounter-card-manage is-role"><button type="button" data-encounter-action="toggle-worldbook" data-target-type="role" data-target-id="' + escapeAttr(pkg.id) + '">' + (managed ? "管理开" : "管理关") + '</button></div>' +
       '</div>' +
     '</article>';
   }
@@ -8777,14 +8868,39 @@ button.st-work-notice{cursor:pointer}
   function renderEncounterBrowse(page) {
     const section = page.dataset.encounterBrowseSection === "roles" ? "roles" : "packages";
     page.dataset.encounterBrowseSection = section;
-    const packages = encounterReadPackages();
-    const roleItems = encounterRoleLibraryItems();
+    const query = String(page.dataset.encounterSearch || "").trim();
+    const queryLower = query.toLocaleLowerCase("zh-CN");
+    const packageFilter = String(page.dataset.encounterPackageFilter || "all");
+    const packageMatches = (pkg) => {
+      if (!queryLower) return true;
+      return [pkg.name, pkg.intro, ...(Array.isArray(pkg.roles) ? pkg.roles.map((role) => [role.name, role.aliases, role.intro].join(" ")) : [])].join(" ").toLocaleLowerCase("zh-CN").includes(queryLower);
+    };
+    const roleMatches = (item) => {
+      if (packageFilter !== "all") {
+        const sourceId = item?.sourceType === "standalone" ? "standalone" : String(item?.sourcePackage?.id || "");
+        if (sourceId !== packageFilter) return false;
+      }
+      if (!queryLower) return true;
+      const role = item?.role || {};
+      return [role.name, role.aliases, role.intro, role.personaTitle, item?.sourceName].join(" ").toLocaleLowerCase("zh-CN").includes(queryLower);
+    };
+    const packages = encounterReadPackages().filter(packageMatches);
+    const allRoleItems = encounterRoleLibraryItems();
+    const roleItems = allRoleItems.filter(roleMatches);
+    const packageOptions = [
+      '<option value="all"' + (packageFilter === "all" ? " selected" : "") + '>全部来源</option>',
+      '<option value="standalone"' + (packageFilter === "standalone" ? " selected" : "") + '>单独角色</option>'
+    ].concat(encounterReadPackages().map((pkg) => '<option value="' + escapeAttr(pkg.id) + '"' + (packageFilter === String(pkg.id) ? " selected" : "") + '>' + escapeHtml(pkg.name || pkg.id) + '</option>')).join("");
     const packageCards = packages.length ? packages.map(encounterPackageCardHtml).join("") : '<div class="st-encounter-empty">还没有角色包。可以在“角色包定制”里制作并保存。</div>';
     const roleCards = roleItems.length ? roleItems.map(encounterRoleCardHtml).join("") : '<div class="st-encounter-empty">还没有可用角色。角色包内角色会在这里自动拆分显示，单独角色也会出现在这里。</div>';
     return '<nav class="st-encounter-browse-tabs">' +
         '<button type="button" class="' + (section === "packages" ? "active" : "") + '" data-encounter-action="browse-section" data-section="packages">角色包</button>' +
         '<button type="button" class="' + (section === "roles" ? "active" : "") + '" data-encounter-action="browse-section" data-section="roles">角色</button>' +
       '</nav>' +
+      '<section class="st-encounter-browse-tools">' +
+        '<input type="search" data-encounter-search value="' + escapeAttr(query) + '" placeholder="搜索角色包 / 角色">' +
+        (section === "roles" ? '<select data-encounter-package-filter aria-label="筛选角色来源">' + packageOptions + '</select>' : '<span>筛选角色包</span>') +
+      '</section>' +
       '<section class="st-encounter-browse-head"><strong>' + (section === "roles" ? "角色" : "角色包") + '</strong><span>' + (section === "roles" ? roleItems.length : packages.length) + ' 个可用</span></section>' +
       '<section class="st-encounter-packages">' + (section === "roles" ? roleCards : packageCards) + '</section>';
   }
@@ -8802,7 +8918,9 @@ button.st-work-notice{cursor:pointer}
     const price = encounterPackagePrice(pkg);
     const used = encounterIsPurchased(pkg.id);
     const pendingPurchase = encounterHasPendingPurchaseOperation();
-    const purchaseDisabled = used || pendingPurchase;
+    const conflict = encounterDuplicatePackageConflict(pkg);
+    const managed = encounterManagedEnabled("package", pkg.id);
+    const purchaseDisabled = used || pendingPurchase || Boolean(conflict);
     const combinedPrompt = encounterPackageCombinedPrompt(pkg);
     return '<section class="st-encounter-detail-panel">' +
       '<h3>角色包详细内容</h3>' +
@@ -8814,11 +8932,13 @@ button.st-work-notice{cursor:pointer}
         '<span><strong>当前角色卡世界书</strong>写入位置</span>' +
       '</div>' +
       (used ? '<div class="st-encounter-used-note">这个角色包已经使用过。世界书写入不可自动撤销，按钮已锁定。</div>' : '') +
+      (conflict ? '<div class="st-encounter-used-note is-warning">这个角色包与「' + escapeHtml(conflict.name) + '」存在重复角色；对方已' + (conflict.pending ? "在本轮暂存区" : "使用") + '，因此本包禁止购买。</div>' : '') +
       (!used && pendingPurchase ? '<div class="st-encounter-used-note">本轮已经有一个角色或角色包在暂存区。确认写入前不能再购买其他内容。</div>' : '') +
       '<div class="st-encounter-actions">' +
         '<button type="button" class="st-encounter-button" data-encounter-action="edit-package" data-package-id="' + escapeAttr(pkg.id) + '">在此包上定制</button>' +
         '<button type="button" class="st-encounter-button primary" data-encounter-action="purchase" data-package-id="' + escapeAttr(pkg.id) + '"' + (purchaseDisabled ? " disabled" : "") + '>' + (pendingPurchase && !used ? "本轮已有购买" : "购买 / 使用") + '</button>' +
       '</div>' +
+      '<div class="st-encounter-actions is-single"><button type="button" class="st-encounter-button" data-encounter-action="toggle-worldbook" data-target-type="package" data-target-id="' + escapeAttr(pkg.id) + '">' + (managed ? "管理：开启世界书条目" : "管理：已禁用世界书条目") + '</button></div>' +
       '<p class="st-encounter-note">购买会先警告确认；确认后前端直接扣星光点、创建初始角色变量、缓存图片，并把条目写入当前使用角色卡绑定的世界书。</p>' +
     '</section>';
   }
@@ -8892,6 +9012,11 @@ button.st-work-notice{cursor:pointer}
     const raw = Number(page.dataset.encounterEditRoleIndex || 0);
     if (!Number.isFinite(raw)) return 0;
     return Math.max(0, Math.min(roles.length - 1, Math.floor(raw)));
+  }
+
+  function encounterRoleContentSection(page) {
+    const value = String(page?.dataset?.encounterRoleContentSection || "persona");
+    return value === "initial" ? "initial" : "persona";
   }
 
   function encounterRoleSelectHtml(draft, selectedIndex) {
@@ -8988,6 +9113,7 @@ button.st-work-notice{cursor:pointer}
 
   function renderEncounterRoleFormCard(role, selectedIndex, options = {}) {
     const single = Boolean(options.single);
+    const contentSection = options.contentSection === "initial" ? "initial" : "persona";
     const normalized = encounterNormalizeRole(role || {}, selectedIndex);
     return '<article class="st-encounter-role-card" data-encounter-role-card data-role-index="' + selectedIndex + '">' +
       encounterRoleFieldDotsHtml(normalized) +
@@ -9001,21 +9127,29 @@ button.st-work-notice{cursor:pointer}
       '</div>' +
       '<label class="st-encounter-field"><span>介绍 / 档案摘要</span><textarea name="roleIntro" placeholder="身份、外貌、性格、关系、剧情定位">' + escapeHtml(normalized.intro) + '</textarea></label>' +
       '<label class="st-encounter-field"><span>角色出场提示词</span><textarea name="roleEncounterPrompt" placeholder="购买/使用后交给AI的这个角色单独登场方式、触发场景或剧情钩子">' + escapeHtml(normalized.encounterPrompt) + '</textarea></label>' +
-      '<label class="st-encounter-field"><span>初始变量（JSON）</span><textarea name="roleInitialVariables" placeholder="购买/使用时写入 stat_data.角色.角色名 的初始变量">' + escapeHtml(encounterInitialVariablesText(normalized)) + '</textarea></label>' +
-      '<div class="st-encounter-grid2">' +
-        '<label class="st-encounter-field"><span>title / 定位</span><input name="rolePersonaTitle" value="' + escapeAttr(normalized.personaTitle) + '" placeholder="例如：同班同学 / 杀手"></label>' +
-        '<label class="st-encounter-field"><span>gender / 性别</span><input name="roleGender" value="' + escapeAttr(normalized.gender) + '" placeholder="女"></label>' +
-      '</div>' +
-      '<label class="st-encounter-field"><span>age / 年龄</span><input name="roleAge" value="' + escapeAttr(normalized.age) + '" placeholder="17"></label>' +
-      '<label class="st-encounter-field"><span>identity / 身份</span><textarea name="roleIdentity" placeholder="public/hidden 或身份设定">' + escapeHtml(normalized.identity) + '</textarea></label>' +
-      '<label class="st-encounter-field"><span>first encounter / 初遇</span><textarea name="roleFirstEncounter" placeholder="首次邂逅、扫描前后的剧情触发规则">' + escapeHtml(normalized.firstEncounter) + '</textarea></label>' +
-      '<label class="st-encounter-field"><span>social connection / 关系</span><textarea name="roleSocialConnection" placeholder="与主角、其他角色、组织的关系">' + escapeHtml(normalized.socialConnection) + '</textarea></label>' +
-      '<label class="st-encounter-field"><span>personality / 性格</span><textarea name="rolePersonality" placeholder="核心性格、条件反应、隐藏面">' + escapeHtml(normalized.personality) + '</textarea></label>' +
-      '<label class="st-encounter-field"><span>habit / 行为习惯</span><textarea name="roleHabit" placeholder="说话、动作、惯用判断、日常习惯">' + escapeHtml(normalized.habit) + '</textarea></label>' +
-      '<label class="st-encounter-field"><span>appearance / 外貌</span><textarea name="roleAppearance" placeholder="身高体重、体型、衣着、视觉风格">' + escapeHtml(normalized.appearance) + '</textarea></label>' +
-      '<label class="st-encounter-field"><span>profile default / 档案默认值</span><textarea name="roleProfileDefault" placeholder="档案字段默认值，如姓名、年龄、职业、身高、体重、三围等">' + escapeHtml(normalized.profileDefault) + '</textarea></label>' +
-      '<label class="st-encounter-field"><span>行为指导</span><textarea name="roleBehaviorGuidance" placeholder="AI叙事时必须遵守的长期行为规则">' + escapeHtml(normalized.behaviorGuidance) + '</textarea></label>' +
-      encounterRoleCustomFieldsHtml(normalized, selectedIndex, single) +
+      '<nav class="st-encounter-role-content-tabs">' +
+        '<button type="button" class="' + (contentSection === "persona" ? "active" : "") + '" data-encounter-action="role-content-section" data-section="persona">人设世界书</button>' +
+        '<button type="button" class="' + (contentSection === "initial" ? "active" : "") + '" data-encounter-action="role-content-section" data-section="initial">初始变量</button>' +
+      '</nav>' +
+      '<section class="st-encounter-role-pane ' + (contentSection === "initial" ? "active" : "") + '" data-role-pane="initial">' +
+        '<label class="st-encounter-field"><span>初始变量（JSON）</span><textarea name="roleInitialVariables" placeholder="购买/使用时写入 stat_data.角色.角色名 的初始变量">' + escapeHtml(encounterInitialVariablesText(normalized)) + '</textarea></label>' +
+      '</section>' +
+      '<section class="st-encounter-role-pane ' + (contentSection === "persona" ? "active" : "") + '" data-role-pane="persona">' +
+        '<div class="st-encounter-grid2">' +
+          '<label class="st-encounter-field"><span>title / 定位</span><input name="rolePersonaTitle" value="' + escapeAttr(normalized.personaTitle) + '" placeholder="例如：同班同学 / 杀手"></label>' +
+          '<label class="st-encounter-field"><span>gender / 性别</span><input name="roleGender" value="' + escapeAttr(normalized.gender) + '" placeholder="女"></label>' +
+        '</div>' +
+        '<label class="st-encounter-field"><span>age / 年龄</span><input name="roleAge" value="' + escapeAttr(normalized.age) + '" placeholder="17"></label>' +
+        '<label class="st-encounter-field"><span>identity / 身份</span><textarea name="roleIdentity" placeholder="public/hidden 或身份设定">' + escapeHtml(normalized.identity) + '</textarea></label>' +
+        '<label class="st-encounter-field"><span>first encounter / 初遇</span><textarea name="roleFirstEncounter" placeholder="首次邂逅、扫描前后的剧情触发规则">' + escapeHtml(normalized.firstEncounter) + '</textarea></label>' +
+        '<label class="st-encounter-field"><span>social connection / 关系</span><textarea name="roleSocialConnection" placeholder="与主角、其他角色、组织的关系">' + escapeHtml(normalized.socialConnection) + '</textarea></label>' +
+        '<label class="st-encounter-field"><span>personality / 性格</span><textarea name="rolePersonality" placeholder="核心性格、条件反应、隐藏面">' + escapeHtml(normalized.personality) + '</textarea></label>' +
+        '<label class="st-encounter-field"><span>habit / 行为习惯</span><textarea name="roleHabit" placeholder="说话、动作、惯用判断、日常习惯">' + escapeHtml(normalized.habit) + '</textarea></label>' +
+        '<label class="st-encounter-field"><span>appearance / 外貌</span><textarea name="roleAppearance" placeholder="身高体重、体型、衣着、视觉风格">' + escapeHtml(normalized.appearance) + '</textarea></label>' +
+        '<label class="st-encounter-field"><span>profile default / 档案默认值</span><textarea name="roleProfileDefault" placeholder="档案字段默认值，如姓名、年龄、职业、身高、体重、三围等">' + escapeHtml(normalized.profileDefault) + '</textarea></label>' +
+        '<label class="st-encounter-field"><span>行为指导</span><textarea name="roleBehaviorGuidance" placeholder="AI叙事时必须遵守的长期行为规则">' + escapeHtml(normalized.behaviorGuidance) + '</textarea></label>' +
+        encounterRoleCustomFieldsHtml(normalized, selectedIndex, single) +
+      '</section>' +
     '</article>';
   }
 
@@ -9030,7 +9164,7 @@ button.st-work-notice{cursor:pointer}
         '<button type="button" class="st-encounter-button" data-encounter-action="add-role">新增</button>' +
         '<button type="button" class="st-encounter-button" data-encounter-action="remove-role" data-role-index="' + selectedIndex + '">删除</button>' +
       '</div>' +
-      renderEncounterRoleFormCard(role, selectedIndex) +
+      renderEncounterRoleFormCard(role, selectedIndex, { contentSection: encounterRoleContentSection(page) }) +
       '<div class="st-encounter-actions">' +
         '<button type="button" class="st-encounter-button" data-encounter-action="import-role-json">导入角色JSON</button>' +
         '<button type="button" class="st-encounter-button" data-encounter-action="export-role-json">导出角色JSON</button>' +
@@ -9051,7 +9185,7 @@ button.st-work-notice{cursor:pointer}
     return '<section class="st-lite-card st-encounter-form" data-encounter-single-role-form>' +
       '<div class="st-encounter-toolbar"><strong>角色定制</strong><span>草稿自动保存</span></div>' +
       '<p class="st-encounter-note">单独角色会保存到角色库；偶遇页的角色包内角色只由前端临时拆分，不会重复存储。</p>' +
-      renderEncounterRoleFormCard(role, 0, { single: true }) +
+      renderEncounterRoleFormCard(role, 0, { single: true, contentSection: encounterRoleContentSection(page) }) +
       '<div class="st-encounter-actions">' +
         '<button type="button" class="st-encounter-button" data-encounter-action="import-role-json">导入角色JSON</button>' +
         '<button type="button" class="st-encounter-button" data-encounter-action="export-role-json">导出角色JSON</button>' +
@@ -10256,6 +10390,117 @@ button.st-work-notice{cursor:pointer}
     }
   }
 
+  async function encounterReadCharacterWorldEntries(pkg) {
+    const fallbackName = encounterDefaultCharacterWorldbookName(pkg);
+    for (const win of encounterCandidateWindows()) {
+      const bound = await encounterEnsureCharacterWorldbookWithTavernHelper(win, fallbackName);
+      if (!bound || typeof bound.target?.getWorldbook !== "function") continue;
+      try {
+        const worldbook = await bound.target.getWorldbook(bound.worldName);
+        return { ok: true, entries: encounterWorldEntryValues(worldbook), targetWorldbook: bound.worldName, method: bound.method, raw: worldbook };
+      } catch {}
+    }
+    for (const win of encounterCandidateWindows()) {
+      const bound = await encounterEnsureCharacterWorldbookWithSillyTavernModule(win, fallbackName);
+      if (!bound || typeof bound.mod?.loadWorldInfo !== "function") continue;
+      try {
+        const data = await bound.mod.loadWorldInfo(bound.worldName);
+        return { ok: true, entries: encounterWorldEntryValues(data), targetWorldbook: bound.worldName, method: bound.method, raw: data, mod: bound.mod };
+      } catch {}
+    }
+    return { ok: false, entries: [], targetWorldbook: "", method: "" };
+  }
+
+  function encounterRoleExistsInWorldbook(entries, roleName) {
+    const name = String(roleName || "").trim();
+    if (!name) return false;
+    const variableComment = "[mvu_update]" + name + "变量";
+    const personaComment = "[mvu_plot]" + name + "人设";
+    return (Array.isArray(entries) ? entries : []).some((entry) => {
+      const title = encounterEntryTitle(entry);
+      if (title === variableComment || title === personaComment) return true;
+      const text = encounterEntryText(entry);
+      return text.includes(variableComment) || text.includes(personaComment);
+    });
+  }
+
+  function encounterPackageWithoutExistingRoles(pkg, entries) {
+    const normalized = encounterNormalizePackage(pkg);
+    const skipped = [];
+    const roles = [];
+    for (const role of normalized.roles || []) {
+      const nextRole = encounterNormalizeRole(role);
+      const name = String(nextRole.name || "").trim();
+      if (name && encounterRoleExistsInWorldbook(entries, name)) {
+        skipped.push(name);
+        continue;
+      }
+      roles.push(nextRole);
+    }
+    return { pkg: encounterNormalizePackage({ ...normalized, roles }), skipped };
+  }
+
+  function encounterEntryMatchesComments(entry, comments) {
+    const title = encounterEntryTitle(entry);
+    if (comments.has(title)) return true;
+    const extra = String(entry?.extra?.comment || "").trim();
+    return Boolean(extra && comments.has(extra));
+  }
+
+  function encounterSetEntryEnabled(entry, enabled) {
+    if (!entry || typeof entry !== "object") return false;
+    entry.enabled = Boolean(enabled);
+    entry.disable = !enabled;
+    entry.disabled = !enabled;
+    if (entry.extra && typeof entry.extra === "object") entry.extra.enabled = Boolean(enabled);
+    return true;
+  }
+
+  async function encounterSetWorldbookEntriesEnabled(pkg, enabled) {
+    const comments = new Set(encounterWorldbookEntryList(pkg).map((entry) => String(entry.comment || "").trim()).filter(Boolean));
+    if (!comments.size) return { ok: false, count: 0, reason: "没有可管理的世界书条目。" };
+    const fallbackName = encounterDefaultCharacterWorldbookName(pkg);
+    for (const win of encounterCandidateWindows()) {
+      const bound = await encounterEnsureCharacterWorldbookWithSillyTavernModule(win, fallbackName);
+      if (!bound || typeof bound.mod?.loadWorldInfo !== "function" || typeof bound.mod?.saveWorldInfo !== "function") continue;
+      try {
+        const data = await bound.mod.loadWorldInfo(bound.worldName);
+        const entries = encounterWorldEntryValues(data);
+        let count = 0;
+        for (const entry of entries) {
+          if (!encounterEntryMatchesComments(entry, comments)) continue;
+          if (encounterSetEntryEnabled(entry, enabled)) count += 1;
+        }
+        if (count > 0) {
+          await bound.mod.saveWorldInfo(bound.worldName, data, true);
+          try { await bound.mod.updateWorldInfoList?.(); } catch {}
+          return { ok: true, count, targetWorldbook: bound.worldName, method: bound.method };
+        }
+      } catch {}
+    }
+    for (const win of encounterCandidateWindows()) {
+      const bound = await encounterEnsureCharacterWorldbookWithTavernHelper(win, fallbackName);
+      if (!bound || typeof bound.target?.getWorldbook !== "function") continue;
+      try {
+        const worldbook = await bound.target.getWorldbook(bound.worldName);
+        const entries = encounterWorldEntryValues(worldbook);
+        let count = 0;
+        for (const entry of entries) {
+          if (!encounterEntryMatchesComments(entry, comments)) continue;
+          if (encounterSetEntryEnabled(entry, enabled)) count += 1;
+        }
+        if (count > 0) {
+          if (typeof bound.target.setWorldbook === "function") await bound.target.setWorldbook(bound.worldName, worldbook);
+          else if (typeof bound.target.saveWorldbook === "function") await bound.target.saveWorldbook(bound.worldName, worldbook);
+          else if (typeof bound.target.updateWorldbook === "function") await bound.target.updateWorldbook(bound.worldName, worldbook);
+          else return { ok: false, count: 0, reason: "找到了条目，但当前接口不支持保存禁用状态。" };
+          return { ok: true, count, targetWorldbook: bound.worldName, method: bound.method };
+        }
+      } catch {}
+    }
+    return { ok: false, count: 0, reason: "没有在当前角色卡世界书中找到对应条目。" };
+  }
+
   async function encounterInsertPackageWorldbooks(pkg) {
     const entries = encounterWorldbookEntryList(pkg);
     if (!entries.length) return { ok: true, count: 0, failed: [] };
@@ -10325,6 +10570,12 @@ button.st-work-notice{cursor:pointer}
       encounterSetStatus(page, "找不到这个角色包。");
       return;
     }
+    const conflict = encounterDuplicatePackageConflict(pkg);
+    if (conflict) {
+      encounterSetStatus(page, "这个角色包与「" + conflict.name + "」存在重复；对方已" + (conflict.pending ? "在本轮暂存区" : "使用") + "，因此禁止购买。");
+      renderEncounterPage(page);
+      return;
+    }
     if (encounterIsPurchased(pkg.id)) {
       encounterSetStatus(page, "这个角色包已经使用过。");
       renderEncounterPage(page);
@@ -10346,9 +10597,29 @@ button.st-work-notice{cursor:pointer}
     const ok = window.confirm("购买后会直接向当前使用角色卡绑定的世界书新增条目，并在当前变量中创建角色初始变量；如果当前角色卡没有绑定世界书，会先创建并绑定一个。世界书增加不可撤销，只能之后手动删除；变量可以通过删除楼层恢复。确认使用这个角色包？");
     if (!ok) return;
     encounterSetStatus(page, "正在使用角色包...");
+    const snapshot = await encounterReadCharacterWorldEntries(pkg);
+    const filtered = encounterPackageWithoutExistingRoles(pkg, snapshot.entries || []);
+    const effectivePkg = filtered.pkg;
+    const skippedByWorldbook = filtered.skipped;
+    if (!effectivePkg.roles.length) {
+      encounterSetStatus(page, "当前角色卡世界书中已经存在这些角色，已阻止重复购买：" + skippedByWorldbook.join("、"));
+      renderEncounterPage(page);
+      return;
+    }
+    if (skippedByWorldbook.length) {
+      const continueOk = window.confirm("检测到当前角色卡世界书中已存在以下角色，将在本次角色包使用中跳过：\n" + skippedByWorldbook.join("、") + "\n\n继续购买剩余角色？");
+      if (!continueOk) return;
+    }
     const deduct = await encounterDeductStarlight(price);
     if (!deduct.ok) {
       encounterSetStatus(page, deduct.reason || "星光点扣除失败。");
+      return;
+    }
+    try {
+      initialEntries = encounterPackageInitialRoleEntries(effectivePkg);
+    } catch (error) {
+      if (deduct.previous !== undefined) await encounterSetStarlight(deduct.previous);
+      encounterSetStatus(page, "初始变量校验失败：" + (error?.message || error));
       return;
     }
     const variables = await encounterCreateInitialRoleVariables(initialEntries);
@@ -10357,19 +10628,19 @@ button.st-work-notice{cursor:pointer}
       encounterSetStatus(page, variables.reason || "初始变量写入失败，已尝试退回星光点。");
       return;
     }
-    const worldbook = await encounterInsertPackageWorldbooks(pkg);
+    const worldbook = await encounterInsertPackageWorldbooks(effectivePkg);
     if (!worldbook.ok) {
       await encounterRestoreRoleVariables(variables.snapshot);
       if (deduct.previous !== undefined) await encounterSetStarlight(deduct.previous);
       encounterSetStatus(page, "当前角色卡世界书写入失败，已尝试退回星光点。失败条目：" + worldbook.failed.slice(0, 2).join("；"));
       return;
     }
-    const cached = encounterCacheRoleImages(pkg);
+    const cached = encounterCacheRoleImages(effectivePkg);
     encounterMarkPurchased(pkg.id);
-    Promise.resolve(appendAppOperation(encounterPurchasePayload(pkg, {
+    Promise.resolve(appendAppOperation(encounterPurchasePayload(effectivePkg, {
       price,
       createdRoles: variables.created,
-      skippedRoles: variables.skipped,
+      skippedRoles: (variables.skipped || []).concat(skippedByWorldbook),
       overwrittenRoles: variables.overwritten,
       worldbookCount: worldbook.count,
       insertedCount: worldbook.insertedCount,
@@ -10381,6 +10652,39 @@ button.st-work-notice{cursor:pointer}
         : "角色包已使用，AI提示已存在于暂存区。";
       renderEncounterPage(page);
     });
+  }
+
+  function encounterManagementTargetPackage(type, id) {
+    const targetType = String(type || "package");
+    if (targetType === "role") {
+      const item = encounterFindRoleItem(id);
+      return item?.package || null;
+    }
+    return encounterFindPackage(id);
+  }
+
+  async function encounterToggleWorldbookManagement(page, type, id) {
+    const pkg = encounterManagementTargetPackage(type, id);
+    if (!pkg) {
+      encounterSetStatus(page, "找不到要管理的角色包或角色。");
+      return;
+    }
+    const currentlyEnabled = encounterManagedEnabled(type, id);
+    const nextEnabled = !currentlyEnabled;
+    if (!nextEnabled) {
+      const label = type === "role" ? ((pkg.roles || [])[0]?.name || pkg.name || "这个角色") : (pkg.name || "这个角色包");
+      const ok = window.confirm("关闭管理会把「" + label + "」对应的当前角色卡世界书条目标记为 disable。\n\n不建议在角色已经有剧情时这样做，可能导致后续引用断裂。确认关闭？");
+      if (!ok) return;
+    }
+    encounterSetStatus(page, nextEnabled ? "正在启用世界书条目..." : "正在禁用世界书条目...");
+    const result = await encounterSetWorldbookEntriesEnabled(pkg, nextEnabled);
+    if (!result.ok) {
+      encounterSetStatus(page, result.reason || "世界书条目管理失败。");
+      return;
+    }
+    encounterSetManagedEnabled(type, id, nextEnabled);
+    page.dataset.encounterStatus = (nextEnabled ? "已启用 " : "已禁用 ") + result.count + " 条世界书条目。";
+    renderEncounterPage(page);
   }
 
   function encounterRefreshRoleFieldDots(page) {
@@ -10441,10 +10745,36 @@ button.st-work-notice{cursor:pointer}
       page.dataset.encounterEditRoleIndex = String(event.target.value || "0");
       renderEncounterPage(page);
     });
+    page.querySelector("[data-encounter-search]")?.addEventListener("input", (event) => {
+      page.dataset.encounterSearch = String(event.target.value || "");
+      renderEncounterPage(page);
+      window.setTimeout(() => {
+        const input = page.querySelector("[data-encounter-search]");
+        input?.focus?.();
+        try { input?.setSelectionRange?.(input.value.length, input.value.length); } catch {}
+      }, 0);
+    });
+    page.querySelector("[data-encounter-package-filter]")?.addEventListener("change", (event) => {
+      page.dataset.encounterPackageFilter = String(event.target.value || "all");
+      renderEncounterPage(page);
+    });
     page.querySelectorAll("[data-encounter-field-jump]").forEach((button) => {
       button.addEventListener("click", () => {
         const card = button.closest("[data-encounter-role-card]");
         const name = button.getAttribute("data-encounter-field-jump") || "";
+        if (name === "roleInitialVariables") page.dataset.encounterRoleContentSection = "initial";
+        else page.dataset.encounterRoleContentSection = "persona";
+        if (!card?.querySelector("[name='" + name + "']")?.offsetParent) {
+          renderEncounterPage(page);
+          window.setTimeout(() => {
+            const nextCard = page.querySelector("[data-encounter-role-card]");
+            const field = nextCard?.querySelector("[name='" + name + "']");
+            const target = field?.closest(".st-encounter-field") || field;
+            try { target?.scrollIntoView?.({ block: "center", behavior: "smooth" }); } catch {}
+            try { field?.focus?.({ preventScroll: true }); } catch { field?.focus?.(); }
+          }, 0);
+          return;
+        }
         const field = card?.querySelector("[name='" + name + "']");
         const target = field?.closest(".st-encounter-field") || field;
         try { target?.scrollIntoView?.({ block: "center", behavior: "smooth" }); } catch {}
@@ -10540,6 +10870,17 @@ button.st-work-notice{cursor:pointer}
           renderEncounterPage(page);
           return;
         }
+        if (action === "role-content-section") {
+          if (page.dataset.encounterTab === "role") encounterReadSingleRoleFromForm(page);
+          else encounterReadDraftFromForm(page);
+          page.dataset.encounterRoleContentSection = button.getAttribute("data-section") || "persona";
+          renderEncounterPage(page);
+          return;
+        }
+        if (action === "toggle-worldbook") {
+          await encounterToggleWorldbookManagement(page, button.getAttribute("data-target-type") || "package", button.getAttribute("data-target-id") || "");
+          return;
+        }
         if (action === "select-role") {
           page.dataset.encounterDetailSection = "roles";
           page.dataset.encounterRoleIndex = button.getAttribute("data-role-index") || "0";
@@ -10605,7 +10946,7 @@ button.st-work-notice{cursor:pointer}
             delete page.dataset.encounterDetailSection;
             page.dataset.encounterEditSection = "role";
             page.dataset.encounterEditRoleIndex = String(Math.max(0, Number(item.sourceRoleIndex || 0) || 0));
-            page.dataset.encounterStatus = "已填充到角色包定制草稿。角色包内角色不能单独购买。";
+            page.dataset.encounterStatus = "已填充到角色包定制草稿。此角色也可在偶遇页单独使用。";
             renderEncounterPage(page);
             return;
           }
