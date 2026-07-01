@@ -1814,7 +1814,6 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-app-island-calendar button{width:24px;height:24px;border:1px solid rgba(255,255,255,.08);border-radius:999px;background:rgba(255,255,255,.06);color:#f8fafc;font-size:16px;font-weight:950;line-height:1;display:grid;place-items:center;cursor:pointer}
 .st-app-island-dot{width:7px;height:7px;border-radius:999px;background:#67e8f9;box-shadow:0 0 14px rgba(103,232,249,.7);flex:0 0 auto}
 .st-app-island-dot.is-camera{background:#34d399;box-shadow:0 0 14px rgba(52,211,153,.86)}
-.st-profile-island-pattern{display:block;width:100%;font-size:12px;font-weight:950;color:#fef3c7;letter-spacing:.08em;white-space:nowrap;overflow:hidden;text-overflow:clip}
 .st-encounter-island-pattern{display:block;width:100%;font-size:13px;font-weight:950;color:#fed7aa;letter-spacing:.12em;white-space:nowrap;overflow:hidden;text-overflow:clip;text-shadow:0 0 10px rgba(251,146,60,.22)}
 .st-mchan-boards{flex:0 0 auto;display:flex;gap:8px;padding:10px 12px;overflow-x:auto;background:rgba(3,6,14,.76);border-bottom:1px solid rgba(255,255,255,.08)}
 .st-mchan-boards,.st-mchan-threads,.st-mchan-detail{scrollbar-width:none}
@@ -2306,18 +2305,20 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 [data-st-phone-app="inventory"] svg,[data-st-phone-app="help"] svg{color:rgba(125,211,252,.82)!important}
 [data-st-phone-app="inventory"] .text-amber-700,[data-st-phone-app="help"] .text-amber-700{color:#fde68a!important}
 [data-st-phone-app="inventory"] .bg-amber-50,[data-st-phone-app="help"] .bg-amber-50{background:rgba(245,158,11,.12)!important;border-color:rgba(245,158,11,.24)!important}
-.st-inventory-backpack{position:absolute;left:0;right:0;top:54px;bottom:0;z-index:70;display:grid;grid-template-rows:auto minmax(0,1fr);gap:10px;padding:10px 12px 16px;background:linear-gradient(180deg,#f9f0df 0%,#f5e5cb 58%,#ecd2ad 100%);color:#3d2f25;overflow:hidden}
-.st-inventory-desc{min-height:104px;border:1px solid rgba(92,64,38,.24);border-radius:8px;background:linear-gradient(180deg,#fffaf0,#f8ecd8);box-shadow:0 12px 26px rgba(59,42,25,.12),inset 0 0 0 1px rgba(255,255,255,.55);padding:12px;display:grid;align-content:start;gap:6px}
-.st-inventory-desc small{color:rgba(61,47,37,.56);font-size:10px;font-weight:900;letter-spacing:.08em}
-.st-inventory-desc strong{color:#2f241c;font-size:18px;line-height:1.25;word-break:break-word}
-.st-inventory-desc p{margin:0;color:rgba(61,47,37,.72);font-size:12px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
-.st-inventory-grid{min-height:0;overflow:auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:82px;gap:8px;align-content:start;padding:2px 0 18px;scrollbar-width:none}
+.st-inventory-backpack{position:absolute;left:0;right:0;top:52px;bottom:0;z-index:70;display:grid;grid-template-rows:auto minmax(0,1fr);gap:11px;padding:10px 12px 16px;background:linear-gradient(180deg,#d9b47d 0%,#b47a43 52%,#7a4a28 100%);color:#f8fafc;overflow:hidden}
+.st-inventory-backpack::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(75,42,20,.18) 0 2px,transparent 2px 72px),linear-gradient(90deg,rgba(255,255,255,.08),transparent 18%,rgba(59,35,19,.18));pointer-events:none}
+.st-inventory-desc{position:relative;min-height:112px;border:8px solid #8b5a2b;border-radius:8px;background:radial-gradient(circle at 20% 10%,rgba(255,255,255,.05),transparent 32%),linear-gradient(180deg,#263b32,#14251f);box-shadow:0 12px 26px rgba(59,35,19,.28),inset 0 0 0 2px rgba(255,255,255,.08),inset 0 0 18px rgba(0,0,0,.28);padding:12px 14px;display:grid;align-content:start;gap:6px;z-index:1}
+.st-inventory-desc small{color:rgba(226,232,240,.58);font-size:10px;font-weight:900;letter-spacing:.08em}
+.st-inventory-desc strong{color:#f8fafc;font-size:18px;line-height:1.25;word-break:break-word;font-family:"STKaiti","KaiTi","Noto Serif SC",serif;text-shadow:0 0 1px rgba(255,255,255,.35)}
+.st-inventory-desc p{margin:0;color:rgba(241,245,249,.82);font-size:12px;line-height:1.6;white-space:pre-wrap;word-break:break-word;font-family:"STKaiti","KaiTi","Noto Serif SC",serif}
+.st-inventory-grid{position:relative;z-index:1;min-height:0;overflow:auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:82px;gap:8px;align-content:start;padding:2px 0 18px;scrollbar-width:none}
 .st-inventory-grid::-webkit-scrollbar{display:none}
-.st-inventory-slot{position:relative;min-width:0;height:82px;border:1px solid rgba(92,64,38,.18);border-radius:8px;background:rgba(255,255,255,.42);box-shadow:inset 0 1px 0 rgba(255,255,255,.45);padding:18px 8px 9px;display:grid;place-items:center;text-align:center;color:#3d2f25;font-size:10.5px;font-weight:900;line-height:1.22;word-break:break-word;cursor:pointer;overflow:hidden}
+.st-inventory-slot{position:relative;min-width:0;height:82px;border:3px solid #6f3f20;border-radius:6px;background:linear-gradient(180deg,#c68b52,#9b6539);box-shadow:inset 0 0 0 1px rgba(255,241,214,.18),inset 0 -10px 18px rgba(61,35,19,.22),0 8px 16px rgba(58,32,17,.24);padding:18px 8px 9px;display:grid;place-items:center;text-align:center;color:#2f1a0d;font-size:10.5px;font-weight:950;line-height:1.22;word-break:break-word;cursor:pointer;overflow:hidden}
+.st-inventory-slot::before{content:"";position:absolute;left:0;right:0;top:0;height:7px;background:linear-gradient(180deg,rgba(255,236,195,.35),rgba(255,236,195,0));pointer-events:none}
 .st-inventory-slot>span:last-child{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.st-inventory-slot.is-active{border-color:rgba(146,64,14,.42);background:linear-gradient(180deg,rgba(254,243,199,.78),rgba(255,255,255,.46));box-shadow:0 0 0 3px rgba(146,64,14,.08),inset 0 1px 0 rgba(255,255,255,.5)}
-.st-inventory-slot.is-empty{cursor:default;color:rgba(61,47,37,.28);font-weight:800;background:rgba(255,255,255,.24)}
-.st-inventory-count{position:absolute;right:11px;top:8px;border:1px solid rgba(146,64,14,.2);border-radius:999px;background:rgba(254,243,199,.78);color:#92400e;padding:1px 5px;font-size:9px;font-weight:950;line-height:1.3}
+.st-inventory-slot.is-active{border-color:#f5d08a;background:linear-gradient(180deg,#d9a96e,#a86b39);box-shadow:0 0 0 3px rgba(245,208,138,.2),inset 0 0 0 1px rgba(255,241,214,.24),0 8px 16px rgba(58,32,17,.24)}
+.st-inventory-slot.is-empty{cursor:default;color:rgba(47,26,13,.38);font-weight:800;background:linear-gradient(180deg,#9b6539,#74451f)}
+.st-inventory-count{position:absolute;right:7px;top:6px;border:1px solid rgba(77,42,17,.32);border-radius:999px;background:rgba(255,231,174,.78);color:#7c2d12;padding:1px 5px;font-size:9px;font-weight:950;line-height:1.3}
 .st-react-app-island-layer{position:absolute;top:9px;left:12px;right:12px;height:36px;z-index:220;display:grid;grid-template-columns:36px minmax(0,1fr) 36px;align-items:center;gap:8px;pointer-events:none}
 .st-react-app-island-layer .st-lite-back,.st-react-app-island-layer .st-app-island,.st-react-app-island-layer .st-island-back,.st-react-app-island-layer .st-island-chevron{pointer-events:auto}
 .st-react-app-island-layer.is-hypnosis-layer{height:44px;grid-template-columns:minmax(0,1fr)}
@@ -2329,24 +2330,47 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-hypnosis-island-row{min-width:0;display:flex;align-items:center;justify-content:space-between;gap:8px}
 .st-hypnosis-island-row strong{font-size:12px!important}
 .st-hypnosis-island-row small{font-size:9px;color:rgba(203,213,225,.62);font-weight:850;white-space:nowrap}
+.st-app-island-recording{display:flex;align-items:center;justify-content:center;gap:8px;min-width:0}
+.st-app-island-recording .st-app-island-dot{width:8px;height:8px}
 .st-react-native-header-hidden{opacity:0!important;visibility:hidden!important;pointer-events:none!important;background:transparent!important;border-color:transparent!important;box-shadow:none!important}
+.st-react-native-header-removed{height:0!important;min-height:0!important;padding:0!important;margin:0!important;overflow:hidden!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;background:transparent!important;border:0!important;box-shadow:none!important}
 [data-st-phone-app="hypnosis"]>div>div:first-child,[data-st-phone-app="achievements"]>div>div:first-child,[data-st-phone-app="inventory"]>div>div:first-child,[data-st-phone-app="help"]>div>div:first-child,[data-st-phone-app="calendar"]>div>div:first-child{min-height:54px!important;height:54px!important;padding:9px 12px 7px!important;background:transparent!important;border-bottom:0!important;box-shadow:none!important;backdrop-filter:none!important}
 [data-st-phone-app="hypnosis"]>div>div:first-child>*,[data-st-phone-app="achievements"]>div>div:first-child>*,[data-st-phone-app="inventory"]>div>div:first-child>*,[data-st-phone-app="help"]>div>div:first-child>*,[data-st-phone-app="calendar"]>div>div:first-child>*{opacity:0!important;pointer-events:none!important}
+[data-st-phone-app="achievements"]>div>div:first-child,[data-st-phone-app="inventory"]>div>div:first-child{height:0!important;min-height:0!important;padding:0!important;margin:0!important;overflow:hidden!important;border:0!important}
+[data-st-phone-app="achievements"]>div{box-sizing:border-box!important;padding-top:54px!important}
 .st-profile-app .st-lite-header{position:absolute;top:0;left:0;right:0;z-index:12;background:transparent!important;pointer-events:none}
 .st-profile-app .st-lite-back,.st-profile-app .st-app-island{pointer-events:auto}
 .st-profile-app .st-lite-back{border-color:rgba(81,64,49,.14);background:rgba(247,241,229,.2);color:#5a4737;box-shadow:none}
 .st-profile-app .st-app-island{max-width:176px}
-.st-profile-body{padding:0;display:grid;place-items:stretch;background:#f7f1e5}
-.st-person-paper{position:relative;width:100%;height:100%;overflow:auto;border-radius:0;background:#f7f1e5;color:#33291f;font-family:"Songti SC","STSong","Noto Serif SC",serif;box-shadow:none;padding:54px 27px 22px;scrollbar-width:none}
+.st-profile-body{padding:0;display:grid;place-items:stretch;background:radial-gradient(circle at 22% 10%,rgba(255,238,184,.18),transparent 30%),linear-gradient(135deg,#6f4428,#3f2619 58%,#21140e)}
+.st-profile-body.is-desk{padding:58px 16px 18px;align-content:start}
+.st-profile-body.is-detail{padding:58px 14px 16px;place-items:center;overflow:hidden}
+.st-profile-desk{position:relative;height:100%;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:minmax(132px,1fr);gap:12px;align-content:center}
+.st-profile-desk-card{position:relative;border:1px solid rgba(81,64,49,.28);border-radius:5px;background:#f7f1e5;color:#403126;padding:13px 11px 10px;box-shadow:0 14px 25px rgba(24,14,9,.28),inset 0 0 0 4px rgba(255,255,255,.34);font-family:"Songti SC","STSong","Noto Serif SC",serif;text-align:left;cursor:pointer;overflow:hidden;transform:rotate(var(--rot,0deg))}
+.st-profile-desk-card:nth-child(1){--rot:-5deg}.st-profile-desk-card:nth-child(2){--rot:4deg}.st-profile-desk-card:nth-child(3){--rot:2deg}.st-profile-desk-card:nth-child(4){--rot:-3deg}.st-profile-desk-card:nth-child(5){--rot:5deg}.st-profile-desk-card:nth-child(6){--rot:-2deg}
+.st-profile-desk-card strong{display:block;color:#403126;font-size:15px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-profile-desk-card span{display:block;margin-top:5px;color:rgba(68,54,42,.58);font-size:10px;font-weight:850}
+.st-profile-desk-lines{position:absolute;left:11px;right:11px;bottom:12px;display:grid;gap:6px;opacity:.5}
+.st-profile-desk-lines i{display:block;height:2px;border-radius:999px;background:rgba(68,54,42,.32);transform:rotate(var(--line-rot,0deg))}
+.st-profile-desk-lines i:nth-child(2){width:82%;--line-rot:-1deg}.st-profile-desk-lines i:nth-child(3){width:63%;--line-rot:2deg}
+.st-profile-desk-empty{align-self:center;justify-self:center;color:rgba(255,248,237,.72);font-size:13px;font-weight:850}
+.st-profile-detail-stage{position:relative;width:100%;height:100%;display:grid;place-items:center}
+.st-profile-paper-stack{position:absolute;inset:auto 22px 16px 22px;height:78%;pointer-events:none}
+.st-profile-paper-stack::before,.st-profile-paper-stack::after{content:"";position:absolute;inset:12px 10px 0;border:1px solid rgba(81,64,49,.22);border-radius:5px;background:#eee4d3;box-shadow:0 10px 24px rgba(24,14,9,.22);transform:rotate(-5deg)}
+.st-profile-paper-stack::after{inset:2px 0 10px;background:#f2eadc;transform:rotate(4deg)}
+.st-profile-paper-stack i{position:absolute;border-radius:999px;background:rgba(68,54,42,.24);height:2px;width:40%;left:28px;top:38px;transform:rotate(-4deg);z-index:1}
+.st-profile-paper-stack i:nth-child(2){left:auto;right:38px;top:70px;width:32%;transform:rotate(5deg)}
+.st-person-paper{position:relative;width:min(100%,336px);height:calc(100% - 18px);max-height:744px;overflow:auto;border-radius:5px;background:#f7f1e5;color:#33291f;font-family:"Songti SC","STSong","Noto Serif SC",serif;box-shadow:0 18px 36px rgba(24,14,9,.36),inset 0 0 0 2px rgba(81,64,49,.55),inset 0 0 0 8px #f7f1e5;padding:44px 24px 18px;scrollbar-width:none}
 .st-person-paper::-webkit-scrollbar{display:none}
 .st-person-back,.st-person-paper-nav{position:absolute;z-index:4;border:1px solid rgba(81,64,49,.5);background:rgba(247,241,229,.92);color:#44362a;display:grid;place-items:center;cursor:pointer;box-shadow:0 2px 7px rgba(60,45,32,.18);pointer-events:auto}
 .st-person-back{top:18px;left:18px;width:28px;height:28px;border-radius:999px;font-size:23px;line-height:1}
 .st-person-photo-wrap{position:relative;z-index:1;width:65%;max-width:206px;margin:0 auto 11px}
+.st-profile-app .st-person-photo-wrap{position:static;width:65%;max-width:206px;margin:0 auto 11px}
 .st-person-paper-nav{top:50%;width:28px;height:54px;border-radius:999px;font-size:30px;line-height:1;transform:translateY(-50%)}
 .st-person-paper-nav[data-profile-action="prev"]{left:-33px}
 .st-person-paper-nav[data-profile-action="next"]{right:-33px}
-.st-profile-app .st-person-paper-nav[data-profile-action="prev"]{left:8px}
-.st-profile-app .st-person-paper-nav[data-profile-action="next"]{right:8px}
+.st-profile-app .st-person-paper-nav[data-profile-action="prev"]{left:-19px}
+.st-profile-app .st-person-paper-nav[data-profile-action="next"]{right:-19px}
 .st-person-back:active{transform:scale(.96)}
 .st-person-paper-nav:active{transform:translateY(-50%) scale(.96)}
 .st-person-paper-head{position:relative;z-index:1;text-align:center;margin:3px 0 9px}
@@ -2750,7 +2774,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       const starlight = Math.max(0, Math.floor(Number(system["星光点"] ?? system["starlight"] ?? 0) || 0));
       return { title: "成就和任务", html: '<strong>' + starlight.toLocaleString() + ' 星光点</strong>' };
     }
-    if (app === "inventory") return { title: "库存" };
+    if (app === "inventory") return { title: "库存", html: recordingIslandHtml() };
     if (app === "help") return { title: "帮助" };
     if (app === "calendar") {
       const parsed = parseStoryDate(system["当前日期"] || "4月9日 星期三");
@@ -2766,7 +2790,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         setPhoneActiveApp(root, "");
         removeInventoryBackpack(root);
         root?.querySelector?.(":scope > .st-react-app-island-layer")?.remove();
-        root?.querySelectorAll?.(".st-react-native-header-hidden").forEach((element) => element.classList.remove("st-react-native-header-hidden"));
+        root?.querySelectorAll?.(".st-react-native-header-hidden,.st-react-native-header-removed").forEach((element) => element.classList.remove("st-react-native-header-hidden", "st-react-native-header-removed"));
       }, 0);
       return;
     }
@@ -2779,7 +2803,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     setPhoneActiveApp(root, "");
     removeInventoryBackpack(root);
     root?.querySelector?.(":scope > .st-react-app-island-layer")?.remove();
-    root?.querySelectorAll?.(".st-react-native-header-hidden").forEach((element) => element.classList.remove("st-react-native-header-hidden"));
+    root?.querySelectorAll?.(".st-react-native-header-hidden,.st-react-native-header-removed").forEach((element) => element.classList.remove("st-react-native-header-hidden", "st-react-native-header-removed"));
   }
 
   function renderReactAppIsland(root, app) {
@@ -2859,6 +2883,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     if (!root || !reactApps.has(app)) return;
     const rootRect = root.getBoundingClientRect?.();
     if (!rootRect?.width) return;
+    const removeNativeHeader = app === "achievements" || app === "inventory";
     const shouldHide = (element) => {
       const rect = element?.getBoundingClientRect?.();
       if (!rect || rect.width < rootRect.width * 0.65 || rect.height < 28 || rect.height > 120 || rect.top - rootRect.top > 100) return false;
@@ -2871,15 +2896,20 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
         (app === "calendar" && text.includes("日历"))
       );
     };
-    root.querySelectorAll(".st-react-native-header-hidden").forEach((element) => {
-      if (!shouldHide(element)) element.classList.remove("st-react-native-header-hidden");
+    const markHeader = (element) => {
+      if (!shouldHide(element)) return;
+      element.classList.remove("st-react-native-header-hidden", "st-react-native-header-removed");
+      element.classList.add(removeNativeHeader ? "st-react-native-header-removed" : "st-react-native-header-hidden");
+    };
+    root.querySelectorAll(".st-react-native-header-hidden,.st-react-native-header-removed").forEach((element) => {
+      if (!shouldHide(element)) element.classList.remove("st-react-native-header-hidden", "st-react-native-header-removed");
     });
     const header = root.querySelector(":scope > div > div:first-child");
-    if (shouldHide(header)) header.classList.add("st-react-native-header-hidden");
+    markHeader(header);
     const appRoot = root.firstElementChild;
     const candidates = Array.from(appRoot?.querySelectorAll?.(":scope > div, :scope > header") || []);
     for (const element of candidates.slice(0, 4)) {
-      if (shouldHide(element)) element.classList.add("st-react-native-header-hidden");
+      markHeader(element);
     }
   }
 
@@ -3559,6 +3589,10 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     return '<div class="st-app-island-stack"><strong>' + escapeHtml(label + " " + safeValue + " / " + safeMax) + '</strong><span class="st-app-island-progress" style="--pct:' + pct + '%"><i></i></span></div>';
   }
 
+  function recordingIslandHtml() {
+    return '<span class="st-app-island-recording"><span class="st-app-island-dot is-camera"></span><strong>录制中</strong></span>';
+  }
+
   function hypnosisSubscriptionText(system) {
     const raw = system?.["订阅"] ?? system?.["催眠APP订阅"] ?? system?.["MC订阅"] ?? system?.["买断"] ?? "";
     const text = String(raw || "").trim();
@@ -4219,6 +4253,19 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     if (page.dataset.profileBound === "true") return;
     page.dataset.profileBound = "true";
     page.addEventListener("click", (event) => {
+      const deskCard = event.target?.closest?.("[data-profile-desk-role]");
+      if (deskCard && page.contains(deskCard)) {
+        event.preventDefault();
+        event.stopPropagation();
+        const roleName = deskCard.getAttribute("data-profile-desk-role") || "";
+        const roleNames = orderedProfileRoleNames(getStatsRoles());
+        const index = roleNames.indexOf(roleName);
+        delete page.dataset.profileStatic;
+        page.dataset.profileDeskMode = "detail";
+        page.dataset.profileIndex = String(index >= 0 ? index : 0);
+        renderPersonProfilePage(page);
+        return;
+      }
       const option = event.target?.closest?.("[data-profile-option]");
       if (option && page.contains(option)) {
         event.preventDefault();
@@ -4320,6 +4367,34 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     });
   }
 
+  function profileDeskCardHtml(roleName, roleData) {
+    const profile = roleProfileData(roleName, roleData);
+    const identity = effectScalar(profile["社团/职业"] ?? profile["身份"] ?? profile["职业"] ?? profile["年级"] ?? "") || "人物档案";
+    const mind = pickFirstText(roleData, ST_MIND_FIELDS[0].keys) || profileFieldText(profile, roleName, { key: "面部" }) || "待翻阅";
+    return '<button class="st-profile-desk-card" type="button" data-profile-desk-role="' + escapeAttr(roleName) + '">' +
+      '<strong>' + escapeHtml(roleName) + '</strong>' +
+      '<span>' + escapeHtml(identity) + '</span>' +
+      '<span>' + escapeHtml(mind.length > 24 ? mind.slice(0, 24) + "..." : mind) + '</span>' +
+      '<span class="st-profile-desk-lines" aria-hidden="true"><i></i><i></i><i></i></span>' +
+    '</button>';
+  }
+
+  function renderPersonProfileDeskPage(page, roleNames, roles) {
+    const visible = roleNames.slice(0, 6);
+    const cards = visible.map((roleName) => profileDeskCardHtml(roleName, isPlainObject(roles[roleName]) ? roles[roleName] : {})).join("");
+    page.dataset.profileSignature = personProfileSignature(page);
+    page.innerHTML =
+      renderLiteHeader(page, { title: "人物档案", html: recordingIslandHtml() }) +
+      '<main class="st-lite-body st-profile-body is-desk">' +
+        (cards
+          ? '<section class="st-profile-desk" aria-label="桌面人物档案">' + cards + '</section>'
+          : '<section class="st-profile-desk-empty">没有可显示的角色档案。</section>') +
+      '</main>';
+    bindLiteHeader(page, () => renderPersonProfilePage(page));
+    page.querySelector('[data-lite-action="back"]')?.addEventListener("click", () => closePersonProfilePage(page));
+    bindPersonProfileControls(page);
+  }
+
   function renderPersonProfilePage(page, direction = 0) {
     bindPersonProfileEvents(page);
     const roles = getStatsRoles();
@@ -4327,16 +4402,16 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     const staticIsaac = isIsaacProfilePage(page);
     const index = normalizeProfileIndex(page, roleNames.length);
     page.dataset.profileIndex = String(index);
+    if (!staticIsaac && page.dataset.profileDeskMode !== "detail") {
+      renderPersonProfileDeskPage(page, roleNames, roles);
+      return;
+    }
     if (!roleNames.length && !staticIsaac) {
       page.dataset.profileSignature = personProfileSignature(page);
       page.innerHTML =
-        renderLiteHeader(page, { title: "人物档案", html: '<span class="st-profile-island-pattern">✦━━━━✦</span>' }) +
-        '<main class="st-lite-body st-profile-body">' +
-          '<section class="st-person-paper">' +
-            '<div class="st-person-paper-head"><h2>人物档案</h2></div>' +
-            profilePickerHtml(roleNames, "") +
-            '<section class="st-person-empty">没有可显示的角色档案。</section>' +
-          '</section>' +
+        renderLiteHeader(page, { title: "人物档案", html: recordingIslandHtml() }) +
+        '<main class="st-lite-body st-profile-body is-desk">' +
+          '<section class="st-profile-desk-empty">没有可显示的角色档案。</section>' +
         '</main>';
       bindLiteHeader(page, () => renderPersonProfilePage(page));
       page.querySelector('[data-lite-action="back"]')?.addEventListener("click", () => closePersonProfilePage(page));
@@ -4371,24 +4446,27 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
           : '<section class="st-person-lines">' + fieldsHtml + '</section>';
     const activeTabLabel = PERSON_PROFILE_TABS.find((tab) => tab.id === activeTab)?.label || "档案";
     page.innerHTML =
-      renderLiteHeader(page, { title: "人物档案", html: '<span class="st-profile-island-pattern">✦━━━━✦</span>' }) +
-      '<main class="st-lite-body st-profile-body">' +
-        '<section class="st-person-paper' + animationClass + '" aria-label="人物档案纸">' +
-          '<div class="st-person-paper-head"><h2>人物档案</h2></div>' +
-          profilePickerHtml(roleNames, selectedValue, profileSearchValue, staticIsaac, pickerOpen) +
-          '<div class="st-person-photo-wrap">' +
-            '<button class="st-person-paper-nav" type="button" data-profile-action="prev" title="上一个">‹</button>' +
-            (staticIsaac ? '<div class="st-person-photo is-static">' : '<button class="st-person-photo" type="button" data-profile-action="upload-photo" title="点击更换照片">') +
-              (photo ? '<img alt="' + escapeAttr(roleName) + '" src="' + escapeAttr(photo) + '">' : '<div class="st-person-photo-empty">点击照片区域<br>更换图片</div>') +
-            (staticIsaac ? '</div>' : '</button>') +
-            '<button class="st-person-paper-nav" type="button" data-profile-action="next" title="下一个">›</button>' +
-          '</div>' +
-          '<nav class="st-person-tabs" aria-label="档案分页">' +
-            tabsHtml +
-          '</nav>' +
-          '<input type="file" accept="image/*" data-profile-file hidden>' +
-          contentHtml +
-          '<div class="st-person-page-count">' + escapeHtml((staticIsaac ? "彩蛋档案" : String(index + 1) + " / " + roleNames.length) + " · " + activeTabLabel) + '</div>' +
+      renderLiteHeader(page, { title: "人物档案", html: recordingIslandHtml() }) +
+      '<main class="st-lite-body st-profile-body is-detail">' +
+        '<section class="st-profile-detail-stage">' +
+          '<div class="st-profile-paper-stack" aria-hidden="true"><i></i><i></i></div>' +
+          '<section class="st-person-paper' + animationClass + '" aria-label="人物档案纸">' +
+            '<div class="st-person-paper-head"><h2>人物档案</h2></div>' +
+            profilePickerHtml(roleNames, selectedValue, profileSearchValue, staticIsaac, pickerOpen) +
+            '<div class="st-person-photo-wrap">' +
+              '<button class="st-person-paper-nav" type="button" data-profile-action="prev" title="上一个">‹</button>' +
+              (staticIsaac ? '<div class="st-person-photo is-static">' : '<button class="st-person-photo" type="button" data-profile-action="upload-photo" title="点击更换照片">') +
+                (photo ? '<img alt="' + escapeAttr(roleName) + '" src="' + escapeAttr(photo) + '">' : '<div class="st-person-photo-empty">点击照片区域<br>更换图片</div>') +
+              (staticIsaac ? '</div>' : '</button>') +
+              '<button class="st-person-paper-nav" type="button" data-profile-action="next" title="下一个">›</button>' +
+            '</div>' +
+            '<nav class="st-person-tabs" aria-label="档案分页">' +
+              tabsHtml +
+            '</nav>' +
+            '<input type="file" accept="image/*" data-profile-file hidden>' +
+            contentHtml +
+            '<div class="st-person-page-count">' + escapeHtml((staticIsaac ? "彩蛋档案" : String(index + 1) + " / " + roleNames.length) + " · " + activeTabLabel) + '</div>' +
+          '</section>' +
         '</section>' +
       '</main>';
     page.dataset.profileSignature = personProfileSignature(page);
@@ -4434,6 +4512,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     page.className = "st-lite-app st-profile-app";
     page.setAttribute("aria-label", "人物档案");
     page.dataset.profileTab = activePersonProfileTab({ dataset: { profileTab: initialTab } });
+    page.dataset.profileDeskMode = "desk";
     root.appendChild(page);
     renderPersonProfilePage(page);
   }
