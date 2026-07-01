@@ -2064,32 +2064,25 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-inventory-app .st-lite-body{position:absolute;inset:0;z-index:1;display:block;padding:0;gap:0;overflow:hidden;background:#07131e}
 .st-inventory-app .st-lite-header{position:absolute;top:0;left:0;right:0;z-index:8}
 .st-inventory-room,.st-inventory-locker{position:absolute;inset:0;width:100%;min-height:100%;height:100%;background-color:#07131e;background-image:none;background-position:center;background-size:cover;background-repeat:no-repeat;overflow:hidden;color:#edf4fb}
-.st-inventory-locker::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(28,48,68,.95) 0 16%,rgba(5,12,20,.92) 16% 57%,rgba(51,76,101,.92) 57% 100%),linear-gradient(180deg,rgba(255,255,255,.08),transparent 18%,rgba(0,0,0,.28));z-index:0}
-.st-inventory-locker[style*="background-image"]::before{opacity:.46}
-.st-inventory-locker::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(1,8,17,.05),rgba(1,8,17,.16));pointer-events:none}
-.st-inventory-fallback{position:absolute;inset:4.5% 5.5% 4.5% 5.5%;z-index:1;pointer-events:none;opacity:.72}
-.st-inventory-fallback::before{content:"";position:absolute;left:0;top:0;bottom:0;width:58%;border:2px solid rgba(175,204,232,.28);border-radius:8px;background:linear-gradient(90deg,rgba(141,170,202,.28),rgba(8,17,28,.55) 18%,rgba(6,13,22,.62) 88%,rgba(141,170,202,.18));box-shadow:inset 0 0 0 7px rgba(178,207,236,.08),inset -18px 0 36px rgba(0,0,0,.34)}
-.st-inventory-fallback::after{content:"";position:absolute;right:0;top:1%;bottom:1%;width:44%;border:2px solid rgba(179,205,232,.24);border-radius:6px;background:linear-gradient(135deg,rgba(92,121,151,.78),rgba(36,63,91,.88));box-shadow:inset 0 0 0 8px rgba(255,255,255,.04),-18px 10px 34px rgba(0,0,0,.28)}
-.st-inventory-fallback-shelves{position:absolute;left:5.5%;top:17.5%;width:47%;height:67%;display:grid;grid-template-rows:repeat(5,1fr)}
-.st-inventory-fallback-shelves span{border-top:2px solid rgba(179,205,232,.18);box-shadow:0 -9px 18px rgba(255,255,255,.05) inset}
-.st-inventory-fallback-board{position:absolute;right:10%;top:16%;width:24%;height:31%;border-radius:5px;background:linear-gradient(180deg,#f1dfbd,#e6cfa5);box-shadow:0 12px 20px rgba(0,0,0,.22),0 -8px 0 #6f573f}
+.st-inventory-locker::before,.st-inventory-locker::after{content:none}
 .st-inventory-bags{position:absolute;inset:0;z-index:3;pointer-events:none}
-.st-inventory-note{position:absolute;z-index:2;left:61.4%;top:16.5%;width:27.5%;height:30.2%;padding:46px 14px 16px;display:grid;align-content:start;gap:8px;color:#3b2a18;font-family:"STKaiti","KaiTi","Noto Serif SC",serif;text-align:left;transform:rotate(.2deg);pointer-events:auto}
-.st-inventory-note strong{display:block;color:#2e2115;font-size:18px;line-height:1.25;font-weight:950;word-break:break-word;text-shadow:0 1px 0 rgba(255,255,255,.45)}
-.st-inventory-note p{margin:0;color:rgba(46,33,21,.86);font-size:12px;line-height:1.52;white-space:pre-wrap;word-break:break-word}
+.st-inventory-note{position:absolute;z-index:2;left:63.2%;top:23.4%;width:24.5%;height:26.5%;padding:8px 9px 10px;display:grid;align-content:start;gap:8px;color:#3b2a18;font-family:"STKaiti","KaiTi","Noto Serif SC",serif;text-align:left;transform:rotate(.2deg);pointer-events:auto;background:transparent;border:0;box-shadow:none}
+.st-inventory-note strong{display:block;color:#2e2115;font-size:17px;line-height:1.24;font-weight:950;word-break:break-word;text-shadow:0 1px 0 rgba(255,255,255,.38)}
+.st-inventory-note p{margin:0;color:rgba(46,33,21,.9);font-size:12px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
 .st-inventory-note-pager{position:absolute;left:12px;right:12px;bottom:10px;display:flex;align-items:center;justify-content:center;gap:7px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 .st-inventory-note-pager button{width:24px;height:24px;border:1px solid rgba(64,49,35,.22);border-radius:999px;background:rgba(255,248,234,.72);color:#3b2a18;font-size:17px;font-weight:950;line-height:1;cursor:pointer;box-shadow:0 2px 5px rgba(57,35,19,.16)}
 .st-inventory-note-pager span{color:rgba(46,33,21,.62);font-size:10px;font-weight:900}
-.st-inventory-bag{position:absolute;z-index:3;left:21.2%;width:34.2%;height:8.4%;border:1px solid rgba(194,214,236,.16);border-radius:20px;background:linear-gradient(180deg,rgba(231,240,250,.18),rgba(13,23,38,.1));box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 8px 18px rgba(0,0,0,.2);color:#f8fbff;padding:16px 18px 14px;display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;overflow:hidden;text-shadow:0 2px 4px rgba(0,0,0,.65);backdrop-filter:blur(1px);pointer-events:auto}
-.st-inventory-bag:nth-child(1){top:18.7%}
-.st-inventory-bag:nth-child(2){top:34.3%}
-.st-inventory-bag:nth-child(3){top:49.8%}
-.st-inventory-bag:nth-child(4){top:65.5%}
-.st-inventory-bag:nth-child(5){top:81.1%}
-.st-inventory-bag.is-active{border-color:rgba(191,219,254,.82);background:linear-gradient(180deg,rgba(96,165,250,.32),rgba(15,23,42,.24));box-shadow:0 0 0 2px rgba(147,197,253,.14),0 0 20px rgba(96,165,250,.18),inset 0 1px 0 rgba(255,255,255,.3)}
-.st-inventory-bag.is-empty{cursor:default;opacity:.62;color:rgba(226,232,240,.75)}
-.st-inventory-bag-name{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:14px;font-weight:950;line-height:1.18;word-break:break-word}
-.st-inventory-count{position:absolute;right:10px;top:8px;border:1px solid rgba(191,219,254,.32);border-radius:999px;background:rgba(8,18,31,.58);color:#fef3c7;padding:2px 7px;font-size:10px;font-weight:950;line-height:1.2}
+.st-inventory-bag{position:absolute;z-index:3;left:18.3%;width:32%;height:8.4%;border:0;border-radius:20px;background:transparent;box-shadow:none;color:#f8fbff;padding:7px 22px 7px 14px;display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;overflow:hidden;text-shadow:0 2px 5px rgba(0,0,0,.9),0 0 10px rgba(39,68,94,.55);backdrop-filter:none;pointer-events:auto}
+.st-inventory-bag:nth-child(1){top:22.2%}
+.st-inventory-bag:nth-child(2){top:38.0%}
+.st-inventory-bag:nth-child(3){top:53.8%}
+.st-inventory-bag:nth-child(4){top:69.5%}
+.st-inventory-bag:nth-child(5){top:85.0%}
+.st-inventory-bag.is-active{background:transparent;box-shadow:none;outline:0}
+.st-inventory-bag.is-active .st-inventory-bag-name{text-shadow:0 2px 5px rgba(0,0,0,.95),0 0 12px rgba(191,219,254,.72)}
+.st-inventory-bag.is-empty{visibility:hidden;pointer-events:none}
+.st-inventory-bag-name{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:15px;font-weight:950;line-height:1.2;word-break:break-word}
+.st-inventory-count{position:absolute;right:4px;top:3px;border:0;border-radius:0;background:transparent;color:#fef3c7;padding:0;font-size:11px;font-weight:950;line-height:1.2;text-shadow:0 2px 4px rgba(0,0,0,.9)}
 .st-cal-hero{display:grid;gap:8px;border-color:rgba(34,211,238,.18);background:linear-gradient(135deg,rgba(34,211,238,.14),rgba(168,85,247,.1))}
 .st-cal-date{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
 .st-cal-date strong{font-size:24px;line-height:1;color:#fff}
@@ -2886,7 +2879,7 @@ button.st-work-notice{cursor:pointer}
     const visibleItems = items.slice(start, start + INVENTORY_LOCKER_PAGE_SIZE);
     const bags = Array.from({ length: INVENTORY_LOCKER_PAGE_SIZE }, (_, index) => {
       const item = visibleItems[index];
-      if (!item) return '<div class="st-inventory-bag is-empty"><span class="st-inventory-bag-name">空袋</span></div>';
+      if (!item) return '<div class="st-inventory-bag is-empty" aria-hidden="true"></div>';
       return '<button type="button" class="st-inventory-bag ' + (selected?.name === item.name ? "is-active" : "") + '" ' + itemAttr + '="' + escapeAttr(item.name) + '">' +
         '<span class="st-inventory-count">x' + escapeHtml(String(item.count)) + '</span>' +
         '<span class="st-inventory-bag-name">' + escapeHtml(item.name) + '</span>' +
@@ -2896,7 +2889,6 @@ button.st-work-notice{cursor:pointer}
       ? '<div class="st-inventory-note-pager"><button type="button" ' + pageAttr + '="prev" aria-label="上一页">‹</button><span>' + (pageIndex + 1) + ' / ' + pageCount + '</span><button type="button" ' + pageAttr + '="next" aria-label="下一页">›</button></div>'
       : "";
     return '<section class="st-inventory-locker" style="background-image:url(&quot;' + escapeAttr(lockerImage) + '&quot;)">' +
-      '<section class="st-inventory-fallback" aria-hidden="true"><div class="st-inventory-fallback-shelves"><span></span><span></span><span></span><span></span><span></span></div><div class="st-inventory-fallback-board"></div></section>' +
       '<section class="st-inventory-note">' +
         '<strong>' + escapeHtml(selected ? selected.name + " x" + selected.count : "暂无持有物品") + '</strong>' +
         '<p>' + escapeHtml(selected?.description || (selected ? "暂无描述。" : "获得道具后会挂在左侧袋子上。")) + '</p>' +
