@@ -1285,6 +1285,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     "月咏深雪": stAssetUrl("profiles/tsukuyomi-miyuki.png"),
     "犬冢夏美": stAssetUrl("profiles/inuzuka-natsumi.png")
   };
+  const ST_LOCKED_PROFILE_ROLES = new Set(["西园寺爱丽莎", "月咏深雪", "犬冢夏美"]);
   const BOARD_NAMES = DEFAULT_BOARDS.map((board) => board.name);
   const BOARD_ID_BY_NAME = Object.fromEntries(DEFAULT_BOARDS.map((board) => [board.name, board.id]));
   const BOARD_NAME_BY_ID = Object.fromEntries(DEFAULT_BOARDS.map((board) => [board.id, board.name]));
@@ -1960,6 +1961,40 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-hypnosis-vip-row{border:1px solid rgba(92,64,38,.16);border-radius:8px;background:rgba(255,255,255,.42);padding:10px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
 .st-hypnosis-vip-row strong{color:#2f241c;font-size:14px}
 .st-hypnosis-vip-row small{display:block;margin-top:3px;color:rgba(61,47,37,.58);font-size:10px;font-weight:850}
+.st-hypnosis-lite-app{background:radial-gradient(circle at 18% 6%,rgba(244,114,182,.22),transparent 28%),radial-gradient(circle at 82% 0%,rgba(168,85,247,.18),transparent 32%),linear-gradient(180deg,#17091f,#24102f 54%,#110816)!important;color:#fdf2f8}
+.st-hypnosis-lite-app .st-lite-body{background:transparent!important}
+.st-hypnosis-lite-app .st-lite-back{border-color:rgba(244,114,182,.28);background:rgba(31,12,44,.58);color:#fbcfe8;box-shadow:0 10px 28px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.06)}
+.st-hypnosis-lite-app .st-app-island{border-color:rgba(244,114,182,.24);background:linear-gradient(180deg,rgba(21,8,31,.96),rgba(6,3,14,.88));box-shadow:0 0 24px rgba(244,114,182,.16),0 12px 28px rgba(0,0,0,.26),inset 0 1px 0 rgba(255,255,255,.08)}
+.st-hypnosis-lite-app .st-graph-tabs{border:1px solid rgba(244,114,182,.16);border-radius:10px;background:rgba(255,255,255,.045);padding:4px;box-shadow:0 14px 30px rgba(0,0,0,.2)}
+.st-hypnosis-lite-app .st-graph-tab{border-color:rgba(244,114,182,.12);background:rgba(255,255,255,.04);color:rgba(253,242,248,.66)}
+.st-hypnosis-lite-app .st-graph-tab.active{border-color:rgba(244,114,182,.4);background:linear-gradient(135deg,#7c3aed,#db2777);color:#fff;box-shadow:0 10px 24px rgba(219,39,119,.18)}
+.st-hypnosis-lite-app .st-graph-paper{border-color:rgba(244,114,182,.22)!important;background:linear-gradient(180deg,rgba(68,20,74,.9),rgba(32,13,48,.9))!important;color:#fdf2f8!important;box-shadow:0 18px 38px rgba(0,0,0,.3),inset 0 0 0 1px rgba(255,255,255,.06)!important}
+.st-hypnosis-lite-app .st-graph-head strong,.st-hypnosis-lite-app .st-hypnosis-summary strong,.st-hypnosis-lite-app .st-hypnosis-command strong,.st-hypnosis-lite-app .st-hypnosis-vip-row strong{color:#fff}
+.st-hypnosis-lite-app .st-graph-head span,.st-hypnosis-lite-app .st-hypnosis-command p,.st-hypnosis-lite-app .st-hypnosis-vip-row small{color:rgba(253,242,248,.62)}
+.st-hypnosis-lite-app .st-hypnosis-button{border-color:rgba(244,114,182,.32);background:linear-gradient(135deg,rgba(168,85,247,.42),rgba(236,72,153,.34));color:#fff}
+.st-hypnosis-lite-app .st-hypnosis-button.secondary{background:rgba(255,255,255,.08);color:rgba(253,242,248,.8)}
+.st-hypnosis-lite-app .st-hypnosis-notice{border-color:rgba(244,114,182,.18);background:rgba(255,255,255,.07);color:rgba(253,242,248,.72)}
+.st-hypnosis-lite-app .st-hypnosis-form input,.st-hypnosis-lite-app .st-hypnosis-form textarea{border-color:rgba(244,114,182,.18);background:rgba(9,4,18,.5);color:#fff}
+.st-hypnosis-lite-app .st-hypnosis-form input::placeholder,.st-hypnosis-lite-app .st-hypnosis-form textarea::placeholder{color:rgba(253,242,248,.34)}
+.st-hypnosis-lite-app .st-hypnosis-command-toggle input{width:18px;height:18px;min-width:18px;padding:0;background:transparent;accent-color:#ec4899}
+.st-hypnosis-tier{border:1px solid rgba(244,114,182,.18);border-radius:12px;background:rgba(255,255,255,.045);overflow:hidden}
+.st-hypnosis-tier[open]{background:linear-gradient(180deg,rgba(236,72,153,.12),rgba(255,255,255,.035))}
+.st-hypnosis-tier-summary{list-style:none;display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:10px 11px;cursor:pointer}
+.st-hypnosis-tier-summary::-webkit-details-marker{display:none}
+.st-hypnosis-tier-summary strong{font-size:15px;color:#fff}
+.st-hypnosis-tier-summary span{color:rgba(253,242,248,.6);font-size:10px;font-weight:850}
+.st-hypnosis-tier-summary i{font-style:normal;color:#f9a8d4;font-size:14px;font-weight:950;transition:transform .16s ease}
+.st-hypnosis-tier[open] .st-hypnosis-tier-summary i{transform:rotate(180deg)}
+.st-hypnosis-tier-body{display:grid;gap:8px;padding:0 9px 10px}
+.st-hypnosis-command{border-color:rgba(244,114,182,.16);border-radius:11px;background:rgba(12,6,24,.5);color:#fdf2f8}
+.st-hypnosis-command.is-active{border-color:rgba(244,114,182,.52);background:linear-gradient(135deg,rgba(168,85,247,.28),rgba(236,72,153,.18));box-shadow:0 0 0 3px rgba(244,114,182,.08)}
+.st-hypnosis-command.is-locked{opacity:.5}
+.st-hypnosis-command-toggle input{accent-color:#ec4899}
+.st-hypnosis-badge{border-color:rgba(244,114,182,.24);background:rgba(236,72,153,.12);color:#f9a8d4}
+.st-hypnosis-param-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.st-hypnosis-param{display:grid;gap:4px}
+.st-hypnosis-param span{color:rgba(253,242,248,.58);font-size:10px;font-weight:850}
+.st-hypnosis-summary span,.st-hypnosis-vip-row{border-color:rgba(244,114,182,.14);background:rgba(255,255,255,.06);color:rgba(253,242,248,.72)}
 .st-inventory-app{background:#f7f3e8;color:#2f241c}
 .st-inventory-app .st-lite-body{padding:0;gap:0;overflow:hidden;background:#f7f3e8}
 .st-inventory-app .st-lite-header{position:absolute;top:0;left:0;right:0;z-index:8}
@@ -2365,11 +2400,12 @@ button.st-work-notice{cursor:pointer}
 .st-profile-app .st-lite-back{border-color:rgba(81,64,49,.14);background:rgba(247,241,229,.2);color:#5a4737;box-shadow:none}
 .st-profile-app .st-app-island{max-width:300px}
 .st-profile-body{padding:0;display:grid;place-items:stretch;background:radial-gradient(circle at 22% 10%,rgba(255,238,184,.18),transparent 30%),linear-gradient(135deg,#6f4428,#3f2619 58%,#21140e)}
-.st-profile-body.is-desk{padding:58px 16px 18px;align-content:center}
+.st-profile-body.is-desk{padding:58px 18px 18px;align-content:center}
 .st-profile-body.is-detail{padding:58px 14px 16px;place-items:center;overflow:hidden}
-.st-profile-desk{position:relative;width:100%;min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:auto;gap:12px 10px;align-content:center}
-.st-profile-desk-card{position:relative;min-width:0;aspect-ratio:336/520;border:1px solid rgba(81,64,49,.28);border-radius:5px;background:#f7f1e5;color:#403126;padding:8px 7px 7px;box-shadow:0 14px 25px rgba(24,14,9,.28),inset 0 0 0 3px rgba(255,255,255,.34);font-family:"Songti SC","STSong","Noto Serif SC",serif;text-align:left;cursor:pointer;overflow:hidden;transform:rotate(var(--rot,0deg));display:grid;grid-template-rows:auto auto minmax(0,1fr) auto auto;gap:4px}
-.st-profile-desk-card:nth-child(1){--rot:-5deg}.st-profile-desk-card:nth-child(2){--rot:4deg}.st-profile-desk-card:nth-child(3){--rot:2deg}.st-profile-desk-card:nth-child(4){--rot:-3deg}.st-profile-desk-card:nth-child(5){--rot:5deg}.st-profile-desk-card:nth-child(6){--rot:-2deg}
+.st-profile-desk{position:relative;width:100%;height:100%;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:12px 14px;align-items:center}
+.st-profile-desk-wrap{position:relative;min-width:0;min-height:0;width:min(100%,128px);justify-self:center;align-self:center;aspect-ratio:336/520;transform:rotate(var(--rot,0deg))}
+.st-profile-desk-wrap:nth-child(1){--rot:-5deg}.st-profile-desk-wrap:nth-child(2){--rot:4deg}.st-profile-desk-wrap:nth-child(3){--rot:2deg}.st-profile-desk-wrap:nth-child(4){--rot:-3deg}.st-profile-desk-wrap:nth-child(5){--rot:5deg}.st-profile-desk-wrap:nth-child(6){--rot:-2deg}
+.st-profile-desk-card{position:absolute;inset:0;width:100%;height:100%;min-width:0;border:1px solid rgba(81,64,49,.28);border-radius:5px;background:#f7f1e5;color:#403126;padding:8px 7px 7px;box-shadow:0 14px 25px rgba(24,14,9,.28),inset 0 0 0 3px rgba(255,255,255,.34);font-family:"Songti SC","STSong","Noto Serif SC",serif;text-align:left;cursor:pointer;overflow:hidden;display:grid;grid-template-rows:auto auto minmax(0,1fr) auto auto;gap:4px}
 .st-profile-mini-head{text-align:center;color:#403126;font-size:10px;font-weight:950;letter-spacing:.08em;line-height:1}
 .st-profile-mini-picker{height:18px;border:1px solid rgba(81,64,49,.18);border-radius:999px;background:rgba(247,241,229,.8);display:grid;grid-template-columns:minmax(0,1fr) 16px;align-items:center;padding:0 5px;gap:4px}
 .st-profile-mini-picker strong{min-width:0;color:#403126;font-size:10px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -2498,10 +2534,10 @@ button.st-work-notice{cursor:pointer}
 .st-profile-app .st-effect-meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
 .st-profile-app .st-effect-meta span{border:1px solid rgba(81,64,49,.16);border-radius:999px;background:rgba(81,64,49,.06);color:rgba(68,54,42,.66);padding:3px 7px;font-size:10px;line-height:1.2}
 .st-person-page-count{position:relative;z-index:1;margin-top:12px;text-align:center;color:rgba(68,54,42,.48);font-size:11px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-weight:800}
-.st-person-delete-role{position:relative;z-index:1;width:38px;height:26px;margin:9px auto 0;border:0;background:transparent;color:rgba(151,40,31,.54);display:grid;place-items:center;cursor:pointer;opacity:.72}
-.st-person-delete-role::before{content:"";position:absolute;left:12px;right:12px;bottom:5px;height:12px;border:2px solid currentColor;border-top:0;border-radius:0 0 4px 4px}
-.st-person-delete-role::after{content:"";position:absolute;left:10px;right:10px;top:6px;height:6px;border-top:2px solid currentColor;border-radius:999px;box-shadow:6px -3px 0 -4px currentColor,-6px -3px 0 -4px currentColor}
-.st-person-delete-role span{position:absolute;left:17px;right:17px;bottom:7px;top:13px;border-left:1px solid currentColor;border-right:1px solid currentColor}
+.st-person-delete-role{position:absolute;z-index:3;right:5px;bottom:5px;width:28px;height:22px;border:0;background:rgba(247,241,229,.72);border-radius:999px;color:rgba(151,40,31,.58);display:grid;place-items:center;cursor:pointer;opacity:.78;box-shadow:0 2px 8px rgba(55,28,18,.12)}
+.st-person-delete-role::before{content:"";position:absolute;left:9px;right:9px;bottom:5px;height:12px;border:2px solid currentColor;border-top:0;border-radius:0 0 4px 4px}
+.st-person-delete-role::after{content:"";position:absolute;left:8px;right:8px;top:5px;height:6px;border-top:2px solid currentColor;border-radius:999px;box-shadow:5px -3px 0 -4px currentColor,-5px -3px 0 -4px currentColor}
+.st-person-delete-role span{position:absolute;left:13px;right:13px;bottom:7px;top:12px;border-left:1px solid currentColor;border-right:1px solid currentColor}
 .st-person-delete-role:hover{opacity:.95;color:rgba(151,40,31,.78)}
 .st-person-delete-role:active{transform:scale(.94)}
 .st-person-card.is-enter-left,.st-person-paper.is-enter-left{animation:stPersonEnterLeft .22s ease-out}
@@ -3292,10 +3328,66 @@ button.st-work-notice{cursor:pointer}
     } catch {}
   }
 
+  function hypnosisLiteInt(value, fallback = 1, min = 1, max = 9999) {
+    const parsed = Math.floor(Number(value));
+    const next = Number.isFinite(parsed) ? parsed : fallback;
+    return Math.max(min, Math.min(max, next));
+  }
+
+  function hypnosisLiteMapValue(draft, key, id, fallback = "") {
+    const map = draft?.[key] && typeof draft[key] === "object" && !Array.isArray(draft[key]) ? draft[key] : {};
+    const value = map[id];
+    return value === undefined || value === null ? fallback : String(value);
+  }
+
+  function hypnosisFeatureUsesPartCount(feature) {
+    return feature?.id === "vip1_temp_sensitivity";
+  }
+
+  function hypnosisFeatureUsesPersonCount(feature) {
+    if (!feature || feature.id === "vip1_stats") return false;
+    if (feature.id === "vip5_open_space_common_sense") return false;
+    return Number(feature.costValue || 0) > 0;
+  }
+
+  function hypnosisFeatureUsesDuration(feature) {
+    return feature?.costType !== "ONE_TIME" && !["vip1_temp_sensitivity", "vip1_estrus", "vip1_memory_erase"].includes(feature?.id);
+  }
+
+  function hypnosisFeatureNumericConfig(feature) {
+    const id = feature?.id || "";
+    if (id === "vip1_temp_sensitivity") return { key: "敏感度", label: "敏感度", min: 1, max: 1000, unit: "%", fallback: "100" };
+    if (id === "vip1_estrus") return { key: "发情值", label: "发情值", min: 1, max: 500, unit: "", fallback: "1" };
+    if (id === "vip1_memory_erase") return { key: "记忆时长", label: "记忆时长", min: 1, max: 1440, unit: "分钟", fallback: "10" };
+    return null;
+  }
+
+  function hypnosisFeaturePersonCount(feature, draft) {
+    return hypnosisLiteInt(hypnosisLiteMapValue(draft, "persons", feature.id, "1"), 1, 1, 99);
+  }
+
+  function hypnosisFeaturePartCount(feature, draft) {
+    return hypnosisLiteInt(hypnosisLiteMapValue(draft, "parts", feature.id, "1"), 1, 1, 5);
+  }
+
+  function hypnosisFeatureDurationMinutes(feature, draft) {
+    return hypnosisLiteInt(hypnosisLiteMapValue(draft, "durations", feature.id, "10"), 10, 1, 1440);
+  }
+
+  function hypnosisFeatureNumericValue(feature, draft) {
+    const config = hypnosisFeatureNumericConfig(feature);
+    if (!config) return 1;
+    return hypnosisLiteInt(hypnosisLiteMapValue(draft, "numbers", feature.id, config.fallback), Number(config.fallback || 1), config.min, config.max);
+  }
+
   function hypnosisLiteFeatureCost(feature, draft) {
-    const duration = Math.max(1, Math.floor(Number(draft.duration || 10) || 10));
-    const base = Math.max(0, Math.floor(Number(feature.costValue || 0) || 0));
-    return feature.costType === "PER_MINUTE" ? base * duration : base;
+    if (!feature || Number(feature.costValue || 0) <= 0) return 0;
+    const base = feature.id === "vip1_temp_sensitivity" ? 2 : Math.max(0, Math.floor(Number(feature.costValue || 0) || 0));
+    const persons = hypnosisFeatureUsesPersonCount(feature) ? hypnosisFeaturePersonCount(feature, draft) : 1;
+    const parts = hypnosisFeatureUsesPartCount(feature) ? hypnosisFeaturePartCount(feature, draft) : 1;
+    const duration = hypnosisFeatureUsesDuration(feature) ? hypnosisFeatureDurationMinutes(feature, draft) : 1;
+    const numeric = hypnosisFeatureNumericConfig(feature) ? hypnosisFeatureNumericValue(feature, draft) : 1;
+    return Math.max(0, Math.floor(base * persons * parts * duration * numeric));
   }
 
   function hypnosisLiteSelectedFeatures(draft = readHypnosisLiteDraft()) {
@@ -3303,33 +3395,62 @@ button.st-work-notice{cursor:pointer}
     return ST_HYPNOSIS_FEATURES.filter((feature) => Boolean(enabled[feature.id]));
   }
 
-  function renderHypnosisCommands(page, system) {
-    const draft = readHypnosisLiteDraft();
+  function renderHypnosisFeatureParams(feature, draft) {
+    const items = [];
+    if (hypnosisFeatureUsesPersonCount(feature)) {
+      items.push('<label class="st-hypnosis-param"><span>人数</span><input type="number" min="1" max="99" step="1" value="' + escapeAttr(String(hypnosisFeaturePersonCount(feature, draft))) + '" data-hypnosis-feature-person="' + escapeAttr(feature.id) + '"></label>');
+    }
+    if (hypnosisFeatureUsesDuration(feature)) {
+      items.push('<label class="st-hypnosis-param"><span>时间(分钟)</span><input type="number" min="1" max="1440" step="1" value="' + escapeAttr(String(hypnosisFeatureDurationMinutes(feature, draft))) + '" data-hypnosis-feature-duration="' + escapeAttr(feature.id) + '"></label>');
+    }
+    if (hypnosisFeatureUsesPartCount(feature)) {
+      items.push('<label class="st-hypnosis-param"><span>部位数(1-5)</span><input type="number" min="1" max="5" step="1" value="' + escapeAttr(String(hypnosisFeaturePartCount(feature, draft))) + '" data-hypnosis-feature-part="' + escapeAttr(feature.id) + '"></label>');
+    }
+    const numericConfig = hypnosisFeatureNumericConfig(feature);
+    if (numericConfig) {
+      items.push('<label class="st-hypnosis-param"><span>' + escapeHtml(numericConfig.label + (numericConfig.unit ? "(" + numericConfig.unit + ")" : "")) + '</span><input type="number" min="' + numericConfig.min + '" max="' + numericConfig.max + '" step="1" value="' + escapeAttr(String(hypnosisFeatureNumericValue(feature, draft))) + '" data-hypnosis-feature-number="' + escapeAttr(feature.id) + '"></label>');
+    }
+    return items.length ? '<div class="st-hypnosis-param-grid">' + items.join("") + '</div>' : "";
+  }
+
+  function renderHypnosisCommandCard(feature, draft, accessible) {
     const notes = draft.notes && typeof draft.notes === "object" ? draft.notes : {};
     const enabled = draft.enabled && typeof draft.enabled === "object" ? draft.enabled : {};
+    const active = Boolean(enabled[feature.id]);
+    const cost = hypnosisLiteFeatureCost(feature, draft);
+    return '<article class="st-hypnosis-command ' + (accessible ? "" : "is-locked ") + (active ? "is-active" : "") + '">' +
+      '<div class="st-hypnosis-command-head">' +
+        '<label class="st-hypnosis-command-toggle"><input type="checkbox" data-hypnosis-feature="' + escapeAttr(feature.id) + '"' + (active ? " checked" : "") + (accessible ? "" : " disabled") + '><strong>' + escapeHtml(feature.title) + '</strong></label>' +
+        '<span class="st-hypnosis-badge">' + escapeHtml(cost + " MC") + '</span>' +
+      '</div>' +
+      '<p>' + escapeHtml(feature.description) + '</p>' +
+      (active ? renderHypnosisFeatureParams(feature, draft) +
+        '<textarea data-hypnosis-feature-note="' + escapeAttr(feature.id) + '" placeholder="' + escapeAttr(feature.placeholder || "补充目标、细节或限制...") + '">' + escapeHtml(notes[feature.id] || "") + '</textarea>' : "") +
+    '</article>';
+  }
+
+  function renderHypnosisCommands(page, system) {
+    const draft = readHypnosisLiteDraft();
+    const enabled = draft.enabled && typeof draft.enabled === "object" ? draft.enabled : {};
+    const tiersOpen = draft.tiersOpen && typeof draft.tiersOpen === "object" ? draft.tiersOpen : {};
     const currentRank = reactVipRank(reactCurrentVipTier(system));
-    const rows = ST_HYPNOSIS_FEATURES.map((feature) => {
-      const rank = feature.tier === "TRIAL" ? 0 : reactVipRank(feature.tier);
-      const accessible = rank <= currentRank || feature.tier === "TRIAL";
-      const active = Boolean(enabled[feature.id]);
-      return '<article class="st-hypnosis-command ' + (accessible ? "" : "is-locked ") + (active ? "is-active" : "") + '">' +
-        '<div class="st-hypnosis-command-head">' +
-          '<label class="st-hypnosis-command-toggle"><input type="checkbox" data-hypnosis-feature="' + escapeAttr(feature.id) + '"' + (active ? " checked" : "") + (accessible ? "" : " disabled") + '><strong>' + escapeHtml(feature.title) + '</strong></label>' +
-          '<span class="st-hypnosis-badge">' + escapeHtml(feature.tier + " · " + feature.costValue + (feature.costType === "PER_MINUTE" ? "/分" : "")) + '</span>' +
-        '</div>' +
-        '<p>' + escapeHtml(feature.description) + '</p>' +
-        (active ? '<textarea data-hypnosis-feature-note="' + escapeAttr(feature.id) + '" placeholder="' + escapeAttr(feature.placeholder || "补充目标、细节或限制...") + '">' + escapeHtml(notes[feature.id] || "") + '</textarea>' : "") +
-      '</article>';
+    const tiers = ["TRIAL", ...HYP_REACT_VIP_TIERS];
+    const groups = tiers.map((tier) => {
+      const features = ST_HYPNOSIS_FEATURES.filter((feature) => feature.tier === tier);
+      if (!features.length) return "";
+      const rank = tier === "TRIAL" ? 0 : reactVipRank(tier);
+      const accessible = rank <= currentRank || tier === "TRIAL";
+      const activeCount = features.filter((feature) => Boolean(enabled[feature.id])).length;
+      const defaultOpen = tier === "TRIAL" || activeCount > 0 || (accessible && rank === Math.max(0, currentRank));
+      const open = tiersOpen[tier] === undefined ? defaultOpen : Boolean(tiersOpen[tier]);
+      return '<details class="st-hypnosis-tier" data-hypnosis-tier-details="' + escapeAttr(tier) + '"' + (open ? " open" : "") + '>' +
+        '<summary class="st-hypnosis-tier-summary"><strong>' + escapeHtml(tier === "TRIAL" ? "试用区" : tier) + '</strong><span>' + escapeHtml((accessible ? "可用" : "未解锁") + " · " + activeCount + "/" + features.length + " 已选") + '</span><i>⌄</i></summary>' +
+        '<section class="st-hypnosis-tier-body">' + features.map((feature) => renderHypnosisCommandCard(feature, draft, accessible)).join("") + '</section>' +
+      '</details>';
     }).join("");
     return '<section class="st-lite-card st-graph-paper st-hypnosis-form">' +
-      '<div class="st-graph-head"><strong>催眠指令</strong><span>选择后暂存为一次 APP 操作</span></div>' +
-      '<div class="st-hypnosis-form-grid">' +
-        '<input type="number" min="1" step="1" value="' + escapeAttr(draft.duration || "10") + '" data-hypnosis-duration aria-label="持续分钟">' +
-        '<input type="text" value="' + escapeAttr(draft.target || "") + '" data-hypnosis-target placeholder="目标">' +
-        '<input type="text" value="' + escapeAttr(draft.scene || "") + '" data-hypnosis-scene placeholder="场景">' +
-      '</div>' +
-      '<textarea data-hypnosis-global-note placeholder="整体备注，例如催眠方式、语气、额外限制...">' + escapeHtml(draft.globalNote || "") + '</textarea>' +
-      '<section class="st-hypnosis-list">' + rows + '</section>' +
+      '<div class="st-graph-head"><strong>催眠指令</strong><span>每条指令独立设置参数</span></div>' +
+      '<section class="st-hypnosis-list">' + groups + '</section>' +
       '<button class="st-hypnosis-button" type="button" data-hypnosis-start>启动/追加催眠</button>' +
     '</section>';
   }
@@ -3414,10 +3535,13 @@ button.st-work-notice{cursor:pointer}
       const draft = readHypnosisLiteDraft();
       writeHypnosisLiteDraft(patcher(draft) || draft);
     };
-    page.querySelector("[data-hypnosis-duration]")?.addEventListener("input", (event) => updateDraft((draft) => ({ ...draft, duration: String(event.target.value || "") })));
-    page.querySelector("[data-hypnosis-target]")?.addEventListener("input", (event) => updateDraft((draft) => ({ ...draft, target: String(event.target.value || "") })));
-    page.querySelector("[data-hypnosis-scene]")?.addEventListener("input", (event) => updateDraft((draft) => ({ ...draft, scene: String(event.target.value || "") })));
-    page.querySelector("[data-hypnosis-global-note]")?.addEventListener("input", (event) => updateDraft((draft) => ({ ...draft, globalNote: String(event.target.value || "") })));
+    page.querySelectorAll("[data-hypnosis-tier-details]").forEach((details) => details.addEventListener("toggle", () => {
+      updateDraft((draft) => {
+        const tiersOpen = { ...(draft.tiersOpen || {}) };
+        tiersOpen[details.getAttribute("data-hypnosis-tier-details") || ""] = Boolean(details.open);
+        return { ...draft, tiersOpen };
+      });
+    }));
     page.querySelectorAll("[data-hypnosis-feature]").forEach((input) => input.addEventListener("change", () => {
       updateDraft((draft) => {
         const enabled = { ...(draft.enabled || {}) };
@@ -3433,6 +3557,38 @@ button.st-work-notice{cursor:pointer}
         return { ...draft, notes };
       });
     }));
+    page.querySelectorAll("[data-hypnosis-feature-person]").forEach((input) => input.addEventListener("input", () => {
+      updateDraft((draft) => {
+        const persons = { ...(draft.persons || {}) };
+        persons[input.getAttribute("data-hypnosis-feature-person") || ""] = String(input.value || "");
+        return { ...draft, persons };
+      });
+      renderHypnosisLitePage(page);
+    }));
+    page.querySelectorAll("[data-hypnosis-feature-part]").forEach((input) => input.addEventListener("input", () => {
+      updateDraft((draft) => {
+        const parts = { ...(draft.parts || {}) };
+        parts[input.getAttribute("data-hypnosis-feature-part") || ""] = String(input.value || "");
+        return { ...draft, parts };
+      });
+      renderHypnosisLitePage(page);
+    }));
+    page.querySelectorAll("[data-hypnosis-feature-duration]").forEach((input) => input.addEventListener("input", () => {
+      updateDraft((draft) => {
+        const durations = { ...(draft.durations || {}) };
+        durations[input.getAttribute("data-hypnosis-feature-duration") || ""] = String(input.value || "");
+        return { ...draft, durations };
+      });
+      renderHypnosisLitePage(page);
+    }));
+    page.querySelectorAll("[data-hypnosis-feature-number]").forEach((input) => input.addEventListener("input", () => {
+      updateDraft((draft) => {
+        const numbers = { ...(draft.numbers || {}) };
+        numbers[input.getAttribute("data-hypnosis-feature-number") || ""] = String(input.value || "");
+        return { ...draft, numbers };
+      });
+      renderHypnosisLitePage(page);
+    }));
     page.querySelector("[data-hypnosis-start]")?.addEventListener("click", () => {
       const draft = readHypnosisLiteDraft();
       const selected = hypnosisLiteSelectedFeatures(draft);
@@ -3443,23 +3599,29 @@ button.st-work-notice{cursor:pointer}
       }
       const notes = draft.notes && typeof draft.notes === "object" ? draft.notes : {};
       const totalCost = selected.reduce((sum, feature) => sum + hypnosisLiteFeatureCost(feature, draft), 0);
-      appendAppOperation({
-        来源: "催眠APP",
-        操作: liteIslandHypnosisInfo() ? "追加催眠" : "启动催眠",
-        目标: String(draft.target || "").trim() || "由当前剧情判断",
-        场景: String(draft.scene || "").trim() || "当前场景",
-        持续时间: String(Math.max(1, Math.floor(Number(draft.duration || 10) || 10))) + "分钟",
-        预计消耗MC能量: totalCost,
-        指令列表: selected.map((feature) => ({
+      const commandList = selected.map((feature) => {
+        const detail = {
           指令ID: feature.id,
           指令: feature.title,
           等级: feature.tier,
-          消耗: hypnosisLiteFeatureCost(feature, draft),
           说明: feature.description,
-          备注: String(notes[feature.id] || "").trim()
-        })),
-        整体备注: String(draft.globalNote || "").trim(),
-        结算提示: "前端只暂存操作；若MC能量、VIP等级或剧情条件不足则失败。成功后由AI按指令写入临时/永久效果、资源扣除和持续时间。"
+          备注: String(notes[feature.id] || "").trim() || "无",
+          预计消耗MC能量: hypnosisLiteFeatureCost(feature, draft),
+          消耗类型: "当前MC能量"
+        };
+        if (hypnosisFeatureUsesPersonCount(feature)) detail["人数"] = hypnosisFeaturePersonCount(feature, draft);
+        if (hypnosisFeatureUsesPartCount(feature)) detail["部位数量"] = hypnosisFeaturePartCount(feature, draft);
+        if (hypnosisFeatureUsesDuration(feature)) detail["时间"] = hypnosisFeatureDurationMinutes(feature, draft) + "分钟";
+        const numericConfig = hypnosisFeatureNumericConfig(feature);
+        if (numericConfig) detail[numericConfig.key] = String(hypnosisFeatureNumericValue(feature, draft)) + (numericConfig.unit || "");
+        return detail;
+      });
+      appendAppOperation({
+        来源: "催眠APP",
+        操作: liteIslandHypnosisInfo() ? "追加催眠" : "启动催眠",
+        功能列表: commandList,
+        MC能量消耗: totalCost + "点",
+        结算提示: "前端只暂存操作；AI按每条指令的等级、人数、部位、时间、数值和备注判断目标、剧情条件、VIP等级与MC能量是否足够。成功后写入对应临时/永久效果、资源扣除和持续时间；失败时说明原因。"
       });
       page.dataset.hypnosisNotice = "催眠操作已暂存。";
       renderHypnosisLitePage(page);
@@ -4189,13 +4351,44 @@ button.st-work-notice{cursor:pointer}
   }
 
   function findHomeTileByText(text) {
+    return homeTilesByText(text)[0] || null;
+  }
+
+  function homeTilesByText(text) {
     const labels = Array.from(document.querySelectorAll("span,button,div"))
       .filter((element) => !element.closest(".st-mchan-internal-app,.st-calendar-lite-app,.st-timetable-app,.st-clock-app,.st-profile-app,.st-map-app,.st-school-app,.st-monitor-app,.st-work-app,.st-encounter-app,.st-inventory-app,.st-reward-app,.st-hypnosis-lite-app,.st-placeholder-app") && element.textContent?.trim() === text);
+    const tiles = [];
+    const seen = new Set();
     for (const label of labels) {
       const tile = findTileFromLabel(label);
-      if (tile) return tile;
+      if (tile && !seen.has(tile)) {
+        seen.add(tile);
+        tiles.push(tile);
+      }
     }
-    return null;
+    return tiles;
+  }
+
+  function dedupeHomeTilesByText(text) {
+    const tiles = homeTilesByText(text);
+    for (let index = 1; index < tiles.length; index += 1) {
+      tiles[index]?.remove?.();
+    }
+    return tiles[0] || null;
+  }
+
+  function bindHomeTileAction(tile, flag, aria, open) {
+    if (!tile) return false;
+    if (aria) tile.setAttribute("aria-label", aria);
+    if (tile.dataset[flag] === "true") return true;
+    tile.dataset[flag] = "true";
+    tile.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      open(tile);
+    }, true);
+    return true;
   }
 
   function replaceExactTextInTile(tile, from, to) {
@@ -5067,6 +5260,14 @@ button.st-work-notice{cursor:pointer}
     if (page.dataset.profileBound === "true") return;
     page.dataset.profileBound = "true";
     page.addEventListener("click", (event) => {
+      const deskDelete = event.target?.closest?.("[data-profile-desk-delete-role]");
+      if (deskDelete && page.contains(deskDelete)) {
+        event.preventDefault();
+        event.stopPropagation();
+        const roleName = deskDelete.getAttribute("data-profile-desk-delete-role") || "";
+        if (roleName && !ST_LOCKED_PROFILE_ROLES.has(roleName)) requestDeleteProfileRole(roleName);
+        return;
+      }
       const deskCard = event.target?.closest?.("[data-profile-desk-role]");
       if (deskCard && page.contains(deskCard)) {
         event.preventDefault();
@@ -5184,19 +5385,23 @@ button.st-work-notice{cursor:pointer}
   function profileDeskCardHtml(roleName, roleData) {
     const profile = roleProfileData(roleName, roleData);
     const photo = profilePhotoSource(roleName, roleData);
+    const canDelete = roleName && !ST_LOCKED_PROFILE_ROLES.has(roleName);
     const lines = PERSON_PROFILE_CLOTHING_FIELDS.map((field) => (
       '<div class="st-profile-mini-line">' +
         '<b>' + escapeHtml(field.label.replace(/s+/g, "")) + '</b>' +
         '<span>' + escapeHtml(profileFieldText(profile, roleName, field)) + '</span>' +
       '</div>'
     )).join("");
-    return '<button class="st-profile-desk-card" type="button" data-profile-desk-role="' + escapeAttr(roleName) + '">' +
-      '<div class="st-profile-mini-head">人物档案</div>' +
-      '<div class="st-profile-mini-picker"><strong>' + escapeHtml(roleName) + '</strong><i>☆</i></div>' +
-      '<div class="st-profile-mini-photo">' + (photo ? '<img alt="' + escapeAttr(roleName) + '" src="' + escapeAttr(photo) + '">' : '<span>照片</span>') + '</div>' +
-      '<nav class="st-profile-mini-tabs" aria-hidden="true"><span>衣着</span><span>信息</span><span>状态</span><span>敏感</span><span>效果</span></nav>' +
-      '<section class="st-profile-mini-lines">' + lines + '</section>' +
-    '</button>';
+    return '<article class="st-profile-desk-wrap">' +
+      '<button class="st-profile-desk-card" type="button" data-profile-desk-role="' + escapeAttr(roleName) + '">' +
+        '<div class="st-profile-mini-head">人物档案</div>' +
+        '<div class="st-profile-mini-picker"><strong>' + escapeHtml(roleName) + '</strong><i>☆</i></div>' +
+        '<div class="st-profile-mini-photo">' + (photo ? '<img alt="' + escapeAttr(roleName) + '" src="' + escapeAttr(photo) + '">' : '<span>照片</span>') + '</div>' +
+        '<nav class="st-profile-mini-tabs" aria-hidden="true"><span>衣着</span><span>信息</span><span>状态</span><span>敏感</span><span>效果</span></nav>' +
+        '<section class="st-profile-mini-lines">' + lines + '</section>' +
+      '</button>' +
+      (canDelete ? '<button class="st-person-delete-role" type="button" data-profile-desk-delete-role="' + escapeAttr(roleName) + '" aria-label="删除角色" title="删除角色"><span aria-hidden="true"></span></button>' : "") +
+    '</article>';
   }
 
   function renderPersonProfileDeskPage(page, roleNames, roles) {
@@ -5286,7 +5491,6 @@ button.st-work-notice{cursor:pointer}
             '<input type="file" accept="image/*" data-profile-file hidden>' +
             contentHtml +
             '<div class="st-person-page-count">' + escapeHtml((staticIsaac ? "彩蛋档案" : String(index + 1) + " / " + roleNames.length) + " · " + activeTabLabel) + '</div>' +
-            (staticIsaac ? "" : '<button class="st-person-delete-role" type="button" data-profile-action="delete-role" aria-label="删除角色" title="删除角色"><span aria-hidden="true"></span></button>') +
           '</section>' +
         '</section>' +
       '</main>';
@@ -6037,12 +6241,12 @@ button.st-work-notice{cursor:pointer}
   }
 
   const ST_WORK_JOBS = [
-    { id: "construction", threshold: 0, title: "搬砖", place: "工地杂工", wage: 10000, shachiku: 10, chance: 0.08, detail: "纯体力活，灰头土脸但来钱直接。" },
-    { id: "convenience", threshold: 40, title: "便利店夜班", place: "便利店临时工", wage: 19000, shachiku: 8, chance: 0.11, detail: "收银、补货和清扫，熬过深夜就算胜利。" },
-    { id: "warehouse", threshold: 80, title: "仓储分拣", place: "物流仓库", wage: 32000, shachiku: 6, chance: 0.15, detail: "按单拣货、贴标、搬运，比搬砖更讲节奏。" },
-    { id: "event-staff", threshold: 120, title: "会场杂务", place: "活动会场后台", wage: 52000, shachiku: 4, chance: 0.19, detail: "布置、引导、善后，接触人群更多也更考验临场反应。" },
-    { id: "office-temp", threshold: 160, title: "事务所临时文员", place: "事务所外包", wage: 80000, shachiku: 3, chance: 0.23, detail: "整理文件、跑腿和录入资料，看起来体面但精神消耗不小。" },
-    { id: "private-errand", threshold: 200, title: "高端代办", place: "会员制委托", wage: 125000, shachiku: 2, chance: 0.28, detail: "替人处理隐秘杂务，报酬最高，也最需要会看眼色。" }
+    { id: "construction", threshold: 0, title: "搬砖", place: "工地杂工", wage: 10000, shachiku: 10, chance: 0.08, detail: "XX工地急缺临时力工，负责把砖块、水泥袋和脚手架零件搬到指定位置。无需经验，听从工头安排，手脚麻利优先；灰尘大、出汗多，工资当日结清。" },
+    { id: "convenience", threshold: 40, title: "便利店夜班", place: "便利店临时工", wage: 19000, shachiku: 8, chance: 0.11, detail: "街角便利店招夜班替班，负责收银、补货、热柜整理、清扫门口与仓库。要求能熬夜、会简单对客，不迟到不擅离岗位；下班后结算。" },
+    { id: "warehouse", threshold: 80, title: "仓储分拣", place: "物流仓库", wage: 32000, shachiku: 6, chance: 0.15, detail: "城郊仓库临时招分拣员，按单拣货、贴标、装箱、搬运小件包裹。工作节奏快，需要核对编号，弄错会被扣时薪；适合有体力也能细心的人。" },
+    { id: "event-staff", threshold: 120, title: "会场杂务", place: "活动会场后台", wage: 52000, shachiku: 4, chance: 0.19, detail: "某活动会场招短期支援，协助布置桌椅、搬运展架、引导来宾、结束后撤场。需要穿着整洁、反应快、能听懂现场指挥，可能接触各类来宾。" },
+    { id: "office-temp", threshold: 160, title: "事务所临时文员", place: "事务所外包", wage: 80000, shachiku: 3, chance: 0.23, detail: "某事务所需要临时文员，整理纸质档案、录入资料、跑腿送件、复印装订。表面轻松但要求保密、少说话、字迹清楚，做完六小时统一结算。" },
+    { id: "private-errand", threshold: 200, title: "高端代办", place: "会员制委托", wage: 125000, shachiku: 2, chance: 0.28, detail: "私人委托招可靠代办，内容包括预约排队、取送物品、陪同处理琐事和临时协调。报酬高但要求守口如瓶、会看气氛、不要追问委托人的隐私。" }
   ];
 
   function workNumber(value, fallback = 0) {
@@ -11127,21 +11331,18 @@ button.st-work-notice{cursor:pointer}
     const anchorTile = findHomeTileByText("催眠APP");
     if (!anchorTile) return;
     const parent = anchorTile.parentElement;
-    if (!parent || parent.querySelector('[data-st-profile-tile="true"]')) return;
-    const tile = anchorTile.cloneNode(true);
+    if (!parent) return;
+    let tile = dedupeHomeTilesByText("人物档案");
+    if (!tile) {
+      tile = anchorTile.cloneNode(true);
+      tile.removeAttribute("data-st-mchan-internal-patched");
+      replaceExactTextInTile(tile, "催眠APP", "人物档案");
+      tile.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
+      anchorTile.insertAdjacentElement("afterend", tile);
+    }
     tile.dataset.stProfileTile = "true";
-    tile.removeAttribute("data-st-mchan-internal-patched");
-    tile.setAttribute("aria-label", "打开人物档案");
-    replaceExactTextInTile(tile, "催眠APP", "人物档案");
     setHomeTileIcon(tile, ST_APP_ICONS.profile, "人物档案");
-    tile.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
-    tile.addEventListener("click", (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-      openPersonProfilePage(tile);
-    }, true);
-    anchorTile.insertAdjacentElement("afterend", tile);
+    bindHomeTileAction(tile, "stProfileTilePatched", "打开人物档案", openPersonProfilePage);
   }
 
   function patchCalendarAndTimetableTiles() {
@@ -11161,38 +11362,30 @@ button.st-work-notice{cursor:pointer}
     }
     const parent = calendarTile.parentElement;
     if (!parent) return;
-    let timetableTile = parent.querySelector('[data-st-timetable-tile="true"]');
+    let timetableTile = dedupeHomeTilesByText("课程表") || parent.querySelector('[data-st-timetable-tile="true"]');
     if (!timetableTile) {
       timetableTile = calendarTile.cloneNode(true);
-      timetableTile.dataset.stTimetableTile = "true";
       timetableTile.dataset.stLiteCalendarPatched = "";
-      timetableTile.setAttribute("aria-label", "打开课程表");
       replaceExactTextInTile(timetableTile, "日历", "课程表");
-      setHomeTileIcon(timetableTile, ST_APP_ICONS.timetable, "课程表");
       timetableTile.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
-      timetableTile.addEventListener("click", (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-        openTimetablePage(timetableTile);
-      }, true);
       calendarTile.insertAdjacentElement("afterend", timetableTile);
     }
-    if (parent.querySelector('[data-st-clock-tile="true"]')) return;
-    const clockTile = timetableTile.cloneNode(true);
+    timetableTile.dataset.stTimetableTile = "true";
+    setHomeTileIcon(timetableTile, ST_APP_ICONS.timetable, "课程表");
+    bindHomeTileAction(timetableTile, "stTimetableTilePatched", "打开课程表", openTimetablePage);
+    let clockTile = dedupeHomeTilesByText("时钟") || parent.querySelector('[data-st-clock-tile="true"]');
+    if (!clockTile) {
+      clockTile = timetableTile.cloneNode(true);
+      clockTile.removeAttribute("data-st-timetable-tile");
+      setHomeTileLabel(clockTile, "时钟");
+      clockTile.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
+      timetableTile.insertAdjacentElement("afterend", clockTile);
+    }
     clockTile.dataset.stClockTile = "true";
     clockTile.removeAttribute("data-st-timetable-tile");
-    clockTile.setAttribute("aria-label", "打开时钟");
     setHomeTileLabel(clockTile, "时钟");
     setHomeTileIcon(clockTile, ST_APP_ICONS.clock, "时钟");
-    clockTile.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
-    clockTile.addEventListener("click", (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-      openClockPage(clockTile);
-    }, true);
-    timetableTile.insertAdjacentElement("afterend", clockTile);
+    bindHomeTileAction(clockTile, "stClockTilePatched", "打开时钟", openClockPage);
   }
 
   function patchMapAndSchoolTiles() {
@@ -11201,38 +11394,30 @@ button.st-work-notice{cursor:pointer}
     const anchor = findHomeTileByText("MC匿名版") || findHomeTileByText("库存") || findHomeTileByText("成就和任务");
     if (!anchor?.parentElement) return;
     const parent = anchor.parentElement;
-    let mapTile = parent.querySelector('[data-st-map-tile="true"]');
+    let mapTile = dedupeHomeTilesByText("地图") || parent.querySelector('[data-st-map-tile="true"]');
     if (!mapTile) {
       mapTile = anchor.cloneNode(true);
-      mapTile.dataset.stMapTile = "true";
       mapTile.removeAttribute("data-st-mchan-internal-patched");
-      mapTile.setAttribute("aria-label", "打开地图");
       setHomeTileLabel(mapTile, "地图");
-      setHomeTileIcon(mapTile, ST_APP_ICONS.map, "地图");
       mapTile.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
-      mapTile.addEventListener("click", (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-        openTodoPage(mapTile, "map", "st-map-app", "地图", "区域信息");
-      }, true);
       anchor.insertAdjacentElement("afterend", mapTile);
     }
-    if (parent.querySelector('[data-st-school-tile="true"]')) return;
-    const schoolTile = mapTile.cloneNode(true);
+    mapTile.dataset.stMapTile = "true";
+    setHomeTileIcon(mapTile, ST_APP_ICONS.map, "地图");
+    bindHomeTileAction(mapTile, "stMapTilePatched", "打开地图", (tile) => openTodoPage(tile, "map", "st-map-app", "地图", "区域信息"));
+    let schoolTile = dedupeHomeTilesByText("学校") || parent.querySelector('[data-st-school-tile="true"]');
+    if (!schoolTile) {
+      schoolTile = mapTile.cloneNode(true);
+      schoolTile.removeAttribute("data-st-map-tile");
+      setHomeTileLabel(schoolTile, "学校");
+      schoolTile.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
+      mapTile.insertAdjacentElement("afterend", schoolTile);
+    }
     schoolTile.dataset.stSchoolTile = "true";
     schoolTile.removeAttribute("data-st-map-tile");
-    schoolTile.setAttribute("aria-label", "打开学校");
     setHomeTileLabel(schoolTile, "学校");
     setHomeTileIcon(schoolTile, ST_APP_ICONS.school, "学校");
-    schoolTile.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
-    schoolTile.addEventListener("click", (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-      openTodoPage(schoolTile, "school", "st-school-app", "学校", "学校地图与校规", true);
-    }, true);
-    mapTile.insertAdjacentElement("afterend", schoolTile);
+    bindHomeTileAction(schoolTile, "stSchoolTilePatched", "打开学校", (tile) => openTodoPage(tile, "school", "st-school-app", "学校", "学校地图与校规", true));
   }
 
   function patchInternalCoreAppTiles() {
