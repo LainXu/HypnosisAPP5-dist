@@ -2020,6 +2020,21 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-hypnosis-param-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
 .st-hypnosis-param{display:grid;gap:4px}
 .st-hypnosis-param span{color:rgba(253,242,248,.58);font-size:10px;font-weight:850}
+.st-hypnosis-mode-row{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid rgba(244,114,182,.14);border-radius:10px;background:rgba(255,255,255,.045);padding:7px 8px;margin-bottom:8px}
+.st-hypnosis-mode-row span{min-width:0;color:rgba(253,242,248,.6);font-size:10px;font-weight:850;line-height:1.35}
+.st-hypnosis-mode-row button{height:28px;border:1px solid rgba(244,114,182,.22);border-radius:999px;background:rgba(255,255,255,.06);color:rgba(253,242,248,.72);padding:0 10px;font-size:10px;font-weight:950;white-space:nowrap;cursor:pointer}
+.st-hypnosis-mode-row button.active{border-color:rgba(244,114,182,.58);background:linear-gradient(135deg,#a855f7,#ec4899);color:#fff;box-shadow:0 0 14px rgba(236,72,153,.18)}
+.st-hypnosis-select{position:relative;display:grid;gap:4px;min-width:0}
+.st-hypnosis-select>span{color:rgba(253,242,248,.58);font-size:10px;font-weight:850}
+.st-hypnosis-pick-button{min-width:0;min-height:34px;border:1px solid rgba(244,114,182,.2);border-radius:999px;background:rgba(9,4,18,.48);color:#fff;display:flex;align-items:center;gap:7px;padding:5px 9px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.st-hypnosis-pick-button strong{min-width:0;font-size:11px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-hypnosis-pick-button small{margin-left:auto;color:rgba(253,242,248,.54);font-size:9px;font-weight:950;white-space:nowrap}
+.st-hypnosis-pick-plus{width:20px;height:20px;min-width:20px;border-radius:999px;border:1px solid rgba(244,114,182,.45);background:radial-gradient(circle,rgba(244,114,182,.28),rgba(168,85,247,.16));display:grid;place-items:center;color:#fce7f3;font-size:17px;font-weight:950;line-height:1}
+.st-hypnosis-picker{position:absolute;left:0;right:0;top:calc(100% + 5px);z-index:20;max-height:178px;overflow:auto;border:1px solid rgba(244,114,182,.28);border-radius:12px;background:linear-gradient(180deg,rgba(31,12,44,.98),rgba(14,6,26,.98));box-shadow:0 18px 34px rgba(0,0,0,.36),inset 0 1px 0 rgba(255,255,255,.08);padding:6px;display:grid;gap:5px}
+.st-hypnosis-picker label{min-width:0;display:grid;grid-template-columns:18px minmax(0,1fr);gap:7px;align-items:center;border:1px solid rgba(244,114,182,.1);border-radius:9px;background:rgba(255,255,255,.035);padding:6px 7px;color:rgba(253,242,248,.82);font-size:11px;font-weight:850;cursor:pointer}
+.st-hypnosis-picker label:hover{border-color:rgba(244,114,182,.26);background:rgba(244,114,182,.08)}
+.st-hypnosis-picker input{width:16px!important;height:16px!important;min-width:16px!important;margin:0!important;padding:0!important;accent-color:#ec4899}
+.st-hypnosis-picker em{color:rgba(253,242,248,.42);font-style:normal;font-size:10px;text-align:center;padding:9px 4px}
 .st-hypnosis-summary span,.st-hypnosis-vip-row{border-color:rgba(244,114,182,.14);background:rgba(255,255,255,.06);color:rgba(253,242,248,.72)}
 .st-hypnosis-submit-row{display:grid;grid-template-columns:minmax(104px,.7fr) minmax(0,1fr);gap:8px;align-items:stretch}
 .st-hypnosis-submit-row .st-hypnosis-button{height:100%}
@@ -3046,6 +3061,13 @@ button.st-work-notice{cursor:pointer}
     ["vip5_permanent_personality","VIP5","永久人格植入","永久将一个人格植入目标。","ONE_TIME",3000,"人格内容"],
     ["vip5_open_space_common_sense","VIP5","开放空间常识修改","修改开放空间内的规则或常识。","PER_MINUTE",100,"空间与规则"]
   ].map(([id, tier, title, description, costType, costValue, placeholder]) => ({ id, tier, title, description, costType, costValue, placeholder }));
+  const ST_HYPNOSIS_BODY_PARTS = [
+    { id: "clitoris", label: "阴蒂", stat: "阴蒂敏感度" },
+    { id: "vagina", label: "小穴", stat: "小穴敏感度" },
+    { id: "anus", label: "菊穴", stat: "菊穴敏感度" },
+    { id: "urethra", label: "尿道", stat: "尿道敏感度" },
+    { id: "nipple", label: "乳头", stat: "乳头敏感度" }
+  ];
 
   function reactVipRank(tier) {
     const match = String(tier || "").toUpperCase().match(/VIP\s*([1-6])/);
@@ -3635,6 +3657,39 @@ button.st-work-notice{cursor:pointer}
     return value === undefined || value === null ? fallback : String(value);
   }
 
+  function hypnosisSelectionMode(draft) {
+    return Boolean(draft?.selectionMode);
+  }
+
+  function hypnosisCurrentRoleNames() {
+    const roles = getStatsRoles();
+    return sortedStatsRoleNames(roles).filter((name) => {
+      const text = String(name || "").trim();
+      return Boolean(text) && !["以撒", "阿宅君", "{{user}}", "主角"].includes(text);
+    });
+  }
+
+  function hypnosisArrayMapValue(draft, key, id) {
+    const map = draft?.[key] && typeof draft[key] === "object" && !Array.isArray(draft[key]) ? draft[key] : {};
+    const value = map[id];
+    return Array.isArray(value) ? value.map((item) => String(item || "").trim()).filter(Boolean) : [];
+  }
+
+  function hypnosisSelectedRoleNames(feature, draft) {
+    const available = new Set(hypnosisCurrentRoleNames());
+    return hypnosisArrayMapValue(draft, "roleSelections", feature?.id || "").filter((name) => available.has(name));
+  }
+
+  function hypnosisSelectedPartIds(feature, draft) {
+    const available = new Set(ST_HYPNOSIS_BODY_PARTS.map((item) => item.id));
+    return hypnosisArrayMapValue(draft, "partSelections", feature?.id || "").filter((id) => available.has(id));
+  }
+
+  function hypnosisSelectedPartLabels(feature, draft) {
+    const selected = new Set(hypnosisSelectedPartIds(feature, draft));
+    return ST_HYPNOSIS_BODY_PARTS.filter((item) => selected.has(item.id)).map((item) => item.label);
+  }
+
   function hypnosisFeatureUsesPartCount(feature) {
     return feature?.id === "vip1_temp_sensitivity";
   }
@@ -3658,10 +3713,12 @@ button.st-work-notice{cursor:pointer}
   }
 
   function hypnosisFeaturePersonCount(feature, draft) {
+    if (hypnosisSelectionMode(draft)) return Math.min(99, hypnosisSelectedRoleNames(feature, draft).length);
     return hypnosisLiteInt(hypnosisLiteMapValue(draft, "persons", feature.id, "1"), 1, 1, 99);
   }
 
   function hypnosisFeaturePartCount(feature, draft) {
+    if (hypnosisSelectionMode(draft)) return Math.min(5, hypnosisSelectedPartIds(feature, draft).length);
     return hypnosisLiteInt(hypnosisLiteMapValue(draft, "parts", feature.id, "1"), 1, 1, 5);
   }
 
@@ -3690,16 +3747,49 @@ button.st-work-notice{cursor:pointer}
     return ST_HYPNOSIS_FEATURES.filter((feature) => Boolean(enabled[feature.id]));
   }
 
-  function renderHypnosisFeatureParams(feature, draft) {
+  function renderHypnosisChoicePicker(feature, draft, page, type) {
+    const featureId = feature?.id || "";
+    const pickerKey = type + ":" + featureId;
+    const open = page?.dataset?.hypnosisPicker === pickerKey;
+    if (type === "role") {
+      const available = hypnosisCurrentRoleNames();
+      const selected = hypnosisSelectedRoleNames(feature, draft);
+      const selectedSet = new Set(selected);
+      const preview = selected.length ? selected.slice(0, 2).join("、") + (selected.length > 2 ? " +" + (selected.length - 2) : "") : "点击选择";
+      const options = available.length
+        ? available.map((name) => '<label><input type="checkbox" data-hypnosis-select-option="role" data-feature-id="' + escapeAttr(featureId) + '" value="' + escapeAttr(name) + '"' + (selectedSet.has(name) ? " checked" : "") + '><span>' + escapeHtml(name) + '</span></label>').join("")
+        : '<em>当前变量里没有可选择角色</em>';
+      return '<div class="st-hypnosis-select"><span>目标角色</span>' +
+        '<button type="button" class="st-hypnosis-pick-button" data-hypnosis-picker-toggle data-picker-type="role" data-feature-id="' + escapeAttr(featureId) + '" aria-expanded="' + (open ? "true" : "false") + '"><i class="st-hypnosis-pick-plus">+</i><strong>' + escapeHtml(preview) + '</strong><small>' + selected.length + '人</small></button>' +
+        (open ? '<div class="st-hypnosis-picker">' + options + '</div>' : '') +
+      '</div>';
+    }
+    const selectedIds = hypnosisSelectedPartIds(feature, draft);
+    const selectedSet = new Set(selectedIds);
+    const labels = hypnosisSelectedPartLabels(feature, draft);
+    const preview = labels.length ? labels.join("、") : "点击选择";
+    const options = ST_HYPNOSIS_BODY_PARTS.map((part) => '<label><input type="checkbox" data-hypnosis-select-option="part" data-feature-id="' + escapeAttr(featureId) + '" value="' + escapeAttr(part.id) + '"' + (selectedSet.has(part.id) ? " checked" : "") + '><span>' + escapeHtml(part.label) + '</span></label>').join("");
+    return '<div class="st-hypnosis-select"><span>敏感部位</span>' +
+      '<button type="button" class="st-hypnosis-pick-button" data-hypnosis-picker-toggle data-picker-type="part" data-feature-id="' + escapeAttr(featureId) + '" aria-expanded="' + (open ? "true" : "false") + '"><i class="st-hypnosis-pick-plus">+</i><strong>' + escapeHtml(preview) + '</strong><small>' + selectedIds.length + '处</small></button>' +
+      (open ? '<div class="st-hypnosis-picker">' + options + '</div>' : '') +
+    '</div>';
+  }
+
+  function renderHypnosisFeatureParams(feature, draft, page) {
     const items = [];
+    const selectionMode = hypnosisSelectionMode(draft);
     if (hypnosisFeatureUsesPersonCount(feature)) {
-      items.push('<label class="st-hypnosis-param"><span>人数</span><input type="number" min="1" max="99" step="1" value="' + escapeAttr(String(hypnosisFeaturePersonCount(feature, draft))) + '" data-hypnosis-feature-person="' + escapeAttr(feature.id) + '"></label>');
+      items.push(selectionMode
+        ? renderHypnosisChoicePicker(feature, draft, page, "role")
+        : '<label class="st-hypnosis-param"><span>人数</span><input type="number" min="1" max="99" step="1" value="' + escapeAttr(String(hypnosisFeaturePersonCount(feature, draft))) + '" data-hypnosis-feature-person="' + escapeAttr(feature.id) + '"></label>');
     }
     if (hypnosisFeatureUsesDuration(feature)) {
       items.push('<label class="st-hypnosis-param"><span>时间(分钟)</span><input type="number" min="1" max="1440" step="1" value="' + escapeAttr(String(hypnosisFeatureDurationMinutes(feature, draft))) + '" data-hypnosis-feature-duration="' + escapeAttr(feature.id) + '"></label>');
     }
     if (hypnosisFeatureUsesPartCount(feature)) {
-      items.push('<label class="st-hypnosis-param"><span>部位数(1-5)</span><input type="number" min="1" max="5" step="1" value="' + escapeAttr(String(hypnosisFeaturePartCount(feature, draft))) + '" data-hypnosis-feature-part="' + escapeAttr(feature.id) + '"></label>');
+      items.push(selectionMode
+        ? renderHypnosisChoicePicker(feature, draft, page, "part")
+        : '<label class="st-hypnosis-param"><span>部位数(1-5)</span><input type="number" min="1" max="5" step="1" value="' + escapeAttr(String(hypnosisFeaturePartCount(feature, draft))) + '" data-hypnosis-feature-part="' + escapeAttr(feature.id) + '"></label>');
     }
     const numericConfig = hypnosisFeatureNumericConfig(feature);
     if (numericConfig) {
@@ -3708,7 +3798,7 @@ button.st-work-notice{cursor:pointer}
     return items.length ? '<div class="st-hypnosis-param-grid">' + items.join("") + '</div>' : "";
   }
 
-  function renderHypnosisCommandCard(feature, draft, accessible) {
+  function renderHypnosisCommandCard(feature, draft, accessible, page) {
     const notes = draft.notes && typeof draft.notes === "object" ? draft.notes : {};
     const enabled = draft.enabled && typeof draft.enabled === "object" ? draft.enabled : {};
     const active = Boolean(enabled[feature.id]);
@@ -3719,7 +3809,7 @@ button.st-work-notice{cursor:pointer}
         '<span class="st-hypnosis-badge">' + escapeHtml(cost + " MC") + '</span>' +
       '</div>' +
       '<p>' + escapeHtml(feature.description) + '</p>' +
-      (active ? renderHypnosisFeatureParams(feature, draft) +
+      (active ? renderHypnosisFeatureParams(feature, draft, page) +
         '<textarea data-hypnosis-feature-note="' + escapeAttr(feature.id) + '" placeholder="' + escapeAttr(feature.placeholder || "补充目标、细节或限制...") + '">' + escapeHtml(notes[feature.id] || "") + '</textarea>' : "") +
     '</article>';
   }
@@ -3743,11 +3833,13 @@ button.st-work-notice{cursor:pointer}
       const open = tiersOpen[tier] === undefined ? defaultOpen : Boolean(tiersOpen[tier]);
       return '<details class="st-hypnosis-tier" data-hypnosis-tier-details="' + escapeAttr(tier) + '"' + (open ? " open" : "") + '>' +
         '<summary class="st-hypnosis-tier-summary"><strong>' + escapeHtml(tier === "TRIAL" ? "试用区" : tier) + '</strong><span>' + escapeHtml((accessible ? "可用" : "未解锁") + " · " + activeCount + "/" + features.length + " 已选") + '</span><i>⌄</i></summary>' +
-        '<section class="st-hypnosis-tier-body">' + features.map((feature) => renderHypnosisCommandCard(feature, draft, accessible)).join("") + '</section>' +
+        '<section class="st-hypnosis-tier-body">' + features.map((feature) => renderHypnosisCommandCard(feature, draft, accessible, page)).join("") + '</section>' +
       '</details>';
     }).join("");
+    const selectionMode = hypnosisSelectionMode(draft);
     return '<section class="st-lite-card st-graph-paper st-hypnosis-form">' +
       '<div class="st-graph-head"><strong>催眠指令</strong><span>每条指令独立设置参数</span></div>' +
+      '<div class="st-hypnosis-mode-row"><span>选择模式会从当前角色变量与五个敏感部位直接勾选，并自动计算人数 / 部位数量。</span><button type="button" class="' + (selectionMode ? "active" : "") + '" data-hypnosis-selection-mode>' + (selectionMode ? "选择模式" : "数字模式") + '</button></div>' +
       '<section class="st-hypnosis-list">' + groups + '</section>' +
       '<div class="st-hypnosis-submit-row">' +
         '<span class="st-hypnosis-total"><small>总消耗</small><strong>' + escapeHtml(String(totalCost)) + ' MC</strong></span>' +
@@ -3836,6 +3928,44 @@ button.st-work-notice{cursor:pointer}
       const draft = readHypnosisLiteDraft();
       writeHypnosisLiteDraft(patcher(draft) || draft);
     };
+    if (page.__stHypnosisOutsideClick) page.removeEventListener("click", page.__stHypnosisOutsideClick);
+    page.__stHypnosisOutsideClick = (event) => {
+      if (!page.dataset.hypnosisPicker) return;
+      if (event.target?.closest?.(".st-hypnosis-select")) return;
+      delete page.dataset.hypnosisPicker;
+      renderHypnosisLitePage(page);
+    };
+    page.addEventListener("click", page.__stHypnosisOutsideClick);
+    page.querySelector("[data-hypnosis-selection-mode]")?.addEventListener("click", () => {
+      updateDraft((draft) => ({ ...draft, selectionMode: !Boolean(draft.selectionMode) }));
+      delete page.dataset.hypnosisPicker;
+      renderHypnosisLitePage(page);
+    });
+    page.querySelectorAll("[data-hypnosis-picker-toggle]").forEach((button) => button.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const type = button.getAttribute("data-picker-type") || "";
+      const id = button.getAttribute("data-feature-id") || "";
+      const key = type + ":" + id;
+      if (page.dataset.hypnosisPicker === key) delete page.dataset.hypnosisPicker;
+      else page.dataset.hypnosisPicker = key;
+      renderHypnosisLitePage(page);
+    }));
+    page.querySelectorAll("[data-hypnosis-select-option]").forEach((input) => input.addEventListener("change", () => {
+      updateDraft((draft) => {
+        const type = input.getAttribute("data-hypnosis-select-option") || "";
+        const mapKey = type === "part" ? "partSelections" : "roleSelections";
+        const id = input.getAttribute("data-feature-id") || "";
+        const value = String(input.value || "").trim();
+        const map = { ...(draft[mapKey] || {}) };
+        const current = new Set(Array.isArray(map[id]) ? map[id].map((item) => String(item || "").trim()).filter(Boolean) : []);
+        if (input.checked && value) current.add(value);
+        else current.delete(value);
+        map[id] = Array.from(current);
+        return { ...draft, [mapKey]: map };
+      });
+      renderHypnosisLitePage(page);
+    }));
     page.querySelectorAll("[data-hypnosis-tier-details]").forEach((details) => details.addEventListener("toggle", () => {
       updateDraft((draft) => {
         const tiersOpen = { ...(draft.tiersOpen || {}) };
@@ -3898,6 +4028,21 @@ button.st-work-notice{cursor:pointer}
         renderHypnosisLitePage(page);
         return;
       }
+      const selectionMode = hypnosisSelectionMode(draft);
+      if (selectionMode) {
+        const missingRole = selected.find((feature) => hypnosisFeatureUsesPersonCount(feature) && hypnosisSelectedRoleNames(feature, draft).length <= 0);
+        if (missingRole) {
+          page.dataset.hypnosisNotice = "选择模式下，请先为「" + missingRole.title + "」选择至少一个目标角色。";
+          renderHypnosisLitePage(page);
+          return;
+        }
+        const missingPart = selected.find((feature) => hypnosisFeatureUsesPartCount(feature) && hypnosisSelectedPartIds(feature, draft).length <= 0);
+        if (missingPart) {
+          page.dataset.hypnosisNotice = "选择模式下，请先为「" + missingPart.title + "」选择至少一个敏感部位。";
+          renderHypnosisLitePage(page);
+          return;
+        }
+      }
       const notes = draft.notes && typeof draft.notes === "object" ? draft.notes : {};
       const totalCost = selected.reduce((sum, feature) => sum + hypnosisLiteFeatureCost(feature, draft), 0);
       const commandList = selected.map((feature) => {
@@ -3910,8 +4055,16 @@ button.st-work-notice{cursor:pointer}
           预计消耗MC能量: hypnosisLiteFeatureCost(feature, draft),
           消耗类型: "当前MC能量"
         };
-        if (hypnosisFeatureUsesPersonCount(feature)) detail["人数"] = hypnosisFeaturePersonCount(feature, draft);
-        if (hypnosisFeatureUsesPartCount(feature)) detail["部位数量"] = hypnosisFeaturePartCount(feature, draft);
+        if (hypnosisFeatureUsesPersonCount(feature)) {
+          const roleNames = hypnosisSelectedRoleNames(feature, draft);
+          detail["人数"] = hypnosisFeaturePersonCount(feature, draft);
+          if (selectionMode) detail["目标角色"] = roleNames.join("、");
+        }
+        if (hypnosisFeatureUsesPartCount(feature)) {
+          const partLabels = hypnosisSelectedPartLabels(feature, draft);
+          detail["部位数量"] = hypnosisFeaturePartCount(feature, draft);
+          if (selectionMode) detail["部位"] = partLabels.join("、");
+        }
         if (hypnosisFeatureUsesDuration(feature)) detail["时间"] = hypnosisFeatureDurationMinutes(feature, draft) + "分钟";
         const numericConfig = hypnosisFeatureNumericConfig(feature);
         if (numericConfig) detail[numericConfig.key] = String(hypnosisFeatureNumericValue(feature, draft)) + (numericConfig.unit || "");
@@ -3923,7 +4076,8 @@ button.st-work-notice{cursor:pointer}
         操作: actionText,
         功能列表: commandList,
         MC能量消耗: totalCost + "点",
-        结算提示: "前端只暂存操作；AI按每条指令的等级、人数、部位、时间、数值和备注判断目标、剧情条件、VIP等级与MC能量是否足够。成功后写入对应临时/永久效果、资源扣除和持续时间；失败时说明原因。"
+        选择模式: selectionMode ? "开启" : "关闭",
+        结算提示: "前端只暂存操作；AI按每条指令的等级、人数、目标角色、部位、时间、数值和备注判断目标、剧情条件、VIP等级与MC能量是否足够。若提供目标角色或部位字段，以前端字段为准。成功后写入对应临时/永久效果、资源扣除和持续时间；失败时说明原因。"
       });
       page.dataset.hypnosisNotice = actionText + "已暂存。";
       renderHypnosisLitePage(page);
