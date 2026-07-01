@@ -6758,7 +6758,7 @@ button.st-work-notice{cursor:pointer}
     { id: "warehouse", threshold: 80, title: "仓储分拣", place: "物流仓库", wage: 32000, shachiku: 6, chance: 0.15, detail: "城郊仓库临时招分拣员，按单拣货、贴标、装箱、搬运小件包裹。工作节奏快，需要核对编号，弄错会被扣时薪；适合有体力也能细心的人。" },
     { id: "event-staff", threshold: 120, title: "会场杂务", place: "活动会场后台", wage: 52000, shachiku: 4, chance: 0.19, detail: "某活动会场招短期支援，协助布置桌椅、搬运展架、引导来宾、结束后撤场。需要穿着整洁、反应快、能听懂现场指挥，可能接触各类来宾。" },
     { id: "office-temp", threshold: 160, title: "事务所临时文员", place: "事务所外包", wage: 80000, shachiku: 3, chance: 0.23, detail: "某事务所需要临时文员，整理纸质档案、录入资料、跑腿送件、复印装订。表面轻松但要求保密、少说话、字迹清楚，做完六小时统一结算。" },
-    { id: "private-errand", threshold: 200, title: "高端代办", place: "会员制委托", wage: 125000, shachiku: 2, chance: 0.28, detail: "私人委托招可靠代办，内容包括预约排队、取送物品、陪同处理琐事和临时协调。报酬高但要求守口如瓶、会看气氛、不要追问委托人的隐私。" }
+    { id: "private-errand", threshold: 200, title: "高端代办", place: "会员制委托", wage: 125000, shachiku: 0, chance: 0.28, detail: "私人委托招可靠代办，内容包括预约排队、取送物品、陪同处理琐事和临时协调。报酬高但要求守口如瓶、会看气氛、不要追问委托人的隐私。" }
   ];
 
   function workNumber(value, fallback = 0) {
@@ -6773,6 +6773,13 @@ button.st-work-notice{cursor:pointer}
 
   function workMoneyText(value) {
     return "¥" + Math.max(0, Math.floor(workNumber(value, 0))).toLocaleString();
+  }
+
+  function workShachikuGain(job, currentValue) {
+    const current = Math.max(0, Math.min(200, Math.floor(workNumber(currentValue, 0))));
+    const baseGain = Math.max(0, Math.floor(workNumber(job?.shachiku, 0)));
+    if (current >= 200) return 0;
+    return Math.max(0, Math.min(baseGain, 200 - current));
   }
 
   function workChanceText(value) {
@@ -7194,6 +7201,7 @@ button.st-work-notice{cursor:pointer}
     const timingInfo = options?.timingInfo || {};
     const focused = Boolean(options?.focused);
     const unlocked = shachiku >= job.threshold;
+    const shachikuGain = workShachikuGain(job, shachiku);
     const buffLocked = Boolean(timingInfo.buffLocked);
     const disabled = !unlocked || pendingWork || buffLocked;
     const buttonText = pendingWork ? "已有打工" : buffLocked ? "精力不足" : (unlocked ? "开始打工" : "未解锁");
@@ -7210,7 +7218,7 @@ button.st-work-notice{cursor:pointer}
         '<span class="is-buff">buff ' + escapeHtml(timingInfo.buff || "无新增") + '</span>' +
       '</div>' +
       (focused
-        ? '<div class="st-work-pay"><strong>' + escapeHtml(workMoneyText(job.wage)) + '</strong><small>社畜值 +' + job.shachiku + '</small></div>' +
+        ? '<div class="st-work-pay"><strong>' + escapeHtml(workMoneyText(job.wage)) + '</strong><small>社畜值 +' + shachikuGain + '</small></div>' +
           '<button type="button" class="st-work-button" data-work-job="' + escapeAttr(job.id) + '"' + (disabled ? " disabled" : "") + '>' + escapeHtml(buttonText) + '</button>'
         : "");
     return focused
@@ -7285,7 +7293,8 @@ button.st-work-notice{cursor:pointer}
         const latestRoll = readWorkLayerRoll();
         const encounterRole = latestRoll.roleName && latestRoll.rolls?.[job.id] ? latestRoll.roleName : "";
         const encounterDelayHours = encounterRole ? workEncounterDelayHours(job, latestRoll) : 0;
-        const nextValue = Math.min(200, currentValue + job.shachiku);
+        const shachikuGain = workShachikuGain(job, currentValue);
+        const nextValue = Math.min(200, currentValue + shachikuGain);
         const payload = {
           来源: "打工",
           操作: "开始打工",
@@ -7303,7 +7312,8 @@ button.st-work-notice{cursor:pointer}
           buff判定规则: "若开始时间为上课日8:30-16:10，获得“社会的蔑视”，所有角色好感不能提升；若开始时间为16:10-18:00，获得“全盛出击”，并一次性恢复MC能量到上限；若开始时间为夜班（18:00后或6:00前），获得“无精打采”，补充MC能量获得量减半；其他时间无新增buff。若产生buff，则从预计结束时间起持续1天；任意当前buff持续期间不能开始打工。",
           buff持续时间: "若本次按规则产生buff，从预计结束时间起持续1天；到期前不能再次打工。",
           获得零花钱: job.wage,
-          获得社畜值: job.shachiku,
+          社畜值基础增量: job.shachiku,
+          获得社畜值: shachikuGain,
           结算后社畜值上限预览: nextValue,
           社畜值上限: 200,
           偶遇女角色: encounterRole || "无",
