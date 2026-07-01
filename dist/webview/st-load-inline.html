@@ -945,7 +945,7 @@ const __stDefaultVariables = () => ({
 	    },
 	    "当前事件": "4限 · 现代文",
 	    "当前或下个特殊日期": "4月10-14日 社团招新周",
-	    "当前地点": "私立斋明学园 / 教室",
+	    "当前地点": "教室",
     "hypnoos": {}
   },
   "校规": {
@@ -2160,6 +2160,45 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-tt-rhythm-item span:before,.st-tt-rhythm-item span:after{content:"";position:absolute;left:50%;width:1px;height:6px;background:rgba(34,211,238,.35)}
 .st-tt-rhythm-item span:before{bottom:calc(100% + 1px)}
 .st-tt-rhythm-item span:after{top:calc(100% + 1px)}
+.st-calendar-lite-app,.st-timetable-app{background:linear-gradient(180deg,#f9f0df 0%,#f5e5cb 60%,#ecd2ad 100%);color:#3d2f25}
+.st-calendar-lite-app .st-lite-body,.st-timetable-app .st-lite-body{padding:10px 12px 16px;gap:10px}
+.st-calendar-lite-app .st-lite-back,.st-timetable-app .st-lite-back{border-color:rgba(92,64,38,.24);background:rgba(255,250,240,.78);color:#6b3f22;box-shadow:0 8px 18px rgba(92,64,38,.14),inset 0 1px 0 rgba(255,255,255,.5)}
+.st-calendar-lite-app .st-app-island,.st-timetable-app .st-app-island{border-color:rgba(255,255,255,.12);background:linear-gradient(180deg,rgba(7,10,24,.92),rgba(2,5,16,.82));color:#f8fafc;box-shadow:0 12px 28px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.06)}
+.st-calendar-lite-app .st-lite-card,.st-timetable-app .st-lite-card,.st-calendar-lite-app .st-cal-events,.st-timetable-app .st-tt-week,.st-timetable-app .st-tt-rhythm{border-color:rgba(92,64,38,.24)!important;background:linear-gradient(180deg,#fffaf0,#f8ecd8)!important;color:#3d2f25!important;box-shadow:0 15px 34px rgba(59,42,25,.13),inset 0 0 0 1px rgba(255,255,255,.55)!important}
+.st-calendar-lite-app .st-cal-hero,.st-timetable-app .st-tt-current{border-radius:8px;background:linear-gradient(180deg,#fffaf0,#f6e6cb)!important}
+.st-calendar-lite-app .st-cal-date strong,.st-timetable-app .st-tt-current strong,.st-calendar-lite-app .st-cal-month-head strong{color:#2f241c}
+.st-calendar-lite-app .st-cal-date span,.st-timetable-app .st-tt-current span,.st-calendar-lite-app .st-cal-month-head span,.st-calendar-lite-app .st-cal-section-title{color:rgba(61,47,37,.64)}
+.st-calendar-lite-app .st-cal-now article,.st-timetable-app .st-tt-day,.st-timetable-app .st-tt-rhythm-item{border-color:rgba(92,64,38,.16);background:rgba(255,255,255,.38);border-radius:7px}
+.st-calendar-lite-app .st-cal-now small,.st-timetable-app .st-tt-day h3 small,.st-timetable-app .st-tt-period small{color:rgba(61,47,37,.48)}
+.st-calendar-lite-app .st-cal-now strong,.st-timetable-app .st-tt-day h3,.st-timetable-app .st-tt-period strong{color:#33291f}
+.st-calendar-lite-app .st-cal-month{border-radius:8px;padding:11px}
+.st-calendar-lite-app .st-cal-weekday{color:rgba(61,47,37,.48)}
+.st-calendar-lite-app .st-cal-day{appearance:none;text-align:left;cursor:pointer;border-color:rgba(92,64,38,.14);background:rgba(255,250,240,.48);color:#33291f;font-family:inherit;box-shadow:inset 0 1px 0 rgba(255,255,255,.38)}
+.st-calendar-lite-app .st-cal-day.is-weekend{background:rgba(218,180,110,.13)}
+.st-calendar-lite-app .st-cal-day.is-special{border-color:rgba(146,64,14,.28);background:linear-gradient(180deg,rgba(254,243,199,.62),rgba(255,250,240,.48))}
+.st-calendar-lite-app .st-cal-day.is-today{border-color:rgba(146,64,14,.52);box-shadow:0 0 0 1px rgba(146,64,14,.16),0 8px 18px rgba(92,64,38,.12)}
+.st-calendar-lite-app .st-cal-day.is-selected{border-color:rgba(81,64,49,.62);background:linear-gradient(180deg,rgba(81,64,49,.16),rgba(254,243,199,.62));box-shadow:0 0 0 2px rgba(81,64,49,.09),inset 0 1px 0 rgba(255,255,255,.45)}
+.st-calendar-lite-app .st-cal-day b{color:#33291f}
+.st-calendar-lite-app .st-cal-day i{color:#92400e}
+.st-cal-detail{display:grid;gap:8px}
+.st-cal-detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border-bottom:2px double rgba(92,64,38,.2);padding-bottom:7px}
+.st-cal-detail-head strong{color:#2f241c;font-size:16px;line-height:1.2}
+.st-cal-detail-head span{color:rgba(61,47,37,.58);font-size:10px;font-weight:900;white-space:nowrap}
+.st-cal-detail p{margin:0;color:rgba(61,47,37,.74);font-size:12px;line-height:1.55}
+.st-cal-detail-courses{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+.st-cal-detail-courses span{min-width:0;border:1px solid rgba(92,64,38,.13);border-radius:6px;background:rgba(255,255,255,.34);padding:5px 4px;color:#3d2f25;font-size:10px;font-weight:850;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-calendar-lite-app .st-cal-event{border-color:rgba(92,64,38,.14);background:rgba(255,255,255,.36);border-radius:7px}
+.st-calendar-lite-app .st-cal-event time{background:rgba(81,64,49,.1);color:#6b3f22;border-radius:6px}
+.st-calendar-lite-app .st-cal-event strong{color:#2f241c}
+.st-calendar-lite-app .st-cal-event span{color:rgba(61,47,37,.62)}
+.st-timetable-app .st-tt-week{padding:8px;gap:5px;border-radius:8px}
+.st-timetable-app .st-tt-period{border-color:rgba(92,64,38,.14);background:rgba(255,250,240,.52);border-radius:6px}
+.st-timetable-app .st-tt-period.is-current{border-color:rgba(146,64,14,.45);background:linear-gradient(135deg,rgba(254,243,199,.72),rgba(217,119,6,.14));box-shadow:0 8px 18px rgba(92,64,38,.12)}
+.st-timetable-app .st-tt-period em,.st-timetable-app .st-tt-badge,.st-timetable-app .st-tt-rhythm-item span{color:#92400e}
+.st-timetable-app .st-tt-badge{border-color:rgba(146,64,14,.22);background:rgba(254,243,199,.56)}
+.st-timetable-app .st-tt-rhythm{padding:8px;border-radius:8px}
+.st-timetable-app .st-tt-rhythm-item b,.st-timetable-app .st-tt-rhythm-item i{color:rgba(61,47,37,.68)}
+.st-timetable-app .st-tt-rhythm-item span:before,.st-timetable-app .st-tt-rhythm-item span:after{background:rgba(146,64,14,.34)}
 [data-home-app-id] *{pointer-events:none}
 @media (max-width:420px){.st-mchan-header{padding-top:9px}.st-mchan-board{padding:7px 10px}.st-mchan-content.is-detail{padding:10px}}
 `;
@@ -2547,6 +2586,10 @@ button.st-work-notice{cursor:pointer}
 .st-person-paper::-webkit-scrollbar{display:none}
 .st-person-back,.st-person-paper-nav{position:absolute;z-index:4;border:1px solid rgba(81,64,49,.5);background:rgba(247,241,229,.92);color:#44362a;display:grid;place-items:center;cursor:pointer;box-shadow:0 2px 7px rgba(60,45,32,.18);pointer-events:auto}
 .st-person-back{top:18px;left:18px;width:28px;height:28px;border-radius:999px;font-size:23px;line-height:1}
+.st-person-desk-return{position:absolute;z-index:5;top:9px;left:9px;height:28px;min-width:58px;border:1px solid rgba(81,64,49,.28);border-radius:999px;background:rgba(247,241,229,.74);color:rgba(68,54,42,.78);display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:0 9px;font-size:10px;font-weight:950;cursor:pointer;box-shadow:0 7px 18px rgba(24,14,9,.16),inset 0 1px 0 rgba(255,255,255,.46);backdrop-filter:blur(2px);pointer-events:auto}
+.st-person-desk-return span{font-size:12px;line-height:1}
+.st-person-desk-return:hover{background:rgba(247,241,229,.9);color:rgba(61,47,37,.92)}
+.st-person-desk-return:active{transform:scale(.96)}
 .st-person-photo-wrap{position:relative;z-index:1;width:65%;max-width:206px;margin:0 auto 11px}
 .st-profile-app .st-person-photo-wrap{position:static;width:65%;max-width:206px;margin:0 auto 11px}
 .st-person-paper-nav{top:50%;width:28px;height:54px;border-radius:999px;font-size:30px;line-height:1;transform:translateY(-50%)}
@@ -2618,6 +2661,16 @@ button.st-work-notice{cursor:pointer}
 .st-profile-app .st-meter.is-overflow .st-meter-fill{width:100%;background:linear-gradient(90deg,#b94c44,#d28a43,#7d5f9c)}
 .st-profile-app .st-meter.is-overflow .st-meter-track::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(110deg,rgba(255,255,255,.46) 0 5px,transparent 5px 10px);mix-blend-mode:screen;opacity:.5}
 .st-profile-app .st-meter-overflow{display:inline-flex;align-items:center;border:1px solid rgba(137,69,54,.22);border-radius:999px;background:rgba(137,69,54,.1);padding:1px 5px;color:#7d3025;font-size:9px;font-weight:900}
+.st-profile-radar-card{position:relative;margin-bottom:8px;border:1px solid rgba(81,64,49,.18);border-radius:10px;background:radial-gradient(circle at 50% 44%,rgba(250,224,150,.26),rgba(247,241,229,.56) 56%,rgba(230,217,197,.46));box-shadow:inset 0 1px 0 rgba(255,255,255,.48),0 8px 18px rgba(60,45,32,.08);padding:7px 8px 5px;display:grid;place-items:center;overflow:hidden}
+.st-profile-radar-card svg{width:100%;max-width:230px;height:auto;display:block;overflow:visible}
+.st-profile-radar-grid{fill:none;stroke:rgba(81,64,49,.18);stroke-width:1}
+.st-profile-radar-axis{stroke:rgba(81,64,49,.16);stroke-width:1}
+.st-profile-radar-shape{fill:rgba(139,92,48,.22);stroke:#8b5e3c;stroke-width:2;filter:drop-shadow(0 5px 7px rgba(67,45,28,.16))}
+.st-profile-radar-dot{stroke:#f7f1e5;stroke-width:1.6}
+.st-profile-radar-dot.is-low{fill:#8fa09a}.st-profile-radar-dot.is-mid{fill:#6b8f71}.st-profile-radar-dot.is-high{fill:#c4914d}.st-profile-radar-dot.is-peak{fill:#c25d55}.st-profile-radar-dot.is-overflow{fill:#7d5f9c}.st-profile-radar-dot.is-negative{fill:#6f6258}
+.st-profile-radar-label{font:900 9px -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;fill:rgba(51,41,31,.76);paint-order:stroke;stroke:rgba(247,241,229,.82);stroke-width:3px;stroke-linejoin:round}
+.st-profile-radar-value{font:900 8px ui-monospace,SFMono-Regular,Menlo,monospace;fill:rgba(68,54,42,.56);paint-order:stroke;stroke:rgba(247,241,229,.82);stroke-width:2px}
+.st-profile-radar-note{position:absolute;right:8px;bottom:6px;color:rgba(68,54,42,.46);font-size:8px;font-weight:900}
 .st-profile-app .st-count-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;padding:0}
 .st-profile-app .st-count-chip{min-width:0;border:1px solid rgba(81,64,49,.18);border-radius:8px;background:rgba(247,241,229,.72);padding:7px 3px;text-align:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.42)}
 .st-profile-app .st-count-chip strong{display:block;color:#30261d;font-size:14px;font-weight:950;line-height:1;font-variant-numeric:tabular-nums}
@@ -4497,6 +4550,66 @@ button.st-work-notice{cursor:pointer}
     return '<article class="st-count-chip"><strong>' + escapeHtml(display) + '</strong><span>' + escapeHtml(shortCountLabel(label)) + '</span></article>';
   }
 
+  function radarToneClass(number) {
+    if (number < 0) return "is-negative";
+    if (number > 100) return "is-overflow";
+    if (number >= 85) return "is-peak";
+    if (number >= 60) return "is-high";
+    if (number >= 25) return "is-mid";
+    return "is-low";
+  }
+
+  function radarPoint(cx, cy, radius, index, ratio) {
+    const angle = (-90 + index * 72) * Math.PI / 180;
+    const distance = radius * Math.max(0, Math.min(1, ratio));
+    return {
+      x: cx + Math.cos(angle) * distance,
+      y: cy + Math.sin(angle) * distance
+    };
+  }
+
+  function renderPersonRadar(roleData) {
+    const cx = 100;
+    const cy = 100;
+    const radius = 56;
+    const labelRadius = 77;
+    const ring = (ratio) => ST_CORE_STATS.map((_, index) => {
+      const point = radarPoint(cx, cy, radius, index, ratio);
+      return point.x.toFixed(1) + "," + point.y.toFixed(1);
+    }).join(" ");
+    const values = ST_CORE_STATS.map((label, index) => {
+      const number = statNumber(statValue(roleData, label), 0);
+      const ratio = Math.max(0, Math.min(100, number)) / 100;
+      const point = radarPoint(cx, cy, radius, index, ratio);
+      const labelPoint = radarPoint(cx, cy, labelRadius, index, 1);
+      const valuePoint = radarPoint(cx, cy, labelRadius + 10, index, 1);
+      const anchor = Math.abs(labelPoint.x - cx) < 4 ? "middle" : (labelPoint.x < cx ? "end" : "start");
+      return { label, number, point, labelPoint, valuePoint, anchor, tone: radarToneClass(number) };
+    });
+    const shape = values.map((item) => item.point.x.toFixed(1) + "," + item.point.y.toFixed(1)).join(" ");
+    const axes = ST_CORE_STATS.map((_, index) => {
+      const edge = radarPoint(cx, cy, radius, index, 1);
+      return '<line class="st-profile-radar-axis" x1="' + cx + '" y1="' + cy + '" x2="' + edge.x.toFixed(1) + '" y2="' + edge.y.toFixed(1) + '"></line>';
+    }).join("");
+    const dots = values.map((item) => (
+      '<circle class="st-profile-radar-dot ' + item.tone + '" cx="' + item.point.x.toFixed(1) + '" cy="' + item.point.y.toFixed(1) + '" r="4.2"></circle>'
+    )).join("");
+    const labels = values.map((item) => (
+      '<text class="st-profile-radar-label" x="' + item.labelPoint.x.toFixed(1) + '" y="' + item.labelPoint.y.toFixed(1) + '" text-anchor="' + item.anchor + '">' + escapeHtml(item.label) + '</text>' +
+      '<text class="st-profile-radar-value" x="' + item.valuePoint.x.toFixed(1) + '" y="' + item.valuePoint.y.toFixed(1) + '" text-anchor="' + item.anchor + '">' + escapeHtml(formatStatNumber(item.number)) + '</text>'
+    )).join("");
+    return '<div class="st-profile-radar-card">' +
+      '<svg viewBox="0 0 200 200" role="img" aria-label="五维状态雷达图">' +
+        [0.25, 0.5, 0.75, 1].map((ratio) => '<polygon class="st-profile-radar-grid" points="' + ring(ratio) + '"></polygon>').join("") +
+        axes +
+        '<polygon class="st-profile-radar-shape" points="' + shape + '"></polygon>' +
+        dots +
+        labels +
+      '</svg>' +
+      '<span class="st-profile-radar-note">0-100</span>' +
+    '</div>';
+  }
+
   function roleWorkValueRaw(roleData) {
     if (!roleData || typeof roleData !== "object") return undefined;
     return roleData["工作价值"] ?? roleData["身" + "价"] ?? roleData["派遣" + "身" + "价"] ?? roleData["日收益"];
@@ -5129,6 +5242,40 @@ button.st-work-notice{cursor:pointer}
     return { month, day: offset === 0 ? (parsedDate?.day || 9) : 1 };
   }
 
+  function calendarSelectedDate(page, displayDate, actualDate) {
+    const month = displayDate?.month || actualDate?.month || 4;
+    const selectedMonth = Number(page?.dataset?.calendarSelectedMonth || 0);
+    const selectedDay = Number(page?.dataset?.calendarSelectedDay || 0);
+    const selectedDaysInMonth = ST_MONTH_DAYS[selectedMonth] || 0;
+    const fallbackDay = actualDate?.month === month ? (actualDate?.day || 1) : 1;
+    if (selectedMonth && selectedDay >= 1 && selectedDay <= selectedDaysInMonth) {
+      return { month: selectedMonth, day: selectedDay };
+    }
+    const daysInMonth = ST_MONTH_DAYS[month] || 30;
+    return { month, day: Math.max(1, Math.min(daysInMonth, fallbackDay)) };
+  }
+
+  function renderCalendarDayDetail(selectedDate, actualDate, timeText) {
+    const dateLabel = (selectedDate?.month || 4) + "月" + (selectedDate?.day || 1) + "日";
+    const weekday = weekdayForStoryDate(dateLabel) || "";
+    const weekdayIndex = ST_WEEKDAY_INDEX[weekday];
+    const special = specialDayForDate(selectedDate);
+    const isToday = actualDate?.month === selectedDate?.month && actualDate?.day === selectedDate?.day;
+    const referenceTime = isToday ? timeText : "12:00";
+    const slot = routineSlot(minutesFromTimeText(referenceTime), weekday, selectedDate);
+    const courses = weekdayIndex >= 1 && weekdayIndex <= 5 && !special?.holiday
+      ? ST_CLASS_PERIODS.map((period) => {
+          const subject = ST_WEEKLY_TIMETABLE[weekdayIndex]?.[period.index - 1] || "自习";
+          return '<span title="' + escapeAttr(period.label + " " + subject) + '">' + escapeHtml(period.label + " " + subject) + '</span>';
+        }).join("")
+      : "";
+    return '<section class="st-lite-card st-cal-detail">' +
+      '<div class="st-cal-detail-head"><strong>' + escapeHtml(dateLabel) + '</strong><span>' + escapeHtml((weekday || "未记录") + (isToday ? " · 今天" : "")) + '</span></div>' +
+      '<p>' + escapeHtml(special ? (special.title + "：" + (special.detail || "特别日程")) : (slot.title + "：" + (slot.detail || "普通日程"))) + '</p>' +
+      (courses ? '<div class="st-cal-detail-courses">' + courses + '</div>' : '<p>没有固定课程，按自由行动或特殊日程推进。</p>') +
+    '</section>';
+  }
+
   function calendarIslandHtml(displayDate) {
     return '<div class="st-app-island-calendar">' +
       '<button type="button" data-lite-island-control data-calendar-month-shift="-1" title="上个月">‹</button>' +
@@ -5137,9 +5284,10 @@ button.st-work-notice{cursor:pointer}
     '</div>';
   }
 
-  function renderCalendarMonthGrid(parsedDate, actualDate = parsedDate) {
+  function renderCalendarMonthGrid(parsedDate, actualDate = parsedDate, selectedDate = parsedDate) {
     const month = parsedDate?.month || 4;
     const todayDay = actualDate?.month === month ? (actualDate?.day || 0) : 0;
+    const selectedDay = selectedDate?.month === month ? (selectedDate?.day || 0) : 0;
     const daysInMonth = ST_MONTH_DAYS[month] || 30;
     const firstWeekday = ST_WEEKDAY_INDEX[weekdayForStoryDate(month + "月1日")] ?? 1;
     const weekdayLabels = ["日", "一", "二", "三", "四", "五", "六"];
@@ -5153,14 +5301,15 @@ button.st-work-notice{cursor:pointer}
       const className = [
         "st-cal-day",
         day === todayDay ? "is-today" : "",
+        day === selectedDay ? "is-selected" : "",
         special ? "is-special" : "",
         weekdayIndex === 0 || weekdayIndex === 6 ? "is-weekend" : ""
       ].filter(Boolean).join(" ");
       cells.push(
-        '<div class="' + className + '">' +
+        '<button type="button" class="' + className + '" data-calendar-day="' + day + '" data-calendar-month="' + month + '">' +
           '<b>' + day + '</b>' +
           (special ? '<i>' + escapeHtml(special.title) + '</i>' : '') +
-        '</div>'
+        '</button>'
       );
     }
     return (
@@ -5175,6 +5324,7 @@ button.st-work-notice{cursor:pointer}
     const timeText = storyTimeOnly(system["当前时间"], "12:00");
     const parsedDate = parseStoryDate(dateText);
     const displayDate = calendarDisplayDate(page, parsedDate);
+    const selectedDate = calendarSelectedDate(page, displayDate, parsedDate);
     const weekday = weekdayForStoryDate(dateText) || "星期三";
     const slot = routineSlot(minutesFromTimeText(timeText), weekday, parsedDate);
     const special = specialDayForDate(parsedDate);
@@ -5195,9 +5345,9 @@ button.st-work-notice{cursor:pointer}
             '<article><small>状态</small><strong>' + escapeHtml(special ? special.title : weekday) + '</strong></article>' +
           '</div>' +
         '</section>' +
-        '<section class="st-lite-card st-cal-month">' + renderCalendarMonthGrid(displayDate, parsedDate) + '</section>' +
-        '<div class="st-cal-section-title">今日说明</div>' +
-        '<section class="st-lite-card"><p style="margin:0;color:rgba(226,232,240,.72);font-size:12px;line-height:1.55">' + escapeHtml((special?.detail || slot.detail || "普通日程")) + '</p></section>' +
+        '<section class="st-lite-card st-cal-month">' + renderCalendarMonthGrid(displayDate, parsedDate, selectedDate) + '</section>' +
+        '<div class="st-cal-section-title">日期详情</div>' +
+        renderCalendarDayDetail(selectedDate, parsedDate, timeText) +
         '<div class="st-cal-section-title">近期特殊日期</div>' +
         '<section class="st-cal-events">' + (eventsHtml || '<article class="st-cal-event"><time>--</time><div><strong>暂无特殊日期</strong><span>按普通日程推进</span></div></article>') + '</section>' +
       '</main>';
@@ -5205,6 +5355,13 @@ button.st-work-notice{cursor:pointer}
     page.querySelector('[data-lite-action="back"]')?.addEventListener("click", () => {
       setPhoneActiveApp(page.parentElement, "");
       page.remove();
+    });
+    page.querySelectorAll("[data-calendar-day]").forEach((button) => {
+      button.addEventListener("click", () => {
+        page.dataset.calendarSelectedMonth = button.getAttribute("data-calendar-month") || "";
+        page.dataset.calendarSelectedDay = button.getAttribute("data-calendar-day") || "";
+        renderLiteCalendarPage(page);
+      });
     });
   }
 
@@ -5461,7 +5618,7 @@ button.st-work-notice{cursor:pointer}
     const core = ST_CORE_STATS.map((label) => renderMeterStat(label, statValue(roleData, label))).join("");
     const counts = ST_COUNT_STATS.map((label) => renderCountStat(label, statValue(roleData, label))).join("");
     return '<section class="st-person-lines is-body">' +
-      renderPersonPanel("状态", '<div class="st-meter-grid is-core">' + core + '</div>', "每项一行") +
+      renderPersonPanel("状态", renderPersonRadar(roleData) + '<div class="st-meter-grid is-core">' + core + '</div>', "超出100贴边，低于0归心") +
       renderPersonPanel("次数", '<div class="st-count-grid">' + counts + '</div>') +
       '</section>';
   }
@@ -5525,6 +5682,13 @@ button.st-work-notice{cursor:pointer}
 
   function runPersonProfileAction(page, action) {
     if (action === "back") closePersonProfilePage(page);
+    if (action === "desk") {
+      delete page.dataset.profileStatic;
+      delete page.dataset.profilePickerOpen;
+      page.dataset.profileDeskMode = "desk";
+      renderPersonProfilePage(page);
+      return;
+    }
     if (action === "prev") turnPersonProfilePage(page, -1);
     if (action === "next") turnPersonProfilePage(page, 1);
     if (action === "delete-role") {
@@ -5822,6 +5986,7 @@ button.st-work-notice{cursor:pointer}
       renderLiteHeader(page, { title: "人物档案", html: recordingIslandHtml() }) +
       '<main class="st-lite-body st-profile-body is-detail">' +
         '<section class="st-profile-detail-stage">' +
+          (!staticIsaac ? '<button class="st-person-desk-return" type="button" data-profile-action="desk" aria-label="回到档案桌面"><span aria-hidden="true">▦</span>桌面</button>' : "") +
           '<div class="st-profile-paper-stack" aria-hidden="true"><span></span><span></span><i></i><i></i><i></i><i></i></div>' +
           '<button class="st-person-paper-nav" type="button" data-profile-action="prev" aria-label="上一个">‹</button>' +
           '<button class="st-person-paper-nav" type="button" data-profile-action="next" aria-label="下一个">›</button>' +
@@ -12032,10 +12197,15 @@ button.st-work-notice{cursor:pointer}
 
   function renderMapPage(page) {
     const location = getCurrentStoryLocation() || "当前位置";
+    const active = page.dataset.mapTab || "world";
     page.innerHTML =
       renderLiteHeader(page, { title: "地图", html: '<strong>' + escapeHtml(location) + '</strong>' }) +
       '<main class="st-lite-body">' +
-        renderStaticGraphCard("world", page) +
+        '<section class="st-graph-tabs">' +
+          '<button type="button" class="st-graph-tab ' + (active === "world" ? "active" : "") + '" data-map-tab="world">区域地图</button>' +
+          '<button type="button" class="st-graph-tab ' + (active === "special" ? "active" : "") + '" data-map-tab="special">特殊地点</button>' +
+        '</section>' +
+        (active === "special" ? renderSpecialLocationCard() : renderStaticGraphCard("world", page)) +
       '</main>';
     bindLiteHeader(page, () => renderMapPage(page));
     page.querySelector('[data-lite-action="back"]')?.addEventListener("click", () => {
@@ -12043,8 +12213,18 @@ button.st-work-notice{cursor:pointer}
       setPhoneActiveApp(root, "");
       page.remove();
     });
-    bindGraphPageActions(page);
-    restoreGraphUiState(page, "world");
+    page.querySelectorAll("[data-map-tab]").forEach((button) => {
+      button.addEventListener("click", () => {
+        page.dataset.mapTab = button.getAttribute("data-map-tab") || "world";
+        renderMapPage(page);
+      });
+    });
+    if (active === "special") {
+      bindSpecialLocationActions(page);
+    } else {
+      bindGraphPageActions(page);
+      restoreGraphUiState(page, "world");
+    }
   }
 
   function renderSchoolPage(page) {
@@ -12107,8 +12287,9 @@ button.st-work-notice{cursor:pointer}
         const location = SPECIAL_LOCATION_STATIC_ITEMS.find((item) => item.id === id);
         if (!location) return;
         appendAppOperation({
-          来源: "特殊地点",
+          来源: "地图",
           操作: "建议剧情地点",
+          地图类型: "特殊地点",
           静态编码: location.id,
           建议地点: {
             名称: location.label,
@@ -12570,31 +12751,13 @@ button.st-work-notice{cursor:pointer}
       setHomeTileIcon(schoolTile, ST_APP_ICONS.school, "学校");
     }
     bindHomeTileAction(schoolTile, "stSchoolTilePatched", "打开学校", (tile) => openTodoPage(tile, "school", "st-school-app", "学校", "学校地图与校规", true));
-    let specialTile = dedupeHomeTilesByText("特殊地点") || parent.querySelector('[data-st-special-location-tile="true"]');
-    let createdSpecial = false;
-    if (!specialTile) {
-      specialTile = schoolTile.cloneNode(true);
-      createdSpecial = true;
-      specialTile.removeAttribute("data-st-school-tile");
-      specialTile.removeAttribute("data-st-school-tile-patched");
-      specialTile.removeAttribute("data-st-map-tile");
-      specialTile.removeAttribute("data-st-map-tile-patched");
-      setHomeTileLabel(specialTile, "特殊地点");
-      specialTile.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
-      schoolTile.insertAdjacentElement("afterend", specialTile);
-    }
-    specialTile.dataset.stSpecialLocationTile = "true";
-    specialTile.removeAttribute("data-st-school-tile");
-    specialTile.removeAttribute("data-st-school-tile-patched");
-    specialTile.removeAttribute("data-st-map-tile");
-    specialTile.removeAttribute("data-st-map-tile-patched");
-    setHomeTileLabel(specialTile, "特殊地点");
-    setHomeTileIcon(specialTile, ST_APP_ICONS.specialLocation, "特殊地点");
-    if (createdSpecial) {
-      setHomeTileLabel(specialTile, "特殊地点");
-      setHomeTileIcon(specialTile, ST_APP_ICONS.specialLocation, "特殊地点");
-    }
-    bindHomeTileAction(specialTile, "stSpecialLocationTilePatched", "打开特殊地点", openSpecialLocationPage);
+    const staleSpecialTiles = new Set([
+      ...homeTilesByText("特殊地点"),
+      ...Array.from(parent.querySelectorAll('[data-st-special-location-tile="true"]'))
+    ]);
+    staleSpecialTiles.forEach((tile) => {
+      if (tile && tile !== mapTile && tile !== schoolTile) tile.remove();
+    });
   }
 
   function patchInternalCoreAppTiles() {
@@ -12667,7 +12830,7 @@ button.st-work-notice{cursor:pointer}
     if (phone.dataset?.stPhoneApp) return true;
     if (document.querySelector('.st-mchan-internal-app, .st-calendar-lite-app, .st-timetable-app, .st-clock-app, .st-profile-app, .st-map-app, .st-school-app, .st-special-location-app, .st-monitor-app, .st-work-app, .st-encounter-app, .st-inventory-app, .st-reward-app, .st-hypnosis-lite-app, .st-placeholder-app')) return true;
     if (looksLikePhoneHome(phone)) {
-      const requiredHomeLabels = ["人物档案", "课程表", "时钟", "地图", "学校", "特殊地点"];
+      const requiredHomeLabels = ["人物档案", "课程表", "时钟", "地图", "学校"];
       return requiredHomeLabels.every((label) => Boolean(dedupeHomeTilesByText(label) || findHomeTileByText(label)));
     }
     return false;
