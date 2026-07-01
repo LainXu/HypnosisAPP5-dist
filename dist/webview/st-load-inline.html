@@ -8075,16 +8075,18 @@ button.st-work-notice{cursor:pointer}
     const extraBuiltIns = (Array.isArray(EXTRA_ENCOUNTER_BUILTIN_PACKAGES) ? EXTRA_ENCOUNTER_BUILTIN_PACKAGES : [])
       .map((pkg) => {
         const source = pkg && typeof pkg === "object" && !Array.isArray(pkg) ? pkg : {};
+        const roles = (Array.isArray(source.roles) ? source.roles : []).map((role) => {
+          const roleSource = role && typeof role === "object" && !Array.isArray(role) ? role : {};
+          return {
+            ...roleSource,
+            imageDataUrl: roleSource.imageDataUrl || roleSource.image ? stAssetUrl(roleSource.imageDataUrl || roleSource.image) : ""
+          };
+        });
+        const fallbackCover = roles.find((role) => String(role.imageDataUrl || "").trim())?.imageDataUrl || "";
         return encounterNormalizePackage({
           ...source,
-          coverDataUrl: source.coverDataUrl || source.cover ? stAssetUrl(source.coverDataUrl || source.cover) : "",
-          roles: (Array.isArray(source.roles) ? source.roles : []).map((role) => {
-            const roleSource = role && typeof role === "object" && !Array.isArray(role) ? role : {};
-            return {
-              ...roleSource,
-              imageDataUrl: roleSource.imageDataUrl || roleSource.image ? stAssetUrl(roleSource.imageDataUrl || roleSource.image) : ""
-            };
-          })
+          coverDataUrl: source.coverDataUrl || source.cover ? stAssetUrl(source.coverDataUrl || source.cover) : fallbackCover,
+          roles
         });
       });
     return builtIns.concat(extraBuiltIns);
@@ -8225,6 +8227,7 @@ button.st-work-notice{cursor:pointer}
           sourcePackage: pkg,
           sourceName: pkg.name || "角色包",
           sourceType: "package",
+          sourceRoleIndex: index,
           package: singlePackage
         });
       });
@@ -8731,15 +8734,20 @@ button.st-work-notice{cursor:pointer}
     const used = encounterIsPurchased(pkg.id);
     const pendingPurchase = encounterHasPendingPurchaseOperation();
     const firstAlias = String(role.aliases || "").split(/[，,、]/).map((part) => part.trim()).filter(Boolean)[0] || "";
+    const packageRole = item?.sourceType === "package";
+    const priceText = packageRole ? "随角色包" : (used ? "已使用" : (pendingPurchase ? "本轮已使用" : SCAN_ROLE_COST_STARLIGHT + ' 星光点'));
+    const useButton = packageRole
+      ? '<button type="button" class="primary" disabled title="角色包内角色不能单独购买">随角色包使用</button>'
+      : '<button type="button" class="primary" data-encounter-action="purchase" data-package-id="' + escapeAttr(pkg.id) + '"' + ((used || pendingPurchase) ? " disabled" : "") + '>' + (pendingPurchase && !used ? "本轮已有" : "使用") + '</button>';
     return '<article class="st-encounter-package st-encounter-role-card-entry' + (used ? " is-used" : "") + (pendingPurchase && !used ? " is-pending" : "") + '">' +
       '<div class="st-encounter-cover">' + encounterCoverHtml(role.imageDataUrl, role.name || "角色") + '</div>' +
       '<div class="st-encounter-package-body">' +
         '<div class="st-encounter-package-title"><strong>' + escapeHtml(role.name || "未命名角色") + '</strong></div>' +
-        '<div class="st-encounter-package-facts"><span>' + escapeHtml(item?.sourceName || "角色") + '</span>' + (firstAlias ? '<span>' + escapeHtml(firstAlias) + '</span>' : '') + '<span class="st-encounter-price">' + (used ? "已使用" : (pendingPurchase ? "本轮已使用" : SCAN_ROLE_COST_STARLIGHT + ' 星光点')) + '</span></div>' +
+        '<div class="st-encounter-package-facts"><span>' + escapeHtml(item?.sourceName || "角色") + '</span>' + (firstAlias ? '<span>' + escapeHtml(firstAlias) + '</span>' : '') + '<span class="st-encounter-price">' + priceText + '</span></div>' +
         '<p class="st-encounter-role-card-summary">' + escapeHtml(role.intro || role.personaTitle || "暂无介绍。") + '</p>' +
         '<div class="st-encounter-role-actions">' +
           '<button type="button" data-encounter-action="edit-role-item" data-role-item-id="' + escapeAttr(item?.id || pkg.id) + '">定制</button>' +
-          '<button type="button" class="primary" data-encounter-action="purchase" data-package-id="' + escapeAttr(pkg.id) + '"' + ((used || pendingPurchase) ? " disabled" : "") + '>' + (pendingPurchase && !used ? "本轮已有" : "使用") + '</button>' +
+          useButton +
         '</div>' +
       '</div>' +
     '</article>';
@@ -10562,6 +10570,18 @@ button.st-work-notice{cursor:pointer}
           const item = encounterFindRoleItem(button.getAttribute("data-role-item-id") || "");
           if (!item) {
             encounterSetStatus(page, "找不到这个角色。");
+            return;
+          }
+          if (item.sourceType === "package" && item.sourcePackage) {
+            encounterSaveDraft(item.sourcePackage);
+            page.dataset.encounterTab = "edit";
+            delete page.dataset.encounterView;
+            delete page.dataset.encounterPackageId;
+            delete page.dataset.encounterDetailSection;
+            page.dataset.encounterEditSection = "role";
+            page.dataset.encounterEditRoleIndex = String(Math.max(0, Number(item.sourceRoleIndex || 0) || 0));
+            page.dataset.encounterStatus = "已填充到角色包定制草稿。角色包内角色不能单独购买。";
+            renderEncounterPage(page);
             return;
           }
           encounterSaveSingleRoleDraft(item.role);
