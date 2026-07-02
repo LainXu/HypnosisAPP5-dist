@@ -9232,6 +9232,18 @@ button.st-work-notice{cursor:pointer}
     return items;
   }
 
+  function encounterVisibleRoleUniqueNameCount(items) {
+    const names = new Set();
+    let unnamed = 0;
+    for (const item of Array.isArray(items) ? items : []) {
+      const role = encounterNormalizeRole(item?.role || {});
+      const key = encounterRoleNameKey(role.name);
+      if (key) names.add(key);
+      else unnamed += 1;
+    }
+    return names.size + unnamed;
+  }
+
   function encounterFindRoleItem(roleItemId) {
     return encounterRoleLibraryItems().find((item) => String(item.id) === String(roleItemId)) || null;
   }
@@ -9474,16 +9486,17 @@ button.st-work-notice{cursor:pointer}
 	    const snapshot = await encounterReadCharacterWorldEntries(encounterBlankDraft());
 	    const roleNames = snapshot.ok ? encounterWorldbookRoleNamesFromEntries(snapshot.entries || []) : [];
 	    const worldName = snapshot.targetWorldbook || await encounterReadCurrentChatWorldbookName();
+	    const ready = snapshot.ok ? "1" : "0";
 	    if (!page.isConnected || page.dataset.encounterWorldbookRefreshToken !== token) return;
 	    const namesJson = JSON.stringify(roleNames);
 	    const changed = page.dataset.encounterCurrentWorldbook !== (worldName || "")
 	      || page.dataset.encounterWorldbookRoleNames !== namesJson
-	      || page.dataset.encounterWorldbookRolesReady !== "1";
+	      || page.dataset.encounterWorldbookRolesReady !== ready;
 	    page.dataset.encounterCurrentWorldbook = worldName || "";
 	    page.dataset.encounterWorldbookRoleNames = namesJson;
-	    page.dataset.encounterWorldbookRolesReady = "1";
+	    page.dataset.encounterWorldbookRolesReady = ready;
 	    const currentLabel = page.querySelector("[data-encounter-current-worldbook]");
-	    if (currentLabel) currentLabel.textContent = worldName || "未绑定，首次购买会创建";
+	    if (currentLabel) currentLabel.textContent = worldName ? (snapshot.ok ? worldName : worldName + "（读取中）") : "未绑定，首次购买会创建";
 	    if (changed) renderEncounterPage(page);
 	  }
 
@@ -9875,7 +9888,7 @@ button.st-work-notice{cursor:pointer}
       '<option value="standalone"' + (packageFilter === "standalone" ? " selected" : "") + '>单独角色</option>'
     ].concat(encounterReadPackages().map((pkg) => '<option value="' + escapeAttr(pkg.id) + '"' + (packageFilter === String(pkg.id) ? " selected" : "") + '>' + escapeHtml(pkg.name || pkg.id) + '</option>')).join("");
 	    const packageAvailableCount = packages.reduce((sum, pkg) => sum + encounterPackageAvailability(pkg, page).available, 0);
-	    const roleAvailableCount = roleItems.reduce((sum, item) => sum + encounterPackageAvailability(item?.package || encounterPackageForRole(item?.role || {}, item?.sourcePackage || null), page).available, 0);
+	    const roleUniqueNameCount = encounterVisibleRoleUniqueNameCount(roleItems);
 	    const packageCards = packages.length ? packages.map((pkg) => encounterPackageCardHtml(pkg, page)).join("") : '<div class="st-encounter-empty">还没有角色包。可以在“角色包定制”里制作并保存。</div>';
 	    const roleCards = roleItems.length ? roleItems.map((item) => encounterRoleCardHtml(item, page)).join("") : '<div class="st-encounter-empty">还没有可用角色。角色包内角色会在这里自动拆分显示，单独角色也会出现在这里。</div>';
     return '<nav class="st-encounter-browse-tabs">' +
@@ -9886,7 +9899,7 @@ button.st-work-notice{cursor:pointer}
         '<input type="search" data-encounter-search value="' + escapeAttr(query) + '" placeholder="搜索角色包 / 角色">' +
         (section === "roles" ? '<select data-encounter-package-filter aria-label="筛选角色来源">' + packageOptions + '</select>' : '<span>筛选角色包</span>') +
       '</section>' +
-	      '<section class="st-encounter-browse-head"><strong>' + (section === "roles" ? "角色" : "角色包") + '</strong><span>' + (section === "roles" ? (roleItems.length + " 个 / " + roleAvailableCount + " 非重复") : (packages.length + " 包 / " + packageAvailableCount + " 非重复角色")) + '</span></section>' +
+	      '<section class="st-encounter-browse-head"><strong>' + (section === "roles" ? "角色" : "角色包") + '</strong><span>' + (section === "roles" ? (roleItems.length + " 个 / " + roleUniqueNameCount + " 个非重复名字") : (packages.length + " 包 / " + packageAvailableCount + " 非重复角色")) + '</span></section>' +
 	      '<section class="st-encounter-packages">' + (section === "roles" ? roleCards : packageCards) + '</section>';
 	  }
 
