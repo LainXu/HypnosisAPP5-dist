@@ -9649,9 +9649,18 @@ button.st-work-notice{cursor:pointer}
     return Number.isFinite(value) ? value : 0;
   }
 
-  function encounterVip6FromSystem(system) {
+  function encounterVipRankFromSystem(system) {
     const tier = String(system?.["催眠APP订阅等级"] || system?.["VIP等级"] || "").trim().toUpperCase();
-    return /VIPs*6/.test(tier);
+    const match = tier.match(/VIPs*([1-6])/);
+    return match ? Number(match[1]) : 0;
+  }
+
+  function encounterVip5FromSystem(system) {
+    return encounterVipRankFromSystem(system) >= 5;
+  }
+
+  function encounterVip6FromSystem(system) {
+    return encounterVipRankFromSystem(system) >= 6;
   }
 
   function encounterIsVip6() {
@@ -9792,6 +9801,7 @@ button.st-work-notice{cursor:pointer}
     const money = Number(system["持有零花钱"] ?? 0);
     const starlight = Number(system["星光点"] ?? 0);
     return {
+      vip5: encounterVip5FromSystem(system),
       vip6: encounterVip6FromSystem(system),
       money: Number.isFinite(money) ? Math.max(0, Math.floor(money)) : 0,
       starlight: Number.isFinite(starlight) ? Math.max(0, Math.floor(starlight)) : 0,
@@ -9808,8 +9818,8 @@ button.st-work-notice{cursor:pointer}
       return;
     }
     data.stat["系统"] = data.stat["系统"] && typeof data.stat["系统"] === "object" && !Array.isArray(data.stat["系统"]) ? data.stat["系统"] : {};
-    if (!encounterVip6FromSystem(data.stat["系统"])) {
-      encounterSetStatus(page, "只有VIP6用户有资格进入邂逅商店。");
+    if (!encounterVip5FromSystem(data.stat["系统"])) {
+      encounterSetStatus(page, "只有VIP5及以上用户有资格进入邂逅商店。");
       return;
     }
     const money = Math.max(0, Math.floor(Number(data.stat["系统"]["持有零花钱"] ?? 0) || 0));
@@ -9842,7 +9852,7 @@ button.st-work-notice{cursor:pointer}
     }
     data.stat["系统"] = data.stat["系统"] && typeof data.stat["系统"] === "object" && !Array.isArray(data.stat["系统"]) ? data.stat["系统"] : {};
     if (!encounterVip6FromSystem(data.stat["系统"])) {
-      encounterSetStatus(page, "只有VIP6用户有资格进入邂逅商店。");
+      encounterSetStatus(page, "校规修改券只有VIP6用户才能兑换和使用。");
       return;
     }
     const cost = count * ENCOUNTER_SHOP_RULE_COUPON_PRICE;
@@ -10375,22 +10385,22 @@ button.st-work-notice{cursor:pointer}
 
   function renderEncounterShop(page) {
     const state = encounterShopState();
-    if (!state.vip6) {
+    if (!state.vip5) {
       return '<section class="st-encounter-shop">' +
         '<article class="st-encounter-shop-card is-locked">' +
           '<h3>邂逅商店</h3>' +
-          '<p>只有VIP6用户有资格进入。这里是APP给富裕用户准备的星光点周转入口，但仍必须依赖任务奖励道具，仅有钱不能兑换。</p>' +
+          '<p>只有VIP5及以上用户有资格进入。这里是APP给富裕用户准备的星光点周转入口，但仍必须依赖任务奖励道具，仅有钱不能兑换。</p>' +
         '</article>' +
       '</section>';
     }
     const exchangeMax = Math.max(0, Math.min(state.starlightVoucher, Math.floor(state.money / ENCOUNTER_SHOP_MONEY_PER_STARLIGHT)));
     const exchangeDisabled = exchangeMax <= 0;
     const ruleCouponMax = Math.max(0, Math.floor(state.starlight / ENCOUNTER_SHOP_RULE_COUPON_PRICE));
-    const ruleCouponDisabled = ruleCouponMax <= 0;
+    const ruleCouponDisabled = !state.vip6 || ruleCouponMax <= 0;
     return '<section class="st-encounter-shop">' +
       '<article class="st-encounter-shop-card">' +
         '<h3>邂逅商店</h3>' +
-        '<p>APP开放的特权商店。星光点兑换需要库存持有“' + escapeHtml(ENCOUNTER_SHOP_STARLIGHT_VOUCHER) + '”，用于鼓励用户完成任务协助改进APP。</p>' +
+        '<p>APP开放的特权商店。VIP5可进入并使用“' + escapeHtml(ENCOUNTER_SHOP_STARLIGHT_VOUCHER) + '”兑换星光点；校规修改券仍仅限VIP6。</p>' +
         '<div class="st-encounter-shop-meta">' +
           '<span><strong>' + state.money.toLocaleString() + '</strong>零花钱</span>' +
           '<span><strong>' + state.starlight + '</strong>星光点</span>' +
@@ -10408,10 +10418,10 @@ button.st-work-notice{cursor:pointer}
       '</article>' +
       '<article class="st-encounter-shop-card">' +
         '<h3>校规修改券</h3>' +
-        '<p>VIP6可用100星光点兑换1张校规修改券；发布新校规需要它，废止初始校规改为消耗10星光点。</p>' +
+        '<p>VIP6可用100星光点兑换1张校规修改券；发布新校规需要它，废止初始校规改为消耗10星光点。VIP5只能进入商店，不能兑换或使用校规修改券。</p>' +
         '<div class="st-encounter-shop-row">' +
-          '<input type="number" min="1" step="1" max="' + ruleCouponMax + '" value="' + (ruleCouponMax ? 1 : 0) + '" data-encounter-shop-rule-coupon-qty aria-label="购买校规修改券数量">' +
-          '<button type="button" class="st-encounter-button primary" data-encounter-action="shop-buy-rule-coupon"' + (ruleCouponDisabled ? " disabled" : "") + '>' + (ruleCouponDisabled ? "星光点不足" : "购买") + '</button>' +
+          '<input type="number" min="1" step="1" max="' + (state.vip6 ? ruleCouponMax : 0) + '" value="' + (state.vip6 && ruleCouponMax ? 1 : 0) + '" data-encounter-shop-rule-coupon-qty aria-label="购买校规修改券数量"' + (state.vip6 ? "" : " disabled") + '>' +
+          '<button type="button" class="st-encounter-button primary" data-encounter-action="shop-buy-rule-coupon"' + (ruleCouponDisabled ? " disabled" : "") + '>' + (!state.vip6 ? "需要VIP6" : (ruleCouponMax <= 0 ? "星光点不足" : "购买")) + '</button>' +
         '</div>' +
       '</article>' +
     '</section>';
@@ -12932,9 +12942,9 @@ button.st-work-notice{cursor:pointer}
   };
   const GRAPH_CUSTOM_CATEGORY_VALUE = "__custom__";
   const SPECIAL_LOCATION_STATIC_ITEMS = [
-    { id: "tropical-rainforest", label: "热带雨林", category: "静态编码", info: "第1生物特别温室的热带雨林区，被强化玻璃半球笼罩。室内长期高温高湿，喷淋系统定时制造雾气，水汽、汗水和植物气味会迅速改变衣物与身体状态。" },
-    { id: "babel", label: "巴别", category: "静态编码", info: "旧图书馆塔楼“巴别”，位于校园西北角。红砖塔楼、镂空回旋梯、玻璃回廊、盲点书架和顶层静电阅览室让这里成为偏僻又容易发生意外的特殊地点。" },
-    { id: "university", label: "大学", category: "静态编码", info: "明德大学，紧邻私立斋明学园的开放式综合大学。这里有中央主楼、商学部、实验楼、图书馆、学生会馆、宿舍区和体育中心，是高中生与大学生圈层交汇的灰色地带。" }
+    { id: "tropical-rainforest", label: "热带雨林", cost: 100, info: "第1生物特别温室的热带雨林区，被强化玻璃半球笼罩。室内长期高温高湿，喷淋系统定时制造雾气，水汽、汗水和植物气味会迅速改变衣物与身体状态。" },
+    { id: "babel", label: "巴别", cost: 100, info: "旧图书馆塔楼“巴别”，位于校园西北角。红砖塔楼、镂空回旋梯、玻璃回廊、盲点书架和顶层静电阅览室让这里成为偏僻又容易发生意外的特殊地点。" },
+    { id: "university", label: "大学", cost: 5, info: "明德大学，紧邻私立斋明学园的开放式综合大学。这里有中央主楼、商学部、实验楼、图书馆、学生会馆、宿舍区和体育中心，是高中生与大学生圈层交汇的灰色地带。" }
   ];
 
 	  function graphScopeKey() {
@@ -12959,6 +12969,125 @@ button.st-work-notice{cursor:pointer}
 
   function graphUpdateSeenStorageKey() {
     return "hypnoos.static-map.update-seen.v1:" + graphScopeKey();
+  }
+
+  function specialLocationUnlockStorageKey() {
+    return "hypnoos.special-location.unlocks.v1:" + graphScopeKey();
+  }
+
+  function readSpecialLocationLocalUnlockIds() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(specialLocationUnlockStorageKey()) || "[]");
+      if (Array.isArray(parsed)) return new Set(parsed.map(String).filter(Boolean));
+      if (parsed && typeof parsed === "object") {
+        return new Set(Object.entries(parsed).filter(([, value]) => Boolean(value)).map(([key]) => String(key)).filter(Boolean));
+      }
+    } catch {}
+    return new Set();
+  }
+
+  function writeSpecialLocationLocalUnlockIds(ids) {
+    try {
+      localStorage.setItem(specialLocationUnlockStorageKey(), JSON.stringify(Array.from(ids || []).map(String).filter(Boolean)));
+    } catch {}
+  }
+
+  function specialLocationSystemUnlockIds(stat = getLatestStatDataSync()) {
+    const system = encounterSystemObject(stat);
+    const raw = system["特殊地点解锁"] ?? system["特殊地点权限"] ?? system["已解锁特殊地点"];
+    const ids = new Set();
+    const add = (value) => {
+      const text = String(value || "").trim();
+      if (text) ids.add(text);
+    };
+    const truthy = (value) => {
+      if (value === false || value === 0 || value === null || value === undefined) return false;
+      const text = String(value).trim().toLowerCase();
+      return !["false", "0", "未解锁", "锁定", "locked", "no", "否"].includes(text);
+    };
+    if (Array.isArray(raw)) {
+      raw.forEach((item) => {
+        if (item && typeof item === "object") {
+          add(item.id || item.key || item.name || item.label || item["地点"] || item["名称"]);
+        } else {
+          add(item);
+        }
+      });
+    } else if (raw && typeof raw === "object") {
+      Object.entries(raw).forEach(([key, value]) => {
+        if (!truthy(value)) return;
+        add(key);
+        if (value && typeof value === "object") add(value.id || value.key || value.name || value.label || value["地点"] || value["名称"]);
+        else if (typeof value === "string") add(value);
+      });
+    } else if (typeof raw === "string") {
+      raw.split(/[、,，s]+/).forEach(add);
+    }
+    return ids;
+  }
+
+  function specialLocationUnlocked(location, stat = getLatestStatDataSync()) {
+    if (!location) return false;
+    const ids = readSpecialLocationLocalUnlockIds();
+    for (const id of specialLocationSystemUnlockIds(stat)) ids.add(id);
+    return ids.has(String(location.id)) || ids.has(String(location.label));
+  }
+
+  function specialLocationSetStatus(page, message) {
+    if (!page) return;
+    page.dataset.specialLocationStatus = String(message || "");
+  }
+
+  function rerenderSpecialLocationHost(page) {
+    if (!page) return;
+    if (page.classList.contains("st-special-location-app")) renderSpecialLocationPage(page);
+    else renderMapPage(page);
+  }
+
+  async function unlockSpecialLocation(page, id) {
+    const location = SPECIAL_LOCATION_STATIC_ITEMS.find((item) => item.id === id);
+    if (!location) return;
+    const data = encounterCurrentMvuData();
+    if (!data) {
+      specialLocationSetStatus(page, "MVU变量接口未就绪，无法解锁。");
+      rerenderSpecialLocationHost(page);
+      return;
+    }
+    data.stat["系统"] = data.stat["系统"] && typeof data.stat["系统"] === "object" && !Array.isArray(data.stat["系统"]) ? data.stat["系统"] : {};
+    const current = Math.max(0, Math.floor(Number(data.stat["系统"]["星光点"] ?? 0) || 0));
+    const cost = Math.max(0, Math.floor(Number(location.cost) || 0));
+    if (specialLocationUnlocked(location, data.stat)) {
+      specialLocationSetStatus(page, "「" + location.label + "」已经解锁。");
+      rerenderSpecialLocationHost(page);
+      return;
+    }
+    if (current < cost) {
+      specialLocationSetStatus(page, "星光点不足，解锁「" + location.label + "」需要" + cost + "点。");
+      rerenderSpecialLocationHost(page);
+      return;
+    }
+    data.stat["系统"]["星光点"] = current - cost;
+    const unlocked = specialLocationSystemUnlockIds(data.stat);
+    unlocked.add(location.id);
+    data.stat["系统"]["特殊地点解锁"] = {};
+    for (const item of SPECIAL_LOCATION_STATIC_ITEMS) {
+      if (unlocked.has(item.id) || unlocked.has(item.label)) data.stat["系统"]["特殊地点解锁"][item.id] = item.label;
+    }
+    await globalThis.Mvu.replaceMvuData(data.mvu, data.option);
+    const localIds = readSpecialLocationLocalUnlockIds();
+    localIds.add(location.id);
+    writeSpecialLocationLocalUnlockIds(localIds);
+    specialLocationSetStatus(page, "已解锁「" + location.label + "」，扣除" + cost + "星光点。");
+    appendAppOperation({
+      来源: "地图",
+      操作: "解锁特殊地点",
+      地点ID: location.id,
+      特殊地点: location.label,
+      星光点花费: cost,
+      星光点扣除状态: "前端已扣除，AI不得再次扣除。",
+      AI执行规范: "本操作只表示{{user}}购买了该特殊地点的随意进出权限；前端已扣星光点，AI不得重复扣费。后续若剧情移动到该地点，仍需按时间、交通和剧情合理性更新/系统/当前地点。"
+    });
+    rerenderSpecialLocationHost(page);
   }
 
   function cloneGraph(value) {
@@ -13607,7 +13736,7 @@ button.st-work-notice{cursor:pointer}
           '<button type="button" class="st-graph-tab ' + (active === "world" ? "active" : "") + '" data-map-tab="world">区域地图</button>' +
           '<button type="button" class="st-graph-tab ' + (active === "special" ? "active" : "") + '" data-map-tab="special">特殊地点</button>' +
         '</section>' +
-        (active === "special" ? renderSpecialLocationCard() : renderStaticGraphCard("world", page)) +
+        (active === "special" ? renderSpecialLocationCard(page) : renderStaticGraphCard("world", page)) +
       '</main>';
     bindLiteHeader(page, () => renderMapPage(page));
     page.querySelector('[data-lite-action="back"]')?.addEventListener("click", () => {
@@ -13659,28 +13788,43 @@ button.st-work-notice{cursor:pointer}
     restoreGraphUiState(page, "school");
   }
 
-  function renderSpecialLocationCard() {
-    const locations = SPECIAL_LOCATION_STATIC_ITEMS.map((location) => (
-      '<details class="st-location-item" data-special-location-id="' + escapeAttr(location.id) + '">' +
+  function renderSpecialLocationCard(page) {
+    const stat = getLatestStatDataSync();
+    const status = String(page?.dataset?.specialLocationStatus || "").trim();
+    const locations = SPECIAL_LOCATION_STATIC_ITEMS.map((location) => {
+      const unlocked = specialLocationUnlocked(location, stat);
+      const meta = unlocked ? "已解锁" : ("解锁 " + location.cost + " 星光点");
+      const action = unlocked
+        ? '<button type="button" class="st-location-suggest" data-special-location-suggest="' + escapeAttr(location.id) + '">建议设为地点</button>'
+        : '<button type="button" class="st-location-suggest" data-special-location-unlock="' + escapeAttr(location.id) + '">解锁</button>';
+      return '<details class="st-location-item" data-special-location-id="' + escapeAttr(location.id) + '">' +
         '<summary class="st-location-summary">' +
           '<span class="st-location-title">' +
             '<strong>' + escapeHtml(location.label) + '</strong>' +
-            '<em class="st-location-category">' + escapeHtml(location.category) + '</em>' +
+            '<em class="st-location-category">' + escapeHtml(meta) + '</em>' +
           '</span>' +
           '<span></span>' +
-          '<button type="button" class="st-location-suggest" data-special-location-suggest="' + escapeAttr(location.id) + '">建议设为地点</button>' +
+          action +
           '<span class="st-location-chevron">⌄</span>' +
         '</summary>' +
         '<div class="st-location-detail"><p>' + escapeHtml(location.info || "待续") + '</p></div>' +
-      '</details>'
-    )).join("");
+      '</details>';
+    }).join("");
     return '<section class="st-lite-card st-graph-card st-graph-paper">' +
-      '<div class="st-graph-head"><strong>特殊地点</strong><span>' + SPECIAL_LOCATION_STATIC_ITEMS.length + ' 静态编码</span></div>' +
+      '<div class="st-graph-head"><strong>特殊地点</strong><span>' + SPECIAL_LOCATION_STATIC_ITEMS.length + ' 地点</span></div>' +
+      (status ? '<p class="st-graph-add-hint">' + escapeHtml(status) + '</p>' : '') +
       '<div class="st-location-list">' + locations + '</div>' +
     '</section>';
   }
 
   function bindSpecialLocationActions(page) {
+    page.querySelectorAll("[data-special-location-unlock]").forEach((button) => {
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        unlockSpecialLocation(page, button.getAttribute("data-special-location-unlock") || "");
+      });
+    });
     page.querySelectorAll("[data-special-location-suggest]").forEach((button) => {
       button.addEventListener("click", (event) => {
         event.preventDefault();
@@ -13688,11 +13832,16 @@ button.st-work-notice{cursor:pointer}
         const id = button.getAttribute("data-special-location-suggest") || "";
         const location = SPECIAL_LOCATION_STATIC_ITEMS.find((item) => item.id === id);
         if (!location) return;
+        if (!specialLocationUnlocked(location)) {
+          specialLocationSetStatus(page, "请先消耗" + location.cost + "星光点解锁「" + location.label + "」的随意进出权限。");
+          rerenderSpecialLocationHost(page);
+          return;
+        }
         appendAppOperation({
           来源: "地图",
           操作: "建议剧情地点",
           地图类型: "特殊地点",
-          静态编码: location.id,
+          地点ID: location.id,
           建议地点: {
             名称: location.label,
             分类: "特殊地点",
@@ -13709,7 +13858,7 @@ button.st-work-notice{cursor:pointer}
     page.innerHTML =
       renderLiteHeader(page, { title: "特殊地点", html: '<strong>特殊地点</strong>' }) +
       '<main class="st-lite-body">' +
-        renderSpecialLocationCard() +
+        renderSpecialLocationCard(page) +
       '</main>';
     bindLiteHeader(page, () => renderSpecialLocationPage(page));
     page.querySelector('[data-lite-action="back"]')?.addEventListener("click", () => {
