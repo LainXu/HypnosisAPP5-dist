@@ -550,34 +550,54 @@ window.setTimeout(() => {
 	        if (value !== undefined && value !== null && value !== "") selected["角色." + name + "." + field] = value;
 	      }
 	    };
-	    const addOperationSpecificVariables = (selected, variables, payload) => {
-	      if (!payload || typeof payload !== "object" || Array.isArray(payload)) return;
-	      const source = cleanOperationText(readOperationKey(payload, OPERATION_SOURCE_KEYS, ""));
-	      const action = cleanOperationText(readOperationKey(payload, OPERATION_ACTION_KEYS, ""));
-	      const roleName = payload["角色名"] || payload["目标角色"] || payload["角色"];
+		    const addOperationSpecificVariables = (selected, variables, payload) => {
+		      if (!payload || typeof payload !== "object" || Array.isArray(payload)) return;
+		      const source = cleanOperationText(readOperationKey(payload, OPERATION_SOURCE_KEYS, ""));
+		      const action = cleanOperationText(readOperationKey(payload, OPERATION_ACTION_KEYS, ""));
+		      const roleName = payload["角色名"] || payload["目标角色"] || payload["角色"];
 	      if (/^监控$/.test(source) && /派遣角色/.test(action)) {
 	        addOperationRoleVariableFields(selected, variables, roleName, ["好感度", "服从度", "是否派遣中", "工作价值"]);
 	      }
 	      if (/^监控$/.test(source) && /派遣结束提醒|取消派遣/.test(action)) {
-	        addOperationRoleVariableFields(selected, variables, roleName, ["是否派遣中", "工作价值"]);
-	      }
-	    };
-	    const selectOperationVariables = (entries) => {
-	      const variablesRoot = readOperationStatData();
-	      const snapshot = readOperationVariableSnapshot(variablesRoot);
-	      if (!snapshot) return null;
-	      const fields = new Set();
+		        addOperationRoleVariableFields(selected, variables, roleName, ["是否派遣中", "工作价值"]);
+		      }
+		    };
+		    const operationFrontendDeductedStarlightNotice = (entries) => {
+		      let cost = 0;
+		      let hasEncounterPurchase = false;
+		      for (const entry of entries || []) {
+		        const payload = operationEntryPayload(entry);
+		        const record = normalizeOperationPayload(payload);
+		        const source = cleanOperationText(record.source || "");
+		        const action = cleanOperationText(record.action || "");
+		        if (!/^邂逅$/.test(source) || !/购买角色包|角色包已使用/.test(action)) continue;
+		        hasEncounterPurchase = true;
+		        const value = Number(record.details?.["消耗星光点"] ?? payload?.["消耗星光点"] ?? payload?.price ?? 0);
+		        if (Number.isFinite(value) && value > 0) cost += Math.floor(value);
+		      }
+		      if (!hasEncounterPurchase) return "";
+		      return "已扣除本次邂逅" + (cost > 0 ? cost + "点" : "") + "消耗，这是扣除后的余额；AI不得再次扣除星光点";
+		    };
+		    const selectOperationVariables = (entries) => {
+		      const variablesRoot = readOperationStatData();
+		      const snapshot = readOperationVariableSnapshot(variablesRoot);
+		      if (!snapshot) return null;
+		      const fields = new Set();
 	      for (const entry of entries) {
 	        const payload = operationEntryPayload(entry);
 	        for (const field of pickOperationVariableFields(payload)) fields.add(field);
 	      }
 	      const selected = {};
 	      for (const field of fields) {
-	        if (snapshot[field] !== undefined && snapshot[field] !== null && snapshot[field] !== "") selected[field] = snapshot[field];
-	      }
-	      for (const entry of entries) addOperationSpecificVariables(selected, variablesRoot, operationEntryPayload(entry));
-	      return Object.keys(selected).length ? selected : null;
-	    };
+		        if (snapshot[field] !== undefined && snapshot[field] !== null && snapshot[field] !== "") selected[field] = snapshot[field];
+		      }
+		      for (const entry of entries) addOperationSpecificVariables(selected, variablesRoot, operationEntryPayload(entry));
+		      const starlightNotice = operationFrontendDeductedStarlightNotice(entries);
+		      if (starlightNotice && selected["星光点"] !== undefined && selected["星光点"] !== null && selected["星光点"] !== "") {
+		        selected["星光点"] = String(selected["星光点"]) + "（" + starlightNotice + "）";
+		      }
+		      return Object.keys(selected).length ? selected : null;
+		    };
 	    const buildOperationBlock = (entries = window.__ST_OPERATION_INPUT_LOG__) => {
 	      const groups = new Map();
 	      const sortedEntries = sortOperationEntries(entries);
