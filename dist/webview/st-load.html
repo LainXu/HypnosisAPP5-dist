@@ -10942,22 +10942,20 @@ button.st-work-notice{cursor:pointer}
 	    return String(entry?.comment || entry?.name || entry?.extra?.comment || "");
 	  }
 
-	  function encounterRoleNameKey(name) {
-	    return String(name || "").trim().replace(/s+/g, " ").toLocaleLowerCase("zh-CN");
-	  }
+		  function encounterRoleNameKey(name) {
+		    return String(name || "").trim().replace(/\s+/g, " ").toLocaleLowerCase("zh-CN");
+		  }
 
-	  function encounterAddWorldbookRoleName(map, rawName) {
-	    const name = String(rawName || "").trim().replace(/^[s:：-]+|[s:：-]+$/g, "");
+		  function encounterAddWorldbookRoleName(map, rawName) {
+		    const name = String(rawName || "").trim().replace(/^[\s:：-]+|[\s:：-]+$/g, "");
 	    const key = encounterRoleNameKey(name);
 	    if (!key || /^(变量|人设|角色|未命名)$/u.test(name)) return;
 	    if (!map.has(key)) map.set(key, name);
 	  }
 
-	  function encounterWorldbookRoleNamesFromEntries(entries) {
-	    const names = new Map();
-	    const pattern = /[mvu_(?:update|plot)]s*([^]
-]+?)s*(?:变量|人设)(?=$|[s<>
-])/gu;
+		  function encounterWorldbookRoleNamesFromEntries(entries) {
+		    const names = new Map();
+		    const pattern = /\[mvu_(?:update|plot)\]\s*([^\]\n]+?)\s*(?:变量|人设)(?=$|[\s<>\n])/gu;
 	    for (const entry of Array.isArray(entries) ? entries : []) {
 	      const text = encounterEntryText(entry);
 	      pattern.lastIndex = 0;
