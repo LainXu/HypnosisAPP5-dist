@@ -473,13 +473,9 @@ window.setTimeout(() => {
         .sort();
       return [cleanOperationText(record.source || "APP"), cleanOperationText(record.action || "操作"), fields.join("|")].join("\u0001");
     };
-    const operationSingleSlotKey = (payload) => {
-      const record = normalizeOperationPayload(payload);
-      const source = cleanOperationText(record.source || "");
-      const action = cleanOperationText(record.action || "");
-      if (/^建议剧情地点$/.test(action) && /^(地图|学校地图)$/.test(source)) return "story-location";
-      return "";
-    };
+	    const operationSingleSlotKey = (payload) => {
+	      return "";
+	    };
     const operationBusinessKey = (payload) => {
       const object = payload && typeof payload === "object" && !Array.isArray(payload) ? payload : {};
       const source = cleanOperationText(readOperationKey(object, OPERATION_SOURCE_KEYS, ""));
@@ -507,8 +503,18 @@ window.setTimeout(() => {
           return "reward:cancel-quest:" + (id || title);
         }
       }
-      if (/^打工$/.test(source) && /^(开始打工|打工中提醒)$/.test(action)) return "work:active";
-      if (/^催眠APP$/.test(source)) {
+	      if (/^打工$/.test(source) && /^(开始打工|打工中提醒)$/.test(action)) return "work:active";
+	      if (/^时钟$/.test(source) && /建议剧情开始时间|建议时间|当前时间|推进到该时间/.test(action)) return "clock:suggest-time";
+	      if (/^(地图|学校地图)$/.test(source)) {
+	        if (/^建议剧情地点$/.test(action)) return "map:suggest-location";
+	        if (/^请求新增地点$/.test(action)) return "map:add-location:" + (/^学校地图$/.test(source) ? "school" : "world");
+	        if (/^解锁特殊地点$/.test(action)) {
+	          const id = cleanOperationText(object["地点ID"] ?? object["特殊地点ID"] ?? object.id ?? "");
+	          const title = cleanOperationText(object["特殊地点"] ?? object["建议地点"] ?? object["地点"] ?? object.title ?? object.name ?? "");
+	          return "map:unlock-special:" + (id || title);
+	        }
+	      }
+	      if (/^催眠APP$/.test(source)) {
         if (/^(启动催眠|追加催眠)$/.test(action)) return "hypnosis:session";
         if (/^资源兑换$/.test(action)) {
           const item = cleanOperationText(object["项目"] ?? object["功能"] ?? object["名称"] ?? "");
@@ -1948,6 +1954,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-clock-inputs input:focus{border-color:rgba(34,211,238,.58);box-shadow:0 0 0 3px rgba(34,211,238,.13)}
 .st-clock-colon{padding:0 0 10px;color:rgba(226,232,240,.72);font-size:24px;font-weight:900}
 .st-clock-action{width:100%;border:1px solid rgba(34,211,238,.28);border-radius:15px;background:linear-gradient(135deg,#06b6d4,#7c3aed);color:white;font-weight:900;font-size:14px;padding:12px;box-shadow:0 14px 30px rgba(34,211,238,.18);cursor:pointer}
+.st-clock-action:disabled{opacity:.48;cursor:not-allowed;filter:saturate(.7);box-shadow:none}
 .st-clock-note{margin:0;color:rgba(203,213,225,.6);font-size:11px;line-height:1.55;text-align:left}
 .st-monitor-card{display:grid;gap:12px}
 .st-monitor-stage{position:relative;width:100%;aspect-ratio:5/2;overflow:hidden;border:1px solid rgba(125,211,252,.22);border-radius:13px;background:#0f172a;box-shadow:inset 0 0 0 1px rgba(255,255,255,.04),0 18px 38px rgba(0,0,0,.25);touch-action:manipulation}
@@ -2004,6 +2011,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-location-favorite{align-self:center;width:32px;height:32px;border:1px solid rgba(146,64,14,.2);border-radius:8px;background:rgba(254,243,199,.42);color:rgba(146,64,14,.72);font-size:16px;font-weight:950;line-height:1;display:grid;place-items:center;cursor:pointer}
 .st-location-favorite.active{border-color:rgba(202,138,4,.48);background:rgba(254,243,199,.78);color:#92400e;box-shadow:0 0 0 3px rgba(202,138,4,.08)}
 .st-location-suggest{align-self:center;border:1px solid rgba(146,64,14,.22);border-radius:8px;background:rgba(255,255,255,.46);color:#6b3f22;font-size:11px;font-weight:850;padding:7px 9px;cursor:pointer;white-space:nowrap}
+.st-location-suggest:disabled{opacity:.48;cursor:not-allowed;filter:saturate(.65);box-shadow:none}
 .st-location-chevron{color:rgba(61,47,37,.52);font-size:14px;font-weight:950;transition:transform .16s ease}
 .st-location-item[open] .st-location-chevron{transform:rotate(180deg)}
 .st-graph-category-wrap{display:grid;grid-template-columns:24px minmax(0,1fr) 24px;gap:5px;align-items:center}
@@ -2030,6 +2038,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-graph-add textarea{min-height:64px;resize:vertical}
 .st-graph-add input:focus,.st-graph-add textarea:focus,.st-graph-add select:focus{border-color:rgba(146,64,14,.42);box-shadow:0 0 0 3px rgba(146,64,14,.1)}
 .st-graph-add button{border:1px solid rgba(146,64,14,.28);border-radius:8px;background:linear-gradient(135deg,rgba(146,64,14,.16),rgba(217,119,6,.14));color:#5b341f;font-size:12px;font-weight:850;padding:9px 10px;cursor:pointer}
+.st-graph-add button:disabled{opacity:.48;cursor:not-allowed;filter:saturate(.65);box-shadow:none}
 .st-graph-add-hint{margin:0;color:rgba(61,47,37,.55);font-size:10px;line-height:1.45}
 .st-rule-paper{border-color:rgba(92,64,38,.24)!important;background:linear-gradient(180deg,#fffaf0,#f8ecd8)!important;color:#3d2f25!important;box-shadow:0 15px 34px rgba(59,42,25,.14),inset 0 0 0 1px rgba(255,255,255,.55)!important}
 .st-rule-paper-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border-bottom:2px double rgba(92,64,38,.22);padding-bottom:8px;margin-bottom:9px}
@@ -7049,8 +7058,9 @@ button.st-work-notice{cursor:pointer}
     updateClockFace(page);
   }
 
-  function renderClockPage(page) {
-    const seed = getClockSeed();
+	  function renderClockPage(page) {
+	    const seed = getClockSeed();
+	    const pendingClock = hasPendingClockSuggestionOperation();
     const marks = Array.from({ length: 12 }, (_, index) => {
       const angle = index * 30;
       const radians = angle * Math.PI / 180;
@@ -7071,16 +7081,17 @@ button.st-work-notice{cursor:pointer}
 	            '<b class="st-clock-colon">:</b>' +
 	            '<label><span>分</span><input data-clock-minute inputmode="numeric" autocomplete="off" maxlength="2" min="0" max="59" value="' + escapeAttr(String(seed.minute).padStart(2, "0")) + '"></label>' +
           '</div>' +
-          '<button type="button" class="st-clock-action" data-clock-action="suggest">建议此时间</button>' +
+	          '<button type="button" class="st-clock-action" data-clock-action="suggest"' + (pendingClock ? " disabled" : "") + '>' + (pendingClock ? "已暂存" : "建议此时间") + '</button>' +
           '<p class="st-clock-note">这只会写入本轮操作，请 AI 按剧情连续性判断是否推进时间；前端不会直接改当前时间变量。</p>' +
         '</section>' +
       '</main>';
     bindLiteHeader(page, () => renderClockPage(page));
-    page.querySelector('[data-lite-action="back"]')?.addEventListener("click", () => {
-      const root = page.parentElement;
-      setPhoneActiveApp(root, "");
-      page.remove();
-    });
+	    page.querySelector('[data-lite-action="back"]')?.addEventListener("click", () => {
+	      const root = page.parentElement;
+	      setPhoneActiveApp(root, "");
+	      page.__stClockCleanup?.();
+	      page.remove();
+	    });
     page.querySelectorAll("[data-clock-hour],[data-clock-minute]").forEach((input) => {
       input.addEventListener("input", () => {
         const max = input.hasAttribute("data-clock-hour") ? 23 : 59;
@@ -7093,18 +7104,22 @@ button.st-work-notice{cursor:pointer}
         updateClockFace(page);
       });
     });
-    page.querySelector('[data-clock-action="suggest"]')?.addEventListener("click", () => {
-      const hour = normalizeClockPart(page.querySelector("[data-clock-hour]")?.value, 23);
-      const minute = normalizeClockPart(page.querySelector("[data-clock-minute]")?.value, 59);
-      const suggested = formatClockInput(hour, minute);
-      appendAppOperation({
-        来源: "时钟",
-        操作: "建议剧情开始时间",
-        当前时间: storyTimeOnly(getSystemState()["当前时间"], "未知"),
-        建议时间: suggested,
-        AI执行规范: "这是用户建议剧情从该时间开始或推进到该时间；AI应按剧情连续性判断是否成立，成立时更新系统.当前时间并同步日程、事件、当前/待上课程与课程表相关变量。"
-      });
-    });
+	    page.querySelector('[data-clock-action="suggest"]')?.addEventListener("click", () => {
+	      if (hasPendingClockSuggestionOperation()) {
+	        renderClockPage(page);
+	        return;
+	      }
+	      const hour = normalizeClockPart(page.querySelector("[data-clock-hour]")?.value, 23);
+	      const minute = normalizeClockPart(page.querySelector("[data-clock-minute]")?.value, 59);
+	      const suggested = formatClockInput(hour, minute);
+	      Promise.resolve(appendAppOperation({
+	        来源: "时钟",
+	        操作: "建议剧情开始时间",
+	        当前时间: storyTimeOnly(getSystemState()["当前时间"], "未知"),
+	        建议时间: suggested,
+	        AI执行规范: "这是用户建议剧情从该时间开始或推进到该时间；AI应按剧情连续性判断是否成立，成立时更新系统.当前时间并同步日程、事件、当前/待上课程与课程表相关变量。"
+	      })).then(() => renderClockPage(page));
+	    });
     updateClockFace(page);
   }
 
@@ -7118,9 +7133,18 @@ button.st-work-notice{cursor:pointer}
     const page = document.createElement("section");
     page.className = "st-lite-app st-clock-app";
     page.setAttribute("aria-label", "时钟");
-    root.appendChild(page);
-    renderClockPage(page);
-  }
+	    root.appendChild(page);
+	    renderClockPage(page);
+	    const refreshFromOperationQueue = () => {
+	      if (!page.isConnected) {
+	        window.removeEventListener("HYPNOOS_OPERATION_QUEUE_CHANGED", refreshFromOperationQueue);
+	        return;
+	      }
+	      renderClockPage(page);
+	    };
+	    page.__stClockCleanup = () => window.removeEventListener("HYPNOOS_OPERATION_QUEUE_CHANGED", refreshFromOperationQueue);
+	    window.addEventListener("HYPNOOS_OPERATION_QUEUE_CHANGED", refreshFromOperationQueue);
+	  }
 
   function monitorStorageKey() {
     return "hypnoos.monitor.public-toilet.dispatch.v1:" + graphScopeKey();
@@ -7909,9 +7933,34 @@ button.st-work-notice{cursor:pointer}
     return result;
   }
 
-  function pendingOperationPayloads() {
-    return (window.__ST_GET_PENDING_OPERATION_INPUT_LOG__?.() || []).map((entry) => entry?.payload || entry);
-  }
+	  function pendingOperationPayloads() {
+	    return (window.__ST_GET_PENDING_OPERATION_INPUT_LOG__?.() || []).map((entry) => entry?.payload || entry);
+	  }
+
+	  function pendingPayloadMatches(payload, sourcePattern, operationPattern) {
+	    if (!payload || typeof payload !== "object") return false;
+	    const source = String(payload["来源"] || "").trim();
+	    const operation = String(payload["操作"] || "").trim();
+	    const sourceMatched = sourcePattern instanceof RegExp ? sourcePattern.test(source) : source === String(sourcePattern || "").trim();
+	    const operationMatched = operationPattern instanceof RegExp ? operationPattern.test(operation) : operation === String(operationPattern || "").trim();
+	    return sourceMatched && operationMatched;
+	  }
+
+	  function hasPendingClockSuggestionOperation() {
+	    return pendingOperationPayloads().some((payload) => pendingPayloadMatches(payload, "时钟", /建议剧情开始时间|建议时间|当前时间|推进到该时间/));
+	  }
+
+	  function graphOperationSource(scope) {
+	    return String(scope || "") === "school" ? "学校地图" : "地图";
+	  }
+
+	  function hasPendingStoryLocationOperation() {
+	    return pendingOperationPayloads().some((payload) => pendingPayloadMatches(payload, /^(地图|学校地图)$/, "建议剧情地点"));
+	  }
+
+	  function hasPendingGraphAddLocationOperation(scope) {
+	    return pendingOperationPayloads().some((payload) => pendingPayloadMatches(payload, graphOperationSource(scope), "请求新增地点"));
+	  }
 
   function latestPendingClockTimeText() {
     const payloads = pendingOperationPayloads();
@@ -13893,11 +13942,12 @@ button.st-work-notice{cursor:pointer}
     '</div>';
   }
 
-  function renderGraphAddLocationCard(scope, graph) {
-    const currentLocation = getCurrentStoryLocation() || "未知";
-    const title = scope === "school" ? "新增校内地点" : "新增区域地点";
-    const tag = scope === "school" ? "<学校地图更新>" : "<地图更新>";
-    const categoryOptions = graphCategoryOptions(scope, graph.locations, { includePresets: true });
+	  function renderGraphAddLocationCard(scope, graph) {
+	    const currentLocation = getCurrentStoryLocation() || "未知";
+	    const title = scope === "school" ? "新增校内地点" : "新增区域地点";
+	    const tag = scope === "school" ? "<学校地图更新>" : "<地图更新>";
+	    const pendingAdd = hasPendingGraphAddLocationOperation(scope);
+	    const categoryOptions = graphCategoryOptions(scope, graph.locations, { includePresets: true });
     const options = ['<option value="">自动分类</option>']
       .concat(categoryOptions.map((category) => '<option value="' + escapeAttr(category) + '">' + escapeHtml(category) + '</option>'))
       .concat(['<option value="' + GRAPH_CUSTOM_CATEGORY_VALUE + '">自定义</option>'])
@@ -13911,17 +13961,18 @@ button.st-work-notice{cursor:pointer}
         '<textarea data-graph-add-info placeholder="地点说明、用途、相关角色或剧情倾向"></textarea>' +
       '</div>' +
       '<p class="st-graph-add-hint">提交后只会加入本轮APP操作；AI需要输出完整 ' + escapeHtml(tag) + ' 地点列表 JSON，字段包含 id/name/description/category，前端再写入本地。当前地点变量：' + escapeHtml(currentLocation) + '。</p>' +
-      '<button type="button" data-graph-add-submit data-graph-scope="' + escapeAttr(scope) + '">请求新增地点</button>' +
-    '</details>';
-  }
+	      '<button type="button" data-graph-add-submit data-graph-scope="' + escapeAttr(scope) + '"' + (pendingAdd ? " disabled" : "") + '>' + (pendingAdd ? "已暂存" : "请求新增地点") + '</button>' +
+	    '</details>';
+	  }
 
   function renderStaticGraphCard(scope, page) {
     const graph = loadStaticGraph(scope);
     const currentLocation = getCurrentStoryLocation();
     const favoriteIds = readGraphFavoriteIds(scope);
-    const selectedCategory = graphSelectedCategory(page, scope);
-    const favoriteOnly = graphFavoriteOnly(page, scope);
-    const openIds = graphOpenIdSet(page, scope);
+	    const selectedCategory = graphSelectedCategory(page, scope);
+	    const favoriteOnly = graphFavoriteOnly(page, scope);
+	    const openIds = graphOpenIdSet(page, scope);
+	    const pendingStoryLocation = hasPendingStoryLocationOperation();
     const visibleLocations = (selectedCategory ? graph.locations.filter((location) => String(location.category || "").trim() === selectedCategory) : graph.locations)
       .filter((location) => !favoriteOnly || favoriteIds.has(String(location.id)))
       .slice()
@@ -13940,7 +13991,7 @@ button.st-work-notice{cursor:pointer}
               (location.category ? '<em class="st-location-category">' + escapeHtml(location.category) + '</em>' : "") +
             '</span>' +
             '<button type="button" class="st-location-favorite ' + (favorite ? "active" : "") + '" data-graph-action="toggle-favorite" data-graph-scope="' + escapeAttr(scope) + '" data-graph-node-id="' + escapeAttr(location.id) + '" title="' + (favorite ? "取消收藏" : "收藏地点") + '" aria-label="' + (favorite ? "取消收藏" : "收藏地点") + '">' + (favorite ? "★" : "☆") + '</button>' +
-            '<button type="button" class="st-location-suggest" data-graph-suggest-location="' + escapeAttr(location.id) + '" data-graph-scope="' + escapeAttr(scope) + '">建议设为地点</button>' +
+	            '<button type="button" class="st-location-suggest" data-graph-suggest-location="' + escapeAttr(location.id) + '" data-graph-scope="' + escapeAttr(scope) + '"' + (pendingStoryLocation ? " disabled" : "") + '>' + (pendingStoryLocation ? "已暂存" : "建议设为地点") + '</button>' +
             '<span class="st-location-chevron">⌄</span>' +
             '</summary>' +
             '<div class="st-location-detail">' +
@@ -14048,10 +14099,15 @@ button.st-work-notice{cursor:pointer}
       toggleGraphCustomCategoryInput(select);
       select.addEventListener("change", () => toggleGraphCustomCategoryInput(select));
     });
-    page.querySelectorAll("[data-graph-add-submit]").forEach((button) => {
-      button.addEventListener("click", () => {
-        const scope = button.getAttribute("data-graph-scope") || "world";
-        const card = button.closest("[data-graph-add-scope]");
+	    page.querySelectorAll("[data-graph-add-submit]").forEach((button) => {
+	      button.addEventListener("click", () => {
+	        const scope = button.getAttribute("data-graph-scope") || "world";
+	        if (hasPendingGraphAddLocationOperation(scope)) {
+	          if (page.classList.contains("st-school-app")) renderSchoolPage(page);
+	          else renderMapPage(page);
+	          return;
+	        }
+	        const card = button.closest("[data-graph-add-scope]");
         const nameInput = card?.querySelector("[data-graph-add-name]");
         const categoryInput = card?.querySelector("[data-graph-add-category]");
         const customCategoryInput = card?.querySelector("[data-graph-add-custom-category]");
@@ -14065,9 +14121,9 @@ button.st-work-notice{cursor:pointer}
         const graph = loadStaticGraph(scope);
         const currentLocation = getCurrentStoryLocation() || "未知";
         const tag = scope === "school" ? "学校地图更新" : "地图更新";
-        appendAppOperation({
-          来源: scope === "school" ? "学校地图" : "地图",
-          操作: "请求新增地点",
+	        Promise.resolve(appendAppOperation({
+	          来源: scope === "school" ? "学校地图" : "地图",
+	          操作: "请求新增地点",
           地图类型: graph.title + "（地点列表）",
           新增地点: {
             名称: name || "由AI按剧情命名",
@@ -14078,14 +14134,19 @@ button.st-work-notice{cursor:pointer}
           },
           当前完整地点列表JSON: JSON.stringify({ title: graph.title, locations: graph.locations }),
           AI执行规范: "若地点成立，输出完整<" + tag + ">JSON</" + tag + ">，不是增量；只保留locations地点列表，不要输出边关系、坐标或连线。每项使用id、name、description、category；category可为空。"
-        });
-        if (nameInput) nameInput.value = "";
-        if (categoryInput) categoryInput.value = "";
-        if (customCategoryInput) customCategoryInput.value = "";
-        toggleGraphCustomCategoryInput(categoryInput);
-        if (infoInput) infoInput.value = "";
-      });
-    });
+	        })).then((added) => {
+	          if (added) {
+	            if (nameInput) nameInput.value = "";
+	            if (categoryInput) categoryInput.value = "";
+	            if (customCategoryInput) customCategoryInput.value = "";
+	            toggleGraphCustomCategoryInput(categoryInput);
+	            if (infoInput) infoInput.value = "";
+	          }
+	          if (page.classList.contains("st-school-app")) renderSchoolPage(page);
+	          else renderMapPage(page);
+	        });
+	      });
+	    });
     page.querySelectorAll("[data-graph-category-scroll]").forEach((button) => {
       button.addEventListener("click", (event) => {
         event.preventDefault();
@@ -14122,13 +14183,18 @@ button.st-work-notice{cursor:pointer}
         event.preventDefault();
         event.stopPropagation();
         const scope = button.getAttribute("data-graph-scope") || "world";
-        const graph = loadStaticGraph(scope);
-        const id = button.getAttribute("data-graph-suggest-location") || "";
-        const location = graph.locations.find((item) => item.id === id);
-        if (!location) return;
-        appendAppOperation({
-          来源: scope === "school" ? "学校地图" : "地图",
-          操作: "建议剧情地点",
+	        const graph = loadStaticGraph(scope);
+	        const id = button.getAttribute("data-graph-suggest-location") || "";
+	        const location = graph.locations.find((item) => item.id === id);
+	        if (!location) return;
+	        if (hasPendingStoryLocationOperation()) {
+	          if (page.classList.contains("st-school-app")) renderSchoolPage(page);
+	          else renderMapPage(page);
+	          return;
+	        }
+	        Promise.resolve(appendAppOperation({
+	          来源: scope === "school" ? "学校地图" : "地图",
+	          操作: "建议剧情地点",
           当前地点变量: getCurrentStoryLocation() || "未知",
           建议地点: {
             名称: location.label,
@@ -14137,9 +14203,12 @@ button.st-work-notice{cursor:pointer}
             地图类型: graph.title
           },
           AI执行规范: "这只是用户希望剧情地点设在这里的建议；前端不能直接改当前地点。AI应按剧情、时间和移动条件判断是否成立，成立时更新/系统/当前地点，并同步当前事件、当前日程或当前/待上课程；不合理时可拒绝或延后。"
-        });
-      });
-    });
+	        })).then(() => {
+	          if (page.classList.contains("st-school-app")) renderSchoolPage(page);
+	          else renderMapPage(page);
+	        });
+	      });
+	    });
     page.querySelectorAll("[data-graph-action]").forEach((button) => {
       button.addEventListener("click", (event) => {
         event.preventDefault();
@@ -14222,11 +14291,12 @@ button.st-work-notice{cursor:pointer}
         (active === "special" ? renderSpecialLocationCard(page) : renderStaticGraphCard("world", page)) +
       '</main>';
     bindLiteHeader(page, () => renderMapPage(page));
-    page.querySelector('[data-lite-action="back"]')?.addEventListener("click", () => {
-      const root = page.parentElement;
-      setPhoneActiveApp(root, "");
-      page.remove();
-    });
+	    page.querySelector('[data-lite-action="back"]')?.addEventListener("click", () => {
+	      const root = page.parentElement;
+	      setPhoneActiveApp(root, "");
+	      page.__stMapCleanup?.();
+	      page.remove();
+	    });
     page.querySelectorAll("[data-map-tab]").forEach((button) => {
       button.addEventListener("click", () => {
         page.dataset.mapTab = button.getAttribute("data-map-tab") || "world";
@@ -14256,11 +14326,12 @@ button.st-work-notice{cursor:pointer}
         (active === "rules" ? renderSchoolRulesCard() : renderStaticGraphCard("school", page)) +
       '</main>';
     bindLiteHeader(page, () => renderSchoolPage(page));
-    page.querySelector('[data-lite-action="back"]')?.addEventListener("click", () => {
-      const root = page.parentElement;
-      setPhoneActiveApp(root, "");
-      page.remove();
-    });
+	    page.querySelector('[data-lite-action="back"]')?.addEventListener("click", () => {
+	      const root = page.parentElement;
+	      setPhoneActiveApp(root, "");
+	      page.__stMapCleanup?.();
+	      page.remove();
+	    });
     page.querySelectorAll("[data-school-tab]").forEach((button) => {
       button.addEventListener("click", () => {
         page.dataset.schoolTab = button.getAttribute("data-school-tab") || "map";
@@ -14271,16 +14342,17 @@ button.st-work-notice{cursor:pointer}
     restoreGraphUiState(page, "school");
   }
 
-  function renderSpecialLocationCard(page) {
-    const stat = getLatestStatDataSync();
-    const status = String(page?.dataset?.specialLocationStatus || "").trim();
-    const locations = SPECIAL_LOCATION_STATIC_ITEMS.map((location) => {
-      const unlocked = specialLocationUnlocked(location, stat);
-      const pendingUnlock = specialLocationPendingUnlock(location);
-      const meta = unlocked ? "已解锁" : pendingUnlock ? "解锁待发送" : ("解锁 " + location.cost + " 星光点");
-      const action = unlocked
-        ? '<button type="button" class="st-location-suggest" data-special-location-suggest="' + escapeAttr(location.id) + '">建议设为地点</button>'
-        : '<button type="button" class="st-location-suggest" data-special-location-unlock="' + escapeAttr(location.id) + '"' + (pendingUnlock ? " disabled" : "") + '>' + (pendingUnlock ? "已暂存" : "解锁") + '</button>';
+	  function renderSpecialLocationCard(page) {
+	    const stat = getLatestStatDataSync();
+	    const status = String(page?.dataset?.specialLocationStatus || "").trim();
+	    const pendingStoryLocation = hasPendingStoryLocationOperation();
+	    const locations = SPECIAL_LOCATION_STATIC_ITEMS.map((location) => {
+	      const unlocked = specialLocationUnlocked(location, stat);
+	      const pendingUnlock = specialLocationPendingUnlock(location);
+	      const meta = unlocked ? "已解锁" : pendingUnlock ? "解锁待发送" : ("解锁 " + location.cost + " 星光点");
+	      const action = unlocked
+	        ? '<button type="button" class="st-location-suggest" data-special-location-suggest="' + escapeAttr(location.id) + '"' + (pendingStoryLocation ? " disabled" : "") + '>' + (pendingStoryLocation ? "已暂存" : "建议设为地点") + '</button>'
+	        : '<button type="button" class="st-location-suggest" data-special-location-unlock="' + escapeAttr(location.id) + '"' + (pendingUnlock ? " disabled" : "") + '>' + (pendingUnlock ? "已暂存" : "解锁") + '</button>';
       return '<details class="st-location-item" data-special-location-id="' + escapeAttr(location.id) + '">' +
         '<summary class="st-location-summary">' +
           '<span class="st-location-title">' +
@@ -14316,14 +14388,19 @@ button.st-work-notice{cursor:pointer}
         const id = button.getAttribute("data-special-location-suggest") || "";
         const location = SPECIAL_LOCATION_STATIC_ITEMS.find((item) => item.id === id);
         if (!location) return;
-        if (!specialLocationUnlocked(location)) {
-          specialLocationSetStatus(page, "请先消耗" + location.cost + "星光点解锁「" + location.label + "」的随意进出权限。");
-          rerenderSpecialLocationHost(page);
-          return;
-        }
-        appendAppOperation({
-          来源: "地图",
-          操作: "建议剧情地点",
+	        if (!specialLocationUnlocked(location)) {
+	          specialLocationSetStatus(page, "请先消耗" + location.cost + "星光点解锁「" + location.label + "」的随意进出权限。");
+	          rerenderSpecialLocationHost(page);
+	          return;
+	        }
+	        if (hasPendingStoryLocationOperation()) {
+	          specialLocationSetStatus(page, "地点建议已在暂存区。");
+	          rerenderSpecialLocationHost(page);
+	          return;
+	        }
+	        Promise.resolve(appendAppOperation({
+	          来源: "地图",
+	          操作: "建议剧情地点",
           地图类型: "特殊地点",
           地点ID: location.id,
           建议地点: {
@@ -14333,10 +14410,10 @@ button.st-work-notice{cursor:pointer}
           },
           当前地点变量: getCurrentStoryLocation() || "未知",
           AI执行规范: "这只是用户希望剧情进入该特殊地点的建议；前端不能直接改当前地点。AI应按剧情、时间、权限和世界观判断是否成立，成立时更新/系统/当前地点并展开对应特殊地点剧情；不合理时可拒绝、延后或给出进入条件。"
-        });
-      });
-    });
-  }
+	        })).then(() => rerenderSpecialLocationHost(page));
+	      });
+	    });
+	  }
 
   function renderSpecialLocationPage(page) {
     page.innerHTML =
@@ -14345,11 +14422,12 @@ button.st-work-notice{cursor:pointer}
         renderSpecialLocationCard(page) +
       '</main>';
     bindLiteHeader(page, () => renderSpecialLocationPage(page));
-    page.querySelector('[data-lite-action="back"]')?.addEventListener("click", () => {
-      const root = page.parentElement;
-      setPhoneActiveApp(root, "");
-      page.remove();
-    });
+	    page.querySelector('[data-lite-action="back"]')?.addEventListener("click", () => {
+	      const root = page.parentElement;
+	      setPhoneActiveApp(root, "");
+	      page.__stSpecialLocationCleanup?.();
+	      page.remove();
+	    });
     bindSpecialLocationActions(page);
   }
 
@@ -14363,9 +14441,18 @@ button.st-work-notice{cursor:pointer}
     const page = document.createElement("section");
     page.className = "st-lite-app st-special-location-app";
     page.setAttribute("aria-label", "特殊地点");
-    root.appendChild(page);
-    renderSpecialLocationPage(page);
-  }
+	    root.appendChild(page);
+	    renderSpecialLocationPage(page);
+	    const refreshFromOperationQueue = () => {
+	      if (!page.isConnected) {
+	        window.removeEventListener("HYPNOOS_OPERATION_QUEUE_CHANGED", refreshFromOperationQueue);
+	        return;
+	      }
+	      renderSpecialLocationPage(page);
+	    };
+	    page.__stSpecialLocationCleanup = () => window.removeEventListener("HYPNOOS_OPERATION_QUEUE_CHANGED", refreshFromOperationQueue);
+	    window.addEventListener("HYPNOOS_OPERATION_QUEUE_CHANGED", refreshFromOperationQueue);
+	  }
 
   function openTodoPage(tile, appName, className, title, subtitle, schoolMode = false) {
     ensureStyle();
@@ -14377,10 +14464,20 @@ button.st-work-notice{cursor:pointer}
     const page = document.createElement("section");
     page.className = "st-lite-app " + className;
     page.setAttribute("aria-label", title);
-    root.appendChild(page);
-    if (schoolMode) renderSchoolPage(page);
-    else renderMapPage(page);
-  }
+	    root.appendChild(page);
+	    if (schoolMode) renderSchoolPage(page);
+	    else renderMapPage(page);
+	    const refreshFromOperationQueue = () => {
+	      if (!page.isConnected) {
+	        window.removeEventListener("HYPNOOS_OPERATION_QUEUE_CHANGED", refreshFromOperationQueue);
+	        return;
+	      }
+	      if (schoolMode) renderSchoolPage(page);
+	      else renderMapPage(page);
+	    };
+	    page.__stMapCleanup = () => window.removeEventListener("HYPNOOS_OPERATION_QUEUE_CHANGED", refreshFromOperationQueue);
+	    window.addEventListener("HYPNOOS_OPERATION_QUEUE_CHANGED", refreshFromOperationQueue);
+	  }
 
   const ST_HELP_APP_ITEMS = [
     { title: "催眠APP", tag: "指令", body: "选择催眠命令、补充MC能量、查看VIP买断；启动后会把本轮催眠操作暂存给AI结算。" },
