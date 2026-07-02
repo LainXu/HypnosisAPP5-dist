@@ -11044,16 +11044,20 @@ button.st-work-notice{cursor:pointer}
     return encounterSafeWorldbookName(charName + " 邂逅世界书");
   }
 
+  function encounterChatWorldbookBaseName(chatId) {
+    const id = String(chatId || "当前对话").trim() || "当前对话";
+    return encounterSafeWorldbookName("[邂逅] " + id);
+  }
+
   function encounterDefaultChatWorldbookName(pkg) {
-    const roleHint = String(pkg?.name || "邂逅").trim();
     for (const win of encounterCandidateWindows()) {
       try {
         const scriptMod = ENCOUNTER_SCRIPT_MODULE_CACHE.get(win);
         const chatId = encounterCurrentChatId(win, scriptMod);
-        if (chatId) return encounterSafeWorldbookName("[邂逅] " + chatId + " " + roleHint);
+        if (chatId) return encounterChatWorldbookBaseName(chatId);
       } catch {}
     }
-    return encounterSafeWorldbookName("[邂逅] 当前对话 " + roleHint);
+    return encounterChatWorldbookBaseName("当前对话");
   }
 
   function encounterCurrentCharacterPrimaryWorldName(win) {
@@ -11223,6 +11227,68 @@ button.st-work-notice{cursor:pointer}
 	    return true;
 	  }
 
+	  function encounterNormalizeWorldbookMetadataValue(value) {
+	    if (typeof value === "string") return value.trim();
+	    if (Array.isArray(value)) return String(value[0] || "").trim();
+	    if (value && typeof value === "object") {
+	      for (const key of ["primary", "name", "world", "world_info", "worldInfo"]) {
+	        const text = String(value[key] || "").trim();
+	        if (text) return text;
+	      }
+	    }
+	    return "";
+	  }
+
+	  function encounterReadChatWorldbookMetadata(win, scriptMod) {
+	    const keys = [ENCOUNTER_CHAT_WORLD_INFO_METADATA_KEY, "worldInfo", "chat_world", "chatWorld", "chat_lorebook", "chatLorebook"];
+	    const sources = [];
+	    try { if (scriptMod?.chat_metadata) sources.push(scriptMod.chat_metadata); } catch {}
+	    try { if (win.chat_metadata) sources.push(win.chat_metadata); } catch {}
+	    try {
+	      const context = win.SillyTavern?.getContext?.() || win.getContext?.();
+	      for (const source of [context?.chatMetadata, context?.chat_metadata, context?.metadata, context?.chat?.metadata]) {
+	        if (source) sources.push(source);
+	      }
+	    } catch {}
+	    for (const source of sources) {
+	      if (!source || typeof source !== "object") continue;
+	      for (const key of keys) {
+	        const value = encounterNormalizeWorldbookMetadataValue(source[key]);
+	        if (value) return value;
+	      }
+	    }
+	    try {
+	      const selector = "#chat_world, #chat_lorebook, #world_info, select[name='world_info'], select[name='chat_lorebook']";
+	      const value = String(win.document?.querySelector?.(selector)?.value || "").trim();
+	      if (value) return value;
+	    } catch {}
+	    return "";
+	  }
+
+	  async function encounterFindExistingChatEncounterWorldbookName(mod, names, baseName) {
+	    const safeBase = encounterSafeWorldbookName(baseName);
+	    const list = (Array.isArray(names) ? names : []).map((item) => String(item || "").trim()).filter(Boolean);
+	    const exact = list.find((name) => name === safeBase);
+	    if (exact) return exact;
+	    const legacy = list.filter((name) => name.startsWith(safeBase + " "));
+	    if (!legacy.length) return "";
+	    let best = legacy[0];
+	    let bestCount = -1;
+	    if (typeof mod?.loadWorldInfo === "function") {
+	      for (const name of legacy) {
+	        try {
+	          const data = await mod.loadWorldInfo(name);
+	          const count = encounterWorldEntryValues(data).length;
+	          if (count > bestCount) {
+	            best = name;
+	            bestCount = count;
+	          }
+	        } catch {}
+	      }
+	    }
+	    return best;
+	  }
+
 	  async function encounterEnsureChatWorldbookWithSillyTavernModule(win, fallbackName, options = {}) {
 	    const create = options.create !== false;
 	    const mod = await encounterImportWorldInfoModule(win);
@@ -11233,11 +11299,18 @@ button.st-work-notice{cursor:pointer}
 	      if (!chatId) return null;
 	      try { await mod.updateWorldInfoList?.(); } catch {}
 	      const names = Array.isArray(mod.world_names) ? mod.world_names : [];
-	      const metadata = scriptMod.chat_metadata && typeof scriptMod.chat_metadata === "object" ? scriptMod.chat_metadata : (win.chat_metadata || {});
-	      let worldName = String(metadata?.[ENCOUNTER_CHAT_WORLD_INFO_METADATA_KEY] || "").trim();
+	      let worldName = encounterReadChatWorldbookMetadata(win, scriptMod);
+	      const preferredName = encounterSafeWorldbookName(fallbackName || encounterChatWorldbookBaseName(chatId));
 	      if (!worldName) {
+	        const existingName = await encounterFindExistingChatEncounterWorldbookName(mod, names, preferredName);
+	        if (existingName) {
+	          worldName = existingName;
+	          if (!encounterSetChatWorldbookMetadata(win, scriptMod, worldName)) return null;
+	          try { await scriptMod.saveMetadata(); } catch {}
+	          return { mod, scriptMod, worldName, method: "Chat Lorebook" };
+	        }
 	        if (!create) return null;
-	        const baseName = fallbackName || ("[邂逅] Chat Book " + chatId);
+	        const baseName = preferredName;
 	        let created = false;
 	        for (let attempt = 0; attempt < 6 && !created; attempt += 1) {
 	          worldName = encounterUniqueWorldbookName(attempt ? baseName + " " + (attempt + 1) : baseName, names);
