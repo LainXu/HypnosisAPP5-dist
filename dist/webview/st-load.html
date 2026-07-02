@@ -1898,11 +1898,12 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-clock-note{margin:0;color:rgba(203,213,225,.6);font-size:11px;line-height:1.55;text-align:left}
 .st-monitor-card{display:grid;gap:12px}
 .st-monitor-stage{position:relative;width:100%;aspect-ratio:5/2;overflow:hidden;border:1px solid rgba(125,211,252,.22);border-radius:13px;background:#0f172a;box-shadow:inset 0 0 0 1px rgba(255,255,255,.04),0 18px 38px rgba(0,0,0,.25);touch-action:manipulation}
-.st-monitor-map{display:block;width:100%;height:100%;object-fit:fill;image-rendering:pixelated}
+.st-monitor-map{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;height:100%;overflow:hidden}
+.st-monitor-stall{display:block;width:100%;height:100%;object-fit:fill;image-rendering:auto}
 .st-monitor-hit{position:absolute;top:0;width:33.333333%;height:100%;border:0;background:transparent;cursor:pointer;z-index:4}
 .st-monitor-hit:hover{background:rgba(103,232,249,.06)}
-.st-monitor-door-wrap{position:absolute;top:0;z-index:3;width:26.666666%;height:100%;transform:translateX(-50%);pointer-events:none}
-.st-monitor-door{display:block;width:100%;height:100%;object-fit:fill;image-rendering:pixelated;filter:drop-shadow(0 2px 2px rgba(0,0,0,.3))}
+.st-monitor-door-wrap{position:absolute;top:0;z-index:3;width:33.333333%;height:100%;transform:translateX(-50%);pointer-events:none}
+.st-monitor-door{display:block;width:100%;height:100%;object-fit:fill;image-rendering:auto;filter:drop-shadow(0 3px 5px rgba(0,0,0,.38))}
 .st-monitor-nameplate{position:absolute;left:50%;top:14%;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;text-orientation:upright;max-height:70%;min-width:22px;padding:6px 3px;border:1px solid rgba(15,23,42,.22);border-radius:4px;background:rgba(255,255,255,.92);box-shadow:0 1px 3px rgba(0,0,0,.18);color:#1f2937;font-size:10px;font-weight:900;letter-spacing:.08em;transform:translateX(-50%)}
 .st-monitor-blue-baby{position:absolute;left:83.333333%;bottom:8%;z-index:2;display:grid;justify-items:center;width:14%;transform:translateX(-50%);pointer-events:none}
 .st-monitor-blue-baby img{display:block;width:100%;max-width:54px;aspect-ratio:1;object-fit:contain;image-rendering:auto;filter:drop-shadow(0 2px 3px rgba(0,0,0,.45)) saturate(1.15)}
@@ -7512,10 +7513,13 @@ button.st-work-notice{cursor:pointer}
     const state = syncMonitorGatesWithRoleVariables(readMonitorState());
     syncMonitorDispatchCompletionReminder();
     const roles = getStatsRoles();
-    const mapUrl = stAssetUrl("maps/public-toilet-monitor-map.png");
+    const stallUrl = stAssetUrl("maps/public-toilet-open-stall.png");
     const doorUrl = stAssetUrl("maps/public-toilet-closed-door.png");
     const thirds = [0, 33.3333333, 66.6666667];
     const centers = [16.6666667, 50, 83.3333333];
+    const stallsHtml = state.gates.map((_gate, index) =>
+      '<img class="st-monitor-stall" alt="" src="' + escapeAttr(stallUrl) + '" data-monitor-stall="' + index + '">'
+    ).join("");
     const hitsHtml = state.gates.map((gate, index) => gate.roleName ? "" :
       '<button type="button" class="st-monitor-hit" data-monitor-toggle-door="' + index + '" style="left:' + thirds[index] + '%" title="' + (gate.closed ? "打开" : "关上") + (index + 1) + '号门"></button>'
     ).join("");
@@ -7569,7 +7573,7 @@ button.st-work-notice{cursor:pointer}
       '<main class="st-lite-body">' +
         '<section class="st-lite-card st-monitor-card">' +
           '<div class="st-monitor-stage" aria-label="学校男厕横向监控画面">' +
-            '<img class="st-monitor-map" alt="学校男厕监控地图" src="' + escapeAttr(mapUrl) + '">' +
+            '<div class="st-monitor-map" aria-hidden="true">' + stallsHtml + '</div>' +
             blueBabyHtml +
             doorsHtml +
             hitsHtml +
