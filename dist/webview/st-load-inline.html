@@ -11110,12 +11110,68 @@ button.st-work-notice{cursor:pointer}
     return encounterSafeWorldbookName("[邂逅] " + id);
   }
 
+  function encounterContext(win) {
+    try {
+      return win.SillyTavern?.getContext?.() || win.getContext?.() || null;
+    } catch {
+      return null;
+    }
+  }
+
+  function encounterCleanChatLabel(value) {
+    return String(value || "")
+      .trim()
+      .replace(/.(jsonl|json)$/i, "")
+      .replace(/_/g, " ")
+      .replace(/s+/g, " ");
+  }
+
+  function encounterFirstNonNumericText(values) {
+    for (const value of values || []) {
+      const text = encounterCleanChatLabel(value);
+      if (!text || /^d+$/u.test(text)) continue;
+      return text;
+    }
+    return "";
+  }
+
+  function encounterChatWorldbookLabel(win, scriptMod) {
+    const context = encounterContext(win);
+    const metadata = [];
+    try { if (scriptMod?.chat_metadata) metadata.push(scriptMod.chat_metadata); } catch {}
+    try { if (win.chat_metadata) metadata.push(win.chat_metadata); } catch {}
+    for (const source of [context?.chatMetadata, context?.chat_metadata, context?.metadata, context?.chat?.metadata]) {
+      if (source && typeof source === "object") metadata.push(source);
+    }
+    const metadataValues = [];
+    for (const source of metadata) {
+      metadataValues.push(source.file_name, source.filename, source.chat_file, source.chatFile, source.chat_id, source.chatId);
+    }
+    const contextValues = [
+      context?.chatFile,
+      context?.chat_file,
+      context?.chat?.file_name,
+      context?.chat?.filename,
+      context?.chat?.chat_file,
+      context?.chat?.chatId,
+      context?.chatId,
+      context?.chat_id
+    ];
+    let label = encounterFirstNonNumericText(metadataValues.concat(contextValues));
+    if (!label) {
+      try { label = encounterFirstNonNumericText([scriptMod?.getCurrentChatId?.()]); } catch {}
+    }
+    const charName = String(encounterReadCurrentCharacter(win)?.name || encounterReadCurrentCharacter(win)?.data?.name || context?.name2 || "").trim();
+    if (!label) label = charName ? (charName + " 当前对话") : "当前对话";
+    else if (charName && !label.includes(charName)) label = charName + " - " + label;
+    return label;
+  }
+
   function encounterDefaultChatWorldbookName(pkg) {
     for (const win of encounterCandidateWindows()) {
       try {
         const scriptMod = ENCOUNTER_SCRIPT_MODULE_CACHE.get(win);
-        const chatId = encounterCurrentChatId(win, scriptMod);
-        if (chatId) return encounterChatWorldbookBaseName(chatId);
+        return encounterChatWorldbookBaseName(encounterChatWorldbookLabel(win, scriptMod));
       } catch {}
     }
     return encounterChatWorldbookBaseName("当前对话");
@@ -11226,12 +11282,20 @@ button.st-work-notice{cursor:pointer}
 
 	  function encounterCurrentChatId(win, scriptMod) {
 	    try {
-	      const value = String(scriptMod?.getCurrentChatId?.() || "").trim();
+	      const context = encounterContext(win);
+	      const value = String(
+	        context?.chatFile ||
+	        context?.chat_file ||
+	        context?.chat?.file_name ||
+	        context?.chat?.filename ||
+	        context?.chatId ||
+	        context?.chat_id ||
+	        ""
+	      ).trim();
 	      if (value) return value;
 	    } catch {}
 	    try {
-	      const context = win.SillyTavern?.getContext?.() || win.getContext?.();
-	      const value = String(context?.chatId || context?.chat_id || context?.chat?.id || "").trim();
+	      const value = String(scriptMod?.getCurrentChatId?.() || "").trim();
 	      if (value) return value;
 	    } catch {}
 	    return "";
@@ -11274,18 +11338,53 @@ button.st-work-notice{cursor:pointer}
 	    return [];
 	  }
 
+	  function encounterChatMetadataTargets(win, scriptMod) {
+	    const targets = [];
+	    const add = (source) => {
+	      if (source && typeof source === "object" && !targets.includes(source)) targets.push(source);
+	    };
+	    try { add(scriptMod?.chat_metadata); } catch {}
+	    try { add(win.chat_metadata); } catch {}
+	    try {
+	      const context = encounterContext(win);
+	      add(context?.chatMetadata);
+	      add(context?.chat_metadata);
+	      add(context?.metadata);
+	      add(context?.chat?.metadata);
+	    } catch {}
+	    return targets;
+	  }
+
 	  function encounterSetChatWorldbookMetadata(win, scriptMod, worldName) {
 	    const value = String(worldName || "").trim();
 	    if (!value) return false;
+	    let wrote = false;
 	    try {
-	      if (typeof scriptMod?.updateChatMetadata === "function") scriptMod.updateChatMetadata({ [ENCOUNTER_CHAT_WORLD_INFO_METADATA_KEY]: value });
-	      else if (scriptMod?.chat_metadata && typeof scriptMod.chat_metadata === "object") scriptMod.chat_metadata[ENCOUNTER_CHAT_WORLD_INFO_METADATA_KEY] = value;
-	      else if (win.chat_metadata && typeof win.chat_metadata === "object") win.chat_metadata[ENCOUNTER_CHAT_WORLD_INFO_METADATA_KEY] = value;
-	    } catch {
-	      return false;
+	      if (typeof scriptMod?.updateChatMetadata === "function") {
+	        scriptMod.updateChatMetadata({ [ENCOUNTER_CHAT_WORLD_INFO_METADATA_KEY]: value });
+	        wrote = true;
+	      }
+	    } catch {}
+	    for (const target of encounterChatMetadataTargets(win, scriptMod)) {
+	      try {
+	        target[ENCOUNTER_CHAT_WORLD_INFO_METADATA_KEY] = value;
+	        wrote = true;
+	      } catch {}
 	    }
+	    try { win.chat_metadata = win.chat_metadata || {}; win.chat_metadata[ENCOUNTER_CHAT_WORLD_INFO_METADATA_KEY] = value; wrote = true; } catch {}
+	    try {
+	      const selector = "#chat_world, #chat_lorebook, #world_info, select[name='world_info'], select[name='chat_lorebook'], input[name='world_info'], input[name='chat_lorebook']";
+	      win.document?.querySelectorAll?.(selector)?.forEach((element) => {
+	        if ("value" in element) {
+	          element.value = value;
+	          element.dispatchEvent(new Event("input", { bubbles: true }));
+	          element.dispatchEvent(new Event("change", { bubbles: true }));
+	          wrote = true;
+	        }
+	      });
+	    } catch {}
 	    try { win.document?.querySelectorAll?.(".chat_lorebook_button")?.forEach((element) => element.classList.add("world_set")); } catch {}
-	    return true;
+	    return wrote;
 	  }
 
 	  function encounterNormalizeWorldbookMetadataValue(value) {
