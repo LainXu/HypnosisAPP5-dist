@@ -2066,7 +2066,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-hypnosis-lite-app .st-hypnosis-command-toggle input:checked{border-color:rgba(244,114,182,.75);background:linear-gradient(135deg,#a855f7,#ec4899);box-shadow:0 0 0 3px rgba(236,72,153,.12),0 0 16px rgba(236,72,153,.24)}
 .st-hypnosis-lite-app .st-hypnosis-command-toggle input:checked::after{opacity:1}
 .st-hypnosis-lite-app .st-hypnosis-command-toggle input:disabled{opacity:.45;filter:saturate(.55)}
-.st-hypnosis-tier{border:1px solid rgba(244,114,182,.18);border-radius:12px;background:rgba(255,255,255,.045);overflow:hidden}
+.st-hypnosis-tier{border:1px solid rgba(244,114,182,.18);border-radius:12px;background:rgba(255,255,255,.045);overflow:visible}
 .st-hypnosis-tier[open]{background:linear-gradient(180deg,rgba(236,72,153,.12),rgba(255,255,255,.035))}
 .st-hypnosis-tier-summary{list-style:none;display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:10px 11px;cursor:pointer}
 .st-hypnosis-tier-summary::-webkit-details-marker{display:none}
@@ -2074,8 +2074,8 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-hypnosis-tier-summary span{color:rgba(253,242,248,.6);font-size:10px;font-weight:850}
 .st-hypnosis-tier-summary i{font-style:normal;color:#f9a8d4;font-size:14px;font-weight:950;transition:transform .16s ease}
 .st-hypnosis-tier[open] .st-hypnosis-tier-summary i{transform:rotate(180deg)}
-.st-hypnosis-tier-body{display:grid;gap:8px;padding:0 9px 10px}
-.st-hypnosis-command{border-color:rgba(244,114,182,.16);border-radius:11px;background:rgba(12,6,24,.5);color:#fdf2f8}
+.st-hypnosis-tier-body{display:grid;gap:8px;padding:0 9px 10px;overflow:visible}
+.st-hypnosis-command{position:relative;border-color:rgba(244,114,182,.16);border-radius:11px;background:rgba(12,6,24,.5);color:#fdf2f8;overflow:visible}
 .st-hypnosis-command.is-active{border-color:rgba(244,114,182,.52);background:linear-gradient(135deg,rgba(168,85,247,.28),rgba(236,72,153,.18));box-shadow:0 0 0 3px rgba(244,114,182,.08)}
 .st-hypnosis-command.is-locked{opacity:.5}
 .st-hypnosis-command-toggle input{accent-color:#ec4899}
@@ -2093,7 +2093,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-hypnosis-pick-button strong{min-width:0;font-size:11px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .st-hypnosis-pick-button small{margin-left:auto;color:rgba(253,242,248,.54);font-size:9px;font-weight:950;white-space:nowrap}
 .st-hypnosis-pick-plus{width:20px;height:20px;min-width:20px;border-radius:999px;border:1px solid rgba(244,114,182,.45);background:radial-gradient(circle,rgba(244,114,182,.28),rgba(168,85,247,.16));display:grid;place-items:center;color:#fce7f3;font-size:17px;font-weight:950;line-height:1}
-.st-hypnosis-picker{position:absolute;left:0;right:0;top:calc(100% + 5px);z-index:20;max-height:178px;overflow:auto;border:1px solid rgba(244,114,182,.28);border-radius:12px;background:linear-gradient(180deg,rgba(31,12,44,.98),rgba(14,6,26,.98));box-shadow:0 18px 34px rgba(0,0,0,.36),inset 0 1px 0 rgba(255,255,255,.08);padding:6px;display:grid;gap:5px}
+.st-hypnosis-picker{position:relative;left:auto;right:auto;top:auto;z-index:20;max-height:220px;overflow:auto;border:1px solid rgba(244,114,182,.28);border-radius:12px;background:linear-gradient(180deg,rgba(31,12,44,.98),rgba(14,6,26,.98));box-shadow:0 18px 34px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.08);padding:6px;display:grid;gap:5px;margin-top:4px;scrollbar-width:thin}
 .st-hypnosis-picker label{min-width:0;display:grid;grid-template-columns:18px minmax(0,1fr);gap:7px;align-items:center;border:1px solid rgba(244,114,182,.1);border-radius:9px;background:rgba(255,255,255,.035);padding:6px 7px;color:rgba(253,242,248,.82);font-size:11px;font-weight:850;cursor:pointer}
 .st-hypnosis-picker label:hover{border-color:rgba(244,114,182,.26);background:rgba(244,114,182,.08)}
 .st-hypnosis-picker input{width:16px!important;height:16px!important;min-width:16px!important;margin:0!important;padding:0!important;accent-color:#ec4899}
@@ -2451,6 +2451,11 @@ button.st-work-notice{cursor:pointer}
 .st-operation-panel-title{display:grid;gap:4px;min-width:0}
 .st-operation-panel-title strong{font-size:13px;line-height:1.2;color:#fff}
 .st-operation-panel-title span{font-size:10px;line-height:1.35;color:rgba(203,213,225,.55)}
+.st-operation-panel-meta{flex:0 0 auto;display:flex;align-items:flex-start;gap:5px}
+.st-operation-resources{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:3px;max-width:96px}
+.st-operation-resource-pill{border:1px solid rgba(255,255,255,.1);border-radius:999px;background:rgba(255,255,255,.055);color:rgba(226,232,240,.8);padding:2px 5px;font-size:8px;font-weight:900;line-height:1.2;white-space:nowrap}
+.st-operation-resource-pill.is-starlight{border-color:rgba(129,140,248,.22);background:rgba(99,102,241,.12);color:#c7d2fe}
+.st-operation-resource-pill.is-money{border-color:rgba(250,204,21,.18);background:rgba(250,204,21,.09);color:#fde68a}
 .st-operation-count-pill{flex:0 0 auto;min-width:24px;height:22px;border-radius:999px;background:rgba(34,211,238,.14);border:1px solid rgba(34,211,238,.28);color:#a5f3fc;display:grid;place-items:center;font-size:11px;font-weight:900}
 .st-operation-panel-list{flex:1 1 auto;min-height:0;overflow:auto;padding:9px;display:grid;align-content:start;gap:7px;scrollbar-width:none}
 .st-operation-panel-list::-webkit-scrollbar{display:none}
@@ -3755,10 +3760,6 @@ button.st-work-notice{cursor:pointer}
   }
 
   function hypnosisBodyPartOptions(feature, draft) {
-    const selectedRoles = hypnosisSelectedRoleNames(feature, draft);
-    if (selectedRoles.length && selectedRoles.every((name) => name === "阿宅" || name === "阿宅君")) {
-      return ST_HYPNOSIS_BODY_PARTS_MALE;
-    }
     return ST_HYPNOSIS_BODY_PARTS;
   }
 
@@ -4673,7 +4674,7 @@ button.st-work-notice{cursor:pointer}
   }
 
   function bodyStatDisplayLabel(label) {
-    return String(label || "").replace(/睾丸/g, "蛋蛋");
+    return String(label || "").replace(/前列腺/g, "菊穴").replace(/睾丸/g, "前列腺");
   }
 
   function roleSensitivityStats(roleData, roleName = "") {
@@ -5856,7 +5857,7 @@ button.st-work-notice{cursor:pointer}
       "性欲": statNumber(statValue(roleData, "性欲"), 0),
       "快感值": statNumber(statValue(roleData, "快感值"), 0),
       "是否派遣中": Boolean(roleData?.["是否派遣中"]),
-      "工作价值": roleWorkValueNumber(roleData),
+      "工作价值": 2,
       "档案": {
         "照片": "",
         "姓名": roleName || "阿宅",
@@ -5899,11 +5900,11 @@ button.st-work-notice{cursor:pointer}
       "当前好感度": statNumber(statValue(roleData, "好感度"), 0),
       "当前服从度": statNumber(statValue(roleData, "服从度"), 0),
       "预计耗时": "3小时",
-      "用户选择": "接受催眠APP提供的可拒绝选项，让APP暂时带走阿宅并在数小时后归还女性化后的阿宅；未点击此按钮即视为拒绝。",
-      "变量改写": "replace /角色/" + roleName + " 为女性格式；同一时间只能保留男女其中一套身体字段。保留好感度、警戒度、服从度、性欲、快感值、是否派遣中、工作价值、临时催眠效果和永久催眠效果；移除阴茎长度、男性敏感度和男性高潮次数字段；改用三围、女性敏感度和女性高潮次数。",
+      "用户选择": "接受催眠APP提供的可拒绝选项：线下来一辆面包车，趁无人注意时把阿宅带走改造，约三小时后把女性化后的阿宅带回{{user}}面前；此后她以阿宅妹妹的身份在学校生活。未点击此按钮即视为拒绝。",
+      "变量改写": "replace /角色/" + roleName + " 为女性格式；同一时间只能保留男女其中一套身体字段。保留好感度、警戒度、服从度、性欲、快感值、是否派遣中、临时催眠效果和永久催眠效果；工作价值固定改为2星光点/日；移除阴茎长度、男性敏感度和男性高潮次数字段；改用三围、女性敏感度和女性高潮次数。",
       "必须删除字段": ["档案.阴茎长度", "阴茎敏感度", "龟头敏感度", "睾丸敏感度", "前列腺敏感度", "阴茎高潮次数", "龟头高潮次数", "睾丸高潮次数", "前列腺高潮次数"],
       "女性化变量模板": otakuFemaleVariableTemplate(roleName, roleData),
-      "AI执行规范": "仅当" + roleName + "好感度>=100且服从度>=100并且尚未女性化时成功；成功后推进当前时间约3小时并更新阿宅变量。若条件不满足、用户反悔或剧情强阻碍，则不改变量。"
+      "AI执行规范": "仅当" + roleName + "好感度>=100且服从度>=100并且尚未女性化时成功；成功后描写面包车趁无人时线下带走阿宅，推进当前时间约3小时，把她带回{{user}}面前，并更新阿宅变量。若条件不满足、用户反悔或剧情强阻碍，则不改变量。"
     };
     Promise.resolve(appendAppOperation(payload)).then((added) => {
       page.dataset.profileTransformNotice = added ? "改造请求已暂存，确认发送后由AI带走并归还阿宅。" : "暂存区已有相同请求。";
@@ -7848,17 +7849,17 @@ button.st-work-notice{cursor:pointer}
 	  }
 
 	  const ENCOUNTER_PERSONA_SECTION_SPECS = [
-	    { field: "identity", key: "identity", aliases: ["身份"] },
+	    { field: "identity", key: "identity", aliases: ["身份", "identity_positioning", "identity positioning", "身份定位", "定位"] },
 	    { field: "firstEncounter", key: "first encounter", aliases: ["初遇", "首次邂逅", "登场"] },
 	    { field: "socialConnection", key: "social connection", aliases: ["关系", "人物关系", "社会关系"] },
-	    { field: "personality", key: "personality", aliases: ["性格"] },
-	    { field: "habit", key: "habit", aliases: ["习惯", "行为习惯"] },
-	    { field: "appearance", key: "appearance", aliases: ["外貌"] },
+	    { field: "personality", key: "personality", aliases: ["性格", "personality_tone", "personality tone", "性格语气", "性格倾向"] },
+	    { field: "habit", key: "habit", aliases: ["习惯", "行为习惯", "core_skills", "core skills", "核心能力", "技能"] },
+	    { field: "appearance", key: "appearance", aliases: ["外貌", "外观"] },
 	    { field: "profileDefault", key: "profile default", aliases: ["档案默认值", "人物档案默认值", "档案"] }
 	  ];
 
 	  function encounterPersonaFixedLabelSet() {
-	    const labels = ["title", "gender", "age", "行为指导", "behavior guidance"];
+	    const labels = ["name", "title", "gender", "age", "行为指导", "behavior guidance", "roleplay_constraints", "roleplay constraints", "扮演约束"];
 	    for (const spec of ENCOUNTER_PERSONA_SECTION_SPECS) {
 	      labels.push(spec.key);
 	      for (const alias of spec.aliases || []) labels.push(alias);
@@ -7929,6 +7930,30 @@ button.st-work-notice{cursor:pointer}
 	      return encounterStripIndent(rest, Number.isFinite(minIndent) ? minIndent : 0);
 	    }
 	    return lines.join("\n").trim();
+	  }
+
+	  function encounterCleanParsedPersonaName(value) {
+	    const text = String(value || "").trim();
+	    if (!text) return "";
+	    const withoutAlias = text.replace(/[（(].*?[）)]/g, "").trim();
+	    return withoutAlias || text;
+	  }
+
+	  function encounterNormalizePersonaRoot(text) {
+	    const lines = encounterPersonaLines(text);
+	    const first = lines.findIndex((line) => line.trim());
+	    if (first < 0) return { text: "", parsedName: "" };
+	    const trimmed = String(lines[first] || "").trim();
+	    const nameMatch = trimmed.match(/^(?:-s*)?names*[:：]s*(.+)$/i);
+	    if (nameMatch) {
+	      const rest = lines.slice(first + 1);
+	      const minIndent = rest.filter((line) => line.trim()).reduce((min, line) => Math.min(min, encounterLeadingSpaces(line)), Infinity);
+	      return {
+	        text: encounterStripIndent(rest, Number.isFinite(minIndent) ? minIndent : 0),
+	        parsedName: encounterCleanParsedPersonaName(nameMatch[1])
+	      };
+	    }
+	    return { text: lines.join("\n").trim(), parsedName: "" };
 	  }
 
 	  function encounterReadPersonaScalar(lines, key) {
@@ -8038,13 +8063,18 @@ button.st-work-notice{cursor:pointer}
 	  function encounterParsePersonaFixedContent(content, roleName) {
 	    const raw = encounterNormalizeNewlines(content);
 	    const mainBlock = encounterExtractTaggedBlock(raw, "人设") || raw;
-	    const main = encounterRemovePersonaHeading(mainBlock, roleName);
+	    const normalizedRoot = encounterNormalizePersonaRoot(encounterRemovePersonaHeading(mainBlock, roleName));
+	    const main = normalizedRoot.text;
 	    const lines = encounterPersonaLines(main);
 	    const parsed = {
+	      parsedName: normalizedRoot.parsedName,
 	      personaTitle: encounterReadPersonaScalar(lines, "title"),
 	      gender: encounterReadPersonaScalar(lines, "gender"),
 	      age: encounterReadPersonaScalar(lines, "age"),
 	      behaviorGuidance: encounterExtractTaggedBlock(raw, "行为指导")
+	        || encounterReadPersonaSection(lines, "roleplay_constraints")
+	        || encounterReadPersonaSection(lines, "roleplay constraints")
+	        || encounterReadPersonaSection(lines, "扮演约束")
 	    };
 	    for (const spec of ENCOUNTER_PERSONA_SECTION_SPECS) {
 	      parsed[spec.field] = encounterReadPersonaSection(lines, spec.key) || spec.aliases.map((alias) => encounterReadPersonaSection(lines, alias)).find(Boolean) || "";
@@ -8200,12 +8230,156 @@ button.st-work-notice{cursor:pointer}
 	    return output;
 	  }
 
+	  function encounterProfileSnippet(value, limit = 76) {
+	    const text = encounterPlainLine(value)
+	      .replace(/^[-•]s*/, "")
+	      .replace(/^["']|["']$/g, "")
+	      .trim();
+	    if (!text || /^(未记录|未知|待补|待补充|待AI补充|无记录)$/u.test(text)) return "";
+	    return text.length > limit ? text.slice(0, Math.max(1, limit - 1)) + "…" : text;
+	  }
+
+	  function encounterLooseKey(value) {
+	    return String(value || "").trim().toLowerCase().replace(/[s_-]+/g, "");
+	  }
+
+	  function encounterReadPersonaLineValue(text, labels) {
+	    const wanted = new Set((Array.isArray(labels) ? labels : [labels]).map(encounterLooseKey).filter(Boolean));
+	    for (const line of encounterPersonaLines(text)) {
+	      const trimmed = String(line || "").trim().replace(/^-s*/, "");
+	      const match = trimmed.match(/^([^:：]{1,80})[:：]s*(.+)$/);
+	      if (!match) continue;
+	      if (wanted.has(encounterLooseKey(match[1]))) return String(match[2] || "").trim();
+	    }
+	    return "";
+	  }
+
+	  function encounterParsedPersonaSummary(parsedPersona) {
+	    const parsed = parsedPersona && typeof parsedPersona === "object" ? parsedPersona : {};
+	    return [parsed.personaTitle, parsed.identity, parsed.appearance, parsed.personality]
+	      .map((value) => encounterProfileSnippet(value, 96))
+	      .filter(Boolean)
+	      .join(" / ");
+	  }
+
+	  function encounterInferInitialVariableObject(role) {
+	    const name = String(role?.name || role?.["角色名"] || "").trim();
+	    const base = encounterDefaultInitialVariableObject(role);
+	    const parsed = role?.__parsedPersona && typeof role.__parsedPersona === "object" ? role.__parsedPersona : null;
+	    if (!parsed) return base;
+	    const patch = { "档案": {} };
+	    const profile = patch["档案"];
+	    const fromProfile = parsed.profileDefault || "";
+	    const fromIdentity = parsed.identity || "";
+	    const fromAppearance = parsed.appearance || "";
+	    const setProfile = (key, value) => {
+	      const text = encounterProfileSnippet(value);
+	      if (text) profile[key] = text;
+	    };
+	    setProfile("姓名", name || parsed.parsedName);
+	    setProfile("年龄", encounterReadPersonaLineValue(fromProfile, ["年龄", "age"]) || parsed.age);
+	    setProfile("社团/职业",
+	      encounterReadPersonaLineValue(fromProfile, ["社团/职业", "社团", "职业", "身份"])
+	      || encounterReadPersonaLineValue(fromIdentity, ["affiliation", "social_role", "public", "identity", "身份", "所属"])
+	      || parsed.personaTitle);
+	    setProfile("身高", encounterReadPersonaLineValue(fromProfile, ["身高", "height"]) || encounterReadPersonaLineValue(fromAppearance, ["身高", "height"]));
+	    setProfile("体重", encounterReadPersonaLineValue(fromProfile, ["体重", "weight"]) || encounterReadPersonaLineValue(fromAppearance, ["体重", "weight"]));
+	    setProfile("三围", encounterReadPersonaLineValue(fromProfile, ["三围", "measurement"]) || encounterReadPersonaLineValue(fromAppearance, ["三围", "measurement"]));
+	    setProfile("头发", encounterReadPersonaLineValue(fromProfile, ["头发", "hair"]) || encounterReadPersonaLineValue(fromAppearance, ["hair", "头发", "normal_state"]));
+	    setProfile("面部", encounterReadPersonaLineValue(fromProfile, ["面部", "face"]) || encounterReadPersonaLineValue(fromAppearance, ["face", "面部", "hidden_details", "overview"]));
+	    setProfile("上衣", encounterReadPersonaLineValue(fromProfile, ["上衣", "upper"]) || encounterReadPersonaLineValue(fromAppearance, ["attire_normal", "attire", "school", "上衣"]));
+	    setProfile("下衣", encounterReadPersonaLineValue(fromProfile, ["下衣", "lower"]));
+	    const mind = encounterReadPersonaLineValue(parsed.personality || "", ["心理", "当前心理", "inner", "mind"]);
+	    if (mind) patch["心理"] = encounterProfileSnippet(mind, 96);
+	    return encounterDeepMergeObject(base, patch);
+	  }
+
+	  function encounterParseLooseScalar(value) {
+	    const text = String(value ?? "").trim().replace(/^["']|["']$/g, "");
+	    if (/^(true|false)$/i.test(text)) return /^true$/i.test(text);
+	    if (/^(null|undefined)$/i.test(text)) return "";
+	    if (/^-?d+(?:.d+)?$/.test(text)) return Number(text);
+	    return text;
+	  }
+
+	  function encounterParseLooseObject(text) {
+	    const source = encounterNormalizeNewlines(text);
+	    if (!source.trim()) return null;
+	    const root = {};
+	    const stack = [{ indent: -1, value: root }];
+	    for (const rawLine of encounterPersonaLines(source)) {
+	      const line = String(rawLine || "").replace(/	/g, "  ");
+	      const trimmedRaw = line.trim();
+	      if (!trimmedRaw || trimmedRaw.startsWith("#")) continue;
+	      const indent = encounterLeadingSpaces(line);
+	      const content = line.slice(indent).replace(/^-s+/, "");
+	      const match = content.match(/^([^:：]{1,80})[:：]s*(.*)$/);
+	      if (!match) continue;
+	      const key = String(match[1] || "").trim();
+	      if (!key) continue;
+	      while (stack.length > 1 && indent <= stack[stack.length - 1].indent) stack.pop();
+	      const parent = stack[stack.length - 1].value;
+	      const inline = String(match[2] || "").trim();
+	      if (inline) {
+	        parent[key] = encounterParseLooseScalar(inline);
+	      } else {
+	        const child = {};
+	        parent[key] = child;
+	        stack.push({ indent, value: child });
+	      }
+	    }
+	    return Object.keys(root).length ? root : null;
+	  }
+
+	  function encounterSelectInitialVariableObject(parsed, roleName) {
+	    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+	    const name = String(roleName || "").trim();
+	    let selected = parsed;
+	    if (parsed?.stat_data?.["角色"]?.[name] && typeof parsed.stat_data["角色"][name] === "object") selected = parsed.stat_data["角色"][name];
+	    else if (parsed?.["角色"]?.[name] && typeof parsed["角色"][name] === "object") selected = parsed["角色"][name];
+	    else if (name && parsed?.[name] && typeof parsed[name] === "object" && !Array.isArray(parsed[name])) selected = parsed[name];
+	    if (!selected || typeof selected !== "object" || Array.isArray(selected)) return null;
+	    const keys = ["好感度", "警戒度", "服从度", "性欲", "快感值", "是否派遣中", "工作价值", "身价", "档案", "心理"];
+	    return keys.some((key) => Object.prototype.hasOwnProperty.call(selected, key)) ? selected : null;
+	  }
+
+	  function encounterParseInitialVariableText(text, roleName) {
+	    const raw = String(text || "").trim();
+	    if (!raw || /format_message_variable::stat_data.角色./.test(raw)) return null;
+	    try {
+	      const parsed = JSON.parse(raw);
+	      return encounterSelectInitialVariableObject(parsed, roleName);
+	    } catch {}
+	    return encounterSelectInitialVariableObject(encounterParseLooseObject(raw), roleName);
+	  }
+
+	  function encounterRoleVariableSourceText(role) {
+	    return String(
+	      role?.initialVariableText ||
+	      role?.variableEntry?.content ||
+	      role?.["人物变量世界书条目"]?.content ||
+	      role?.["人物变量条目"]?.content ||
+	      role?.variables ||
+	      role?.variableWorldbook ||
+	      role?.["人物变量"] ||
+	      role?.["变量设定"] ||
+	      ""
+	    );
+	  }
+
 	  function encounterInitialVariablesText(role) {
 	    const raw = role?.initialVariables ?? role?.initialRoleVariables ?? role?.["初始变量"] ?? role?.["角色初始变量"];
 	    if (raw && typeof raw === "object" && !Array.isArray(raw)) return JSON.stringify(raw, null, 2);
 	    const text = String(raw || "").trim();
-	    if (text) return String(raw);
-	    return JSON.stringify(encounterDefaultInitialVariableObject(role), null, 2);
+	    const name = String(role?.name || role?.["角色名"] || "").trim();
+	    if (text) {
+	      const parsed = encounterParseInitialVariableText(text, name);
+	      return parsed ? JSON.stringify(parsed, null, 2) : String(raw);
+	    }
+	    const fromVariableEntry = encounterParseInitialVariableText(encounterRoleVariableSourceText(role), name);
+	    const inferred = encounterInferInitialVariableObject(role);
+	    const merged = fromVariableEntry ? encounterDeepMergeObject(inferred, fromVariableEntry) : inferred;
+	    return JSON.stringify(encounterSanitizeInitialRoleVariableObject(merged, name), null, 2);
 	  }
 
 	  function encounterDeepMergeObject(base, patch) {
@@ -8231,7 +8405,8 @@ button.st-work-notice{cursor:pointer}
 	    try {
 	      parsed = JSON.parse(text);
 	    } catch (error) {
-	      throw new Error((name || "未命名角色") + " 的初始变量不是有效 JSON。");
+	      parsed = encounterParseInitialVariableText(text, name);
+	      if (!parsed) throw new Error((name || "未命名角色") + " 的初始变量不是有效 JSON 或可解析的缩进变量。");
 	    }
 	    if (parsed?.stat_data?.["角色"]?.[name] && typeof parsed.stat_data["角色"][name] === "object") parsed = parsed.stat_data["角色"][name];
 	    else if (parsed?.["角色"]?.[name] && typeof parsed["角色"][name] === "object") parsed = parsed["角色"][name];
@@ -8319,7 +8494,7 @@ button.st-work-notice{cursor:pointer}
 
 	  function encounterNormalizeRole(role, index = 0) {
 	    const source = role && typeof role === "object" && !Array.isArray(role) ? role : {};
-	    const name = String(source.name || source["角色名"] || "");
+	    const sourceName = String(source.name || source["角色名"] || "");
 	    const rawPersona = String(
 	      source.persona ||
 	      source.personaWorldbook ||
@@ -8332,7 +8507,8 @@ button.st-work-notice{cursor:pointer}
 	      source["人设条目"]?.content ||
 	      ""
 	    );
-	    const parsedPersona = encounterParsePersonaFixedContent(rawPersona, name);
+	    const parsedPersona = encounterParsePersonaFixedContent(rawPersona, sourceName);
+	    const name = String(sourceName || parsedPersona.parsedName || "");
 	    const explicitPersonaExtra = source.personaExtra ?? source.extraPersona ?? source["补充人设"] ?? source["额外人设"];
 	    const personaExtra = explicitPersonaExtra !== undefined && explicitPersonaExtra !== null
 	      ? String(explicitPersonaExtra)
@@ -8351,10 +8527,10 @@ button.st-work-notice{cursor:pointer}
 	      id: String(source.id || source.roleId || encounterId("role-" + index)),
 	      name,
 	      aliases: String(source.aliases || source["别名"] || source["关键词"] || ""),
-	      intro: String(source.intro || source.profile || source.summary || source["介绍"] || source["档案"] || ""),
+	      intro: String(source.intro || source.profile || source.summary || source["介绍"] || source["档案"] || encounterParsedPersonaSummary(parsedPersona)),
 	      encounterPrompt: String(source.encounterPrompt || source.roleEncounterPrompt || source.appearancePrompt || source.storyPrompt || source.prompt || source["出场提示词"] || source["角色出场提示词"] || source["AI出场提示词"] || source["邂逅提示词"] || ""),
 	      variables: String(source.variables || source.variableWorldbook || source["人物变量"] || source["变量设定"] || encounterDefaultVariableContent(name)),
-	      initialVariables: encounterInitialVariablesText({ ...source, name }),
+	      initialVariables: encounterInitialVariablesText({ ...source, name, __parsedPersona: parsedPersona }),
 	      personaTitle: encounterFirstText(source.personaTitle, source.title, source["title"], source["称号"], source["定位"], parsedPersona.personaTitle),
 	      gender: encounterFirstText(source.gender, source["gender"], source["性别"], parsedPersona.gender),
 	      age: encounterFirstText(source.age, source["age"], source["年龄"], parsedPersona.age),
@@ -12887,6 +13063,26 @@ button.st-work-notice{cursor:pointer}
     return date.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
   }
 
+  function operationPanelResourceSnapshot() {
+    try {
+      const system = getSystemState();
+      const money = Math.max(0, Math.floor(Number(system?.["持有零花钱"] ?? 0) || 0));
+      const starlight = Math.max(0, Math.floor(Number(system?.["星光点"] ?? 0) || 0));
+      return { money, starlight };
+    } catch {
+      return { money: 0, starlight: 0 };
+    }
+  }
+
+  function operationPanelResourcesHtml(resources) {
+    const money = Math.max(0, Math.floor(Number(resources?.money ?? 0) || 0));
+    const starlight = Math.max(0, Math.floor(Number(resources?.starlight ?? 0) || 0));
+    return '<div class="st-operation-resources" aria-label="当前资源">' +
+      '<span class="st-operation-resource-pill is-money">¥' + escapeHtml(money.toLocaleString()) + '</span>' +
+      '<span class="st-operation-resource-pill is-starlight">★' + escapeHtml(starlight.toLocaleString()) + '</span>' +
+    '</div>';
+  }
+
   function compactOperationPanelSummary(item) {
     const text = String(item?.summary || item?.line || "");
     const readField = (key) => {
@@ -12948,7 +13144,8 @@ button.st-work-notice{cursor:pointer}
       block = window.__ST_BUILD_PENDING_OPERATION_BLOCK__?.() || "";
     } catch {}
     const keepAfterFlush = readOperationKeepAfterFlush();
-    const signature = JSON.stringify(items.map((item) => [item.id, item.key, item.source, item.action, item.summary, item.line, item.at, item.locked])) + "\n" + block + "\nkeep=" + String(keepAfterFlush);
+    const resources = operationPanelResourceSnapshot();
+    const signature = JSON.stringify(items.map((item) => [item.id, item.key, item.source, item.action, item.summary, item.line, item.at, item.locked])) + "\n" + block + "\nkeep=" + String(keepAfterFlush) + "\nres=" + JSON.stringify(resources);
     if (panel.dataset.signature === signature) return;
     panel.dataset.signature = signature;
     const listHtml = items.length
@@ -12972,7 +13169,7 @@ button.st-work-notice{cursor:pointer}
     panel.innerHTML =
       '<header class="st-operation-panel-head">' +
         '<div class="st-operation-panel-title"><strong>本轮操作</strong><span>确认前只暂存，不写变量也不发送。</span></div>' +
-        '<span class="st-operation-count-pill">' + String(count) + '</span>' +
+        '<div class="st-operation-panel-meta">' + operationPanelResourcesHtml(resources) + '<span class="st-operation-count-pill">' + String(count) + '</span></div>' +
       '</header>' +
       '<div class="st-operation-panel-list">' + listHtml + '</div>' +
       adviceHtml +
