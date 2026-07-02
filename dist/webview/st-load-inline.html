@@ -11618,6 +11618,7 @@ button.st-work-notice{cursor:pointer}
 	  const ENCOUNTER_WORLD_INFO_MODULE_CACHE = new WeakMap();
 	  const ENCOUNTER_SCRIPT_MODULE_CACHE = new WeakMap();
 	  const ENCOUNTER_CHAT_WORLD_INFO_METADATA_KEY = "world_info";
+	  const ENCOUNTER_CHAT_WORLD_INFO_CACHE_KEY = "hypnoos.encounter.chatWorldbooks.v1";
 
 	  async function encounterImportWorldInfoModule(win) {
 	    if (!win || typeof win !== "object") return null;
@@ -11781,6 +11782,7 @@ button.st-work-notice{cursor:pointer}
 		      win.chat_metadata[ENCOUNTER_CHAT_WORLD_INFO_METADATA_KEY] = value;
 		      wrote = true;
 		    } catch {}
+		    encounterWriteChatWorldbookCache(win, scriptMod, value);
 		    try { win.document?.querySelectorAll?.(".chat_lorebook_button")?.forEach((element) => element.classList.add("world_set")); } catch {}
 		    return wrote;
 		  }
@@ -11797,6 +11799,34 @@ button.st-work-notice{cursor:pointer}
 	    return "";
 	  }
 
+	  function encounterChatWorldbookCacheKey(win, scriptMod) {
+	    const chatId = encounterCurrentChatId(win, scriptMod);
+	    return String(chatId || "").trim();
+	  }
+
+	  function encounterReadChatWorldbookCache(win, scriptMod) {
+	    const key = encounterChatWorldbookCacheKey(win, scriptMod);
+	    if (!key) return "";
+	    try {
+	      const map = JSON.parse(localStorage.getItem(ENCOUNTER_CHAT_WORLD_INFO_CACHE_KEY) || "{}");
+	      const value = encounterNormalizeWorldbookMetadataValue(map?.[key]);
+	      return value && !encounterIsBadChatWorldbookName(value) ? value : "";
+	    } catch {
+	      return "";
+	    }
+	  }
+
+	  function encounterWriteChatWorldbookCache(win, scriptMod, worldName) {
+	    const key = encounterChatWorldbookCacheKey(win, scriptMod);
+	    const value = String(worldName || "").trim();
+	    if (!key || !value) return;
+	    try {
+	      const map = JSON.parse(localStorage.getItem(ENCOUNTER_CHAT_WORLD_INFO_CACHE_KEY) || "{}");
+	      map[key] = value;
+	      localStorage.setItem(ENCOUNTER_CHAT_WORLD_INFO_CACHE_KEY, JSON.stringify(map));
+	    } catch {}
+	  }
+
 	  function encounterReadChatWorldbookMetadata(win, scriptMod) {
 	    const sources = [];
 	    try {
@@ -11810,7 +11840,7 @@ button.st-work-notice{cursor:pointer}
 	      const value = encounterNormalizeWorldbookMetadataValue(source[ENCOUNTER_CHAT_WORLD_INFO_METADATA_KEY]);
 	      if (value && !encounterIsBadChatWorldbookName(value)) return value;
 	    }
-	    return "";
+	    return encounterReadChatWorldbookCache(win, scriptMod);
 	  }
 
 	  async function encounterEnsureChatWorldbookWithSillyTavernModule(win, fallbackName, options = {}) {
