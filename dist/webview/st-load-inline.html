@@ -2710,7 +2710,7 @@ button.st-work-notice{cursor:pointer}
 .st-profile-radar-grid{fill:none;stroke:rgba(81,64,49,.18);stroke-width:1}
 .st-profile-radar-axis{stroke:rgba(81,64,49,.16);stroke-width:1}
 .st-profile-radar-shape{fill:rgba(139,92,48,.22);stroke:#8b5e3c;stroke-width:2;filter:drop-shadow(0 5px 7px rgba(67,45,28,.16))}
-.st-profile-radar-dot{stroke:#f7f1e5;stroke-width:1.6}
+.st-profile-radar-dot{stroke:rgba(247,241,229,.62);stroke-width:.35}
 .st-profile-radar-dot.is-low{fill:#8fa09a}.st-profile-radar-dot.is-mid{fill:#6b8f71}.st-profile-radar-dot.is-high{fill:#c4914d}.st-profile-radar-dot.is-peak{fill:#c25d55}.st-profile-radar-dot.is-overflow{fill:#7d5f9c}.st-profile-radar-dot.is-negative{fill:#6f6258}
 .st-profile-radar-label{font:900 9px -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;fill:rgba(51,41,31,.76);paint-order:stroke;stroke:rgba(247,241,229,.82);stroke-width:3px;stroke-linejoin:round}
 .st-profile-radar-value{font:900 8px ui-monospace,SFMono-Regular,Menlo,monospace;fill:rgba(68,54,42,.56);paint-order:stroke;stroke:rgba(247,241,229,.82);stroke-width:2px}
@@ -4821,7 +4821,7 @@ button.st-work-notice{cursor:pointer}
       return '<line class="st-profile-radar-axis" x1="' + cx + '" y1="' + cy + '" x2="' + edge.x.toFixed(1) + '" y2="' + edge.y.toFixed(1) + '"></line>';
     }).join("");
     const dots = values.map((item) => (
-      '<circle class="st-profile-radar-dot ' + item.tone + '" cx="' + item.point.x.toFixed(1) + '" cy="' + item.point.y.toFixed(1) + '" r="4.2"></circle>'
+      '<circle class="st-profile-radar-dot ' + item.tone + '" cx="' + item.point.x.toFixed(1) + '" cy="' + item.point.y.toFixed(1) + '" r="0.9"></circle>'
     )).join("");
     const labels = values.map((item) => (
       '<text class="st-profile-radar-label" x="' + item.labelPoint.x.toFixed(1) + '" y="' + item.labelPoint.y.toFixed(1) + '" text-anchor="' + item.anchor + '">' + escapeHtml(item.label) + '</text>' +
@@ -11726,8 +11726,6 @@ button.st-work-notice{cursor:pointer}
 	    const add = (source) => {
 	      if (source && typeof source === "object" && !targets.includes(source)) targets.push(source);
 	    };
-	    try { add(scriptMod?.chat_metadata); } catch {}
-	    try { add(win.chat_metadata); } catch {}
 	    try {
 	      const context = encounterContext(win);
 	      add(context?.chatMetadata);
@@ -11735,6 +11733,8 @@ button.st-work-notice{cursor:pointer}
 	      add(context?.metadata);
 	      add(context?.chat?.metadata);
 	    } catch {}
+	    try { add(scriptMod?.chat_metadata); } catch {}
+	    try { add(win.chat_metadata); } catch {}
 	    return targets;
 	  }
 
@@ -11799,8 +11799,6 @@ button.st-work-notice{cursor:pointer}
 
 	  function encounterReadChatWorldbookMetadata(win, scriptMod) {
 	    const sources = [];
-	    try { if (scriptMod?.chat_metadata) sources.push(scriptMod.chat_metadata); } catch {}
-	    try { if (win.chat_metadata) sources.push(win.chat_metadata); } catch {}
 	    try {
 	      const context = win.SillyTavern?.getContext?.() || win.getContext?.();
 	      for (const source of [context?.chatMetadata, context?.chat_metadata, context?.metadata, context?.chat?.metadata]) {
