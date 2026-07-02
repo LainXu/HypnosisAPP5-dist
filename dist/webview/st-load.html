@@ -3586,6 +3586,39 @@ button.st-work-notice{cursor:pointer}
     return firstNonEmptyText(system["当前日期"], system["日期"], system["今日日期"], system["当前日程"], "未记录日期");
   }
 
+  function rewardDailyRollStorageKey() {
+    return "hypnoos.reward.daily-roll.v1:" + graphScopeKey();
+  }
+
+  function rewardIsOtakuRoleName(name) {
+    const clean = String(name || "").trim();
+    return clean === "阿宅" || clean === "阿宅君";
+  }
+
+  function rewardOtakuIsFemale(system = getSystemState(), role = null) {
+    const profile = role && typeof role === "object" && !Array.isArray(role) && role["档案"] && typeof role["档案"] === "object" && !Array.isArray(role["档案"])
+      ? role["档案"]
+      : {};
+    const genderText = effectScalar(
+      system["阿宅性别"] ??
+      system["阿宅性別"] ??
+      system["阿宅身体性别"] ??
+      role?.["性别"] ??
+      profile["性别"] ??
+      profile["身体性别"] ??
+      ""
+    ).trim();
+    if (/女|女性|妹妹/.test(genderText)) return true;
+    return false;
+  }
+
+  function rewardDailyQuestCandidates(roleMap, system) {
+    const roleNames = Object.keys(roleMap || {}).filter((name) => String(name || "").trim());
+    const fallbackNames = Array.isArray(DEFAULT_ROLE_NAMES) ? DEFAULT_ROLE_NAMES.filter(Boolean) : [];
+    const sourceNames = roleNames.length ? roleNames : fallbackNames;
+    return sourceNames.filter((name) => !rewardIsOtakuRoleName(name) || rewardOtakuIsFemale(system, roleMap?.[name]));
+  }
+
   function rewardTargetRoleSummary(role) {
     const source = role && typeof role === "object" && !Array.isArray(role) ? role : {};
     const profile = source["档案"] && typeof source["档案"] === "object" && !Array.isArray(source["档案"]) ? source["档案"] : {};
@@ -3611,13 +3644,27 @@ button.st-work-notice{cursor:pointer}
     const roleMap = variables["角色"] && typeof variables["角色"] === "object" && !Array.isArray(variables["角色"])
       ? variables["角色"]
       : {};
-    const names = Object.keys(roleMap).filter((name) => String(name || "").trim());
-    const fallbackNames = Array.isArray(DEFAULT_ROLE_NAMES) ? DEFAULT_ROLE_NAMES.filter(Boolean) : [];
-    const candidates = names.length ? names : fallbackNames;
+    const candidates = rewardDailyQuestCandidates(roleMap, system);
     if (!candidates.length) return null;
     const dateKey = rewardCurrentDateKey(system);
-    const index = rewardHashText("daily-new-quest|" + dateKey) % candidates.length;
-    const name = candidates[index];
+    const fallback = () => candidates[Math.floor(Math.random() * candidates.length)] || candidates[0];
+    let name = "";
+    try {
+      const parsed = JSON.parse(localStorage.getItem(rewardDailyRollStorageKey()) || "null");
+      if (parsed && String(parsed.dateKey || "") === String(dateKey || "") && candidates.includes(parsed.name)) {
+        name = parsed.name;
+      }
+    } catch {}
+    if (!name) {
+      name = fallback();
+      try {
+        localStorage.setItem(rewardDailyRollStorageKey(), JSON.stringify({
+          dateKey,
+          name,
+          createdAt: Date.now()
+        }));
+      } catch {}
+    }
     return {
       id: "daily-new-quest:" + dateKey + ":" + name,
       name,
