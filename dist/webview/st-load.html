@@ -2037,12 +2037,12 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-hypnosis-lite-app .st-hypnosis-command-toggle input:checked{border-color:rgba(244,114,182,.75);background:linear-gradient(135deg,#a855f7,#ec4899);box-shadow:0 0 0 3px rgba(236,72,153,.12),0 0 16px rgba(236,72,153,.24)}
 .st-hypnosis-lite-app .st-hypnosis-command-toggle input:checked::after{opacity:1}
 .st-hypnosis-lite-app .st-hypnosis-command-toggle input:disabled{opacity:.45;filter:saturate(.55)}
-.st-hypnosis-trance-overlay{position:absolute;inset:0;z-index:240;pointer-events:none;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at 50% 42%,rgba(244,114,182,.24),rgba(88,28,135,.18) 34%,rgba(2,6,23,.68) 72%);animation:stHypnosisTranceFade 1.55s ease forwards}
+.st-hypnosis-trance-overlay{position:absolute;inset:0;z-index:240;pointer-events:none;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at 50% 42%,rgba(244,114,182,.24),rgba(88,28,135,.18) 34%,rgba(2,6,23,.68) 72%);animation:stHypnosisTranceFade 3.7s ease forwards}
 .st-hypnosis-trance-core{position:relative;width:74%;max-width:310px;aspect-ratio:1;display:grid;place-items:center;filter:drop-shadow(0 0 24px rgba(244,114,182,.36))}
 .st-hypnosis-trance-core i{position:absolute;inset:0;border:3px solid rgba(253,242,248,.82);border-radius:50%;border-left-color:rgba(244,114,182,.1);border-right-color:rgba(56,189,248,.34);animation:stHypnosisRing 1.15s cubic-bezier(.55,.04,.28,.98) infinite}
 .st-hypnosis-trance-core i:nth-child(2){inset:12%;border-width:3px;animation-direction:reverse;animation-duration:.92s;opacity:.82}
 .st-hypnosis-trance-core i:nth-child(3){inset:24%;border-width:2px;animation-duration:.72s;opacity:.72}
-.st-hypnosis-trance-eye{position:relative;width:46%;aspect-ratio:1.75;border-radius:50%;border:3px solid rgba(255,255,255,.82);background:radial-gradient(circle at 50% 50%,rgba(253,242,248,.95) 0 12%,rgba(236,72,153,.88) 13% 24%,rgba(88,28,135,.9) 25% 43%,rgba(12,6,24,.88) 44% 100%);box-shadow:0 0 26px rgba(244,114,182,.56),inset 0 0 22px rgba(255,255,255,.18);animation:stHypnosisEye 1.55s ease forwards}
+.st-hypnosis-trance-eye{position:relative;width:46%;aspect-ratio:1.75;border-radius:50%;border:3px solid rgba(255,255,255,.82);background:radial-gradient(circle at 50% 50%,rgba(253,242,248,.95) 0 12%,rgba(236,72,153,.88) 13% 24%,rgba(88,28,135,.9) 25% 43%,rgba(12,6,24,.88) 44% 100%);box-shadow:0 0 26px rgba(244,114,182,.56),inset 0 0 22px rgba(255,255,255,.18);animation:stHypnosisEye 3.7s ease forwards}
 .st-hypnosis-trance-eye b{position:absolute;inset:38% 42%;border-radius:50%;background:#020617;box-shadow:0 0 0 8px rgba(2,6,23,.18)}
 @keyframes stHypnosisRing{to{transform:rotate(360deg)}}
 @keyframes stHypnosisEye{0%{transform:scale(.82);opacity:.2}18%,74%{transform:scale(1);opacity:1}100%{transform:scale(1.16);opacity:0}}
@@ -2453,10 +2453,11 @@ button.st-work-notice{cursor:pointer}
 .st-operation-panel-title strong{font-size:13px;line-height:1.2;color:#fff}
 .st-operation-panel-title span{font-size:10px;line-height:1.35;color:rgba(203,213,225,.55)}
 .st-operation-panel-meta{flex:0 0 auto;display:flex;align-items:flex-start;gap:5px}
-.st-operation-resources{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:3px;max-width:96px}
+.st-operation-resources{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:3px;max-width:108px}
 .st-operation-resource-pill{border:1px solid rgba(255,255,255,.1);border-radius:999px;background:rgba(255,255,255,.055);color:rgba(226,232,240,.8);padding:2px 5px;font-size:8px;font-weight:900;line-height:1.2;white-space:nowrap}
 .st-operation-resource-pill.is-starlight{border-color:rgba(129,140,248,.22);background:rgba(99,102,241,.12);color:#c7d2fe}
 .st-operation-resource-pill.is-money{border-color:rgba(250,204,21,.18);background:rgba(250,204,21,.09);color:#fde68a}
+.st-operation-resource-pill.is-suspicion{border-color:rgba(251,113,133,.2);background:rgba(251,113,133,.09);color:#fecdd3}
 .st-operation-count-pill{flex:0 0 auto;min-width:24px;height:22px;border-radius:999px;background:rgba(34,211,238,.14);border:1px solid rgba(34,211,238,.28);color:#a5f3fc;display:grid;place-items:center;font-size:11px;font-weight:900}
 .st-operation-panel-list{flex:1 1 auto;min-height:0;overflow:auto;padding:9px;display:grid;align-content:start;gap:7px;scrollbar-width:none}
 .st-operation-panel-list::-webkit-scrollbar{display:none}
@@ -3113,7 +3114,7 @@ button.st-work-notice{cursor:pointer}
   const HYP_REACT_VIP_PRICE = { VIP1: 3000, VIP2: 30000, VIP3: 100000, VIP4: 400000, VIP5: 800000, VIP6: 8000000 };
   const HYP_REACT_VIP_STARLIGHT = { VIP1: 0, VIP2: 0, VIP3: 5, VIP4: 10, VIP5: 15, VIP6: 30 };
   const ST_HYPNOSIS_FEATURES = [
-    ["trial_basic","TRIAL","初级一般催眠","被催眠者无意识遵循简单指示，不能指令非常不愿意的行为。","PER_MINUTE",5,"输入简单动作指示..."],
+    ["trial_basic","TRIAL","初级一般催眠","只能推动目标原本犹豫的简单决定，不能改变常识、认知或记忆。","PER_MINUTE",5,"输入简单动作指示..."],
     ["vip1_senses","VIP1","味嗅觉修改","将一种味道修改成另一种味道。","PER_MINUTE",4,"目标味道 -> 替换味道"],
     ["vip1_temp_sensitivity","VIP1","临时敏感度修改","临时修改一个部位的敏感度。","PER_MINUTE",5,"输入要修改的部位"],
     ["vip1_truth_serum","VIP1","吐真","强制被催眠者说出内心真实想法。","PER_MINUTE",4,"想问的问题 / 引导语"],
@@ -4284,7 +4285,7 @@ button.st-work-notice{cursor:pointer}
     root.appendChild(overlay);
     window.setTimeout(() => {
       try { overlay.remove(); } catch {}
-    }, 1650);
+    }, 3800);
   }
 
   function renderHypnosisLitePage(page) {
@@ -13224,7 +13225,7 @@ button.st-work-notice{cursor:pointer}
         { id: "corridor", label: "走廊", category: "公共", info: "连接教室、社团与各专用教室的公共空间。人来人往，适合短暂偶遇和擦肩而过。" },
         { id: "old-school-building", label: "旧校舍", category: "灵异", info: "破败、阴暗、少有人去的旧建筑。传闻、躲藏、无人目击的偶遇和灵异气氛都容易在这里聚集。" },
         { id: "library", label: "图书馆", category: "学习", info: "安静的阅读与自习空间。深雪常会出现，也适合调查资料、传闻和灵异记录。" },
-        { id: "principal", label: "校长室", category: "行政", info: "校方管理层所在地点。校规、处分、学校声望和重大事件容易在这里交汇。" },
+        { id: "principal", label: "校长室", category: "行政", info: "校方管理层所在地点。校规、处分、主角可疑度和重大事件容易在这里交汇。" },
         { id: "pool", label: "游泳池", category: "体育", info: "体育（水泳）相关场地。视线、换装、体能差异和季节活动很容易在这里展开。" },
         { id: "field", label: "操场", category: "体育", info: "田径与户外体育场地。夏美的主场，也是白枢暗子隐藏运动能力可能暴露的地方。" }
       ]
@@ -14377,18 +14378,21 @@ button.st-work-notice{cursor:pointer}
       const system = getSystemState();
       const money = Math.max(0, Math.floor(Number(system?.["持有零花钱"] ?? 0) || 0));
       const starlight = Math.max(0, Math.floor(Number(system?.["星光点"] ?? 0) || 0));
-      return { money, starlight };
+      const suspicion = Math.max(0, Math.floor(Number(system?.["主角可疑度"] ?? 0) || 0));
+      return { money, starlight, suspicion };
     } catch {
-      return { money: 0, starlight: 0 };
+      return { money: 0, starlight: 0, suspicion: 0 };
     }
   }
 
   function operationPanelResourcesHtml(resources) {
     const money = Math.max(0, Math.floor(Number(resources?.money ?? 0) || 0));
     const starlight = Math.max(0, Math.floor(Number(resources?.starlight ?? 0) || 0));
+    const suspicion = Math.max(0, Math.floor(Number(resources?.suspicion ?? 0) || 0));
     return '<div class="st-operation-resources" aria-label="当前资源">' +
       '<span class="st-operation-resource-pill is-money">¥' + escapeHtml(money.toLocaleString()) + '</span>' +
       '<span class="st-operation-resource-pill is-starlight">★' + escapeHtml(starlight.toLocaleString()) + '</span>' +
+      '<span class="st-operation-resource-pill is-suspicion">疑' + escapeHtml(suspicion.toLocaleString()) + '</span>' +
     '</div>';
   }
 
