@@ -2235,6 +2235,8 @@ button.st-work-notice{cursor:pointer}
 .st-encounter-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;border:1px solid rgba(127,88,47,.13);border-radius:8px;background:rgba(255,255,255,.58);padding:3px;box-shadow:0 8px 20px rgba(75,54,35,.07)}
 .st-encounter-tab{height:29px;border:0;border-radius:6px;background:transparent;color:rgba(70,57,47,.64);font-size:12px;font-weight:950;cursor:pointer}
 .st-encounter-tab.active{background:linear-gradient(135deg,#ef6f61,#d99b37);color:#fff;box-shadow:0 8px 16px rgba(217,115,70,.2)}
+.st-encounter-worldbook-status{min-height:26px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:7px;align-items:center;border:1px solid rgba(127,88,47,.12);border-radius:8px;background:rgba(255,255,255,.52);padding:5px 8px;color:rgba(70,57,47,.62);font-size:10px;font-weight:900}
+.st-encounter-worldbook-status strong{min-width:0;color:#7c3219;font-size:10px;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
 .st-encounter-browse-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:1px 2px 0}
 .st-encounter-browse-head strong{color:#352b25;font-size:13px;font-weight:950}
 .st-encounter-browse-head span{color:rgba(70,57,47,.54);font-size:10px;font-weight:900;white-space:nowrap}
@@ -3926,12 +3928,13 @@ button.st-work-notice{cursor:pointer}
         (notice ? '<p class="st-hypnosis-notice">' + escapeHtml(notice) + '</p>' : "") +
         body +
       '</main>';
-    bindLiteHeader(page, () => renderHypnosisLitePage(page));
+    const rerenderPreservingScroll = () => rerenderLitePagePreservingBodyScroll(page, () => renderHypnosisLitePage(page));
+    bindLiteHeader(page, rerenderPreservingScroll);
     page.querySelector('[data-lite-action="back"]')?.addEventListener("click", () => closeInternalLitePage(page, "hypnosis"));
     page.querySelectorAll("[data-hypnosis-tab]").forEach((button) => button.addEventListener("click", () => {
       page.dataset.hypnosisTab = button.getAttribute("data-hypnosis-tab") || "commands";
       delete page.dataset.hypnosisNotice;
-      renderHypnosisLitePage(page);
+      rerenderPreservingScroll();
     }));
     page.querySelector("[data-hypnosis-drawer-qty]")?.addEventListener("input", (event) => {
       page.dataset.stHypnosisDrawerQty = String(event.target.value || "1");
@@ -3939,12 +3942,12 @@ button.st-work-notice{cursor:pointer}
     page.querySelectorAll("[data-hypnosis-supply-action]").forEach((button) => button.addEventListener("click", () => {
       appendHypnosisDrawerOperation(page, button.getAttribute("data-hypnosis-supply-action") || "");
       page.dataset.hypnosisNotice = "补给操作已暂存。";
-      renderHypnosisLitePage(page);
+      rerenderPreservingScroll();
     }));
     page.querySelectorAll("[data-hypnosis-vip-tier]").forEach((button) => button.addEventListener("click", () => {
       appendHypnosisDrawerOperation(page, "vip", button.getAttribute("data-hypnosis-vip-tier") || "");
       page.dataset.hypnosisNotice = "VIP买断请求已暂存。";
-      renderHypnosisLitePage(page);
+      rerenderPreservingScroll();
     }));
     const updateDraft = (patcher) => {
       const draft = readHypnosisLiteDraft();
@@ -3955,13 +3958,13 @@ button.st-work-notice{cursor:pointer}
       if (!page.dataset.hypnosisPicker) return;
       if (event.target?.closest?.(".st-hypnosis-select")) return;
       delete page.dataset.hypnosisPicker;
-      renderHypnosisLitePage(page);
+      rerenderPreservingScroll();
     };
     page.addEventListener("click", page.__stHypnosisOutsideClick);
     page.querySelector("[data-hypnosis-selection-mode]")?.addEventListener("click", () => {
       updateDraft((draft) => ({ ...draft, selectionMode: !Boolean(draft.selectionMode) }));
       delete page.dataset.hypnosisPicker;
-      renderHypnosisLitePage(page);
+      rerenderPreservingScroll();
     });
     page.querySelectorAll("[data-hypnosis-picker-toggle]").forEach((button) => button.addEventListener("click", (event) => {
       event.preventDefault();
@@ -3971,7 +3974,7 @@ button.st-work-notice{cursor:pointer}
       const key = type + ":" + id;
       if (page.dataset.hypnosisPicker === key) delete page.dataset.hypnosisPicker;
       else page.dataset.hypnosisPicker = key;
-      renderHypnosisLitePage(page);
+      rerenderPreservingScroll();
     }));
     page.querySelectorAll("[data-hypnosis-select-option]").forEach((input) => input.addEventListener("change", () => {
       updateDraft((draft) => {
@@ -3986,7 +3989,7 @@ button.st-work-notice{cursor:pointer}
         map[id] = Array.from(current);
         return { ...draft, [mapKey]: map };
       });
-      renderHypnosisLitePage(page);
+      rerenderPreservingScroll();
     }));
     page.querySelectorAll("[data-hypnosis-tier-details]").forEach((details) => details.addEventListener("toggle", () => {
       updateDraft((draft) => {
@@ -4001,7 +4004,7 @@ button.st-work-notice{cursor:pointer}
         enabled[input.getAttribute("data-hypnosis-feature") || ""] = Boolean(input.checked);
         return { ...draft, enabled };
       });
-      renderHypnosisLitePage(page);
+      rerenderPreservingScroll();
     }));
     page.querySelectorAll("[data-hypnosis-feature-note]").forEach((input) => input.addEventListener("input", () => {
       updateDraft((draft) => {
@@ -4016,7 +4019,7 @@ button.st-work-notice{cursor:pointer}
         persons[input.getAttribute("data-hypnosis-feature-person") || ""] = String(input.value || "");
         return { ...draft, persons };
       });
-      renderHypnosisLitePage(page);
+      rerenderPreservingScroll();
     }));
     page.querySelectorAll("[data-hypnosis-feature-part]").forEach((input) => input.addEventListener("input", () => {
       updateDraft((draft) => {
@@ -4024,7 +4027,7 @@ button.st-work-notice{cursor:pointer}
         parts[input.getAttribute("data-hypnosis-feature-part") || ""] = String(input.value || "");
         return { ...draft, parts };
       });
-      renderHypnosisLitePage(page);
+      rerenderPreservingScroll();
     }));
     page.querySelectorAll("[data-hypnosis-feature-duration]").forEach((input) => input.addEventListener("input", () => {
       updateDraft((draft) => {
@@ -4032,7 +4035,7 @@ button.st-work-notice{cursor:pointer}
         durations[input.getAttribute("data-hypnosis-feature-duration") || ""] = String(input.value || "");
         return { ...draft, durations };
       });
-      renderHypnosisLitePage(page);
+      rerenderPreservingScroll();
     }));
     page.querySelectorAll("[data-hypnosis-feature-number]").forEach((input) => input.addEventListener("input", () => {
       updateDraft((draft) => {
@@ -4040,14 +4043,14 @@ button.st-work-notice{cursor:pointer}
         numbers[input.getAttribute("data-hypnosis-feature-number") || ""] = String(input.value || "");
         return { ...draft, numbers };
       });
-      renderHypnosisLitePage(page);
+      rerenderPreservingScroll();
     }));
     page.querySelector("[data-hypnosis-start]")?.addEventListener("click", () => {
       const draft = readHypnosisLiteDraft();
       const selected = hypnosisLiteSelectedFeatures(draft);
       if (!selected.length) {
         page.dataset.hypnosisNotice = "请先选择至少一条指令。";
-        renderHypnosisLitePage(page);
+        rerenderPreservingScroll();
         return;
       }
       const selectionMode = hypnosisSelectionMode(draft);
@@ -4055,13 +4058,13 @@ button.st-work-notice{cursor:pointer}
         const missingRole = selected.find((feature) => hypnosisFeatureUsesPersonCount(feature) && hypnosisSelectedRoleNames(feature, draft).length <= 0);
         if (missingRole) {
           page.dataset.hypnosisNotice = "选择模式下，请先为「" + missingRole.title + "」选择至少一个目标角色。";
-          renderHypnosisLitePage(page);
+          rerenderPreservingScroll();
           return;
         }
         const missingPart = selected.find((feature) => hypnosisFeatureUsesPartCount(feature) && hypnosisSelectedPartIds(feature, draft).length <= 0);
         if (missingPart) {
           page.dataset.hypnosisNotice = "选择模式下，请先为「" + missingPart.title + "」选择至少一个敏感部位。";
-          renderHypnosisLitePage(page);
+          rerenderPreservingScroll();
           return;
         }
       }
@@ -4102,7 +4105,7 @@ button.st-work-notice{cursor:pointer}
         结算提示: "前端只暂存操作；AI按每条指令的等级、人数、目标角色、部位、时间、数值和备注判断目标、剧情条件、VIP等级与MC能量是否足够。若提供目标角色或部位字段，以前端字段为准。成功后写入对应临时/永久效果、资源扣除和持续时间；失败时说明原因。"
       });
       page.dataset.hypnosisNotice = actionText + "已暂存。";
-      renderHypnosisLitePage(page);
+      rerenderPreservingScroll();
     });
   }
 
@@ -8097,10 +8100,19 @@ button.st-work-notice{cursor:pointer}
 
   function encounterDefaultVariableContent(roleName) {
     const name = String(roleName || "").trim();
-    return name ? encounterText([
+    if (!name) return "";
+    const dotSafe = /^[\p{L}\p{N}_]+$/u.test(name);
+    if (!dotSafe) {
+      return encounterText([
+        '  ' + name + ':',
+        '    变量路径: stat_data.角色["' + name.replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '"]',
+        '    当前变量以MVU变量树中的 /角色/' + name + ' 为准；若字段为未记录，由AI按已导入人设补齐。'
+      ]);
+    }
+    return encounterText([
       '  ' + name + ':',
       '    {{format_message_variable::stat_data.角色.' + name + '}}'
-    ]) : "";
+    ]);
   }
 
 	  function encounterPlainLine(value) {
@@ -8110,6 +8122,7 @@ button.st-work-notice{cursor:pointer}
 	  function encounterDefaultInitialVariableObject(role) {
 	    const normalized = role && typeof role === "object" && !Array.isArray(role) ? role : {};
 	    const name = String(normalized.name || normalized["角色名"] || "").trim();
+	    const workValue = encounterInferWorkValueFromRole(normalized);
 	    return {
 	      "好感度": 0,
 	      "警戒度": 0,
@@ -8117,7 +8130,7 @@ button.st-work-notice{cursor:pointer}
 	      "性欲": 0,
 	      "快感值": 0,
 	      "是否派遣中": false,
-	      "工作价值": "未记录",
+	      "工作价值": workValue,
 	      "档案": {
 	        "照片": "",
 	        "姓名": name,
@@ -8160,7 +8173,10 @@ button.st-work-notice{cursor:pointer}
 	    return text;
 	  }
 
-	  function encounterSanitizeInitialRoleVariableObject(merged, roleName) {
+	  function encounterSanitizeInitialRoleVariableObject(merged, role) {
+	    const roleSource = role && typeof role === "object" && !Array.isArray(role) ? role : { name: role };
+	    const roleName = String(roleSource.name || roleSource["角色名"] || role || "").trim();
+	    const inferredWorkValue = encounterInferWorkValueFromRole(roleSource);
 	    const output = merged && typeof merged === "object" && !Array.isArray(merged) ? merged : {};
 	    output["档案"] = output["档案"] && typeof output["档案"] === "object" && !Array.isArray(output["档案"]) ? output["档案"] : {};
 	    const profile = output["档案"];
@@ -8173,10 +8189,10 @@ button.st-work-notice{cursor:pointer}
 	    const rawWorkValue = String(output["工作价值"] ?? "").trim();
 	    const normalizedWorkValue = rawWorkValue.replace(/[^d.-]/g, "");
 	    if (!rawWorkValue || rawWorkValue === "未记录" || !normalizedWorkValue) {
-	      output["工作价值"] = "未记录";
+	      output["工作价值"] = inferredWorkValue;
 	    } else {
 	      const workValue = Number(normalizedWorkValue);
-	      output["工作价值"] = Number.isFinite(workValue) ? Math.max(0, Math.min(20, Math.floor(workValue))) : "未记录";
+	      output["工作价值"] = Number.isFinite(workValue) ? Math.max(0, Math.min(20, Math.floor(workValue))) : inferredWorkValue;
 	    }
 	    if (encounterLooksLikeWorldbookChunk(output["心理"])) output["心理"] = "未记录";
 	    return output;
@@ -8212,6 +8228,50 @@ button.st-work-notice{cursor:pointer}
 	      .map((value) => encounterProfileSnippet(value, 96))
 	      .filter(Boolean)
 	      .join(" / ");
+	  }
+
+	  function encounterInferWorkValueFromRole(role) {
+	    const source = role && typeof role === "object" && !Array.isArray(role) ? role : {};
+	    const parsed = source.__parsedPersona && typeof source.__parsedPersona === "object" ? source.__parsedPersona : {};
+	    const name = String(source.name || source["角色名"] || parsed.parsedName || "").trim();
+	    const haystack = [
+	      name,
+	      source.aliases,
+	      source.intro,
+	      source.personaTitle,
+	      source.identity,
+	      source.personality,
+	      source.appearance,
+	      source.profileDefault,
+	      source.behaviorGuidance,
+	      source.persona,
+	      source.personaEntry?.content,
+	      parsed.personaTitle,
+	      parsed.identity,
+	      parsed.socialConnection,
+	      parsed.personality,
+	      parsed.habit,
+	      parsed.appearance,
+	      parsed.profileDefault,
+	      parsed.behaviorGuidance
+	    ].map((item) => String(item || "")).join("\n");
+	    if (/中村樱|中村總裁|樱酱|樱醬/.test(name + haystack)) return 20;
+	    if (/千杀百花|千殺百花/.test(name + haystack)) return 9;
+	    if (/犬冢夏美|犬塚夏美/.test(name + haystack)) return 3;
+	    if (/西园寺爱丽莎|西園寺愛麗莎/.test(name + haystack)) return 10;
+	    if (/月咏深雪|月詠深雪/.test(name + haystack)) return 8;
+	    if (/阿宅妹妹|女阿宅/.test(name + haystack)) return 2;
+	    let score = /学生|同班|转学生|高一|高二|高三|社团|部员|委员/.test(haystack) ? 3 : 4;
+	    const add = (pattern, value) => { if (pattern.test(haystack)) score += value; };
+	    const sub = (pattern, value) => { if (pattern.test(haystack)) score -= value; };
+	    add(/总裁|CEO|董事|财阀|財閥|富豪|名门|名門|贵族|貴族|大小姐|千金|企业|企業|公司|权力|權力|大额资金|大額資金|资源|資源|渠道|作弊模式/, 7);
+	    add(/杀手|殺手|勇者|英雄|异世界|異世界|魔法|剑与魔法|劍與魔法|黑道|极道|極道|军|軍|特工|兵器|战斗|戰斗|刺客|武器|超能力|灵异|靈異|神器|外星|神秘|魔王/, 5);
+	    add(/老师|教师|醫生|医生|警察|风纪|風紀|学生会|學生會|委员长|委員長|记者|記者|偶像|明星|画师|畫師|艺术家|藝術家|研究|科学|科學|天才|冠军|冠軍|运动|運動|田径|田徑|黑客|技术|技術/, 3);
+	    add(/成熟|成年|大学|大學|店长|店長|店员|店員|雇主|社长|社長|管理|经营|經營|资源支持|資源支持/, 2);
+	    sub(/贫民|貧民|负债|負債|没落|底层|底邊|废柴|廢柴|弱小|瘦弱|孤儿|孤兒|流浪|缺钱|缺錢|无资源|無資源|无力|無力/, 2);
+	    sub(/普通学生|普通同学|普通同學|路人|存在感稀薄|无特长|無特長/, 1);
+	    if (/极度|王牌|完美|顶级|頂級|最强|最強|天选|天選/.test(haystack)) score += 2;
+	    return Math.max(0, Math.min(20, Math.round(score)));
 	  }
 
 	  function encounterInferInitialVariableObject(role) {
@@ -8321,9 +8381,17 @@ button.st-work-notice{cursor:pointer}
 
 	  function encounterInitialVariablesText(role) {
 	    const raw = role?.initialVariables ?? role?.initialRoleVariables ?? role?.["初始变量"] ?? role?.["角色初始变量"];
-	    if (raw && typeof raw === "object" && !Array.isArray(raw)) return JSON.stringify(raw, null, 2);
-	    const text = String(raw || "").trim();
 	    const name = String(role?.name || role?.["角色名"] || "").trim();
+	    if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+	      const selected = encounterSelectInitialVariableObject(raw, name) || raw;
+	      const merged = encounterDeepMergeObject(encounterInferInitialVariableObject(role), selected);
+	      if ((merged["工作价值"] === undefined || merged["工作价值"] === null || merged["工作价值"] === "") && merged["身" + "价"] !== undefined) {
+	        merged["工作价值"] = merged["身" + "价"];
+	      }
+	      delete merged["身" + "价"];
+	      return JSON.stringify(encounterSanitizeInitialRoleVariableObject(merged, role), null, 2);
+	    }
+	    const text = String(raw || "").trim();
 	    if (text) {
 	      const parsed = encounterParseInitialVariableText(text, name);
 	      return parsed ? JSON.stringify(parsed, null, 2) : String(raw);
@@ -8331,7 +8399,7 @@ button.st-work-notice{cursor:pointer}
 	    const fromVariableEntry = encounterParseInitialVariableText(encounterRoleVariableSourceText(role), name);
 	    const inferred = encounterInferInitialVariableObject(role);
 	    const merged = fromVariableEntry ? encounterDeepMergeObject(inferred, fromVariableEntry) : inferred;
-	    return JSON.stringify(encounterSanitizeInitialRoleVariableObject(merged, name), null, 2);
+	    return JSON.stringify(encounterSanitizeInitialRoleVariableObject(merged, role), null, 2);
 	  }
 
 	  function encounterDeepMergeObject(base, patch) {
@@ -8369,7 +8437,7 @@ button.st-work-notice{cursor:pointer}
 	      merged["工作价值"] = merged["身" + "价"];
 	    }
 	    delete merged["身" + "价"];
-	    return encounterSanitizeInitialRoleVariableObject(merged, name);
+	    return encounterSanitizeInitialRoleVariableObject(merged, normalized);
 	  }
 
 	  const ENCOUNTER_INITIAL_VARIABLE_SKIP_FILL_PATHS = new Set(["档案.照片", "临时催眠效果", "永久催眠效果"]);
@@ -8427,7 +8495,7 @@ button.st-work-notice{cursor:pointer}
 	      性欲: variable?.["性欲"] ?? 0,
 	      快感值: variable?.["快感值"] ?? 0,
 	      是否派遣中: variable?.["是否派遣中"] ?? false,
-	      工作价值: variable?.["工作价值"] ?? "未记录",
+	      工作价值: Number(variable?.["工作价值"] ?? 0) || 0,
 	      档案: {
 	        姓名: profile["姓名"] ?? "未记录",
 	        年龄: profile["年龄"] ?? "未记录",
@@ -9303,6 +9371,30 @@ button.st-work-notice{cursor:pointer}
     if (status) status.textContent = page.dataset.encounterStatus;
   }
 
+  async function encounterReadCurrentChatWorldbookName() {
+    for (const win of encounterCandidateWindows()) {
+      try {
+        const scriptMod = await encounterImportScriptModule(win);
+        const worldName = encounterReadChatWorldbookMetadata(win, scriptMod);
+        if (worldName) return worldName;
+      } catch {}
+    }
+    return "";
+  }
+
+  async function encounterRefreshCurrentChatWorldbookDisplay(page) {
+    if (!page || !page.isConnected) return;
+    const token = String(Date.now()) + Math.random();
+    page.dataset.encounterWorldbookRefreshToken = token;
+    const label = page.querySelector("[data-encounter-current-worldbook]");
+    if (label && !page.dataset.encounterCurrentWorldbook) label.textContent = "读取中";
+    const worldName = await encounterReadCurrentChatWorldbookName();
+    if (!page.isConnected || page.dataset.encounterWorldbookRefreshToken !== token) return;
+    page.dataset.encounterCurrentWorldbook = worldName || "";
+    const currentLabel = page.querySelector("[data-encounter-current-worldbook]");
+    if (currentLabel) currentLabel.textContent = worldName || "未绑定，首次购买会创建";
+  }
+
   function encounterCurrentStarlight() {
     const system = getSystemState();
     const value = Number(system["星光点"] ?? system["starlight"] ?? 0);
@@ -10063,11 +10155,13 @@ button.st-work-notice{cursor:pointer}
           '<button type="button" class="st-encounter-tab ' + (tab === "role" ? "active" : "") + '" data-encounter-tab="role">角色定制</button>' +
           '<button type="button" class="st-encounter-tab ' + (tab === "shop" ? "active" : "") + '" data-encounter-tab="shop">商店</button>' +
         '</section>') +
+        '<section class="st-encounter-worldbook-status"><span>当前聊天世界书</span><strong data-encounter-current-worldbook>' + escapeHtml(page.dataset.encounterCurrentWorldbook || "读取中") + '</strong></section>' +
         content +
         '<div class="st-encounter-status" aria-live="polite">' + escapeHtml(page.dataset.encounterStatus || "") + '</div>' +
       '</main>';
     bindLiteHeader(page, () => renderEncounterPage(page));
     bindEncounterPage(page);
+    encounterRefreshCurrentChatWorldbookDisplay(page);
   }
 
   function encounterFileAsDataUrl(file) {
@@ -10497,23 +10591,121 @@ button.st-work-notice{cursor:pointer}
     }
   }
 
-  function encounterCurrentMvuData() {
-    if (!globalThis.Mvu?.getMvuData || !globalThis.Mvu?.replaceMvuData) return null;
-    const option = (typeof getCurrentVariableOption === "function" && getCurrentVariableOption()) || { type: "message", message_id: "latest" };
-    const mvu = globalThis.Mvu.getMvuData(option);
-    const stat = mvu?.stat_data && typeof mvu.stat_data === "object" ? mvu.stat_data : mvu;
-    if (!stat || typeof stat !== "object") return null;
-    return { mvu, stat, option };
-  }
+	  function encounterCurrentVariableOptionForWindow(view) {
+	    try {
+	      const option = view?.getCurrentVariableOption?.();
+	      if (option && typeof option === "object") return option;
+	    } catch {}
+	    try {
+	      const scoped = view?.__ST_HYPNOOS_CURRENT_FRONTEND_MESSAGE_ID__?.();
+	      if (scoped !== undefined && scoped !== null && scoped !== "latest" && String(scoped).trim()) return { type: "message", message_id: scoped };
+	    } catch {}
+	    try {
+	      const id = view?.getCurrentMessageId?.();
+	      if (id !== undefined && id !== null && id !== "latest" && String(id).trim()) return { type: "message", message_id: id };
+	    } catch {}
+	    return null;
+	  }
+
+	  function encounterVariableOptionsForWindow(view) {
+	    const options = [];
+	    const seen = new Set();
+	    const add = (option) => {
+	      if (option === undefined) {
+	        if (!seen.has("undefined")) {
+	          seen.add("undefined");
+	          options.push(undefined);
+	        }
+	        return;
+	      }
+	      if (!option || typeof option !== "object") return;
+	      const key = String(option.type || "") + ":" + String(option.message_id ?? "");
+	      if (seen.has(key)) return;
+	      seen.add(key);
+	      options.push(option);
+	    };
+	    add(encounterCurrentVariableOptionForWindow(view));
+	    add({ type: "message", message_id: "latest" });
+	    add({ type: "chat" });
+	    add(undefined);
+	    return options;
+	  }
+
+	  function encounterScoreMvuStatData(value) {
+	    const root = value?.stat_data && typeof value.stat_data === "object" && !Array.isArray(value.stat_data) ? value.stat_data : value;
+	    if (!root || typeof root !== "object" || Array.isArray(root)) return -1;
+	    let score = 0;
+	    const system = root["系统"];
+	    const roles = root["角色"];
+	    if (system && typeof system === "object" && !Array.isArray(system)) {
+	      score += 30;
+	      for (const key of ["MC能量", "MC能量上限", "持有零花钱", "星光点", "当前时间", "当前日期"]) {
+	        if (system[key] !== undefined) score += 5;
+	      }
+	    }
+	    if (roles && typeof roles === "object" && !Array.isArray(roles)) score += 20 + Object.keys(roles).length * 3;
+	    return score;
+	  }
+
+	  function encounterCurrentMvuData() {
+	    const candidates = [];
+	    for (const view of encounterCandidateWindows()) {
+	      const options = encounterVariableOptionsForWindow(view);
+	      for (const option of options) {
+	        try {
+	          if (view?.Mvu?.getMvuData && view?.Mvu?.replaceMvuData) {
+	            const mvu = option === undefined ? view.Mvu.getMvuData() : view.Mvu.getMvuData(option);
+	            if (mvu && typeof mvu.then !== "function") {
+	              const stat = mvu?.stat_data && typeof mvu.stat_data === "object" ? mvu.stat_data : mvu;
+	              const score = encounterScoreMvuStatData(stat);
+	              if (score >= 0) candidates.push({ mvu, stat, option, view, replace: (nextMvu, nextOption) => view.Mvu.replaceMvuData(nextMvu, nextOption), score: score + 20 });
+	            }
+	          }
+	        } catch {}
+	        try {
+	          if (typeof view?.getVariables === "function" && typeof view?.updateVariablesWith === "function") {
+	            const vars = option === undefined ? view.getVariables() : view.getVariables(option);
+	            const stat = vars?.stat_data && typeof vars.stat_data === "object" ? vars.stat_data : vars;
+	            const score = encounterScoreMvuStatData(stat);
+	            if (score >= 0) {
+	              candidates.push({
+	                mvu: vars,
+	                stat,
+	                option,
+	                view,
+	                replace: () => view.updateVariablesWith((current) => {
+	                  if (current?.stat_data && typeof current.stat_data === "object") {
+	                    current.stat_data = stat;
+	                    return current;
+	                  }
+	                  return stat;
+	                }, option),
+	                score
+	              });
+	            }
+	          }
+	        } catch {}
+	      }
+	    }
+	    candidates.sort((a, b) => b.score - a.score);
+	    return candidates[0] || null;
+	  }
+
+	  async function encounterReplaceMvuData(data) {
+	    if (!data?.replace) return false;
+	    const result = data.replace(data.mvu, data.option);
+	    if (result && typeof result.then === "function") await result;
+	    return true;
+	  }
 
   async function encounterSetStarlight(value) {
     const data = encounterCurrentMvuData();
     if (!data) return false;
     data.stat["系统"] = data.stat["系统"] && typeof data.stat["系统"] === "object" && !Array.isArray(data.stat["系统"]) ? data.stat["系统"] : {};
     data.stat["系统"]["星光点"] = Math.max(0, Math.floor(Number(value) || 0));
-    await globalThis.Mvu.replaceMvuData(data.mvu, data.option);
-    return true;
-  }
+	    await encounterReplaceMvuData(data);
+	    return true;
+	  }
 
   async function encounterDeductStarlight(price) {
     const cost = Math.max(0, Math.floor(Number(price) || 0));
@@ -10523,9 +10715,9 @@ button.st-work-notice{cursor:pointer}
     const previous = Number(data.stat["系统"]["星光点"] ?? 0);
     if (!Number.isFinite(previous) || previous < cost) return { ok: false, previous: Number.isFinite(previous) ? previous : 0, reason: "星光点不足。" };
     data.stat["系统"]["星光点"] = Math.max(0, Math.floor(previous - cost));
-    await globalThis.Mvu.replaceMvuData(data.mvu, data.option);
-    return { ok: true, previous, current: data.stat["系统"]["星光点"] };
-  }
+	    await encounterReplaceMvuData(data);
+	    return { ok: true, previous, current: data.stat["系统"]["星光点"] };
+	  }
 
   function encounterPackageInitialRoleEntries(pkg) {
     const entries = [];
@@ -10547,9 +10739,9 @@ button.st-work-notice{cursor:pointer}
       if (previous === undefined) delete data.stat["角色"][name];
       else data.stat["角色"][name] = previous;
     }
-    await globalThis.Mvu.replaceMvuData(data.mvu, data.option);
-    return true;
-  }
+	    await encounterReplaceMvuData(data);
+	    return true;
+	  }
 
   async function encounterCreateInitialRoleVariables(initialEntries) {
     const data = encounterCurrentMvuData();
@@ -10571,9 +10763,9 @@ button.st-work-notice{cursor:pointer}
       }
       data.stat["角色"][name] = encounterClone(item.value) || item.value || {};
     }
-    if (created.length || overwritten.length) await globalThis.Mvu.replaceMvuData(data.mvu, data.option);
-    return { ok: true, created, overwritten, skipped, snapshot };
-  }
+	    if (created.length || overwritten.length) await encounterReplaceMvuData(data);
+	    return { ok: true, created, overwritten, skipped, snapshot };
+	  }
 
   function encounterWorldbookEntry(comment, role, content) {
     const keys = encounterRoleWorldbookKeys(role);
@@ -10591,7 +10783,7 @@ button.st-work-notice{cursor:pointer}
       position: "before_char",
       enabled: true,
       disable: false,
-      use_regex: true,
+      use_regex: false,
       probability: 100,
       useProbability: true,
       depth: 4,
@@ -10613,6 +10805,34 @@ button.st-work-notice{cursor:pointer}
     return [role?.name].concat(String(role?.aliases || "").split(/[，,、]/)).map((item) => String(item || "").trim()).filter(Boolean);
   }
 
+  function encounterFinalizeWorldbookEntryForInsert(entry) {
+    if (!entry || typeof entry !== "object") return entry;
+    const comment = String(entry.comment || entry.name || "邂逅世界书条目").trim() || "邂逅世界书条目";
+    const keys = (Array.isArray(entry.key) && entry.key.length ? entry.key : Array.isArray(entry.keys) ? entry.keys : [comment])
+      .map((item) => String(item || "").trim())
+      .filter(Boolean);
+    const secondary = (Array.isArray(entry.keysecondary) && entry.keysecondary.length ? entry.keysecondary : Array.isArray(entry.secondary_keys) ? entry.secondary_keys : [])
+      .map((item) => String(item || "").trim())
+      .filter(Boolean);
+    entry.comment = comment;
+    entry.name = String(entry.name || comment);
+    entry.content = String(entry.content || "");
+    entry.key = keys.length ? keys : [comment];
+    entry.keys = entry.key.slice();
+    entry.keysecondary = secondary;
+    entry.secondary_keys = secondary.slice();
+    entry.use_regex = false;
+    entry.enabled = entry.enabled !== false && entry.disable !== true && entry.disabled !== true;
+    entry.disable = !entry.enabled;
+    entry.disabled = !entry.enabled;
+    if (entry.extensions && typeof entry.extensions === "object" && !Array.isArray(entry.extensions)) {
+      entry.extensions = { ...entry.extensions, use_regex: false };
+    }
+    delete entry.uid;
+    delete entry.id;
+    return entry;
+  }
+
 	  function encounterPreparedWorldbookEntry(template, fallbackComment, role, fallbackContent, options = {}) {
 	    const base = encounterWorldbookEntry(fallbackComment, role, fallbackContent);
 	    const source = encounterNormalizeRoleWorldbookEntry(template);
@@ -10625,7 +10845,7 @@ button.st-work-notice{cursor:pointer}
 	    entry.keys = normalizedKeys.length ? normalizedKeys : [entry.comment];
     delete entry.uid;
     delete entry.id;
-    return entry;
+    return encounterFinalizeWorldbookEntryForInsert(entry);
   }
 
   function encounterVariableWorldbookEntry(role) {
@@ -10830,7 +11050,7 @@ button.st-work-notice{cursor:pointer}
 
   function encounterApplyCharacterWorldbookLayout(entries, existingEntries) {
     const existing = Array.isArray(existingEntries) ? existingEntries : [];
-    if (!existing.length) return entries.map(encounterCloneWorldbookEntry);
+    if (!existing.length) return entries.map(encounterCloneWorldbookEntry).map(encounterFinalizeWorldbookEntryForInsert);
     const next = entries.map(encounterCloneWorldbookEntry);
     for (const kind of ["variable", "persona"]) {
       const targets = next.filter((entry) => encounterEntryKind(entry) === kind);
@@ -10846,7 +11066,7 @@ button.st-work-notice{cursor:pointer}
         entry.order = order;
       });
     }
-    return next;
+    return next.map(encounterFinalizeWorldbookEntryForInsert);
   }
 
   function encounterCandidateWindows() {
@@ -11039,14 +11259,40 @@ button.st-work-notice{cursor:pointer}
     return String(value || "邂逅世界书").trim().replace(/[\/:*?"<>|]+/g, "-").replace(/\s+/g, " ").slice(0, 80) || "邂逅世界书";
   }
 
+  function encounterIsPureNumericText(value) {
+    return /^\d+$/u.test(String(value || "").trim());
+  }
+
+  function encounterIsBadChatWorldbookName(value) {
+    const text = String(value || "").trim().replace(/^\[邂逅\]\s*/u, "");
+    return !text;
+  }
+
   function encounterDefaultCharacterWorldbookName(pkg) {
     const charName = encounterCurrentCharacterName() || "当前角色卡";
     return encounterSafeWorldbookName(charName + " 邂逅世界书");
   }
 
-  function encounterChatWorldbookBaseName(chatId) {
-    const id = String(chatId || "当前对话").trim() || "当前对话";
-    return encounterSafeWorldbookName("[邂逅] " + id);
+	  function encounterChatWorldbookBaseName(chatId) {
+	    const raw = String(chatId || "当前对话").trim();
+	    const id = raw || "当前对话";
+	    return encounterSafeWorldbookName("Chat Book " + id);
+	  }
+
+  function encounterTimestampWorldbookLabel() {
+    const date = new Date();
+    const pad = (value, size = 2) => String(value).padStart(size, "0");
+    return [
+      date.getFullYear(),
+      pad(date.getMonth() + 1),
+      pad(date.getDate())
+    ].join("-") + "@" + pad(date.getHours()) + "h" + pad(date.getMinutes()) + "m" + pad(date.getSeconds()) + "s" + pad(date.getMilliseconds(), 3) + "ms";
+  }
+
+  function encounterNewChatWorldbookName(win) {
+    const character = encounterReadCurrentCharacter(win);
+    const charName = String(character?.name || character?.data?.name || encounterCurrentCharacterName() || "当前角色卡").trim();
+    return encounterSafeWorldbookName("[邂逅] " + charName + " - " + encounterTimestampWorldbookLabel());
   }
 
   function encounterContext(win) {
@@ -11070,6 +11316,30 @@ button.st-work-notice{cursor:pointer}
       const text = encounterCleanChatLabel(value);
       if (!text || /^d+$/u.test(text)) continue;
       return text;
+    }
+    return "";
+  }
+
+  function encounterMessageDateLabel(win) {
+    const candidates = [];
+    try {
+      const context = encounterContext(win);
+      const chat = Array.isArray(context?.chat) ? context.chat : [];
+      if (chat.length) candidates.push(chat[0], chat[chat.length - 1]);
+    } catch {}
+    try {
+      const chat = Array.isArray(win.chat) ? win.chat : [];
+      if (chat.length) candidates.push(chat[0], chat[chat.length - 1]);
+    } catch {}
+    for (const message of candidates) {
+      const raw = String(message?.send_date || message?.date || message?.created || message?.create_date || "").trim();
+      if (!raw) continue;
+      const cleaned = raw
+        .replace(/[:：]/g, "h")
+        .replace(/[\/\\]/g, "-")
+        .replace(/\s+/g, "-")
+        .replace(/[^一-龥\w.@-]+/g, "");
+      if (cleaned && !encounterIsPureNumericText(cleaned)) return cleaned;
     }
     return "";
   }
@@ -11100,10 +11370,25 @@ button.st-work-notice{cursor:pointer}
     if (!label) {
       try { label = encounterFirstNonNumericText([scriptMod?.getCurrentChatId?.()]); } catch {}
     }
-    const charName = String(encounterReadCurrentCharacter(win)?.name || encounterReadCurrentCharacter(win)?.data?.name || context?.name2 || "").trim();
-    if (!label) label = charName ? (charName + " 当前对话") : "当前对话";
+    const character = encounterReadCurrentCharacter(win);
+    const charName = String(character?.name || character?.data?.name || context?.name2 || "").trim();
+    if (!label) {
+      const dateLabel = encounterMessageDateLabel(win);
+      label = [charName || "当前角色卡", dateLabel || "当前对话"].filter(Boolean).join(" - ");
+    }
     else if (charName && !label.includes(charName)) label = charName + " - " + label;
     return label;
+  }
+
+	  function encounterPreferredChatWorldbookName(win, scriptMod, fallbackName) {
+	    const chatId = encounterCurrentChatId(win, scriptMod);
+	    if (chatId) return encounterChatWorldbookBaseName(chatId);
+	    const fallback = encounterSafeWorldbookName(fallbackName || "");
+	    if (fallback && !encounterIsBadChatWorldbookName(fallback) && !/当前对话/u.test(fallback)) return fallback;
+	    const label = encounterChatWorldbookLabel(win, scriptMod);
+    const named = encounterChatWorldbookBaseName(label);
+    if (named && !encounterIsBadChatWorldbookName(named) && !/当前对话/u.test(named)) return named;
+    return encounterNewChatWorldbookName(win);
   }
 
   function encounterDefaultChatWorldbookName(pkg) {
@@ -11221,6 +11506,10 @@ button.st-work-notice{cursor:pointer}
 
 	  function encounterCurrentChatId(win, scriptMod) {
 	    try {
+	      const value = String(scriptMod?.getCurrentChatId?.() || "").trim();
+	      if (value) return value;
+	    } catch {}
+	    try {
 	      const context = encounterContext(win);
 	      const value = String(
 	        context?.chatFile ||
@@ -11231,10 +11520,6 @@ button.st-work-notice{cursor:pointer}
 	        context?.chat_id ||
 	        ""
 	      ).trim();
-	      if (value) return value;
-	    } catch {}
-	    try {
-	      const value = String(scriptMod?.getCurrentChatId?.() || "").trim();
 	      if (value) return value;
 	    } catch {}
 	    return "";
@@ -11294,37 +11579,52 @@ button.st-work-notice{cursor:pointer}
 	    return targets;
 	  }
 
-	  function encounterSetChatWorldbookMetadata(win, scriptMod, worldName) {
-	    const value = String(worldName || "").trim();
-	    if (!value) return false;
-	    let wrote = false;
-	    try {
-	      if (typeof scriptMod?.updateChatMetadata === "function") {
-	        scriptMod.updateChatMetadata({ [ENCOUNTER_CHAT_WORLD_INFO_METADATA_KEY]: value });
-	        wrote = true;
-	      }
-	    } catch {}
-	    for (const target of encounterChatMetadataTargets(win, scriptMod)) {
+	  async function encounterBindChatWorldbookWithTavernHelper(win, worldName) {
+	    return false;
+	  }
+
+	  async function encounterPersistChatWorldbookBinding(win, scriptMod) {
+	    const context = encounterContext(win);
+	    const calls = [
+	      () => scriptMod?.saveMetadata?.(),
+	      () => scriptMod?.saveMetadataDebounced?.(),
+	      () => scriptMod?.saveChat?.(),
+	      () => scriptMod?.saveChatDebounced?.(),
+	      () => win?.saveMetadata?.(),
+	      () => win?.saveMetadataDebounced?.(),
+	      () => win?.saveChat?.(),
+	      () => win?.saveChatDebounced?.(),
+	      () => context?.saveMetadata?.(),
+	      () => context?.saveMetadataDebounced?.(),
+	      () => context?.saveChat?.(),
+	      () => context?.saveChatDebounced?.()
+	    ];
+	    for (const call of calls) {
 	      try {
-	        target[ENCOUNTER_CHAT_WORLD_INFO_METADATA_KEY] = value;
-	        wrote = true;
+	        const result = call();
+	        if (result && typeof result.then === "function") await result;
 	      } catch {}
 	    }
-	    try { win.chat_metadata = win.chat_metadata || {}; win.chat_metadata[ENCOUNTER_CHAT_WORLD_INFO_METADATA_KEY] = value; wrote = true; } catch {}
-	    try {
-	      const selector = "#chat_world, #chat_lorebook, #world_info, select[name='world_info'], select[name='chat_lorebook'], input[name='world_info'], input[name='chat_lorebook']";
-	      win.document?.querySelectorAll?.(selector)?.forEach((element) => {
-	        if ("value" in element) {
-	          element.value = value;
-	          element.dispatchEvent(new Event("input", { bubbles: true }));
-	          element.dispatchEvent(new Event("change", { bubbles: true }));
-	          wrote = true;
-	        }
-	      });
-	    } catch {}
-	    try { win.document?.querySelectorAll?.(".chat_lorebook_button")?.forEach((element) => element.classList.add("world_set")); } catch {}
-	    return wrote;
 	  }
+
+		  function encounterSetChatWorldbookMetadata(win, scriptMod, worldName) {
+		    const value = String(worldName || "").trim();
+		    if (!value) return false;
+		    let wrote = false;
+		    for (const target of encounterChatMetadataTargets(win, scriptMod)) {
+		      try {
+		        target[ENCOUNTER_CHAT_WORLD_INFO_METADATA_KEY] = value;
+		        wrote = true;
+		      } catch {}
+		    }
+		    try {
+		      win.chat_metadata = win.chat_metadata || {};
+		      win.chat_metadata[ENCOUNTER_CHAT_WORLD_INFO_METADATA_KEY] = value;
+		      wrote = true;
+		    } catch {}
+		    try { win.document?.querySelectorAll?.(".chat_lorebook_button")?.forEach((element) => element.classList.add("world_set")); } catch {}
+		    return wrote;
+		  }
 
 	  function encounterNormalizeWorldbookMetadataValue(value) {
 	    if (typeof value === "string") return value.trim();
@@ -11339,7 +11639,6 @@ button.st-work-notice{cursor:pointer}
 	  }
 
 	  function encounterReadChatWorldbookMetadata(win, scriptMod) {
-	    const keys = [ENCOUNTER_CHAT_WORLD_INFO_METADATA_KEY, "worldInfo", "chat_world", "chatWorld", "chat_lorebook", "chatLorebook"];
 	    const sources = [];
 	    try { if (scriptMod?.chat_metadata) sources.push(scriptMod.chat_metadata); } catch {}
 	    try { if (win.chat_metadata) sources.push(win.chat_metadata); } catch {}
@@ -11351,41 +11650,10 @@ button.st-work-notice{cursor:pointer}
 	    } catch {}
 	    for (const source of sources) {
 	      if (!source || typeof source !== "object") continue;
-	      for (const key of keys) {
-	        const value = encounterNormalizeWorldbookMetadataValue(source[key]);
-	        if (value) return value;
-	      }
+	      const value = encounterNormalizeWorldbookMetadataValue(source[ENCOUNTER_CHAT_WORLD_INFO_METADATA_KEY]);
+	      if (value && !encounterIsBadChatWorldbookName(value)) return value;
 	    }
-	    try {
-	      const selector = "#chat_world, #chat_lorebook, #world_info, select[name='world_info'], select[name='chat_lorebook']";
-	      const value = String(win.document?.querySelector?.(selector)?.value || "").trim();
-	      if (value) return value;
-	    } catch {}
 	    return "";
-	  }
-
-	  async function encounterFindExistingChatEncounterWorldbookName(mod, names, baseName) {
-	    const safeBase = encounterSafeWorldbookName(baseName);
-	    const list = (Array.isArray(names) ? names : []).map((item) => String(item || "").trim()).filter(Boolean);
-	    const exact = list.find((name) => name === safeBase);
-	    if (exact) return exact;
-	    const legacy = list.filter((name) => name.startsWith(safeBase + " "));
-	    if (!legacy.length) return "";
-	    let best = legacy[0];
-	    let bestCount = -1;
-	    if (typeof mod?.loadWorldInfo === "function") {
-	      for (const name of legacy) {
-	        try {
-	          const data = await mod.loadWorldInfo(name);
-	          const count = encounterWorldEntryValues(data).length;
-	          if (count > bestCount) {
-	            best = name;
-	            bestCount = count;
-	          }
-	        } catch {}
-	      }
-	    }
-	    return best;
 	  }
 
 	  async function encounterEnsureChatWorldbookWithSillyTavernModule(win, fallbackName, options = {}) {
@@ -11395,19 +11663,13 @@ button.st-work-notice{cursor:pointer}
 	    if (!mod || typeof mod.saveWorldInfo !== "function" || !scriptMod) return null;
 	    try {
 	      const chatId = encounterCurrentChatId(win, scriptMod);
-	      if (!chatId) return null;
+	      const preferredName = encounterPreferredChatWorldbookName(win, scriptMod, fallbackName || encounterChatWorldbookBaseName(chatId));
+	      if (!chatId && encounterIsBadChatWorldbookName(preferredName)) return null;
 	      try { await mod.updateWorldInfoList?.(); } catch {}
 	      const names = Array.isArray(mod.world_names) ? mod.world_names : [];
 	      let worldName = encounterReadChatWorldbookMetadata(win, scriptMod);
-	      const preferredName = encounterSafeWorldbookName(fallbackName || encounterChatWorldbookBaseName(chatId));
+	      if (encounterIsBadChatWorldbookName(worldName)) worldName = "";
 	      if (!worldName) {
-	        const existingName = await encounterFindExistingChatEncounterWorldbookName(mod, names, preferredName);
-	        if (existingName) {
-	          worldName = existingName;
-	          if (!encounterSetChatWorldbookMetadata(win, scriptMod, worldName)) return null;
-	          try { await scriptMod.saveMetadata(); } catch {}
-	          return { mod, scriptMod, worldName, method: "Chat Lorebook" };
-	        }
 	        if (!create) return null;
 	        const baseName = preferredName;
 	        let created = false;
@@ -11420,10 +11682,23 @@ button.st-work-notice{cursor:pointer}
 	          }
 	        }
 	        if (!created && typeof mod.createNewWorldInfo === "function") return null;
-	        if (!encounterSetChatWorldbookMetadata(win, scriptMod, worldName)) return null;
-	        try { await scriptMod.saveMetadata(); } catch {}
+	        try { await mod.updateWorldInfoList?.(); } catch {}
+	        const metadataWrote = encounterSetChatWorldbookMetadata(win, scriptMod, worldName);
+	        const helperWrote = await encounterBindChatWorldbookWithTavernHelper(win, worldName);
+	        if (!metadataWrote && !helperWrote) return null;
+	        await encounterPersistChatWorldbookBinding(win, scriptMod);
 	      } else if (create && typeof mod.createNewWorldInfo === "function" && Array.isArray(names) && !names.includes(worldName)) {
 	        try { await mod.createNewWorldInfo(worldName, { interactive: false }); } catch {}
+	        try { await mod.updateWorldInfoList?.(); } catch {}
+	        const metadataWrote = encounterSetChatWorldbookMetadata(win, scriptMod, worldName);
+	        const helperWrote = await encounterBindChatWorldbookWithTavernHelper(win, worldName);
+	        if (!metadataWrote && !helperWrote) return null;
+	        await encounterPersistChatWorldbookBinding(win, scriptMod);
+	      } else {
+	        const metadataWrote = encounterSetChatWorldbookMetadata(win, scriptMod, worldName);
+	        const helperWrote = await encounterBindChatWorldbookWithTavernHelper(win, worldName);
+	        if (!metadataWrote && !helperWrote) return null;
+	        await encounterPersistChatWorldbookBinding(win, scriptMod);
 	      }
 	      return { mod, scriptMod, worldName, method: "Chat Lorebook" };
 	    } catch {
@@ -11666,10 +11941,11 @@ button.st-work-notice{cursor:pointer}
       世界书新增条目数: result.insertedCount ?? result.worldbookCount ?? 0,
 	      当前对话世界书: result.targetWorldbook || "当前对话 Chat Lorebook",
 	      世界书写入方式: result.method || "前端自动写入",
-	      角色变量补全要求: "每个角色都已由前端提供并写入一份初始变量；角色列表里的“前端初始变量”就是当前变量骨架。AI只需要补齐“待AI补充变量字段”列出的字段，补齐时必须参照已导入当前对话 Chat Lorebook 里的对应 [mvu_plot]角色名人设 / [mvu_update]角色名变量 条目。不要把世界书原文整段塞进档案字段。工作价值由AI按角色身份、资源、派遣变现潜力和默认三角色尺度生成 0-20 的星光点/日数字。",
+	      剧情设定: "本次消耗星光点在剧情中表现为{{user}}主动购买一次桃花运。{{user}}只知道自己购买了桃花运，不知道会遇到谁、会遇到几个角色、对方来自哪个角色包；具体对象由APP暗中安排。",
+	      角色变量补全要求: "每个角色都已由前端提供并写入一份初始变量；角色列表里的“前端初始变量”就是当前变量骨架。AI只需要补齐“待AI补充变量字段”列出的字段，补齐时必须参照已导入当前对话 Chat Lorebook 里的对应 [mvu_plot]角色名人设 / [mvu_update]角色名变量 条目。不要把世界书原文整段塞进档案字段。工作价值已由前端按人设估算为0-20的星光点/日数字，后续只有角色身份、资源或能力发生长期变化时才更新。",
       待AI补充变量总览: fillSummary.length ? fillSummary : "无",
       角色列表: rolePayloads,
-	      AI执行规范: "这个角色包已经被前端使用。不要重复扣星光点，不要重复插入世界书，不要对已新增角色重复/add。世界书条目已写入当前对话独有的 Chat Lorebook；初始角色变量已由前端创建，若有同名旧角色则前端已用本角色包初始变量覆盖。请根据角色包、已写入世界书、前端初始变量和各角色出场提示词，在本轮剧情中安排对应角色登场；第一回合必须按“待AI补充变量字段”逐项补齐变量，尤其是档案、第一人称心理和工作价值；后续只按剧情变化更新变量。"
+	      AI执行规范: "这个角色包已经被前端使用。不要重复扣星光点，不要重复插入世界书，不要对已新增角色重复/add。世界书条目已写入当前对话独有的 Chat Lorebook；初始角色变量已由前端创建，若有同名旧角色则前端已用本角色包初始变量覆盖。请把本次事件写成{{user}}主动购买桃花运后，由APP暗中安排的偶遇；剧情中的{{user}}不知道具体对象或角色包内容，不能表现为{{user}}精准点名召唤某角色。请根据角色包、已写入世界书、前端初始变量和各角色出场提示词，在本轮剧情中安排对应角色登场；第一回合必须按“待AI补充变量字段”逐项补齐变量，尤其是档案和第一人称心理；工作价值已是前端按人设估算的0-20数字，不要在第一回合为了补全而覆盖它。后续只按剧情变化更新变量。"
     };
   }
 
@@ -11703,7 +11979,7 @@ button.st-work-notice{cursor:pointer}
       encounterSetStatus(page, "初始变量校验失败：" + (error?.message || error));
       return;
     }
-	    const ok = window.confirm("购买后会直接向当前对话独有的 Chat Lorebook 新增条目，并在当前变量中创建角色初始变量；如果当前对话没有绑定世界书，会先创建并绑定一本。世界书增加不可撤销，只能之后手动删除；变量可以通过删除楼层恢复。确认使用这个角色包？");
+	    const ok = window.confirm("这是一次购买桃花运：前端会扣除星光点，并在剧情中让APP暗中安排你遇到角色；{{user}}在剧情里不知道会是谁。\n\n购买后会直接向当前对话独有的 Chat Lorebook 新增条目，并在当前变量中创建角色初始变量；如果当前对话没有绑定世界书，会先创建并绑定一本。世界书增加不可撤销，只能之后手动删除；变量可以通过删除楼层恢复。确认使用这个角色包？");
     if (!ok) return;
     encounterSetStatus(page, "正在使用角色包...");
     const snapshot = await encounterReadCharacterWorldEntries(pkg);
@@ -11744,6 +12020,7 @@ button.st-work-notice{cursor:pointer}
 	      encounterSetStatus(page, "当前对话世界书写入失败，已尝试退回星光点。失败条目：" + worldbook.failed.slice(0, 2).join("；"));
       return;
     }
+    page.dataset.encounterCurrentWorldbook = worldbook.targetWorldbook || page.dataset.encounterCurrentWorldbook || "";
     const cached = encounterCacheRoleImages(effectivePkg);
     encounterMarkPurchased(pkg.id);
     Promise.resolve(appendAppOperation(encounterPurchasePayload(effectivePkg, {
@@ -13181,6 +13458,23 @@ button.st-work-notice{cursor:pointer}
     }
   }
 
+  function clearOperationSidePanelWithWarning() {
+    const items = getPendingOperationViews();
+    if (!items.length) return false;
+    const lockedCount = items.filter((item) => Boolean(item.locked)).length;
+    const removableCount = Math.max(0, items.length - lockedCount);
+    if (!removableCount) {
+      window.alert?.("暂存区里只有锁定操作，不能清空。角色包/角色购买等已产生前端副作用的操作会一直保留到确认写入。");
+      return false;
+    }
+    const message = "确认清空暂存区里的 " + removableCount + " 条未锁定操作？"
+      + (lockedCount ? "\n\n另外 " + lockedCount + " 条锁定操作会保留，例如角色包/角色购买或进行中的派遣、打工锁。" : "")
+      + "\n\n清空后这些未锁定操作不会写入本轮输入。";
+    if (!window.confirm?.(message)) return false;
+    window.__ST_CLEAR_OPERATION_INPUT_LOG__?.();
+    return true;
+  }
+
   function formatOperationPanelTime(value) {
     const date = new Date(Number(value || 0));
     if (Number.isNaN(date.getTime()) || Number(value || 0) <= 0) return "刚刚";
@@ -13337,7 +13631,7 @@ button.st-work-notice{cursor:pointer}
       event.stopPropagation();
       const action = actionButton.dataset.operationPanelAction;
       if (action === "clear") {
-        window.__ST_CLEAR_OPERATION_INPUT_LOG__?.();
+        clearOperationSidePanelWithWarning();
         updateOperationSidePanel();
         return;
       }
