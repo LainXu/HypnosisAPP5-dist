@@ -4672,13 +4672,23 @@ button.st-work-notice{cursor:pointer}
     return ST_SENSITIVITY_STATS.includes(label) || ST_MALE_SENSITIVITY_STATS.includes(label);
   }
 
-  function roleSensitivityStats(roleData) {
+  function bodyStatDisplayLabel(label) {
+    return String(label || "").replace(/睾丸/g, "蛋蛋");
+  }
+
+  function roleSensitivityStats(roleData, roleName = "") {
+    if (isOtakuRoleName(roleName)) {
+      return isOtakuFemaleForm(roleName, roleData) ? ST_SENSITIVITY_STATS : ST_MALE_SENSITIVITY_STATS;
+    }
     const hasMale = ST_MALE_SENSITIVITY_STATS.some((label) => roleData && Object.prototype.hasOwnProperty.call(roleData, label));
     const hasFemale = ST_SENSITIVITY_STATS.some((label) => roleData && Object.prototype.hasOwnProperty.call(roleData, label));
     return hasMale && !hasFemale ? ST_MALE_SENSITIVITY_STATS : ST_SENSITIVITY_STATS;
   }
 
-  function roleCountStats(roleData) {
+  function roleCountStats(roleData, roleName = "") {
+    if (isOtakuRoleName(roleName)) {
+      return isOtakuFemaleForm(roleName, roleData) ? ST_COUNT_STATS : ST_MALE_COUNT_STATS;
+    }
     const hasMale = ST_MALE_COUNT_STATS.some((label) => roleData && Object.prototype.hasOwnProperty.call(roleData, label));
     const hasFemale = ST_COUNT_STATS.some((label) => roleData && Object.prototype.hasOwnProperty.call(roleData, label));
     return hasMale && !hasFemale ? ST_MALE_COUNT_STATS : ST_COUNT_STATS;
@@ -4728,14 +4738,14 @@ button.st-work-notice{cursor:pointer}
       ? '<span class="st-meter-overflow">+' + escapeHtml(formatStatNumber(number - maxValue)) + '</span>'
       : "";
     return '<article class="st-meter ' + tone + '" style="--pct:' + percent + '%">' +
-      '<div class="st-meter-top"><span class="st-meter-label">' + escapeHtml(label) + '</span>' +
+      '<div class="st-meter-top"><span class="st-meter-label">' + escapeHtml(bodyStatDisplayLabel(label)) + '</span>' +
       '<span class="st-meter-value">' + escapeHtml(display) + '<span class="st-meter-percent">' + roundedPercent + '%</span>' + overflowBadge + '</span></div>' +
       '<div class="st-meter-track"><span class="st-meter-fill"></span></div>' +
       '</article>';
   }
 
   function shortCountLabel(label) {
-    return label.replace("高潮次数", "高潮");
+    return bodyStatDisplayLabel(label).replace("高潮次数", "高潮");
   }
 
   function renderCountStat(label, value) {
@@ -4775,9 +4785,9 @@ button.st-work-notice{cursor:pointer}
       const ratio = Math.max(0, Math.min(100, number)) / 100;
       const point = radarPoint(cx, cy, radius, index, ratio);
       const labelPoint = radarPoint(cx, cy, labelRadius, index, 1);
-      const valuePoint = radarPoint(cx, cy, labelRadius + 10, index, 1);
       const anchor = Math.abs(labelPoint.x - cx) < 4 ? "middle" : (labelPoint.x < cx ? "end" : "start");
-      return { label, number, point, labelPoint, valuePoint, anchor, tone: radarToneClass(number) };
+      const valueY = labelPoint.y + (labelPoint.y < cy - 18 ? -11 : 13);
+      return { label, number, point, labelPoint, valueY, anchor, tone: radarToneClass(number) };
     });
     const shape = values.map((item) => item.point.x.toFixed(1) + "," + item.point.y.toFixed(1)).join(" ");
     const axes = ST_CORE_STATS.map((_, index) => {
@@ -4789,7 +4799,7 @@ button.st-work-notice{cursor:pointer}
     )).join("");
     const labels = values.map((item) => (
       '<text class="st-profile-radar-label" x="' + item.labelPoint.x.toFixed(1) + '" y="' + item.labelPoint.y.toFixed(1) + '" text-anchor="' + item.anchor + '">' + escapeHtml(item.label) + '</text>' +
-      '<text class="st-profile-radar-value" x="' + item.valuePoint.x.toFixed(1) + '" y="' + item.valuePoint.y.toFixed(1) + '" text-anchor="' + item.anchor + '">' + escapeHtml(formatStatNumber(item.number)) + '</text>'
+      '<text class="st-profile-radar-value" x="' + item.labelPoint.x.toFixed(1) + '" y="' + item.valueY.toFixed(1) + '" text-anchor="' + item.anchor + '">' + escapeHtml(formatStatNumber(item.number)) + '</text>'
     )).join("");
     return '<div class="st-profile-radar-card">' +
       '<svg viewBox="0 0 200 200" role="img" aria-label="五维状态雷达图">' +
@@ -5784,14 +5794,14 @@ button.st-work-notice{cursor:pointer}
 
   function isOtakuFemaleForm(roleName, roleData) {
     if (!isOtakuRoleName(roleName)) return false;
-    const profile = roleProfileData(roleName, roleData);
+    const profile = isPlainObject(roleData?.["档案"]) ? roleData["档案"] : {};
     const hasFemaleProfile = Boolean(effectScalar(profile?.["三围"]).trim());
     const hasFemaleStats = ST_SENSITIVITY_STATS.some((label) => roleData && Object.prototype.hasOwnProperty.call(roleData, label))
       || ST_COUNT_STATS.some((label) => roleData && Object.prototype.hasOwnProperty.call(roleData, label));
     const hasMaleLength = Boolean(effectScalar(profile?.["阴茎长度"]).trim());
     const hasMaleStats = ST_MALE_SENSITIVITY_STATS.some((label) => roleData && Object.prototype.hasOwnProperty.call(roleData, label))
       || ST_MALE_COUNT_STATS.some((label) => roleData && Object.prototype.hasOwnProperty.call(roleData, label));
-    return hasFemaleProfile || (hasFemaleStats && !hasMaleStats && !hasMaleLength);
+    return (hasFemaleProfile || hasFemaleStats) && !hasMaleStats && !hasMaleLength;
   }
 
   function canRequestOtakuFemaleTransform(roleName, roleData) {
@@ -5822,9 +5832,16 @@ button.st-work-notice{cursor:pointer}
     return "未记录";
   }
 
-  function personProfileInfoFields(roleName, profile) {
-    const hasFemaleMeasurement = Boolean(effectScalar(profile?.["三围"]).trim());
-    const hasMaleLength = !hasFemaleMeasurement && (Boolean(effectScalar(profile?.["阴茎长度"]).trim()) || isOtakuRoleName(roleName));
+  function personProfileInfoFields(roleName, profile, roleData = null) {
+    if (isOtakuRoleName(roleName)) {
+      if (isOtakuFemaleForm(roleName, roleData)) return PERSON_PROFILE_INFO_FIELDS;
+      return PERSON_PROFILE_INFO_FIELDS.map((field) => field.key === "三围"
+        ? { key: "阴茎长度", label: "阴茎长度" }
+        : field);
+    }
+    const hasMaleLengthValue = Boolean(effectScalar(profile?.["阴茎长度"]).trim());
+    const hasFemaleMeasurement = Boolean(effectScalar(profile?.["三围"]).trim()) && !hasMaleLengthValue;
+    const hasMaleLength = !hasFemaleMeasurement && hasMaleLengthValue;
     if (!hasMaleLength) return PERSON_PROFILE_INFO_FIELDS;
     return PERSON_PROFILE_INFO_FIELDS.map((field) => field.key === "三围"
       ? { key: "阴茎长度", label: "阴茎长度" }
@@ -5883,7 +5900,8 @@ button.st-work-notice{cursor:pointer}
       "当前服从度": statNumber(statValue(roleData, "服从度"), 0),
       "预计耗时": "3小时",
       "用户选择": "接受催眠APP提供的可拒绝选项，让APP暂时带走阿宅并在数小时后归还女性化后的阿宅；未点击此按钮即视为拒绝。",
-      "变量改写": "replace /角色/" + roleName + " 为女性格式；保留好感度、警戒度、服从度、性欲、快感值、是否派遣中、工作价值、临时催眠效果和永久催眠效果；移除阴茎长度、男性敏感度和男性高潮次数字段；改用三围、女性敏感度和女性高潮次数。",
+      "变量改写": "replace /角色/" + roleName + " 为女性格式；同一时间只能保留男女其中一套身体字段。保留好感度、警戒度、服从度、性欲、快感值、是否派遣中、工作价值、临时催眠效果和永久催眠效果；移除阴茎长度、男性敏感度和男性高潮次数字段；改用三围、女性敏感度和女性高潮次数。",
+      "必须删除字段": ["档案.阴茎长度", "阴茎敏感度", "龟头敏感度", "睾丸敏感度", "前列腺敏感度", "阴茎高潮次数", "龟头高潮次数", "睾丸高潮次数", "前列腺高潮次数"],
       "女性化变量模板": otakuFemaleVariableTemplate(roleName, roleData),
       "AI执行规范": "仅当" + roleName + "好感度>=100且服从度>=100并且尚未女性化时成功；成功后推进当前时间约3小时并更新阿宅变量。若条件不满足、用户反悔或剧情强阻碍，则不改变量。"
     };
@@ -5900,17 +5918,16 @@ button.st-work-notice{cursor:pointer}
       '</section>';
   }
 
-  function renderPersonStatePanel(roleData) {
-    const core = ST_CORE_STATS.map((label) => renderMeterStat(label, statValue(roleData, label))).join("");
-    const counts = roleCountStats(roleData).map((label) => renderCountStat(label, statValue(roleData, label))).join("");
+  function renderPersonStatePanel(roleName, roleData) {
+    const counts = roleCountStats(roleData, roleName).map((label) => renderCountStat(label, statValue(roleData, label))).join("");
     return '<section class="st-person-lines is-body">' +
-      renderPersonPanel("状态", renderPersonRadar(roleData) + '<div class="st-meter-grid is-core">' + core + '</div>', "超出100贴边，低于0归心") +
+      renderPersonPanel("状态", renderPersonRadar(roleData), "超出100贴边，低于0归心") +
       renderPersonPanel("次数", '<div class="st-count-grid">' + counts + '</div>') +
       '</section>';
   }
 
-  function renderPersonSensitivityPanel(roleData) {
-    const sensitivity = roleSensitivityStats(roleData).map((label) => renderMeterStat(label, statValue(roleData, label))).join("");
+  function renderPersonSensitivityPanel(roleName, roleData) {
+    const sensitivity = roleSensitivityStats(roleData, roleName).map((label) => renderMeterStat(label, statValue(roleData, label))).join("");
     return '<section class="st-person-lines is-body">' +
       renderPersonPanel("敏感度", '<div class="st-meter-grid">' + sensitivity + '</div>', "1000 为满刻度") +
       '</section>';
@@ -6252,7 +6269,7 @@ button.st-work-notice{cursor:pointer}
     const profile = staticIsaac ? PERSON_PROFILE_EASTER.profile : roleProfileData(roleName, roleData);
     const photo = staticIsaac ? PERSON_PROFILE_EASTER.photo : profilePhotoSource(roleName, roleData);
     const activeTab = activePersonProfileTab(page);
-    const fields = activeTab === "info" ? personProfileInfoFields(roleName, profile) : PERSON_PROFILE_CLOTHING_FIELDS;
+    const fields = activeTab === "info" ? personProfileInfoFields(roleName, profile, roleData) : PERSON_PROFILE_CLOTHING_FIELDS;
     const animationClass = direction < 0 ? " is-enter-left" : direction > 0 ? " is-enter-right" : "";
     const selectedValue = staticIsaac ? "" : roleName;
     const profileSearchValue = page.dataset.profileSearch || "";
@@ -6267,9 +6284,9 @@ button.st-work-notice{cursor:pointer}
       '<button class="st-person-tab ' + (activeTab === tab.id ? "active" : "") + '" type="button" data-profile-action="' + escapeAttr(tab.id) + '">' + escapeHtml(tab.label) + '</button>'
     )).join("");
     const contentHtml = activeTab === "state"
-      ? renderPersonStatePanel(roleData)
+      ? renderPersonStatePanel(roleName, roleData)
       : activeTab === "sensitivity"
-        ? renderPersonSensitivityPanel(roleData)
+        ? renderPersonSensitivityPanel(roleName, roleData)
         : activeTab === "effects"
           ? renderPersonEffectsPanel(roleName, roleData)
           : '<section class="st-person-lines">' + fieldsHtml + '</section>';
