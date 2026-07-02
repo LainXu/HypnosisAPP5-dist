@@ -1965,7 +1965,8 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-monitor-hit:hover{background:rgba(103,232,249,.06)}
 .st-monitor-door-wrap{position:absolute;top:0;z-index:3;width:33.333333%;height:100%;transform:translateX(-50%);pointer-events:none}
 .st-monitor-door{display:block;width:100%;height:100%;object-fit:fill;image-rendering:auto;filter:drop-shadow(0 3px 5px rgba(0,0,0,.38))}
-.st-monitor-nameplate{position:absolute;left:50%;top:14%;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;text-orientation:upright;max-height:70%;min-width:22px;padding:6px 3px;border:1px solid rgba(15,23,42,.22);border-radius:4px;background:rgba(255,255,255,.92);box-shadow:0 1px 3px rgba(0,0,0,.18);color:#1f2937;font-size:10px;font-weight:900;letter-spacing:.08em;transform:translateX(-50%)}
+.st-monitor-nameplate{position:absolute;left:50%;top:18%;box-sizing:border-box;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;text-orientation:upright;max-height:58%;min-width:24px;padding:9px 4px 7px;border:1px solid rgba(188,174,146,.82);border-radius:2px;background:linear-gradient(180deg,#fffdf7,#f3ead8);box-shadow:0 1px 2px rgba(0,0,0,.2);color:#172033;font-size:10px;font-weight:900;line-height:1.08;letter-spacing:.04em;transform:translateX(-50%) rotate(-1deg)}
+.st-monitor-nameplate::before{content:"";position:absolute;left:50%;top:-6px;width:22px;height:8px;border-radius:1px;background:rgba(246,238,214,.82);box-shadow:0 1px 1px rgba(15,23,42,.1);transform:translateX(-50%) rotate(2deg)}
 .st-monitor-blue-baby{position:absolute;left:83.333333%;bottom:8%;z-index:2;display:grid;justify-items:center;width:14%;transform:translateX(-50%);pointer-events:none}
 .st-monitor-blue-baby img{display:block;width:100%;max-width:54px;aspect-ratio:1;object-fit:contain;image-rendering:auto;filter:drop-shadow(0 2px 3px rgba(0,0,0,.45)) saturate(1.15)}
 .st-monitor-gates{display:grid;grid-template-columns:1fr;gap:9px}
@@ -2723,7 +2724,11 @@ button.st-work-notice{cursor:pointer}
 .st-person-picker{position:relative;width:100%;display:grid;grid-template-columns:minmax(0,1fr) 30px minmax(72px,.62fr);gap:6px;align-items:center}
 .st-person-select,.st-person-favorite,.st-person-search{min-width:0;height:28px;border:1px solid rgba(81,64,49,.24);border-radius:999px;background:rgba(247,241,229,.64);color:#3b3025;outline:none;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;box-shadow:inset 0 1px 0 rgba(255,255,255,.38),0 2px 8px rgba(60,45,32,.06)}
 .st-person-select{position:relative;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:0 9px 0 11px;font-size:12px;font-weight:900;text-align:left;cursor:pointer;white-space:nowrap;overflow:hidden}
-.st-person-select>span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.st-person-select>span{position:relative;display:inline-block;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.st-person-select-oldname{position:relative;display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom;color:rgba(68,54,42,.66)}
+.st-person-select-oldname::before,.st-person-select-oldname::after{content:"";position:absolute;left:-2px;right:-2px;height:1px;background:rgba(137,69,54,.56);pointer-events:none}
+.st-person-select-oldname::before{top:44%;box-shadow:0 4px 0 rgba(137,69,54,.28);transform:rotate(-2deg)}
+.st-person-select-oldname::after{top:58%;opacity:.36;transform:rotate(2deg)}
 .st-person-select::after{content:"";flex:0 0 auto;width:7px;height:7px;border-right:2px solid rgba(68,54,42,.68);border-bottom:2px solid rgba(68,54,42,.68);transform:translateY(-2px) rotate(45deg);transition:transform .16s ease}
 .st-person-picker.is-open .st-person-select::after{transform:translateY(2px) rotate(225deg)}
 .st-person-favorite{display:grid;place-items:center;padding:0;font-size:14px;font-weight:950;line-height:1;cursor:pointer;color:rgba(68,54,42,.5);background:rgba(247,241,229,.38)}
@@ -2758,6 +2763,10 @@ button.st-work-notice{cursor:pointer}
 .st-person-line.is-name strong .st-profile-renamed{display:inline-flex;align-items:baseline;gap:8px;max-width:100%;min-width:0;overflow:hidden;white-space:nowrap}
 .st-person-line.is-name strong .st-profile-renamed-old{flex:0 1 auto;max-width:62%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .st-person-line.is-name strong .st-profile-renamed-new{flex:0 0 auto;max-width:38%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-person-line.is-name strong .st-profile-name-struck{position:relative;display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(48,38,29,.72)}
+.st-person-line.is-name strong .st-profile-name-struck::before,.st-person-line.is-name strong .st-profile-name-struck::after{content:"";position:absolute;left:-2px;right:-2px;height:1px;background:rgba(137,69,54,.56);pointer-events:none}
+.st-person-line.is-name strong .st-profile-name-struck::before{top:44%;box-shadow:0 5px 0 rgba(137,69,54,.28);transform:rotate(-2deg)}
+.st-person-line.is-name strong .st-profile-name-struck::after{top:58%;opacity:.36;transform:rotate(2deg)}
 .st-person-line:not(.is-name) strong .st-profile-renamed-old,.st-person-line:not(.is-name) strong .st-profile-renamed-new{white-space:normal;overflow-wrap:anywhere}
 .st-person-line.is-long strong{font-size:13px;line-height:1.42}
 .st-person-lines.is-body{gap:9px}
@@ -6368,7 +6377,11 @@ button.st-work-notice{cursor:pointer}
 	    const favorite = Boolean(selectedValue) && isFavoriteRoleName(selectedValue);
 	    const selectedRoleData = isPlainObject(roles?.[selectedValue]) ? roles[selectedValue] : {};
 	    const selectedNickname = !staticView && selectedValue ? roleNickname(selectedValue, selectedRoleData) : "";
-	    const selectedLabelHtml = staticView ? "彩蛋档案" : (selectedValue ? escapeHtml(selectedValue) : (roleNames.length ? escapeHtml(roleNames[0]) : "没有角色档案"));
+	    const selectedLabelHtml = staticView
+	      ? "彩蛋档案"
+	      : (selectedValue
+	        ? '<span class="' + (selectedNickname ? "st-person-select-oldname" : "") + '">' + escapeHtml(selectedValue) + '</span>'
+	        : (roleNames.length ? escapeHtml(roleNames[0]) : "没有角色档案"));
     const menuHtml = visibleNames.length
       ? visibleNames.map((name) => {
           const isSelected = selectedValue === name;
@@ -6967,12 +6980,16 @@ button.st-work-notice{cursor:pointer}
     const selectedValue = staticIsaac ? "" : roleName;
     const profileSearchValue = page.dataset.profileSearch || "";
     const pickerOpen = page.dataset.profilePickerOpen === "true";
-    const fieldsHtml = fields.map((field) => (
-      '<div class="st-person-line ' + (field.long ? "is-long" : "") + (field.key === "姓名" ? " is-name" : "") + '">' +
+    const fieldsHtml = fields.map((field) => {
+      const text = profileFieldText(profile, roleName, field);
+      const valueHtml = field.key === "姓名" && !staticIsaac && roleNickname(roleName, roleData)
+        ? '<span class="st-profile-name-struck">' + escapeHtml(text) + '</span>'
+        : escapeHtml(text);
+      return '<div class="st-person-line ' + (field.long ? "is-long" : "") + (field.key === "姓名" ? " is-name" : "") + '">' +
         '<span>' + escapeHtml(field.label) + '</span>' +
-        '<strong>' + escapeHtml(profileFieldText(profile, roleName, field)) + '</strong>' +
-      '</div>'
-    )).join("");
+        '<strong>' + valueHtml + '</strong>' +
+      '</div>';
+    }).join("");
     const tabsHtml = PERSON_PROFILE_TABS.map((tab) => (
       '<button class="st-person-tab ' + (activeTab === tab.id ? "active" : "") + '" type="button" data-profile-action="' + escapeAttr(tab.id) + '">' + escapeHtml(tab.label) + '</button>'
     )).join("");
