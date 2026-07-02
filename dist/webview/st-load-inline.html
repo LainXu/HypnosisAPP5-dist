@@ -2654,7 +2654,7 @@ button.st-work-notice{cursor:pointer}
 .st-profile-app .st-app-island{max-width:300px}
 .st-profile-body{padding:0;display:grid;place-items:stretch;background:radial-gradient(circle at 22% 10%,rgba(255,238,184,.18),transparent 30%),linear-gradient(135deg,#6f4428,#3f2619 58%,#21140e)}
 .st-profile-body.is-desk{padding:58px 18px 18px;align-content:center}
-.st-profile-body.is-detail{padding:46px 14px 4px;place-items:center;overflow:hidden}
+.st-profile-body.is-detail{padding:34px 14px 4px;place-items:center;overflow:hidden}
 .st-profile-desk{position:relative;width:100%;height:100%;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:12px 14px;align-items:center}
 .st-profile-desk-wrap{position:relative;min-width:0;min-height:0;width:min(100%,128px);justify-self:center;align-self:center;aspect-ratio:336/520;transform:rotate(var(--rot,0deg))}
 .st-profile-desk-wrap:nth-child(1){--rot:-5deg}.st-profile-desk-wrap:nth-child(2){--rot:4deg}.st-profile-desk-wrap:nth-child(3){--rot:2deg}.st-profile-desk-wrap:nth-child(4){--rot:-3deg}.st-profile-desk-wrap:nth-child(5){--rot:5deg}.st-profile-desk-wrap:nth-child(6){--rot:-2deg}
@@ -2683,7 +2683,7 @@ button.st-work-notice{cursor:pointer}
 .st-profile-mini-line span{color:rgba(68,54,42,.66);font-size:7px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
 .st-profile-desk-empty{align-self:center;justify-self:center;color:rgba(255,248,237,.72);font-size:13px;font-weight:850}
 .st-profile-detail-stage{position:relative;width:100%;height:100%;display:grid;place-items:start center}
-.st-profile-paper-stack{position:absolute;inset:24px -4px 8px -4px;pointer-events:none;z-index:0}
+.st-profile-paper-stack{position:absolute;inset:12px -4px 8px -4px;pointer-events:none;z-index:0}
 .st-profile-paper-stack::before,.st-profile-paper-stack::after,.st-profile-paper-stack span{content:"";position:absolute;border:1px solid rgba(81,64,49,.22);border-radius:5px;background:#eee4d3;box-shadow:0 12px 26px rgba(24,14,9,.24);pointer-events:none}
 .st-profile-paper-stack::before{left:-10px;right:42px;top:46px;bottom:20px;transform:rotate(-7deg)}
 .st-profile-paper-stack::after{left:42px;right:-12px;top:25px;bottom:8px;background:#f2eadc;transform:rotate(6deg)}
@@ -2693,7 +2693,7 @@ button.st-work-notice{cursor:pointer}
 .st-profile-paper-stack i:nth-child(4){left:auto;right:24px;top:122px;width:34%;transform:rotate(6deg)}
 .st-profile-paper-stack i:nth-child(5){left:58px;top:166px;width:28%;transform:rotate(-2deg)}
 .st-profile-paper-stack i:nth-child(6){left:auto;right:58px;top:202px;width:30%;transform:rotate(8deg)}
-.st-person-paper{position:relative;z-index:2;width:min(100%,336px);height:calc(100% + 56px);max-height:none;overflow:auto;border-radius:5px;background:#f7f1e5;color:#33291f;font-family:"Songti SC","STSong","Noto Serif SC",serif;box-shadow:0 18px 36px rgba(24,14,9,.36),inset 0 0 0 2px rgba(81,64,49,.55),inset 0 0 0 8px #f7f1e5;padding:28px 24px 18px;scrollbar-width:none}
+.st-person-paper{position:relative;z-index:2;width:min(100%,336px);height:calc(100% + 68px);max-height:none;overflow:auto;border-radius:5px;background:#f7f1e5;color:#33291f;font-family:"Songti SC","STSong","Noto Serif SC",serif;box-shadow:0 18px 36px rgba(24,14,9,.36),inset 0 0 0 2px rgba(81,64,49,.55),inset 0 0 0 8px #f7f1e5;padding:18px 24px 18px;scrollbar-width:none}
 .st-person-paper::-webkit-scrollbar{display:none}
 .st-person-back,.st-person-paper-nav{position:absolute;z-index:4;border:1px solid rgba(81,64,49,.5);background:rgba(247,241,229,.92);color:#44362a;display:grid;place-items:center;cursor:pointer;box-shadow:0 2px 7px rgba(60,45,32,.18);pointer-events:auto}
 .st-person-back{top:18px;left:18px;width:28px;height:28px;border-radius:999px;font-size:23px;line-height:1}
@@ -2701,8 +2701,8 @@ button.st-work-notice{cursor:pointer}
 .st-person-desk-return span{font-size:12px;line-height:1}
 .st-person-desk-return:hover{background:rgba(247,241,229,.9);color:rgba(61,47,37,.92)}
 .st-person-desk-return:active{transform:scale(.96)}
-.st-person-photo-wrap{position:relative;z-index:1;width:62%;max-width:198px;margin:0 auto 8px}
-.st-profile-app .st-person-photo-wrap{position:static;width:62%;max-width:198px;margin:0 auto 8px}
+.st-person-photo-wrap{position:relative;z-index:1;width:60%;max-width:190px;margin:0 auto 6px}
+.st-profile-app .st-person-photo-wrap{position:static;width:60%;max-width:190px;margin:0 auto 6px}
 .st-person-paper-nav{top:50%;width:28px;height:54px;border-radius:999px;font-size:30px;line-height:1;transform:translateY(-50%)}
 .st-person-paper-nav[data-profile-action="prev"]{left:-33px}
 .st-person-paper-nav[data-profile-action="next"]{right:-33px}
@@ -2712,13 +2712,15 @@ button.st-work-notice{cursor:pointer}
 .st-profile-app .st-person-paper-nav[data-profile-action="next"]{right:10px}
 .st-person-back:active{transform:scale(.96)}
 .st-person-paper-nav:active{transform:translateY(-50%) scale(.96)}
-.st-person-paper-head{position:relative;z-index:1;text-align:center;margin:0 0 6px}
-.st-person-paper-head small{display:flex;align-items:center;justify-content:center;gap:10px;margin:0 auto 5px;color:rgba(81,64,49,.58);font-size:13px;font-weight:900;letter-spacing:.08em;line-height:1}
+.st-person-paper-head{position:relative;z-index:1;text-align:center;margin:0 0 4px}
+.st-person-paper-head small{display:flex;align-items:center;justify-content:center;gap:10px;margin:0 auto 3px;color:rgba(81,64,49,.58);font-size:13px;font-weight:900;letter-spacing:.08em;line-height:1}
 .st-person-paper-head small::before,.st-person-paper-head small::after{content:"";width:58px;height:1px;background:rgba(81,64,49,.38)}
 .st-person-paper-head h2{margin:0;color:#403126;font-size:34px;line-height:1.05;letter-spacing:.1em;font-weight:900;text-shadow:0 1px 0 rgba(255,255,255,.65)}
-.st-person-picker{position:relative;z-index:2;width:92%;max-width:300px;margin:0 auto 7px;display:grid;grid-template-columns:minmax(0,1fr) 30px minmax(72px,.62fr);gap:6px;align-items:center}
-.st-person-select,.st-person-favorite,.st-person-search{min-width:0;height:32px;border:1px solid rgba(81,64,49,.24);border-radius:999px;background:rgba(247,241,229,.64);color:#3b3025;outline:none;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;box-shadow:inset 0 1px 0 rgba(255,255,255,.38),0 2px 8px rgba(60,45,32,.06)}
-.st-person-select{position:relative;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:2px 9px 2px 11px;font-size:12px;font-weight:900;text-align:left;cursor:pointer;white-space:nowrap;overflow:hidden}
+.st-person-picker-wrap{position:relative;z-index:2;width:92%;max-width:300px;margin:0 auto 6px}
+.st-person-picker-nickname{height:16px;margin:0 0 1px 13px;color:#7d3025;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;font-size:13px;font-weight:950;line-height:16px;white-space:nowrap;overflow:visible;text-shadow:0 1px 0 rgba(255,255,255,.46)}
+.st-person-picker{position:relative;width:100%;display:grid;grid-template-columns:minmax(0,1fr) 30px minmax(72px,.62fr);gap:6px;align-items:center}
+.st-person-select,.st-person-favorite,.st-person-search{min-width:0;height:28px;border:1px solid rgba(81,64,49,.24);border-radius:999px;background:rgba(247,241,229,.64);color:#3b3025;outline:none;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;box-shadow:inset 0 1px 0 rgba(255,255,255,.38),0 2px 8px rgba(60,45,32,.06)}
+.st-person-select{position:relative;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:0 9px 0 11px;font-size:12px;font-weight:900;text-align:left;cursor:pointer;white-space:nowrap;overflow:hidden}
 .st-person-select>span{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .st-person-select::after{content:"";flex:0 0 auto;width:7px;height:7px;border-right:2px solid rgba(68,54,42,.68);border-bottom:2px solid rgba(68,54,42,.68);transform:translateY(-2px) rotate(45deg);transition:transform .16s ease}
 .st-person-picker.is-open .st-person-select::after{transform:translateY(2px) rotate(225deg)}
@@ -2728,14 +2730,11 @@ button.st-work-notice{cursor:pointer}
 .st-person-search{background:rgba(247,241,229,.32);border-color:rgba(81,64,49,.14);color:rgba(68,54,42,.58);padding:0 9px;font-size:11px;font-weight:750}
 .st-person-search::placeholder{color:rgba(68,54,42,.34)}
 .st-person-select:focus,.st-person-favorite:focus,.st-person-search:focus{border-color:rgba(81,64,49,.38);background:rgba(247,241,229,.78);box-shadow:0 0 0 3px rgba(81,64,49,.08)}
-.st-person-menu{display:none;position:absolute;top:37px;left:0;right:78px;max-height:142px;overflow:auto;border:1px solid rgba(81,64,49,.44);border-radius:13px;background:rgba(72,65,56,.94);padding:5px;box-shadow:0 12px 26px rgba(45,34,24,.28),inset 0 1px 0 rgba(255,255,255,.14);backdrop-filter:blur(8px);scrollbar-width:none}
+.st-person-menu{display:none;position:absolute;top:33px;left:0;right:78px;max-height:142px;overflow:auto;border:1px solid rgba(81,64,49,.44);border-radius:13px;background:rgba(72,65,56,.94);padding:5px;box-shadow:0 12px 26px rgba(45,34,24,.28),inset 0 1px 0 rgba(255,255,255,.14);backdrop-filter:blur(8px);scrollbar-width:none}
 .st-person-menu::-webkit-scrollbar{display:none}
 .st-person-picker.is-open .st-person-menu{display:grid;gap:3px}
 .st-person-option{width:100%;min-width:0;height:28px;border:0;border-radius:9px;background:transparent;color:#fff8ed;padding:0 8px;text-align:left;font-size:12px;font-weight:850;display:flex;align-items:center;gap:6px;cursor:pointer}
 .st-person-option strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:inherit;color:inherit}
-.st-person-select .st-profile-renamed{width:100%;display:inline-flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:1px;line-height:1;overflow:hidden}
-.st-person-select .st-profile-renamed-new{order:1;max-width:100%;color:#6d3828;font-size:12px;font-weight:950;line-height:1.05;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.st-person-select .st-profile-renamed-old{order:2;max-width:100%;color:rgba(68,54,42,.48);font-size:9px;font-weight:850;line-height:1.05;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .st-person-option small{margin-left:auto;color:rgba(255,232,180,.8);font-size:11px;font-weight:950}
 .st-person-option.active{background:rgba(247,241,229,.18);color:#fff7ed}
 .st-person-option:hover{background:rgba(247,241,229,.12)}
@@ -2752,7 +2751,7 @@ button.st-work-notice{cursor:pointer}
 .st-person-line span{color:#33291f;font-size:15px;font-weight:900;letter-spacing:.12em;white-space:nowrap}
 .st-person-line strong{min-width:0;color:#30261d;font-size:15px;font-weight:650;line-height:1.36;white-space:pre-wrap;overflow-wrap:anywhere}
 .st-person-line.is-name{align-items:center}
-.st-person-line.is-name strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px;line-height:1.2}
+.st-person-line.is-name strong{white-space:nowrap;overflow:visible;text-overflow:clip;font-size:16px;line-height:1.2;letter-spacing:0}
 .st-person-line strong .st-profile-renamed{font-size:16px}
 .st-person-line.is-name strong .st-profile-renamed{display:inline-flex;align-items:baseline;gap:8px;max-width:100%;min-width:0;overflow:hidden;white-space:nowrap}
 .st-person-line.is-name strong .st-profile-renamed-old{flex:0 1 auto;max-width:62%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -6275,9 +6274,10 @@ button.st-work-notice{cursor:pointer}
           return (name + " " + roleNickname(name, roleData)).toLocaleLowerCase("zh-CN").includes(query);
         })
       : roleNames;
-    const favorite = Boolean(selectedValue) && isFavoriteRoleName(selectedValue);
-    const selectedRoleData = isPlainObject(roles?.[selectedValue]) ? roles[selectedValue] : {};
-    const selectedLabelHtml = staticView ? "彩蛋档案" : (selectedValue ? profileDisplayNameHtml(selectedValue, selectedRoleData) : (roleNames.length ? escapeHtml(roleNames[0]) : "没有角色档案"));
+	    const favorite = Boolean(selectedValue) && isFavoriteRoleName(selectedValue);
+	    const selectedRoleData = isPlainObject(roles?.[selectedValue]) ? roles[selectedValue] : {};
+	    const selectedNickname = !staticView && selectedValue ? roleNickname(selectedValue, selectedRoleData) : "";
+	    const selectedLabelHtml = staticView ? "彩蛋档案" : (selectedValue ? escapeHtml(selectedValue) : (roleNames.length ? escapeHtml(roleNames[0]) : "没有角色档案"));
     const menuHtml = visibleNames.length
       ? visibleNames.map((name) => {
           const isSelected = selectedValue === name;
@@ -6288,13 +6288,16 @@ button.st-work-notice{cursor:pointer}
           '</button>';
         }).join("")
       : '<div class="st-person-option-empty">没有匹配角色</div>';
-    return '<div class="st-person-picker ' + (pickerOpen && !staticView ? "is-open" : "") + '">' +
-      '<button type="button" class="st-person-select" data-profile-picker-toggle aria-label="选择角色档案" aria-expanded="' + (pickerOpen && !staticView ? "true" : "false") + '"' + (staticView ? " disabled" : "") + '><span>' + selectedLabelHtml + '</span></button>' +
-      '<button type="button" class="st-person-favorite ' + (favorite ? "active" : "") + '" data-profile-favorite aria-label="' + (favorite ? "取消收藏" : "收藏角色") + '" aria-pressed="' + (favorite ? "true" : "false") + '"' + (!selectedValue || staticView ? " disabled" : "") + '>' + (favorite ? "★" : "☆") + '</button>' +
-      '<input class="st-person-search" type="search" data-profile-search value="' + escapeAttr(searchValue || "") + '" placeholder="搜索" autocomplete="off" aria-label="搜索角色档案">' +
-      '<div class="st-person-menu" role="listbox">' + menuHtml + '</div>' +
-    '</div>';
-  }
+	    return '<div class="st-person-picker-wrap">' +
+	      '<div class="st-person-picker-nickname" aria-hidden="true">' + (selectedNickname ? escapeHtml(selectedNickname) : "&nbsp;") + '</div>' +
+	      '<div class="st-person-picker ' + (pickerOpen && !staticView ? "is-open" : "") + '">' +
+	        '<button type="button" class="st-person-select" data-profile-picker-toggle aria-label="选择角色档案" aria-expanded="' + (pickerOpen && !staticView ? "true" : "false") + '"' + (staticView ? " disabled" : "") + '><span>' + selectedLabelHtml + '</span></button>' +
+	        '<button type="button" class="st-person-favorite ' + (favorite ? "active" : "") + '" data-profile-favorite aria-label="' + (favorite ? "取消收藏" : "收藏角色") + '" aria-pressed="' + (favorite ? "true" : "false") + '"' + (!selectedValue || staticView ? " disabled" : "") + '>' + (favorite ? "★" : "☆") + '</button>' +
+	        '<input class="st-person-search" type="search" data-profile-search value="' + escapeAttr(searchValue || "") + '" placeholder="搜索" autocomplete="off" aria-label="搜索角色档案">' +
+	        '<div class="st-person-menu" role="listbox">' + menuHtml + '</div>' +
+	      '</div>' +
+	    '</div>';
+	  }
 
 	  function profileStorageScope() {
 	    try {
@@ -6876,7 +6879,7 @@ button.st-work-notice{cursor:pointer}
     const fieldsHtml = fields.map((field) => (
       '<div class="st-person-line ' + (field.long ? "is-long" : "") + (field.key === "姓名" ? " is-name" : "") + '">' +
         '<span>' + escapeHtml(field.label) + '</span>' +
-        '<strong>' + (field.key === "姓名" && !staticIsaac ? profileDisplayNameHtml(roleName, roleData, "st-person-info-name") : escapeHtml(profileFieldText(profile, roleName, field))) + '</strong>' +
+        '<strong>' + escapeHtml(profileFieldText(profile, roleName, field)) + '</strong>' +
       '</div>'
     )).join("");
     const tabsHtml = PERSON_PROFILE_TABS.map((tab) => (
