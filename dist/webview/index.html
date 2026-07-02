@@ -5219,6 +5219,17 @@ button.st-work-notice{cursor:pointer}
     '</header>';
   }
 
+  function rerenderLitePagePreservingBodyScroll(page, rerender) {
+    const body = page?.querySelector?.(".st-lite-body");
+    const scrollTop = body ? body.scrollTop : 0;
+    try { document.activeElement?.blur?.(); } catch {}
+    rerender?.();
+    window.requestAnimationFrame(() => {
+      const nextBody = page?.querySelector?.(".st-lite-body");
+      if (nextBody) nextBody.scrollTop = scrollTop;
+    });
+  }
+
   function bindLiteHeader(page, rerender) {
     const island = page.querySelector("[data-lite-island]");
     if (island?.dataset.liteIslandSwitchable === "true") {
@@ -5243,7 +5254,7 @@ button.st-work-notice{cursor:pointer}
         const shift = Number(button.getAttribute("data-calendar-month-shift")) || 0;
         const current = Number(page.dataset.calendarMonthOffset || 0) || 0;
         page.dataset.calendarMonthOffset = String(current + shift);
-        rerender?.();
+        rerenderLitePagePreservingBodyScroll(page, rerender);
       });
     });
   }
@@ -5500,10 +5511,12 @@ button.st-work-notice{cursor:pointer}
       page.remove();
     });
     page.querySelectorAll("[data-calendar-day]").forEach((button) => {
-      button.addEventListener("click", () => {
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
         page.dataset.calendarSelectedMonth = button.getAttribute("data-calendar-month") || "";
         page.dataset.calendarSelectedDay = button.getAttribute("data-calendar-day") || "";
-        renderLiteCalendarPage(page);
+        rerenderLitePagePreservingBodyScroll(page, () => renderLiteCalendarPage(page));
       });
     });
   }
@@ -12072,9 +12085,9 @@ button.st-work-notice{cursor:pointer}
   };
   const GRAPH_CUSTOM_CATEGORY_VALUE = "__custom__";
   const SPECIAL_LOCATION_STATIC_ITEMS = [
-    { id: "tropical-rainforest", label: "热带雨林", category: "静态编码", info: "待续" },
-    { id: "babel", label: "巴别", category: "静态编码", info: "待续" },
-    { id: "university", label: "大学", category: "静态编码", info: "待续" }
+    { id: "tropical-rainforest", label: "热带雨林", category: "静态编码", info: "第1生物特别温室的热带雨林区，被强化玻璃半球笼罩。室内长期高温高湿，喷淋系统定时制造雾气，水汽、汗水和植物气味会迅速改变衣物与身体状态。" },
+    { id: "babel", label: "巴别", category: "静态编码", info: "旧图书馆塔楼“巴别”，位于校园西北角。红砖塔楼、镂空回旋梯、玻璃回廊、盲点书架和顶层静电阅览室让这里成为偏僻又容易发生意外的特殊地点。" },
+    { id: "university", label: "大学", category: "静态编码", info: "明德大学，紧邻私立斋明学园的开放式综合大学。这里有中央主楼、商学部、实验楼、图书馆、学生会馆、宿舍区和体育中心，是高中生与大学生圈层交汇的灰色地带。" }
   ];
 
 	  function graphScopeKey() {
@@ -12825,7 +12838,7 @@ button.st-work-notice{cursor:pointer}
           建议地点: {
             名称: location.label,
             分类: "特殊地点",
-            描述: "待续"
+            描述: location.info || "待续"
           },
           当前地点变量: getCurrentStoryLocation() || "未知",
           AI执行规范: "这只是用户希望剧情进入该特殊地点的建议；前端不能直接改当前地点。AI应按剧情、时间、权限和世界观判断是否成立，成立时更新/系统/当前地点并展开对应特殊地点剧情；不合理时可拒绝、延后或给出进入条件。"
