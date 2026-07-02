@@ -1794,9 +1794,8 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-mchan-title,.st-lite-title{display:none!important}
 .st-app-island{position:relative;grid-column:2;justify-self:center;width:100%;max-width:300px;min-width:0;height:36px;border:1px solid rgba(255,255,255,.12);border-radius:999px;background:linear-gradient(180deg,rgba(7,10,24,.92),rgba(2,5,16,.82));box-shadow:0 12px 28px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;gap:7px;padding:0 12px;overflow:hidden;color:#f8fafc;text-align:center}
 .st-app-island.is-switchable{border-color:rgba(103,232,249,.64);box-shadow:0 0 0 1px rgba(103,232,249,.18),0 0 22px rgba(34,211,238,.18),0 12px 28px rgba(0,0,0,.22);cursor:pointer}
-.st-app-island.is-status{border-color:rgba(250,204,21,.48);box-shadow:0 0 0 1px rgba(250,204,21,.14),0 12px 28px rgba(0,0,0,.22)}
-.st-app-island.is-hypnosis{border-color:rgba(244,114,182,.55);box-shadow:0 0 0 1px rgba(244,114,182,.16),0 0 22px rgba(244,114,182,.16),0 12px 28px rgba(0,0,0,.22)}
-.st-app-island.is-status,.st-app-island.is-hypnosis{display:block;padding:0;touch-action:pan-x}
+.st-app-island.is-status,.st-app-island.is-hypnosis{display:block;padding:0;touch-action:pan-x;user-select:none;border-color:rgba(216,180,254,.22);box-shadow:0 12px 28px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.06)}
+.st-app-island.is-status.is-switchable,.st-app-island.is-hypnosis.is-switchable{border-color:rgba(103,232,249,.64);box-shadow:0 0 0 1px rgba(103,232,249,.18),0 0 22px rgba(34,211,238,.18),0 12px 28px rgba(0,0,0,.22);cursor:pointer}
 .st-app-island small{font-size:9px;line-height:1;color:rgba(203,213,225,.66);font-weight:900;letter-spacing:.04em;white-space:nowrap}
 .st-app-island strong{display:block;min-width:0;color:#fff;font-size:13px;line-height:1.1;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .st-app-island .st-app-island-stack{min-width:0;width:100%;display:grid;gap:4px;align-content:center}
@@ -4584,10 +4583,14 @@ button.st-work-notice{cursor:pointer}
       root.appendChild(layer);
     }
     root.querySelector(":scope > .st-react-app-island-layer")?.remove();
-    if (layer.dataset.stIslandSignature === signature) return;
+    if (layer.dataset.stIslandSignature === signature) {
+      bindSharedIslandModeDrag(layer);
+      return;
+    }
     layer.dataset.stIslandSignature = signature;
     layer.className = layerClass;
     layer.innerHTML = layerHtml;
+    bindSharedIslandModeDrag(layer);
     layer.querySelector("[data-react-island-back]")?.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
@@ -4650,10 +4653,14 @@ button.st-work-notice{cursor:pointer}
       '</div>' +
       '<span aria-hidden="true"></span>';
     const signature = layerClass + "|" + current.id + "|" + String(switchable) + "|" + layerHtml;
-    if (layer.dataset.stIslandSignature === signature) return;
+    if (layer.dataset.stIslandSignature === signature) {
+      bindSharedIslandModeDrag(layer);
+      return;
+    }
     layer.dataset.stIslandSignature = signature;
     layer.className = layerClass;
     layer.innerHTML = layerHtml;
+    bindSharedIslandModeDrag(layer);
     layer.querySelector("[data-react-island-back]")?.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
@@ -5575,9 +5582,15 @@ button.st-work-notice{cursor:pointer}
       sharedIslandModeIcon(kind) +
       '<strong>' + escapeHtml(fixedText) + '</strong>' +
     '</div>' +
-    '<div class="st-home-hypnosis-scroll">' +
+    '<div class="st-home-hypnosis-scroll" data-shared-island-scroll>' +
       '<span>' + escapeHtml(label || fixedText) + '</span>' +
     '</div>';
+  }
+
+  function bindSharedIslandModeDrag(root) {
+    root?.querySelectorAll?.("[data-shared-island-scroll]").forEach((scroller) => {
+      enableHorizontalDragScroll(scroller);
+    });
   }
 
   function hypnosisSubscriptionText(system) {
@@ -5652,6 +5665,7 @@ button.st-work-notice{cursor:pointer}
 
   function bindLiteHeader(page, rerender) {
     const island = page.querySelector("[data-lite-island]");
+    bindSharedIslandModeDrag(page);
     if (island?.dataset.liteIslandSwitchable === "true") {
       const switchMode = (event) => {
         if (event?.target?.closest?.("[data-lite-island-control]")) return;
