@@ -2533,11 +2533,11 @@ button.st-work-notice{cursor:pointer}
 #st-operation-side-panel{box-sizing:border-box;min-width:0;height:var(--st-phone-panel-height,min(844px,calc(100vh - 8px)));max-height:var(--st-phone-panel-height,min(844px,calc(100vh - 8px)));border:1px solid rgba(255,255,255,.1);border-radius:18px;background:linear-gradient(180deg,rgba(15,23,42,.96),rgba(2,6,23,.93));box-shadow:0 18px 44px rgba(0,0,0,.3);color:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden;display:flex;flex-direction:column;backdrop-filter:blur(16px)}
 .st-operation-panel-head{flex:0 0 auto;padding:12px 11px 10px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
 .st-operation-panel-title{display:grid;gap:4px;min-width:0}
-.st-operation-panel-title strong{font-size:13px;line-height:1.2;color:#fff}
-.st-operation-panel-title span{font-size:10px;line-height:1.35;color:rgba(203,213,225,.55)}
+.st-operation-panel-title strong{font-size:15px;line-height:1.2;color:#fff}
+.st-operation-panel-title span{display:none}
 .st-operation-panel-meta{flex:0 0 auto;display:flex;align-items:flex-start;gap:5px}
-.st-operation-resources{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:3px;max-width:108px}
-.st-operation-resource-pill{border:1px solid rgba(255,255,255,.1);border-radius:999px;background:rgba(255,255,255,.055);color:rgba(226,232,240,.8);padding:2px 5px;font-size:8px;font-weight:900;line-height:1.2;white-space:nowrap}
+.st-operation-resources{display:grid;justify-items:end;gap:4px;max-width:none}
+.st-operation-resource-pill{border:1px solid rgba(255,255,255,.1);border-radius:999px;background:rgba(255,255,255,.055);color:rgba(226,232,240,.8);padding:3px 8px;min-height:22px;font-size:12px;font-weight:950;line-height:1.15;white-space:nowrap;font-variant-numeric:tabular-nums}
 .st-operation-resource-pill.is-starlight{border-color:rgba(129,140,248,.22);background:rgba(99,102,241,.12);color:#c7d2fe}
 .st-operation-resource-pill.is-money{border-color:rgba(250,204,21,.18);background:rgba(250,204,21,.09);color:#fde68a}
 .st-operation-resource-pill.is-suspicion{border-color:rgba(251,113,133,.2);background:rgba(251,113,133,.09);color:#fecdd3}
@@ -2669,11 +2669,11 @@ button.st-work-notice{cursor:pointer}
 .st-profile-mini-picker i{font-style:normal;color:rgba(68,54,42,.44);font-size:11px;text-align:center}
 .st-profile-name-current{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .st-profile-renamed{display:inline-flex;align-items:baseline;gap:6px;max-width:100%;min-width:0;vertical-align:baseline}
-.st-profile-renamed-old{position:relative;display:inline-block;max-width:46%;min-width:0;color:rgba(68,54,42,.46);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.st-profile-renamed-old::before,.st-profile-renamed-old::after{content:"";position:absolute;left:-2px;right:-2px;height:1px;background:rgba(137,69,54,.5);pointer-events:none}
-.st-profile-renamed-old::before{top:43%;box-shadow:0 4px 0 rgba(137,69,54,.32);transform:rotate(-3deg)}
-.st-profile-renamed-old::after{top:57%;transform:rotate(2deg);opacity:.42}
-.st-profile-renamed-new{display:inline-block;max-width:54%;min-width:0;color:#6d3828;font-weight:950;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.st-profile-renamed-old{position:relative;display:inline-block;max-width:46%;min-width:0;color:rgba(68,54,42,.48);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.st-profile-renamed-old::before,.st-profile-renamed-old::after{content:"";position:absolute;left:-3px;right:-3px;height:2px;background:rgba(128,55,43,.72);border-radius:999px;pointer-events:none}
+.st-profile-renamed-old::before{top:43%;box-shadow:0 5px 0 rgba(128,55,43,.42);transform:rotate(-3deg)}
+.st-profile-renamed-old::after{top:59%;transform:rotate(2deg);opacity:.58}
+.st-profile-renamed-new{display:inline-block;max-width:54%;min-width:0;color:#763126;font-family:"HanziPen SC","Kaiti SC","STKaiti","YuKyokasho","Noto Serif SC",cursive;font-size:1.08em;font-weight:850;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transform:rotate(-.8deg);text-shadow:0 1px 0 rgba(255,255,255,.55)}
 .st-profile-mini-name{font-size:inherit}
 .st-profile-mini-photo{min-height:0;width:70%;max-width:76px;aspect-ratio:4/5;justify-self:center;border:2px double rgba(81,64,49,.38);background:#eee8dc;display:grid;place-items:center;overflow:hidden}
 .st-profile-mini-photo img{width:100%;height:100%;object-fit:cover;display:block}
@@ -2721,15 +2721,15 @@ button.st-work-notice{cursor:pointer}
 .st-person-paper-head small::before,.st-person-paper-head small::after{content:"";width:58px;height:1px;background:rgba(81,64,49,.38)}
 .st-person-paper-head h2{margin:0;color:#403126;font-size:34px;line-height:1.05;letter-spacing:.1em;font-weight:900;text-shadow:0 1px 0 rgba(255,255,255,.65)}
 .st-person-picker-wrap{position:relative;z-index:2;width:92%;max-width:300px;margin:0 auto 6px}
-.st-person-picker-nickname{height:16px;margin:0 0 1px 13px;color:#7d3025;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;font-size:13px;font-weight:950;line-height:16px;white-space:nowrap;overflow:visible;text-shadow:0 1px 0 rgba(255,255,255,.46)}
+.st-person-picker-nickname{min-height:18px;margin:0 0 1px 13px;color:#873226;font-family:"HanziPen SC","Kaiti SC","STKaiti","YuKyokasho","Noto Serif SC",cursive;font-size:17px;font-weight:850;line-height:18px;white-space:nowrap;overflow:visible;text-shadow:0 1px 0 rgba(255,255,255,.52);transform:rotate(-1deg)}
 .st-person-picker{position:relative;width:100%;display:grid;grid-template-columns:minmax(0,1fr) 30px minmax(72px,.62fr);gap:6px;align-items:center}
 .st-person-select,.st-person-favorite,.st-person-search{min-width:0;height:28px;border:1px solid rgba(81,64,49,.24);border-radius:999px;background:rgba(247,241,229,.64);color:#3b3025;outline:none;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;box-shadow:inset 0 1px 0 rgba(255,255,255,.38),0 2px 8px rgba(60,45,32,.06)}
 .st-person-select{position:relative;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:0 9px 0 11px;font-size:12px;font-weight:900;text-align:left;cursor:pointer;white-space:nowrap;overflow:hidden}
 .st-person-select>span{position:relative;display:inline-block;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 .st-person-select-oldname{position:relative;display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom;color:rgba(68,54,42,.66)}
-.st-person-select-oldname::before,.st-person-select-oldname::after{content:"";position:absolute;left:-2px;right:-2px;height:1px;background:rgba(137,69,54,.56);pointer-events:none}
-.st-person-select-oldname::before{top:44%;box-shadow:0 4px 0 rgba(137,69,54,.28);transform:rotate(-2deg)}
-.st-person-select-oldname::after{top:58%;opacity:.36;transform:rotate(2deg)}
+.st-person-select-oldname::before,.st-person-select-oldname::after{content:"";position:absolute;left:-3px;right:-3px;height:2px;background:rgba(128,55,43,.72);border-radius:999px;pointer-events:none}
+.st-person-select-oldname::before{top:44%;box-shadow:0 4px 0 rgba(128,55,43,.38);transform:rotate(-2deg)}
+.st-person-select-oldname::after{top:59%;opacity:.54;transform:rotate(2deg)}
 .st-person-select::after{content:"";flex:0 0 auto;width:7px;height:7px;border-right:2px solid rgba(68,54,42,.68);border-bottom:2px solid rgba(68,54,42,.68);transform:translateY(-2px) rotate(45deg);transition:transform .16s ease}
 .st-person-picker.is-open .st-person-select::after{transform:translateY(2px) rotate(225deg)}
 .st-person-favorite{display:grid;place-items:center;padding:0;font-size:14px;font-weight:950;line-height:1;cursor:pointer;color:rgba(68,54,42,.5);background:rgba(247,241,229,.38)}
@@ -2758,16 +2758,18 @@ button.st-work-notice{cursor:pointer}
 .st-person-line{display:grid;grid-template-columns:76px minmax(0,1fr);gap:8px;align-items:start;min-height:29px;border-bottom:1px dashed rgba(81,64,49,.35);padding:5px 0}
 .st-person-line span{color:#33291f;font-size:15px;font-weight:900;letter-spacing:.12em;white-space:nowrap}
 .st-person-line strong{min-width:0;color:#30261d;font-size:15px;font-weight:650;line-height:1.36;white-space:pre-wrap;overflow-wrap:anywhere}
-.st-person-line.is-name{align-items:center}
-.st-person-line.is-name strong{white-space:nowrap;overflow:visible;text-overflow:clip;font-size:16px;line-height:1.2;letter-spacing:0}
+.st-person-line.is-name{align-items:start}
+.st-person-line.is-name strong{white-space:normal;overflow:visible;text-overflow:clip;font-size:16px;line-height:1.25;letter-spacing:0}
 .st-person-line strong .st-profile-renamed{font-size:16px}
 .st-person-line.is-name strong .st-profile-renamed{display:inline-flex;align-items:baseline;gap:8px;max-width:100%;min-width:0;overflow:hidden;white-space:nowrap}
 .st-person-line.is-name strong .st-profile-renamed-old{flex:0 1 auto;max-width:62%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .st-person-line.is-name strong .st-profile-renamed-new{flex:0 0 auto;max-width:38%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.st-person-line.is-name strong .st-profile-name-struck{position:relative;display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(48,38,29,.72)}
-.st-person-line.is-name strong .st-profile-name-struck::before,.st-person-line.is-name strong .st-profile-name-struck::after{content:"";position:absolute;left:-2px;right:-2px;height:1px;background:rgba(137,69,54,.56);pointer-events:none}
-.st-person-line.is-name strong .st-profile-name-struck::before{top:44%;box-shadow:0 5px 0 rgba(137,69,54,.28);transform:rotate(-2deg)}
-.st-person-line.is-name strong .st-profile-name-struck::after{top:58%;opacity:.36;transform:rotate(2deg)}
+.st-person-line.is-name strong .st-profile-info-name{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:12px;row-gap:2px;max-width:100%;min-width:0;overflow:visible}
+.st-person-line.is-name strong .st-profile-info-nickname{flex:1 1 92px;min-width:0;color:#763126;font-family:"HanziPen SC","Kaiti SC","STKaiti","YuKyokasho","Noto Serif SC",cursive;font-size:19px;font-weight:850;line-height:1.16;white-space:normal;overflow-wrap:anywhere;word-break:break-word;transform:rotate(-.7deg);text-shadow:0 1px 0 rgba(255,255,255,.55)}
+.st-person-line.is-name strong .st-profile-name-struck{position:relative;display:inline-block;flex:0 1 auto;max-width:100%;overflow:visible;text-overflow:clip;white-space:nowrap;color:rgba(48,38,29,.72)}
+.st-person-line.is-name strong .st-profile-name-struck::before,.st-person-line.is-name strong .st-profile-name-struck::after{content:"";position:absolute;left:-3px;right:-3px;height:2px;background:rgba(128,55,43,.72);border-radius:999px;pointer-events:none}
+.st-person-line.is-name strong .st-profile-name-struck::before{top:44%;box-shadow:0 5px 0 rgba(128,55,43,.42);transform:rotate(-2deg)}
+.st-person-line.is-name strong .st-profile-name-struck::after{top:59%;opacity:.58;transform:rotate(2deg)}
 .st-person-line:not(.is-name) strong .st-profile-renamed-old,.st-person-line:not(.is-name) strong .st-profile-renamed-new{white-space:normal;overflow-wrap:anywhere}
 .st-person-line.is-long strong{font-size:13px;line-height:1.42}
 .st-person-lines.is-body{gap:9px}
@@ -6984,8 +6986,9 @@ button.st-work-notice{cursor:pointer}
     const pickerOpen = page.dataset.profilePickerOpen === "true";
     const fieldsHtml = fields.map((field) => {
       const text = profileFieldText(profile, roleName, field);
-      const valueHtml = field.key === "姓名" && !staticIsaac && roleNickname(roleName, roleData)
-        ? '<span class="st-profile-name-struck">' + escapeHtml(text) + '</span>'
+      const nickname = field.key === "姓名" && !staticIsaac ? roleNickname(roleName, roleData) : "";
+      const valueHtml = nickname
+        ? '<span class="st-profile-info-name"><span class="st-profile-name-struck">' + escapeHtml(text) + '</span><span class="st-profile-info-nickname">' + escapeHtml(nickname) + '</span></span>'
         : escapeHtml(text);
       return '<div class="st-person-line ' + (field.long ? "is-long" : "") + (field.key === "姓名" ? " is-name" : "") + '">' +
         '<span>' + escapeHtml(field.label) + '</span>' +
@@ -14896,7 +14899,7 @@ button.st-work-notice{cursor:pointer}
     const adviceHtml = operationPanelAdviceHtml(items, block);
     panel.innerHTML =
       '<header class="st-operation-panel-head">' +
-        '<div class="st-operation-panel-title"><strong>本轮操作</strong><span>确认前只暂存，不写变量也不发送。</span></div>' +
+        '<div class="st-operation-panel-title"><strong>本轮操作</strong></div>' +
         '<div class="st-operation-panel-meta">' + operationPanelResourcesHtml(resources) + '<span class="st-operation-count-pill">' + String(count) + '</span></div>' +
       '</header>' +
       '<div class="st-operation-panel-list">' + listHtml + '</div>' +
