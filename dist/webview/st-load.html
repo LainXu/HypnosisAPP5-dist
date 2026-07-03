@@ -2569,8 +2569,9 @@ button.st-work-notice{cursor:pointer}
 .st-encounter-package.is-used{opacity:.68;cursor:default;filter:saturate(.72)}
 .st-encounter-package.is-conflict{border-color:rgba(225,29,72,.22);background:rgba(255,241,242,.74)}
 .st-encounter-package.is-used .st-encounter-package-open:active{transform:none}
-.st-encounter-card-manage{position:absolute;right:7px;bottom:6px;z-index:2}
+.st-encounter-card-manage{position:absolute;right:7px;bottom:6px;z-index:2;display:flex;align-items:center;gap:5px}
 .st-encounter-card-manage button{height:22px;border:1px solid rgba(127,88,47,.14);border-radius:999px;background:rgba(255,250,243,.82);color:rgba(70,57,47,.62);padding:0 8px;font-size:9px;font-weight:950;cursor:pointer;box-shadow:0 4px 10px rgba(75,54,35,.08)}
+.st-encounter-card-manage button.danger{border-color:rgba(190,18,60,.18);background:rgba(255,241,242,.88);color:#be123c}
 .st-encounter-card-manage button:active{transform:scale(.96)}
 .st-encounter-card-manage.is-role{position:static;justify-self:start}
 .st-encounter-cover{height:100%;min-height:98px;background:linear-gradient(135deg,#fff6ed,#e8f7f2);display:grid;place-items:center;overflow:hidden;color:rgba(70,57,47,.46);font-size:11px;font-weight:900}
@@ -2664,6 +2665,7 @@ button.st-work-notice{cursor:pointer}
 .st-encounter-actions.is-single{grid-template-columns:1fr}
 .st-encounter-button{height:33px;border:1px solid rgba(127,88,47,.16);border-radius:8px;background:rgba(255,255,255,.72);color:#7c3219;font-size:11px;font-weight:950;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}
 .st-encounter-button.primary{background:linear-gradient(135deg,#ef6f61,#d99b37);border-color:rgba(255,255,255,.38);color:white;box-shadow:0 10px 18px rgba(217,115,70,.2)}
+.st-encounter-button.danger{border-color:rgba(190,18,60,.2);background:rgba(255,241,242,.78);color:#be123c}
 .st-encounter-button:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.35);box-shadow:none}
 .st-encounter-button:not(:disabled):active{transform:scale(.98)}
 .st-encounter-status{min-height:16px;color:#0f766e;font-size:10px;line-height:1.45;font-weight:850}
@@ -10784,17 +10786,40 @@ button.st-work-notice{cursor:pointer}
     }
 	  }
 
-	  function encounterUpsertPackage(pkg) {
-	    const normalized = encounterNormalizePackage(pkg);
-	    const packages = encounterReadStoredPackages();
-	    const index = packages.findIndex((item) => item.id === normalized.id || (item.name && item.name === normalized.name));
-	    if (index >= 0) packages[index] = normalized;
-	    else packages.unshift(normalized);
-	    if (!encounterSavePackages(packages)) return null;
-	    return normalized;
+		  function encounterUpsertPackage(pkg) {
+		    const normalized = encounterNormalizePackage(pkg);
+		    const packages = encounterReadStoredPackages();
+		    const index = packages.findIndex((item) => item.id === normalized.id || (item.name && item.name === normalized.name));
+		    if (index >= 0) packages[index] = normalized;
+		    else packages.unshift(normalized);
+		    if (!encounterSavePackages(packages)) return null;
+		    return normalized;
+		  }
+
+	  function encounterIsBuiltInPackageId(packageId) {
+	    const value = String(packageId || "").trim();
+	    return Boolean(value) && encounterBuiltInPackageIds().has(value);
 	  }
 
-	  function encounterReadDraft() {
+	  function encounterCanDeletePackage(pkg) {
+	    const id = String(pkg?.id || "").trim();
+	    return Boolean(id) && !encounterIsBuiltInPackageId(id);
+	  }
+
+	  function encounterDeleteStoredPackage(packageId) {
+	    const id = String(packageId || "").trim();
+	    if (!id || encounterIsBuiltInPackageId(id)) return false;
+	    const packages = encounterReadStoredPackages();
+	    const nextPackages = packages.filter((pkg) => String(pkg.id || "") !== id);
+	    if (nextPackages.length === packages.length) return false;
+	    if (!encounterSavePackages(nextPackages)) return false;
+	    const managementState = encounterReadManagementState();
+	    delete managementState[encounterManagementKey("package", id)];
+	    encounterWriteManagementState(managementState);
+	    return true;
+	  }
+
+		  function encounterReadDraft() {
 	    try {
 	      const parsed = JSON.parse(localStorage.getItem(encounterLibraryStorageKey(ENCOUNTER_DRAFT_STORAGE_KEY)) || "null");
 	      if (parsed && typeof parsed === "object") return encounterNormalizePackage(parsed);
@@ -11585,9 +11610,12 @@ button.st-work-notice{cursor:pointer}
 	    const roleCount = Array.isArray(pkg.roles) ? pkg.roles.length : 0;
 	    const used = encounterIsPurchased(pkg.id);
 	    const pendingPurchase = encounterHasPendingPurchaseOperation();
-	    const conflict = encounterDuplicatePackageConflict(pkg);
-	    const managed = encounterManagedEnabled("package", pkg.id);
-	    const availability = encounterPackageAvailability(pkg, page);
+		    const conflict = encounterDuplicatePackageConflict(pkg);
+		    const managed = encounterManagedEnabled("package", pkg.id);
+		    const deleteButton = encounterCanDeletePackage(pkg)
+		      ? '<button type="button" class="danger" data-encounter-action="delete-package" data-package-id="' + escapeAttr(pkg.id) + '">删除</button>'
+		      : "";
+		    const availability = encounterPackageAvailability(pkg, page);
 	    const allDuplicated = availability.ready && availability.total > 0 && availability.available <= 0;
 	    const nonRepeatText = availability.ready ? (availability.available + " 非重复") : "检测中";
 	    const status = allDuplicated
@@ -11603,9 +11631,9 @@ button.st-work-notice{cursor:pointer}
 	          '<div class="st-encounter-package-facts"><span>' + roleCount + ' 角色</span><span>' + escapeHtml(nonRepeatText) + '</span><span class="st-encounter-price">' + escapeHtml(status) + '</span></div>' +
 	        '</div>' +
 	      '</button>' +
-	      '<div class="st-encounter-card-manage"><button type="button" data-encounter-action="toggle-worldbook" data-target-type="package" data-target-id="' + escapeAttr(pkg.id) + '">' + (managed ? "管理开" : "管理关") + '</button></div>' +
-	    '</article>';
-	  }
+		      '<div class="st-encounter-card-manage"><button type="button" data-encounter-action="toggle-worldbook" data-target-type="package" data-target-id="' + escapeAttr(pkg.id) + '">' + (managed ? "管理开" : "管理关") + '</button>' + deleteButton + '</div>' +
+		    '</article>';
+		  }
 
 	  function encounterRoleCardHtml(item, page) {
 	    const role = encounterNormalizeRole(item?.role || {});
@@ -11719,9 +11747,12 @@ button.st-work-notice{cursor:pointer}
 	    const price = encounterPackagePrice(pkg);
 	    const used = encounterIsPurchased(pkg.id);
 	    const pendingPurchase = encounterHasPendingPurchaseOperation();
-	    const conflict = encounterDuplicatePackageConflict(pkg);
-	    const managed = encounterManagedEnabled("package", pkg.id);
-		    const availability = encounterPackageAvailability(pkg, page);
+		    const conflict = encounterDuplicatePackageConflict(pkg);
+		    const managed = encounterManagedEnabled("package", pkg.id);
+		    const deleteAction = encounterCanDeletePackage(pkg)
+		      ? '<button type="button" class="st-encounter-button danger" data-encounter-action="delete-package" data-package-id="' + escapeAttr(pkg.id) + '">删除角色包</button>'
+		      : "";
+			    const availability = encounterPackageAvailability(pkg, page);
 	    const allDuplicated = availability.ready && availability.total > 0 && availability.available <= 0;
 	    const purchaseDisabled = used || pendingPurchase || Boolean(conflict) || allDuplicated;
 	    const combinedPrompt = encounterPackageCombinedPrompt(pkg);
@@ -11740,10 +11771,11 @@ button.st-work-notice{cursor:pointer}
 	      (!allDuplicated && availability.duplicateNames.length ? '<div class="st-encounter-used-note">已存在角色会自动跳过：' + escapeHtml(availability.duplicateNames.join("、")) + '</div>' : '') +
 	      (conflict ? '<div class="st-encounter-used-note is-warning">这个角色包与「' + escapeHtml(conflict.name) + '」存在重复角色；对方已' + (conflict.pending ? "在本轮暂存区" : "使用") + '，因此本包禁止购买。</div>' : '') +
       (!used && pendingPurchase ? '<div class="st-encounter-used-note">本轮已经有一个角色或角色包在暂存区。确认写入前不能再购买其他内容。</div>' : '') +
-      '<div class="st-encounter-actions">' +
-        '<button type="button" class="st-encounter-button" data-encounter-action="edit-package" data-package-id="' + escapeAttr(pkg.id) + '">在此包上定制</button>' +
-        '<button type="button" class="st-encounter-button primary" data-encounter-action="purchase" data-package-id="' + escapeAttr(pkg.id) + '"' + (purchaseDisabled ? " disabled" : "") + '>' + (pendingPurchase && !used ? "本轮已有购买" : "购买 / 使用") + '</button>' +
-      '</div>' +
+	      '<div class="st-encounter-actions">' +
+	        '<button type="button" class="st-encounter-button" data-encounter-action="edit-package" data-package-id="' + escapeAttr(pkg.id) + '">在此包上定制</button>' +
+	        '<button type="button" class="st-encounter-button primary" data-encounter-action="purchase" data-package-id="' + escapeAttr(pkg.id) + '"' + (purchaseDisabled ? " disabled" : "") + '>' + (pendingPurchase && !used ? "本轮已有购买" : "购买 / 使用") + '</button>' +
+	        deleteAction +
+	      '</div>' +
       '<div class="st-encounter-actions is-single"><button type="button" class="st-encounter-button" data-encounter-action="toggle-worldbook" data-target-type="package" data-target-id="' + escapeAttr(pkg.id) + '">' + (managed ? "管理：开启世界书条目" : "管理：已禁用世界书条目") + '</button></div>' +
       '<p class="st-encounter-note">购买会先警告确认；确认后前端直接扣星光点、创建初始角色变量、缓存图片，并把条目写入当前对话独有的 Chat Lorebook。</p>' +
     '</section>';
@@ -14521,20 +14553,51 @@ button.st-work-notice{cursor:pointer}
           await encounterHandleRandomRomance(page);
           return;
         }
-        if (action === "open-package") {
-          page.dataset.encounterTab = "browse";
-          page.dataset.encounterView = "detail";
-          page.dataset.encounterPackageId = button.getAttribute("data-package-id") || "";
-          delete page.dataset.encounterRoleItemId;
-          page.dataset.encounterDetailSection = "package";
-          page.dataset.encounterRoleIndex = "0";
-          renderEncounterPage(page);
-          return;
-        }
-        if (action === "open-role-item") {
-          openRoleItemDetail(button.getAttribute("data-role-item-id") || "");
-          return;
-        }
+	        if (action === "open-package") {
+	          page.dataset.encounterTab = "browse";
+	          page.dataset.encounterView = "detail";
+	          page.dataset.encounterPackageId = button.getAttribute("data-package-id") || "";
+	          delete page.dataset.encounterRoleItemId;
+	          page.dataset.encounterDetailSection = "package";
+	          page.dataset.encounterRoleIndex = "0";
+	          renderEncounterPage(page);
+	          return;
+	        }
+	        if (action === "delete-package") {
+	          const packageId = button.getAttribute("data-package-id") || "";
+	          const pkg = encounterFindPackage(packageId);
+	          if (!pkg || !encounterCanDeletePackage(pkg)) {
+	            encounterSetStatus(page, "初始角色包不能删除。");
+	            return;
+	          }
+	          const label = pkg.name || "未命名角色包";
+	          const ok = await encounterConfirm(page, {
+	            title: "删除角色包",
+	            message: "删除「" + label + "」？\n\n这只会从当前聊天的偶遇库移除该自定义/导入角色包；已经写入当前对话世界书的条目、已经创建的角色变量、已经消耗的星光点都不会自动撤销。\n\n删除后需要重新导入或重新定制才能再次在偶遇库看到它。",
+	            confirmText: "删除",
+	            cancelText: "取消"
+	          });
+	          if (!ok) return;
+	          if (!encounterDeleteStoredPackage(packageId)) {
+	            encounterSetStatus(page, encounterLastStorageError || "删除失败。");
+	            return;
+	          }
+	          if (page.dataset.encounterPackageFilter === String(packageId)) page.dataset.encounterPackageFilter = "all";
+	          page.dataset.encounterTab = "browse";
+	          page.dataset.encounterBrowseSection = "packages";
+	          delete page.dataset.encounterView;
+	          delete page.dataset.encounterPackageId;
+	          delete page.dataset.encounterRoleItemId;
+	          delete page.dataset.encounterDetailSection;
+	          delete page.dataset.encounterRoleIndex;
+	          page.dataset.encounterStatus = "已删除角色包：" + label;
+	          renderEncounterPage(page);
+	          return;
+	        }
+	        if (action === "open-role-item") {
+	          openRoleItemDetail(button.getAttribute("data-role-item-id") || "");
+	          return;
+	        }
         if (action === "detail-back") {
           delete page.dataset.encounterView;
           delete page.dataset.encounterPackageId;
