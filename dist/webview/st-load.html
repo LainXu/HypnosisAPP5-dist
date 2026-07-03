@@ -399,6 +399,11 @@ window.setTimeout(() => {
 	      const name = cleanOperationText(key);
 	      if (OPERATION_CURRENT_DETAIL_KEYS.has(name)) return true;
 	      if (OPERATION_GROUP_NOTICE_DETAIL_KEYS.has(name)) return true;
+	      const source = cleanOperationText(record?.source || "");
+	      const action = cleanOperationText(record?.action || "");
+	      if (/^成就和任务$/.test(source) && /^领取/.test(action)) {
+	        return /^(暂存摘要|前端写入后星光点|变量写入路径|不可删除)$/.test(name);
+	      }
 	      return false;
 	    };
 	    const operationVisibleDetailEntries = (record) => Object.entries(record?.details || {})
@@ -4249,9 +4254,7 @@ button.st-work-notice{cursor:pointer}
   }
 
   function rewardClaimAiSpec(kind) {
-    return kind === "achievement"
-      ? "本成就奖励已由前端直接发放并写入变量；这条锁定暂存只用于告知AI本轮已经发生的领取事实。AI不得再次增加星光点或物品，不得写入/成就变量，也不得补记历史成就。"
-      : "本任务奖励已由前端直接发放并删除对应任务变量；这条锁定暂存只用于告知AI本轮已经发生的领取事实。AI不得再次增加星光点或物品，不得恢复该任务为已完成待领取，也不得自动替用户领取其他任务。";
+    return "本奖励已由前端直接发放并写入变量；若是任务奖励，对应任务变量也已由前端删除。这条锁定暂存只用于告知AI本轮已经发生的领取事实。AI不得再次增加星光点或物品，不得写入/成就变量，不得恢复已领取任务，也不得补记历史奖励。";
   }
 
   async function rewardClaimDirect(kind, row) {
@@ -4271,6 +4274,7 @@ button.st-work-notice{cursor:pointer}
         const added = inventory ? rewardAddInventoryItem(inventory, rewardItem) : "";
         if (added) addedItems.push(added);
       }
+      const rewardSummary = ["星光点 +" + item.rewardStarlight, addedItems.length ? "物品 " + addedItems.join("、") : ""].filter(Boolean).join("；");
       let deletedTaskKey = "";
       if (kind === "quest") {
         deletedTaskKey = rewardFindTaskKey(stat, item);
@@ -4286,10 +4290,10 @@ button.st-work-notice{cursor:pointer}
           来源: "成就和任务",
           操作: kind === "achievement" ? "领取成就" : "领取任务奖励",
           ...(kind === "achievement" ? { 成就ID: item.id, 成就: item.title } : { 任务ID: item.id, 任务: item.title }),
-          暂存摘要: item.title + "｜星光点 +" + item.rewardStarlight + (addedItems.length ? "｜物品 " + addedItems.join("、") : ""),
+          暂存摘要: item.title,
           条件: item.description,
-          奖励星光点: item.rewardStarlight,
-          奖励物品: item.rewardItems,
+          奖励: rewardSummary,
+          ...(item.rewardItems.length ? { 奖励物品: item.rewardItems } : {}),
           前端处理: kind === "achievement" ? "已由前端直接发放奖励并记录该成就已领取" : "已由前端直接发放奖励并删除对应任务变量",
           前端写入后星光点: nextStarlight,
           ...(kind === "quest" ? { 删除任务变量: deletedTaskKey || "未找到同名任务变量，仅记录领取状态" } : {}),
