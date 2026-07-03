@@ -358,7 +358,9 @@ window.setTimeout(() => {
 	      if (/资源兑换/.test(action)) {
 	        if (/提升MC能量上限/.test(item) || /MC能量上限/.test(text)) addOperationVariableFields(fields, ["持有零花钱", "MC能量上限"]);
 	        if (/补充MC能量/.test(item) || (/MC能量/.test(text) && /资金|零花钱|円|¥/.test(text))) addOperationVariableFields(fields, ["持有零花钱", "MC能量", "MC能量上限", "buff"]);
+	        if (/定制趣味物品|库存物品|衣物|性道具/.test(item + text)) addOperationVariableFields(fields, ["星光点", "催眠APP订阅等级", "持有物品"]);
 	      }
+	      if (/^库存$/.test(source) && /使用物品|删除物品/.test(action)) addOperationVariableFields(fields, ["当前日期", "当前时间", "当前地点", "持有物品", "主角可疑度"]);
 	      if (/申请立校规|废止初始校规/.test(action)) addOperationVariableFields(fields, ["催眠APP订阅等级", "星光点", "持有物品", "当前校规数"]);
 	      return [...fields];
 	    };
@@ -384,10 +386,14 @@ window.setTimeout(() => {
 	      "当前是否派遣中",
 	      "当前工作价值"
 	    ]);
+	    const OPERATION_GROUP_NOTICE_DETAIL_KEYS = new Set([
+	      "结算提示",
+	      "AI执行规范"
+	    ]);
 	    const operationShouldHideDetail = (record, key) => {
-	      const source = operationTagName(record?.source || "");
 	      const name = cleanOperationText(key);
 	      if (OPERATION_CURRENT_DETAIL_KEYS.has(name)) return true;
+	      if (OPERATION_GROUP_NOTICE_DETAIL_KEYS.has(name)) return true;
 	      return false;
 	    };
 	    const operationVisibleDetailEntries = (record) => Object.entries(record?.details || {})
@@ -400,7 +406,8 @@ window.setTimeout(() => {
 	      if (typeof value === "object") {
 	        const parts = [];
 	        for (const [key, item] of Object.entries(value)) {
-	          if (OPERATION_CURRENT_DETAIL_KEYS.has(cleanOperationText(key))) continue;
+	          const name = cleanOperationText(key);
+	          if (OPERATION_CURRENT_DETAIL_KEYS.has(name) || OPERATION_GROUP_NOTICE_DETAIL_KEYS.has(name)) continue;
 	          const text = operationVisibleValueToDenseText(item, depth + 1);
 	          if (text) parts.push(cleanOperationText(key) + "=" + text);
 	        }
@@ -409,7 +416,25 @@ window.setTimeout(() => {
 	      return cleanOperationFieldText(value);
 	    };
 	    const operationGroupNoticeLines = (source, records) => {
-	      return [];
+	      const lines = [];
+	      const seenLines = new Set();
+	      for (const noticeKey of OPERATION_GROUP_NOTICE_DETAIL_KEYS) {
+	        const seenValues = new Set();
+	        for (const record of records || []) {
+	          for (const [key, value] of Object.entries(record?.details || {})) {
+	            if (cleanOperationText(key) !== noticeKey) continue;
+	            const text = operationVisibleValueToDenseText(value);
+	            const compact = cleanOperationText(text);
+	            if (!compact || seenValues.has(compact)) continue;
+	            seenValues.add(compact);
+	            const line = "- " + noticeKey + "｜" + text;
+	            if (seenLines.has(line)) continue;
+	            seenLines.add(line);
+	            lines.push(line);
+	          }
+	        }
+	      }
+	      return lines;
 	    };
 	    const stripOperationVariableFields = (payload) => {
 	      if (!payload || typeof payload !== "object" || Array.isArray(payload)) return payload;
@@ -516,10 +541,18 @@ window.setTimeout(() => {
 	          return "map:unlock-special:" + (id || title);
 	        }
 	      }
-      if (/^人物档案$/.test(source) && /^设置绰号$/.test(action)) {
-        const role = cleanOperationText(object["角色名"] ?? object["目标角色"] ?? "");
-        return "profile:nickname:" + role;
-      }
+	      if (/^人物档案$/.test(source) && /^设置绰号$/.test(action)) {
+	        const role = cleanOperationText(object["角色名"] ?? object["目标角色"] ?? "");
+	        return "profile:nickname:" + role;
+	      }
+	      if (/^库存$/.test(source)) {
+	        const itemName = cleanOperationText(object["物品名"] ?? object["物品"] ?? object["名称"] ?? "");
+	        if (/^删除物品$/.test(action)) return "inventory:delete:" + itemName;
+	        if (/^使用物品$/.test(action)) {
+	          const target = cleanOperationText(object["使用目标"] ?? object["目标"] ?? "");
+	          return "inventory:use:" + itemName + ":" + target;
+	        }
+	      }
 	      if (/^催眠APP$/.test(source)) {
         if (/^(启动催眠|追加催眠)$/.test(action)) return "hypnosis:session";
         if (/^资源兑换$/.test(action)) {
@@ -2159,6 +2192,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-reward-badge,.st-hypnosis-badge{display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(146,64,14,.18);border-radius:999px;background:rgba(254,243,199,.55);color:#92400e;font-size:10px;font-weight:950;padding:3px 7px;white-space:nowrap}
 .st-reward-actions,.st-hypnosis-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}
 .st-reward-button,.st-hypnosis-button{border:1px solid rgba(146,64,14,.28);border-radius:8px;background:linear-gradient(135deg,rgba(146,64,14,.16),rgba(217,119,6,.14));color:#5b341f;font-size:12px;font-weight:900;padding:9px 10px;cursor:pointer}
+.st-hypnosis-button small{display:inline-block;margin-left:5px;color:rgba(91,52,31,.72);font-size:10px;font-weight:950;line-height:1;white-space:nowrap}
 .st-reward-button.secondary,.st-hypnosis-button.secondary{background:rgba(255,255,255,.45);color:rgba(61,47,37,.72)}
 .st-reward-button:disabled,.st-hypnosis-button:disabled{opacity:.48;cursor:not-allowed;filter:saturate(.7)}
 .st-reward-notice,.st-hypnosis-notice{margin:0;border:1px solid rgba(146,64,14,.14);border-radius:8px;background:rgba(255,255,255,.34);padding:8px 9px;color:rgba(61,47,37,.65);font-size:11px;line-height:1.45}
@@ -2172,6 +2206,9 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-reward-new,.st-hypnosis-form{display:grid;gap:8px}
 .st-reward-new textarea,.st-hypnosis-form textarea{min-height:82px;resize:vertical}
 .st-hypnosis-form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.st-hypnosis-custom-item{border:1px solid rgba(146,64,14,.18);border-radius:8px;background:rgba(255,255,255,.38);padding:10px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:center}
+.st-hypnosis-custom-item strong{display:block;color:#2f241c;font-size:13px;line-height:1.25;font-weight:950}
+.st-hypnosis-custom-item p{margin:4px 0 0;color:rgba(61,47,37,.68);font-size:11px;line-height:1.45}
 .st-hypnosis-command-toggle{display:flex;align-items:center;gap:8px;cursor:pointer}
 .st-hypnosis-command-toggle input{width:18px;height:18px;accent-color:#92400e}
 .st-hypnosis-command.is-active{border-color:rgba(146,64,14,.44);background:linear-gradient(135deg,rgba(254,243,199,.62),rgba(255,255,255,.48));box-shadow:0 0 0 3px rgba(146,64,14,.08)}
@@ -2193,10 +2230,27 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-hypnosis-lite-app .st-graph-head strong,.st-hypnosis-lite-app .st-hypnosis-summary strong,.st-hypnosis-lite-app .st-hypnosis-command strong,.st-hypnosis-lite-app .st-hypnosis-vip-row strong{color:#fff}
 .st-hypnosis-lite-app .st-graph-head span,.st-hypnosis-lite-app .st-hypnosis-command p,.st-hypnosis-lite-app .st-hypnosis-vip-row small{color:rgba(253,242,248,.62)}
 .st-hypnosis-lite-app .st-hypnosis-button{border-color:rgba(244,114,182,.32);background:linear-gradient(135deg,rgba(168,85,247,.42),rgba(236,72,153,.34));color:#fff}
+.st-hypnosis-lite-app .st-hypnosis-button small{color:rgba(255,255,255,.78)}
 .st-hypnosis-lite-app .st-hypnosis-button.secondary{background:rgba(255,255,255,.08);color:rgba(253,242,248,.8)}
 .st-hypnosis-lite-app .st-hypnosis-notice{border-color:rgba(244,114,182,.18);background:rgba(255,255,255,.07);color:rgba(253,242,248,.72)}
 .st-hypnosis-lite-app .st-hypnosis-form input,.st-hypnosis-lite-app .st-hypnosis-form textarea{border-color:rgba(244,114,182,.18);background:rgba(9,4,18,.5);color:#fff}
 .st-hypnosis-lite-app .st-hypnosis-form input::placeholder,.st-hypnosis-lite-app .st-hypnosis-form textarea::placeholder{color:rgba(253,242,248,.34)}
+.st-hypnosis-lite-app .st-hypnosis-custom-item{border-color:rgba(244,114,182,.2);background:linear-gradient(135deg,rgba(124,58,237,.2),rgba(219,39,119,.12));color:#fdf2f8}
+.st-hypnosis-lite-app .st-hypnosis-custom-item strong{color:#fff}
+.st-hypnosis-lite-app .st-hypnosis-custom-item p{color:rgba(253,242,248,.62)}
+.st-hypnosis-dialog-layer{position:absolute;inset:0;z-index:320;display:grid;place-items:center;padding:18px;background:rgba(18,5,28,.62);backdrop-filter:blur(5px)}
+.st-hypnosis-dialog-card{width:min(100%,318px);border:1px solid rgba(244,114,182,.32);border-radius:14px;background:linear-gradient(180deg,rgba(53,18,70,.98),rgba(22,8,34,.98));box-shadow:0 22px 52px rgba(0,0,0,.46),0 0 0 1px rgba(255,255,255,.05) inset;color:#fdf2f8;padding:14px;display:grid;gap:10px}
+.st-hypnosis-dialog-card h3{margin:0;color:#fff;font-size:16px;line-height:1.25;font-weight:950}
+.st-hypnosis-dialog-card p{margin:0;color:rgba(253,242,248,.66);font-size:11px;line-height:1.55}
+.st-hypnosis-dialog-card label{display:grid;gap:6px;color:rgba(253,242,248,.8);font-size:11px;font-weight:900}
+.st-hypnosis-dialog-card input,.st-hypnosis-dialog-card textarea{width:100%;min-width:0;border:1px solid rgba(244,114,182,.22);border-radius:10px;background:rgba(9,4,18,.68);color:#fff;outline:none;padding:10px;font-size:12px;line-height:1.45;font-family:inherit}
+.st-hypnosis-dialog-card textarea{min-height:88px;resize:vertical}
+.st-hypnosis-dialog-card input::placeholder,.st-hypnosis-dialog-card textarea::placeholder{color:rgba(253,242,248,.34)}
+.st-hypnosis-dialog-chips{display:flex;flex-wrap:wrap;gap:6px;max-height:74px;overflow:auto;scrollbar-width:none}
+.st-hypnosis-dialog-chips button{border:1px solid rgba(244,114,182,.22);border-radius:999px;background:rgba(255,255,255,.07);color:rgba(253,242,248,.84);padding:5px 8px;font-size:10px;font-weight:900;cursor:pointer}
+.st-hypnosis-dialog-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.st-hypnosis-dialog-actions button{border:1px solid rgba(244,114,182,.22);border-radius:10px;background:rgba(255,255,255,.07);color:rgba(253,242,248,.78);padding:9px 10px;font-size:12px;font-weight:950;cursor:pointer}
+.st-hypnosis-dialog-actions button.primary{border-color:rgba(244,114,182,.48);background:linear-gradient(135deg,#7c3aed,#db2777);color:#fff;box-shadow:0 10px 24px rgba(219,39,119,.18)}
 .st-hypnosis-lite-app .st-hypnosis-command-toggle input{appearance:none;-webkit-appearance:none;width:20px;height:20px;min-width:20px;padding:0;border:1px solid rgba(244,114,182,.34);border-radius:7px;background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02));box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 0 3px rgba(236,72,153,0);display:grid;place-items:center;position:relative;transition:border-color .16s ease,background .16s ease,box-shadow .16s ease}
 .st-hypnosis-lite-app .st-hypnosis-command-toggle input::after{content:"";position:absolute;width:9px;height:5px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) scale(.72);opacity:0;top:5px;left:4px}
 .st-hypnosis-lite-app .st-hypnosis-command-toggle input:checked{border-color:rgba(244,114,182,.75);background:linear-gradient(135deg,#a855f7,#ec4899);box-shadow:0 0 0 3px rgba(236,72,153,.12),0 0 16px rgba(236,72,153,.24)}
@@ -2268,7 +2322,11 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 /* 库存坐标记录：19:51 截图中下层袋子逐层偏低；按背景图五个袋面中心重算 top，不再使用等距外推。 */
 .st-inventory-note{position:absolute;z-index:2;left:65.2%;top:20.8%;width:23.4%;height:26.5%;padding:8px 8px 10px;display:grid;align-content:start;gap:8px;color:#3b2a18;font-family:"STKaiti","KaiTi","Noto Serif SC",serif;text-align:left;transform:rotate(.2deg);pointer-events:auto;background:transparent;border:0;box-shadow:none}
 .st-inventory-note strong{display:block;color:#2e2115;font-size:17px;line-height:1.24;font-weight:950;word-break:break-word;text-shadow:0 1px 0 rgba(255,255,255,.38)}
-.st-inventory-note p{margin:0;color:rgba(46,33,21,.9);font-size:12px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+.st-inventory-note p{margin:0;color:rgba(46,33,21,.9);font-size:12px;line-height:1.55;white-space:pre-wrap;word-break:break-word;max-height:84px;overflow:auto;scrollbar-width:none}
+.st-inventory-note-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;align-self:end}
+.st-inventory-note-actions button{min-width:0;border:1px solid rgba(73,53,33,.18);border-radius:7px;background:rgba(255,255,255,.58);color:#3b2a18;padding:6px 4px;font-size:11px;font-weight:950;cursor:pointer;box-shadow:0 1px 0 rgba(255,255,255,.4) inset}
+.st-inventory-note-actions button.danger{border-color:rgba(127,29,29,.22);background:rgba(254,226,226,.54);color:#7f1d1d}
+.st-inventory-status{position:absolute;z-index:6;left:50%;bottom:7.5%;transform:translateX(-50%);max-width:70%;border:1px solid rgba(191,219,254,.24);border-radius:999px;background:rgba(15,23,42,.78);color:#e0f2fe;padding:6px 10px;font-size:11px;font-weight:950;text-align:center;box-shadow:0 8px 22px rgba(0,0,0,.32)}
 .st-inventory-locker-pager{position:absolute;z-index:4;left:16.2%;bottom:2.4%;width:30.5%;display:flex;align-items:center;justify-content:center;gap:8px;pointer-events:auto;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 .st-inventory-locker-pager button{width:25px;height:25px;border:1px solid rgba(191,219,254,.32);border-radius:999px;background:rgba(15,23,42,.62);color:#f8fbff;font-size:17px;font-weight:950;line-height:1;cursor:pointer;box-shadow:0 3px 8px rgba(0,0,0,.34)}
 .st-inventory-locker-pager span{min-width:40px;border:1px solid rgba(191,219,254,.22);border-radius:999px;background:rgba(15,23,42,.52);color:#e0f2fe;padding:4px 8px;font-size:10px;font-weight:950;text-align:center;text-shadow:0 1px 3px rgba(0,0,0,.75)}
@@ -2448,6 +2506,7 @@ button.st-work-notice{cursor:pointer}
 .st-encounter-app .st-lite-title{display:none!important}
 .st-encounter-app .st-lite-back{color:#8a3a1c;border-color:rgba(138,58,28,.2);background:rgba(255,255,255,.74)}
 .st-encounter-app .st-lite-body{gap:8px;padding:9px 12px 15px}
+.st-encounter-app.is-encounter-confirm-open .st-lite-body{overflow:hidden}
 .st-encounter-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;border:1px solid rgba(127,88,47,.13);border-radius:8px;background:rgba(255,255,255,.58);padding:3px;box-shadow:0 8px 20px rgba(75,54,35,.07)}
 .st-encounter-tab{height:29px;border:0;border-radius:6px;background:transparent;color:rgba(70,57,47,.64);font-size:12px;font-weight:950;cursor:pointer}
 .st-encounter-tab.active{background:linear-gradient(135deg,#ef6f61,#d99b37);color:#fff;box-shadow:0 8px 16px rgba(217,115,70,.2)}
@@ -2495,7 +2554,7 @@ button.st-work-notice{cursor:pointer}
 .st-encounter-random button{height:31px;border:1px solid rgba(217,155,55,.28);border-radius:8px;background:linear-gradient(135deg,#ef6f61,#d99b37);color:#fff;font-size:12px;font-weight:950;cursor:pointer;box-shadow:0 8px 16px rgba(217,115,70,.18)}
 .st-encounter-random button:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.32);box-shadow:none}
 .st-encounter-random span{min-width:0;color:rgba(70,57,47,.64);font-size:10px;font-weight:900;line-height:1.35;text-align:right}
-.st-encounter-confirm{position:absolute;inset:0;z-index:30;display:grid;place-items:center;padding:18px;background:rgba(44,28,18,.38);backdrop-filter:blur(3px)}
+.st-encounter-confirm{position:absolute;inset:0;z-index:260;display:grid;place-items:center;padding:18px;background:rgba(44,28,18,.38);backdrop-filter:blur(3px)}
 .st-encounter-confirm-card{width:min(100%,304px);border:1px solid rgba(127,88,47,.24);border-radius:8px;background:linear-gradient(180deg,#fffaf0,#f6ead7);box-shadow:0 18px 38px rgba(24,14,9,.34),inset 0 1px 0 rgba(255,255,255,.58);padding:13px;display:grid;gap:10px;color:#352b25}
 .st-encounter-confirm-card h3{margin:0;color:#352b25;font-size:16px;line-height:1.22;font-weight:950}
 .st-encounter-confirm-copy{display:grid;gap:7px;max-height:220px;overflow:auto;scrollbar-width:none}
@@ -2720,9 +2779,11 @@ button.st-work-notice{cursor:pointer}
 .st-hypnosis-redrawer-head strong{font-size:13px;color:#fff}
 .st-hypnosis-redrawer-head span{font-size:10px;color:rgba(203,213,225,.6);font-weight:850}
 .st-hypnosis-redrawer-grid{display:grid;grid-template-columns:82px minmax(0,1fr) minmax(0,1fr);gap:8px}
+.st-hypnosis-redrawer-grid .st-hypnosis-drawer-wide{grid-column:1 / -1}
 .st-hypnosis-redrawer input{min-width:0;border:1px solid rgba(255,255,255,.1);border-radius:12px;background:rgba(2,6,23,.62);color:#f8fafc;padding:9px 10px;font-size:13px;font-weight:900;outline:none}
 .st-hypnosis-redrawer button{min-width:0;border:1px solid rgba(255,255,255,.1);border-radius:12px;background:rgba(255,255,255,.07);color:#e5e7eb;padding:9px 10px;font-size:11px;font-weight:950;cursor:pointer}
 .st-hypnosis-redrawer button.primary{border-color:rgba(56,189,248,.26);background:linear-gradient(135deg,rgba(14,165,233,.34),rgba(168,85,247,.28));color:white}
+.st-hypnosis-redrawer button small{display:inline-block;margin-left:5px;color:rgba(226,232,240,.76);font-size:9px;font-weight:950;line-height:1;white-space:nowrap}
 .st-hypnosis-redrawer button:disabled{opacity:.42;cursor:not-allowed;filter:grayscale(.28)}
 .st-hypnosis-vips{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
 .st-hypnosis-vip{display:grid;gap:2px;text-align:left}
@@ -3240,6 +3301,130 @@ button.st-work-notice{cursor:pointer}
     return { selected, pageIndex, pageCount };
   }
 
+  function inventoryUseTargetOptions() {
+    const names = orderedProfileRoleNames(getStatsRoles()).slice(0, 12);
+    return ["{{user}}", ...names].filter(Boolean);
+  }
+
+  function inventoryDialogItem(host, items) {
+    const name = String(host?.dataset?.inventoryDialogItem || "").trim();
+    return items.find((item) => item.name === name) || null;
+  }
+
+  function inventoryUseDialogHtml(host, items) {
+    if (host?.dataset?.inventoryDialog !== "use") return "";
+    const item = inventoryDialogItem(host, items);
+    if (!item) return "";
+    const chips = inventoryUseTargetOptions().map((name) =>
+      '<button type="button" data-inventory-target-chip="' + escapeAttr(name) + '">' + escapeHtml(name) + '</button>'
+    ).join("");
+    return '<div class="st-hypnosis-dialog-layer st-inventory-use-layer" data-inventory-dialog-layer role="presentation">' +
+      '<form class="st-hypnosis-dialog-card st-inventory-use-card" data-inventory-use-form role="dialog" aria-modal="true" aria-label="使用库存物品">' +
+        '<h3>使用物品</h3>' +
+        '<p>选择或填写要对谁使用「' + escapeHtml(item.name) + '」。发送后由AI按剧情、物品描述与目标状态判定是否成功。</p>' +
+        '<label><span>使用目标</span><input type="text" maxlength="40" data-inventory-use-target placeholder="{{user}} / 角色名 / 场景目标"></label>' +
+        '<div class="st-hypnosis-dialog-chips">' + chips + '</div>' +
+        '<div class="st-hypnosis-dialog-actions">' +
+          '<button type="button" data-inventory-dialog-close>取消</button>' +
+          '<button type="submit" class="primary">暂存使用</button>' +
+        '</div>' +
+      '</form>' +
+    '</div>';
+  }
+
+  async function requestInventoryUseItem(host, item, targetText) {
+    const target = String(targetText || "").replace(/[\r\n]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 40);
+    if (!item || !target) return { ok: false, message: "请填写使用目标。" };
+    const added = await appendAppOperation({
+      来源: "库存",
+      操作: "使用物品",
+      暂存摘要: "对" + target + "使用 " + item.name,
+      物品名: item.name,
+      当前数量: item.count,
+      物品描述: item.description || "未记录",
+      使用目标: target,
+      目标变量路径: "/系统/持有物品/" + item.name,
+      AI执行规范: "这是用户请求把库存物品用于指定目标；AI应根据物品描述、剧情位置、目标意愿/状态和世界观判定是否成功。成功时从/系统/持有物品扣除1个该物品，并按合理剧情更新变量；失败时不要扣除物品。物品不能产生描述外的精神控制、强迫他人、直接金钱收益、战斗力增强或其他扩大剧情影响的能力。"
+    });
+    return { ok: Boolean(added), message: added ? "使用请求已暂存。" : "使用请求已在暂存区。" };
+  }
+
+  async function requestInventoryDeleteItem(host, item) {
+    if (!item) return { ok: false, message: "未选中物品。" };
+    const added = await appendAppOperation({
+      来源: "库存",
+      操作: "删除物品",
+      暂存摘要: "删除 " + item.name,
+      物品名: item.name,
+      当前数量: item.count,
+      物品描述: item.description || "未记录",
+      目标变量路径: "/系统/持有物品/" + item.name,
+      AI执行规范: "这是用户请求从库存中删除/丢弃1个该物品；若物品存在，成功时只扣除1个该物品，数量归零时删除该项。不要产生额外剧情收益、退款或副作用；若物品不存在则说明失败。"
+    });
+    return { ok: Boolean(added), message: added ? "删除请求已暂存。" : "删除请求已在暂存区。" };
+  }
+
+  function inventoryNoticeHtml(host) {
+    const text = String(host?.dataset?.inventoryNotice || "").trim();
+    return text ? '<div class="st-inventory-status">' + escapeHtml(text) + '</div>' : "";
+  }
+
+  function bindInventoryActionControls(container, host, items, rerender) {
+    container.querySelectorAll("[data-inventory-use-item]").forEach((button) => {
+      button.addEventListener("click", () => {
+        host.dataset.inventoryDialog = "use";
+        host.dataset.inventoryDialogItem = button.getAttribute("data-inventory-use-item") || "";
+        delete host.dataset.inventoryNotice;
+        rerender();
+      });
+    });
+    container.querySelectorAll("[data-inventory-delete-item]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const name = button.getAttribute("data-inventory-delete-item") || "";
+        const item = items.find((entry) => entry.name === name) || null;
+        Promise.resolve(requestInventoryDeleteItem(host, item)).then((result) => {
+          delete host.dataset.inventoryDialog;
+          delete host.dataset.inventoryDialogItem;
+          host.dataset.inventoryNotice = result?.message || "删除请求已处理。";
+          rerender();
+        });
+      });
+    });
+    container.querySelectorAll("[data-inventory-dialog-close]").forEach((button) => {
+      button.addEventListener("click", () => {
+        delete host.dataset.inventoryDialog;
+        delete host.dataset.inventoryDialogItem;
+        rerender();
+      });
+    });
+    container.querySelector("[data-inventory-dialog-layer]")?.addEventListener("click", (event) => {
+      if (event.target?.closest?.(".st-hypnosis-dialog-card")) return;
+      delete host.dataset.inventoryDialog;
+      delete host.dataset.inventoryDialogItem;
+      rerender();
+    });
+    container.querySelectorAll("[data-inventory-target-chip]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const input = container.querySelector("[data-inventory-use-target]");
+        if (input) {
+          input.value = button.getAttribute("data-inventory-target-chip") || "";
+          input.focus?.();
+        }
+      });
+    });
+    container.querySelector("[data-inventory-use-form]")?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const item = inventoryDialogItem(host, items);
+      const target = container.querySelector("[data-inventory-use-target]")?.value || "";
+      Promise.resolve(requestInventoryUseItem(host, item, target)).then((result) => {
+        delete host.dataset.inventoryDialog;
+        delete host.dataset.inventoryDialogItem;
+        host.dataset.inventoryNotice = result?.message || "使用请求已处理。";
+        rerender();
+      });
+    });
+  }
+
   function inventoryLockerHtml(items, selected, pageIndex, pageCount, itemAttr, pageAttr) {
     const lockerImage = stAssetUrl("inventory/locker-inventory.png");
     const start = pageIndex * INVENTORY_LOCKER_PAGE_SIZE;
@@ -3259,6 +3444,7 @@ button.st-work-notice{cursor:pointer}
       '<section class="st-inventory-note">' +
         '<strong>' + escapeHtml(selected ? selected.name + " x" + selected.count : "暂无持有物品") + '</strong>' +
         '<p>' + escapeHtml(selected?.description || (selected ? "暂无描述。" : "获得道具后会挂在左侧袋子上。")) + '</p>' +
+        (selected ? '<div class="st-inventory-note-actions"><button type="button" data-inventory-use-item="' + escapeAttr(selected.name) + '">使用</button><button type="button" class="danger" data-inventory-delete-item="' + escapeAttr(selected.name) + '">删除</button></div>' : "") +
       '</section>' +
       '<section class="st-inventory-bags">' + bags + '</section>' +
       pager +
@@ -3286,7 +3472,9 @@ button.st-work-notice{cursor:pointer}
       layer.className = "st-inventory-backpack";
       root.appendChild(layer);
     }
-    layer.innerHTML = inventoryLockerHtml(items, selected, pageIndex, pageCount, "data-inventory-item", "data-inventory-page");
+    layer.innerHTML = inventoryLockerHtml(items, selected, pageIndex, pageCount, "data-inventory-item", "data-inventory-page") +
+      inventoryNoticeHtml(root) +
+      inventoryUseDialogHtml(root, items);
     layer.querySelectorAll("[data-inventory-item]").forEach((button) => {
       button.addEventListener("click", () => {
         root.dataset.stInventorySelected = button.getAttribute("data-inventory-item") || "";
@@ -3299,6 +3487,7 @@ button.st-work-notice{cursor:pointer}
         renderInventoryBackpack(root);
       });
     });
+    bindInventoryActionControls(layer, root, items, () => renderInventoryBackpack(root));
   }
 
   function removeInventoryBackpack(root) {
@@ -3421,6 +3610,9 @@ button.st-work-notice{cursor:pointer}
     { id: "prostate", label: "前列腺", stat: "前列腺敏感度" },
     { id: "nipple", label: "乳头", stat: "乳头敏感度" }
   ];
+  const HYP_CUSTOM_ITEM_COST_STARLIGHT = 5;
+  const HYP_CUSTOM_ITEM_MIN_VIP_RANK = 2;
+  const HYP_CUSTOM_ITEM_RULE_TEXT = "只能生成衣物或性道具；没有精神方面的影响操作，只能迎合用户性趣味；可以违背一定程度的物理法则，但不能带来直接金钱收益、增强战斗力、强迫他人、远程监控、读心、催眠、洗脑、强制命令或其他明显影响剧情发展的能力。";
 
   function reactVipRank(tier) {
     const match = String(tier || "").toUpperCase().match(/VIP\s*([1-6])/);
@@ -3447,6 +3639,10 @@ button.st-work-notice{cursor:pointer}
     const pendingEnergy = hasPendingHypnosisSupplyOperation(/补充MC能量/);
     const pendingMaxEnergy = hasPendingHypnosisSupplyOperation(/提升MC能量上限/);
     const pendingVip = hasPendingHypnosisVipOperation();
+    const canBuyCustomItem = currentRank >= HYP_CUSTOM_ITEM_MIN_VIP_RANK && starlight >= HYP_CUSTOM_ITEM_COST_STARLIGHT;
+    const customItemLabel = currentRank < HYP_CUSTOM_ITEM_MIN_VIP_RANK ? "需VIP2" : starlight < HYP_CUSTOM_ITEM_COST_STARLIGHT ? "星光点不足" : "定制";
+    const energyPrice = qty * 10;
+    const maxEnergyPrice = qty * 100;
     const vipButtons = HYP_REACT_VIP_TIERS.map((tier) => {
       const rank = reactVipRank(tier);
       const price = HYP_REACT_VIP_PRICE[tier] || 0;
@@ -3466,8 +3662,9 @@ button.st-work-notice{cursor:pointer}
       '<div class="st-hypnosis-redrawer-head"><strong>补给 / VIP</strong><span>当前 ' + escapeHtml(currentTier || "未买断") + '</span></div>' +
       '<div class="st-hypnosis-redrawer-grid">' +
         '<input type="number" min="1" max="999" step="1" value="' + qty + '" data-hypnosis-drawer-qty aria-label="数量">' +
-        '<button type="button" class="primary" data-hypnosis-drawer-action="energy">' + (pendingEnergy ? "继续补充" : "补充能量") + '</button>' +
-        '<button type="button" class="primary" data-hypnosis-drawer-action="max-energy">' + (pendingMaxEnergy ? "继续提升" : "提升上限") + '</button>' +
+        '<button type="button" class="primary' + (pendingEnergy ? " is-pending" : "") + '" data-hypnosis-drawer-action="energy">补充能量 <small>¥' + energyPrice.toLocaleString() + '</small></button>' +
+        '<button type="button" class="primary' + (pendingMaxEnergy ? " is-pending" : "") + '" data-hypnosis-drawer-action="max-energy">提升上限 <small>¥' + maxEnergyPrice.toLocaleString() + '</small></button>' +
+        '<button type="button" class="primary st-hypnosis-drawer-wide" data-hypnosis-drawer-action="custom-item"' + (canBuyCustomItem ? "" : " disabled") + '>定制物品 <small>' + customItemLabel + ' · 5星光点</small></button>' +
       '</div>' +
       '<div class="st-hypnosis-vips">' + vipButtons + '</div>' +
       '<p class="st-hypnosis-redrawer-note">补给/VIP会由前端直接写入变量，并在当前楼层锁定暂存；多次补给会自动合并。</p>' +
@@ -3499,8 +3696,97 @@ button.st-work-notice{cursor:pointer}
     return result;
   }
 
-  function hypnosisFrontendSettledPrompt(paths) {
-    return "本操作已由前端直接扣费并写入变量；这条锁定暂存只用于告知AI本轮已经发生的购买事实。AI不得再次扣除持有零花钱、星光点，不得再次增加MC能量、MC能量上限或再次改VIP等级；除非本轮还有启动/追加催眠等其他操作，否则不要继续改动" + paths.join("、") + "。";
+  function hypnosisFrontendSettledPrompt() {
+    return "本操作已由前端直接扣费并写入变量；这条锁定暂存只用于告知AI本轮已经发生的购买事实。AI不得再次扣除持有零花钱、星光点，不得再次增加MC能量、MC能量上限或再次改VIP等级；除非本轮还有启动/追加催眠等其他操作，否则不要继续改动本操作已写入的变量。";
+  }
+
+  function hypnosisInventoryObject(stat) {
+    stat["系统"] = stat["系统"] && typeof stat["系统"] === "object" && !Array.isArray(stat["系统"]) ? stat["系统"] : {};
+    if (!stat["系统"]["持有物品"] || typeof stat["系统"]["持有物品"] !== "object") stat["系统"]["持有物品"] = {};
+    return stat["系统"]["持有物品"];
+  }
+
+  function hypnosisInventoryHasItem(inventory, itemName) {
+    const name = String(itemName || "").trim();
+    if (!inventory || !name) return false;
+    if (Array.isArray(inventory)) {
+      return inventory.some((item) => {
+        if (typeof item === "string") return item === name;
+        return item && typeof item === "object" && String(item.name || item["名称"] || item.id || item["道具名"] || "").trim() === name;
+      });
+    }
+    return Object.prototype.hasOwnProperty.call(inventory, name);
+  }
+
+  function hypnosisCustomItemSafeLabel(requirement) {
+    const text = String(requirement || "").replace(/[\r\n]+/g, " ").replace(/[\/\\[\]{}<>|=]/g, " ").replace(/\s+/g, " ").trim();
+    return text.slice(0, 10) || "趣味";
+  }
+
+  function hypnosisCustomItemName(requirement, inventory) {
+    const base = "定制物品·" + hypnosisCustomItemSafeLabel(requirement);
+    if (!hypnosisInventoryHasItem(inventory, base)) return base;
+    for (let index = 2; index <= 99; index += 1) {
+      const name = base + "-" + index;
+      if (!hypnosisInventoryHasItem(inventory, name)) return name;
+    }
+    return base + "-" + Date.now().toString(36).slice(-4);
+  }
+
+  function hypnosisStoreInventoryItem(inventory, itemName, itemObject) {
+    if (Array.isArray(inventory)) inventory.push(itemObject);
+    else inventory[itemName] = itemObject;
+  }
+
+  async function appendHypnosisCustomItemOperation(root, requirement) {
+    const requestText = String(requirement || "").replace(/[\r\n]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 160);
+    if (!requestText) return { ok: false, message: "请先写下想要的衣物或性道具需求。" };
+    const result = await hypnosisApplySystemMutation((system, stat) => {
+      const rank = reactVipRank(reactCurrentVipTier(system));
+      if (rank < HYP_CUSTOM_ITEM_MIN_VIP_RANK) return { ok: false, message: "定制趣味物品需要VIP2。" };
+      const starlight = hypnosisNumber(system["星光点"], 0);
+      if (starlight < HYP_CUSTOM_ITEM_COST_STARLIGHT) return { ok: false, message: "星光点不足，定制物品需要5星光点。" };
+      const inventory = hypnosisInventoryObject(stat);
+      const itemName = hypnosisCustomItemName(requestText, inventory);
+      const nextStarlight = hypnosisSetSystemNumber(system, "星光点", starlight - HYP_CUSTOM_ITEM_COST_STARLIGHT);
+      const itemObject = {
+        "名称": itemName,
+        "数量": 1,
+        "类别": "待AI生成的衣物或性道具",
+        "需求": requestText,
+        "描述": "已由催眠APP补给兑换生成的库存占位。发送后由AI按需求补全为衣物或性道具。",
+        "限制": HYP_CUSTOM_ITEM_RULE_TEXT,
+        "来源": "催眠APP补给",
+        "生成状态": "待AI补全"
+      };
+      hypnosisStoreInventoryItem(inventory, itemName, itemObject);
+      return {
+        ok: true,
+        message: "定制物品已写入库存，购买操作已锁定暂存。",
+        payload: {
+          来源: "催眠APP",
+          操作: "资源兑换",
+          项目: "定制趣味物品",
+          暂存摘要: "定制物品｜" + itemName + "｜星光点 -" + HYP_CUSTOM_ITEM_COST_STARLIGHT,
+          购买数量: 1,
+          购买需求: requestText,
+          兑换规则: "VIP2；5星光点 = 1件符合需求的衣物或性道具",
+          消耗星光点: HYP_CUSTOM_ITEM_COST_STARLIGHT,
+          消耗资源: "星光点 " + HYP_CUSTOM_ITEM_COST_STARLIGHT,
+          获得资源: "库存物品 " + itemName + " x1",
+          物品限制: HYP_CUSTOM_ITEM_RULE_TEXT,
+          前端处理: "已由前端直接扣除星光点并写入/系统/持有物品占位",
+          前端写入后星光点: nextStarlight,
+          新增物品: itemObject,
+          变量写入路径: ["/系统/星光点", "/系统/持有物品/" + itemName],
+          AI执行规范: "本操作已由前端直接扣除星光点并写入库存占位；AI不得再次扣费或额外增减星光点。请按购买需求把该占位物品补全为一件衣物或性道具，可调整成合理且安全的近似方案；只改本条新增物品的名称、类别、描述、限制等字段，不要生成精神控制、强迫他人、直接金钱收益、战斗力增强或其他明显影响剧情发展的能力。",
+          不可删除: true
+        }
+      };
+    });
+    if (!result.ok) return result;
+    const added = await appendAppOperation(result.payload);
+    return { ok: Boolean(added), message: result.message };
   }
 
   async function appendHypnosisDrawerOperation(root, action, tier = "") {
@@ -3542,7 +3828,7 @@ button.st-work-notice{cursor:pointer}
             前端写入后MC能量: nextEnergy,
             前端写入后MC能量上限: maxEnergy || system["MC能量上限"] || "未记录",
             变量写入路径: ["/系统/持有零花钱", "/系统/MC能量"],
-            AI执行规范: hypnosisFrontendSettledPrompt(["/系统/持有零花钱", "/系统/MC能量"]),
+            AI执行规范: hypnosisFrontendSettledPrompt(),
             不可删除: true
           }
         };
@@ -3578,7 +3864,7 @@ button.st-work-notice{cursor:pointer}
             前端写入后持有零花钱: nextMoney,
             前端写入后MC能量上限: nextMax,
             变量写入路径: ["/系统/持有零花钱", "/系统/MC能量上限"],
-            AI执行规范: hypnosisFrontendSettledPrompt(["/系统/持有零花钱", "/系统/MC能量上限"]),
+            AI执行规范: hypnosisFrontendSettledPrompt(),
             不可删除: true
           }
         };
@@ -3624,7 +3910,8 @@ button.st-work-notice{cursor:pointer}
             前端写入后星光点: nextStarlight,
             前端写入后催眠APP订阅等级: cleanTier,
             变量写入路径: ["/系统/持有零花钱", "/系统/星光点", "/系统/催眠APP订阅等级"],
-            AI执行规范: hypnosisFrontendSettledPrompt(["/系统/持有零花钱", "/系统/星光点", "/系统/催眠APP订阅等级"]) + "VIP仍然不支持一次购买多级；本轮如有第二个VIP购买请求应视为无效。",
+            AI执行规范: hypnosisFrontendSettledPrompt(),
+            VIP购买限制: "VIP仍然不支持一次购买多级；本轮如有第二个VIP购买请求应视为无效。",
             不可删除: true
           }
         };
@@ -4421,7 +4708,9 @@ button.st-work-notice{cursor:pointer}
       renderLiteHeader(page, { title: "库存", html: recordingIslandHtml() }) +
       '<main class="st-lite-body">' +
         inventoryLockerHtml(items, selected, pageIndex, pageCount, "data-inventory-lite-item", "data-inventory-lite-page") +
-      '</main>';
+        inventoryNoticeHtml(page) +
+      '</main>' +
+      inventoryUseDialogHtml(page, items);
     bindLiteHeader(page, () => renderInventoryPage(page));
     page.querySelector('[data-lite-action="back"]')?.addEventListener("click", () => closeInternalLitePage(page, "inventory"));
     page.querySelectorAll("[data-inventory-lite-item]").forEach((button) => button.addEventListener("click", () => {
@@ -4432,6 +4721,7 @@ button.st-work-notice{cursor:pointer}
       shiftInventoryPage(page, items, "inventorySelected", "inventoryPage", button.getAttribute("data-inventory-lite-page") || "next");
       renderInventoryPage(page);
     }));
+    bindInventoryActionControls(page, page, items, () => renderInventoryPage(page));
   }
 
   function openInventoryPage(tile) {
@@ -4743,11 +5033,17 @@ button.st-work-notice{cursor:pointer}
   function renderHypnosisSupply(page, system) {
     const qty = hypnosisDrawerQty(page);
     const money = Math.max(0, Math.floor(Number(system["持有零花钱"] || 0) || 0));
+    const starlight = Math.max(0, Math.floor(Number(system["星光点"] || 0) || 0));
     const suspicion = Math.max(0, Number(system["主角可疑度"] || 0) || 0);
     const pendingEnergy = hasPendingHypnosisSupplyOperation(/补充MC能量/);
     const pendingMaxEnergy = hasPendingHypnosisSupplyOperation(/提升MC能量上限/);
+    const currentRank = reactVipRank(reactCurrentVipTier(system));
+    const customItemBlocked = currentRank < HYP_CUSTOM_ITEM_MIN_VIP_RANK || starlight < HYP_CUSTOM_ITEM_COST_STARLIGHT;
+    const customItemText = currentRank < HYP_CUSTOM_ITEM_MIN_VIP_RANK ? "需要VIP2" : starlight < HYP_CUSTOM_ITEM_COST_STARLIGHT ? "星光点不足" : "定制";
+    const energyPrice = qty * 10;
+    const maxEnergyPrice = qty * 100;
     return '<section class="st-lite-card st-graph-paper st-hypnosis-form">' +
-      '<div class="st-graph-head"><strong>快速补给</strong><span>资金 ' + escapeHtml("¥" + money.toLocaleString()) + '</span></div>' +
+      '<div class="st-graph-head"><strong>快速补给</strong><span>资金 ' + escapeHtml("¥" + money.toLocaleString()) + ' / 星光点 ' + starlight.toLocaleString() + '</span></div>' +
       '<section class="st-hypnosis-summary">' +
         '<span><strong>' + escapeHtml(String(system["MC能量"] ?? 0)) + '</strong>MC能量</span>' +
         '<span><strong>' + escapeHtml(String(system["MC能量上限"] ?? 0)) + '</strong>上限</span>' +
@@ -4755,11 +5051,30 @@ button.st-work-notice{cursor:pointer}
       '</section>' +
       '<div class="st-hypnosis-form-grid">' +
         '<input type="number" min="1" max="999" step="1" value="' + qty + '" data-hypnosis-drawer-qty aria-label="数量">' +
-        '<button class="st-hypnosis-button' + (pendingEnergy ? " is-pending" : "") + '" type="button" data-hypnosis-supply-action="energy">' + (pendingEnergy ? "并入补给" : "补充能量") + '</button>' +
-        '<button class="st-hypnosis-button' + (pendingMaxEnergy ? " is-pending" : "") + '" type="button" data-hypnosis-supply-action="max-energy">' + (pendingMaxEnergy ? "并入上限" : "提升上限") + '</button>' +
+        '<button class="st-hypnosis-button' + (pendingEnergy ? " is-pending" : "") + '" type="button" data-hypnosis-supply-action="energy">补充能量 <small>¥' + energyPrice.toLocaleString() + '</small></button>' +
+        '<button class="st-hypnosis-button' + (pendingMaxEnergy ? " is-pending" : "") + '" type="button" data-hypnosis-supply-action="max-energy">提升上限 <small>¥' + maxEnergyPrice.toLocaleString() + '</small></button>' +
       '</div>' +
-      '<p class="st-hypnosis-notice">补给/VIP由前端直接扣费写变量，并锁定当前楼层暂存。存在“无精打采”时补充能量实际获得减半。</p>' +
+      '<section class="st-hypnosis-custom-item">' +
+        '<div><strong>定制趣味物品</strong><p>VIP2开放，5星光点换1件库存物品。仅限衣物或性道具，不含精神影响和强剧情道具。</p></div>' +
+        '<button class="st-hypnosis-button" type="button" data-hypnosis-custom-item-open' + (customItemBlocked ? " disabled" : "") + '>' + customItemText + ' <small>5星光点</small></button>' +
+      '</section>' +
+      '<p class="st-hypnosis-notice">补给/VIP/定制物品由前端直接扣费写变量，并锁定当前楼层暂存。存在“无精打采”时补充能量实际获得减半。</p>' +
     '</section>';
+  }
+
+  function renderHypnosisCustomItemDialog(page) {
+    if (page?.dataset?.hypnosisSupplyDialog !== "custom-item") return "";
+    return '<div class="st-hypnosis-dialog-layer" data-hypnosis-dialog-layer role="presentation">' +
+      '<form class="st-hypnosis-dialog-card" data-hypnosis-custom-item-form role="dialog" aria-modal="true" aria-label="定制趣味物品">' +
+        '<h3>定制趣味物品</h3>' +
+        '<p>消耗5星光点，生成一件可放入库存的衣物或性道具。它只用于迎合性趣味，不会带来精神控制、强迫他人、金钱收益、战斗力或其他强剧情能力。</p>' +
+        '<label><span>需求</span><textarea maxlength="160" data-hypnosis-custom-item-text placeholder="例：适合夏美的大号犬耳外套；不会控制心智，只是穿着羞耻又可爱"></textarea></label>' +
+        '<div class="st-hypnosis-dialog-actions">' +
+          '<button type="button" data-hypnosis-dialog-close>取消</button>' +
+          '<button type="submit" class="primary">5星光点兑换</button>' +
+        '</div>' +
+      '</form>' +
+    '</div>';
   }
 
   function renderHypnosisVip(page, system) {
@@ -4813,7 +5128,8 @@ button.st-work-notice{cursor:pointer}
         '</section>' +
         (notice ? '<p class="st-hypnosis-notice">' + escapeHtml(notice) + '</p>' : "") +
         body +
-      '</main>';
+      '</main>' +
+      renderHypnosisCustomItemDialog(page);
     const rerenderPreservingScroll = () => rerenderLitePagePreservingBodyScroll(page, () => renderHypnosisLitePage(page));
     bindLiteHeader(page, rerenderPreservingScroll);
     page.querySelector('[data-lite-action="back"]')?.addEventListener("click", () => closeInternalLitePage(page, "hypnosis"));
@@ -4831,6 +5147,29 @@ button.st-work-notice{cursor:pointer}
         rerenderPreservingScroll();
       });
     }));
+    page.querySelector("[data-hypnosis-custom-item-open]")?.addEventListener("click", () => {
+      page.dataset.hypnosisSupplyDialog = "custom-item";
+      delete page.dataset.hypnosisNotice;
+      rerenderPreservingScroll();
+    });
+    page.querySelectorAll("[data-hypnosis-dialog-close]").forEach((button) => button.addEventListener("click", () => {
+      delete page.dataset.hypnosisSupplyDialog;
+      rerenderPreservingScroll();
+    }));
+    page.querySelector("[data-hypnosis-dialog-layer]")?.addEventListener("click", (event) => {
+      if (event.target?.closest?.(".st-hypnosis-dialog-card")) return;
+      delete page.dataset.hypnosisSupplyDialog;
+      rerenderPreservingScroll();
+    });
+    page.querySelector("[data-hypnosis-custom-item-form]")?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const text = page.querySelector("[data-hypnosis-custom-item-text]")?.value || "";
+      Promise.resolve(appendHypnosisCustomItemOperation(page, text)).then((result) => {
+        delete page.dataset.hypnosisSupplyDialog;
+        page.dataset.hypnosisNotice = result?.message || (result ? "定制物品已暂存。" : "定制物品兑换失败。");
+        rerenderPreservingScroll();
+      });
+    });
     page.querySelectorAll("[data-hypnosis-vip-tier]").forEach((button) => button.addEventListener("click", () => {
       Promise.resolve(appendHypnosisDrawerOperation(page, "vip", button.getAttribute("data-hypnosis-vip-tier") || "")).then((result) => {
         page.dataset.hypnosisNotice = result?.message || (result ? "VIP买断请求已暂存。" : "VIP买断失败。");
@@ -5853,12 +6192,11 @@ button.st-work-notice{cursor:pointer}
       return;
     }
     const requestMode = speakToTarget ? "直接和目标说" : "{{user}}自己心里想";
-    const nicknameTargetText = nickname ? "「" + nickname + "」" : "空字符串";
     const recognitionRule = nickname
       ? (speakToTarget
-        ? "剧情中应写出{{user}}确实把这个称呼当面对目标说出；只有目标接受、默许或之后稳定回应这个称呼时，才replace /角色/" + roleName + "/绰号已认可 为 true，否则replace为 false或保持原值。"
-        : "这是{{user}}自己心里/档案里的称呼，不代表目标知道；成功时replace /角色/" + roleName + "/绰号已认可 为 false。")
-      : "清除绰号时同时replace /角色/" + roleName + "/绰号已认可 为 false。";
+        ? "剧情中应写出{{user}}确实把这个称呼当面对目标说出；只有目标接受、默许或之后稳定回应这个称呼时，才将本条绰号认可状态写为true，否则写为false或保持原值。"
+        : "这是{{user}}自己心里/档案里的称呼，不代表目标知道；成功时将本条绰号认可状态写为false。")
+      : "清除绰号时同时将本条绰号认可状态写为false。";
     const currentStatus = current ? (currentRecognized ? "目标已认可" : "仅{{user}}自用") : "无";
     const nicknameSummary = nickname ? ((speakToTarget ? "当面说：" : "自己心里：") + nickname) : "清除绰号";
     Promise.resolve(appendAppOperation({
@@ -5871,7 +6209,7 @@ button.st-work-notice{cursor:pointer}
       新绰号: nickname || "清除",
       设置方式: requestMode,
       目标变量路径: ["/角色/" + roleName + "/绰号", "/角色/" + roleName + "/绰号已认可"],
-      AI执行规范: "这是{{user}}在自己搜集整理的纸质人物档案姓名旁用铅笔记录/修改绰号，不是催眠APP操作，也不是任何APP效果。同一角色本轮只处理最后一次设置。若剧情条件允许，replace /角色/" + roleName + "/绰号 为 " + nicknameTargetText + "；不要写入/角色/" + roleName + "/档案/姓名，也不要改真实姓名。" + recognitionRule
+      AI执行规范: "这是{{user}}在自己搜集整理的纸质人物档案姓名旁用铅笔记录/修改绰号，不是催眠APP操作，也不是任何APP效果。同一角色本轮只处理最后一次设置。若剧情条件允许，按本条目标变量路径更新绰号和绰号认可状态；不要写入角色档案里的姓名，也不要改真实姓名。" + recognitionRule
     })).then((added) => {
       delete page.dataset.profileNicknameDialog;
       page.dataset.profileTransformNotice = added ? "绰号请求已暂存，确认发送后由AI更新。" : "绰号请求已在暂存区。";
@@ -8106,7 +8444,7 @@ button.st-work-notice{cursor:pointer}
           工作价值: monitorRoleValue(role),
           每日星光点: monitorRoleStarlightPerDay(role),
           前置条件: "好感度>=100；服从度>=100；未派遣中；门位为空。",
-          AI执行规范: "由AI按剧情和前置条件判定派遣是否成功；派遣工作以本条派遣工作字段为准，若原始派遣工作为空或明显不可能发生在学校男厕门位，前端已改用默认轻口味的NSFW直播，不要再按原始荒诞内容执行。工作内容可能影响主角可疑度，请按剧情风险决定是否更新。成功时写入系统.派遣岗位." + (index + 1) + "号门的角色名、派遣工作、派遣开始时间、派遣结束时间、工作价值，并将该角色的是否派遣中设为true；派遣期间不立刻发星光点。失败则不要改变量。"
+          AI执行规范: "由AI按剧情和前置条件判定派遣是否成功；派遣工作以本条派遣工作字段为准，若原始派遣工作为空或明显不可能发生在学校男厕门位，前端已改用默认轻口味的NSFW直播，不要再按原始荒诞内容执行。工作内容可能影响主角可疑度，请按剧情风险决定是否更新。成功时写入本条门位对应的系统.派遣岗位，记录角色名、派遣工作、派遣开始时间、派遣结束时间、工作价值，并将该角色的是否派遣中设为true；派遣期间不立刻发星光点。失败则不要改变量。"
         };
         const pendingEntry = getPendingMonitorGateDispatchEntry(index);
         const pendingChanged = pendingEntry && monitorDispatchPayloadSignature(pendingEntry.payload) !== monitorDispatchPayloadSignature(payload);
@@ -13368,7 +13706,13 @@ button.st-work-notice{cursor:pointer}
         resolve(Boolean(window.confirm?.(message || title)));
         return;
       }
-      targetPage.style.position = targetPage.style.position || "relative";
+      const previousInlinePosition = targetPage.style.position || "";
+      const computedPosition = (() => {
+        try { return window.getComputedStyle?.(targetPage)?.position || ""; } catch { return ""; }
+      })();
+      const needsTemporaryPosition = !previousInlinePosition && (!computedPosition || computedPosition === "static");
+      if (needsTemporaryPosition) targetPage.style.position = "relative";
+      targetPage.classList?.add?.("is-encounter-confirm-open");
       targetPage.querySelectorAll?.(".st-encounter-confirm").forEach((node) => node.remove());
       const overlay = document.createElement("div");
       overlay.className = "st-encounter-confirm";
@@ -13386,6 +13730,8 @@ button.st-work-notice{cursor:pointer}
       const finish = (value) => {
         document.removeEventListener("keydown", onKeyDown, true);
         overlay.remove();
+        targetPage.classList?.remove?.("is-encounter-confirm-open");
+        if (needsTemporaryPosition) targetPage.style.position = previousInlinePosition;
         resolve(Boolean(value));
       };
       const onKeyDown = (event) => {
