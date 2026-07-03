@@ -395,19 +395,44 @@ window.setTimeout(() => {
 	      "结算提示",
 	      "AI执行规范"
 	    ]);
-	    const operationShouldHideDetail = (record, key) => {
+	    const OPERATION_PROMPT_INTERNAL_DETAIL_KEYS = new Set([
+	      "暂存摘要",
+	      "不可删除",
+	      "变量写入路径",
+	      "合并次数",
+	      "locked",
+	      "forceLocked"
+	    ]);
+	    const operationShouldHideDetail = (record, key, mode = "prompt") => {
 	      const name = cleanOperationText(key);
 	      if (OPERATION_CURRENT_DETAIL_KEYS.has(name)) return true;
 	      if (OPERATION_GROUP_NOTICE_DETAIL_KEYS.has(name)) return true;
 	      const source = cleanOperationText(record?.source || "");
 	      const action = cleanOperationText(record?.action || "");
-	      if (/^成就和任务$/.test(source) && /^领取/.test(action)) {
-	        return /^(暂存摘要|前端写入后星光点|变量写入路径|不可删除)$/.test(name);
+	      if (mode !== "prompt") return false;
+	      const details = record?.details || {};
+	      if (OPERATION_PROMPT_INTERNAL_DETAIL_KEYS.has(name)) return true;
+	      if (/^前端写入后/.test(name)) return true;
+	      if (/^成就和任务$/.test(source)) {
+	        if (/^(奖励星光点|奖励物品)$/.test(name) && details["奖励"] !== undefined) return true;
+	        if (/^新增任务$/.test(action) && /^(变量日期|每日任务种子|当前已接任务数|暂存区新增任务数)$/.test(name)) return true;
+	      }
+	      if (/^催眠APP$/.test(source) && /^资源兑换$/.test(action)) {
+	        if (/^(购买数量|消耗零花钱|消耗星光点|基础获得MC能量|实际获得MC能量|获得MC能量|获得MC能量上限|当前VIP等级|当前星光点)$/.test(name)) return true;
+	      }
+	      if (/^催眠APP$/.test(source) && /^购买VIP等级$/.test(action)) {
+	        if (/^消耗零花钱$/.test(name) && details["买断价格"] !== undefined) return true;
+	      }
+	      if (/^地图$/.test(source) && /^解锁特殊地点$/.test(action)) {
+	        if (/^星光点花费$/.test(name) && details["消耗星光点"] !== undefined) return true;
+	      }
+	      if (/^监控$/.test(source) && /^(派遣结束提醒|取消派遣)$/.test(action)) {
+	        if (/^(前端计算|经过分钟数|经过小时数|工作价值|每日星光点)$/.test(name)) return true;
 	      }
 	      return false;
 	    };
-	    const operationVisibleDetailEntries = (record) => Object.entries(record?.details || {})
-	      .filter(([key]) => !operationShouldHideDetail(record, key));
+	    const operationVisibleDetailEntries = (record, mode = "prompt") => Object.entries(record?.details || {})
+	      .filter(([key]) => !operationShouldHideDetail(record, key, mode));
 	    const operationVisibleValueToDenseText = (value, depth = 0) => {
 	      if (value === null || value === undefined || value === "") return "";
 	      if (Array.isArray(value)) {
@@ -647,7 +672,7 @@ window.setTimeout(() => {
       const payload = operationEntryPayload(entry);
       const record = normalizeOperationPayload(payload);
       const key = entry?.key || operationRecordKey(payload);
-      const fields = operationVisibleDetailEntries(record)
+      const fields = operationVisibleDetailEntries(record, "panel")
         .map(([name, value]) => {
           const text = operationVisibleValueToDenseText(value);
           return text ? cleanOperationText(name) + "=" + text : "";
@@ -3725,7 +3750,7 @@ button.st-work-notice{cursor:pointer}
       购买数量: 1,
       购买需求: requestText,
       建议物品名: suggestedName,
-      兑换规则: "VIP2；成功时消耗5星光点，生成1件符合需求的衣物或性道具",
+      兑换规则: "成功时按消耗资源与获得资源结算；失败不扣费不生成",
       所需VIP等级: "VIP2",
       当前VIP等级: currentTier || "未买断",
       当前星光点: starlight,
@@ -4792,7 +4817,7 @@ button.st-work-notice{cursor:pointer}
         初始状态: "直接写入任务变量，作为已接/进行中的任务",
         任务命名规则: "AI必须生成一个黑色色情幽默感的短任务名，不能使用“今日任务目标”“每日任务目标”，也不能只用角色名。任务名应结合目标角色人设、当前状态、心理或剧情进展。",
         避免重复规则: "参考当前已有任务摘要，尽量不要复用已有任务名、完成条件和黑色幽默角度；若目标关系或状态已有进展，应把任务安排到更高难度或不同弱点上。",
-        生成规则: "前端不生成任务内容；AI根据当前剧情、任务目标角色变量和已有任务，生成1个高难度、不容易轻易完成、带黑色色情幽默感且黑色幽默对象指向任务目标的任务。写入/任务/AI生成任务名，包含任务ID、每日任务日期、每日任务聊天、任务目标、完成条件、奖励星光点=5、可选奖励物品和已完成=false；不要写入前端静态列表。"
+        生成规则: "前端不生成任务内容；AI根据当前剧情、任务目标角色变量和已有任务，生成1个高难度、不容易轻易完成、带黑色色情幽默感且黑色幽默对象指向任务目标的任务。写入/任务/AI生成任务名，包含任务ID、每日任务日期、每日任务聊天、任务目标、完成条件、奖励字段、可选奖励物品和已完成=false；不要写入前端静态列表。"
       });
       page.dataset.rewardNotice = "新增任务请求已暂存。";
       renderRewardPage(page);
