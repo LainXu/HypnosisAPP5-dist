@@ -10700,32 +10700,59 @@ button.st-work-notice{cursor:pointer}
     return [];
   }
 
-  function encounterReadPackages() {
-    const builtIns = encounterBuiltInPackages();
-    const builtInIds = new Set(builtIns.map((pkg) => pkg.id));
-    const stored = encounterReadStoredPackages().filter((pkg) => !builtInIds.has(pkg.id));
-    return builtIns.concat(stored);
+	  function encounterReadPackages() {
+	    const builtIns = encounterBuiltInPackages();
+	    const builtInIds = new Set(builtIns.map((pkg) => pkg.id));
+	    const stored = encounterReadStoredPackages().filter((pkg) => !builtInIds.has(pkg.id));
+	    return builtIns.concat(stored);
+	  }
+
+  let encounterLastStorageError = "";
+
+  function encounterStorageErrorMessage(error) {
+    const message = String(error?.message || error || "");
+    if (/quota|exceed|storage/i.test(message)) return "本地存储空间不足，通常是角色图片太大或已保存内容太多。";
+    return message ? "本地存储写入失败：" + message : "本地存储写入失败。";
   }
 
-  function encounterSavePackages(packages) {
+  function encounterSetJsonStorage(key, value) {
+    encounterLastStorageError = "";
+    let text = "";
     try {
-      const builtInIds = encounterBuiltInPackageIds();
-      const stored = (Array.isArray(packages) ? packages : [])
-        .map(encounterNormalizePackage)
-        .filter((pkg) => !builtInIds.has(pkg.id));
-      localStorage.setItem(ENCOUNTER_PACKAGE_STORAGE_KEY, JSON.stringify(stored));
-    } catch {}
+      text = JSON.stringify(value);
+      localStorage.setItem(key, text);
+      if (localStorage.getItem(key) !== text) throw new Error("写入后校验失败");
+      return true;
+    } catch (error) {
+      encounterLastStorageError = encounterStorageErrorMessage(error);
+      console.warn("[邂逅] 保存本地数据失败", key, error);
+      return false;
+    }
   }
 
-  function encounterUpsertPackage(pkg) {
-    const normalized = encounterNormalizePackage(pkg);
-    const packages = encounterReadStoredPackages();
-    const index = packages.findIndex((item) => item.id === normalized.id || (item.name && item.name === normalized.name));
-    if (index >= 0) packages[index] = normalized;
-    else packages.unshift(normalized);
-    encounterSavePackages(packages);
-    return normalized;
-  }
+	  function encounterSavePackages(packages) {
+	    try {
+	      const builtInIds = encounterBuiltInPackageIds();
+	      const stored = (Array.isArray(packages) ? packages : [])
+	        .map(encounterNormalizePackage)
+	        .filter((pkg) => !builtInIds.has(pkg.id));
+	      return encounterSetJsonStorage(ENCOUNTER_PACKAGE_STORAGE_KEY, stored);
+	    } catch (error) {
+      encounterLastStorageError = encounterStorageErrorMessage(error);
+      console.warn("[邂逅] 保存角色包失败", error);
+      return false;
+    }
+	  }
+
+	  function encounterUpsertPackage(pkg) {
+	    const normalized = encounterNormalizePackage(pkg);
+	    const packages = encounterReadStoredPackages();
+	    const index = packages.findIndex((item) => item.id === normalized.id || (item.name && item.name === normalized.name));
+	    if (index >= 0) packages[index] = normalized;
+	    else packages.unshift(normalized);
+	    if (!encounterSavePackages(packages)) return null;
+	    return normalized;
+	  }
 
   function encounterReadDraft() {
     try {
@@ -10735,13 +10762,11 @@ button.st-work-notice{cursor:pointer}
     return encounterBlankDraft();
   }
 
-  function encounterSaveDraft(draft) {
-    const normalized = encounterNormalizePackage(draft);
-    try {
-      localStorage.setItem(ENCOUNTER_DRAFT_STORAGE_KEY, JSON.stringify(normalized));
-    } catch {}
-    return normalized;
-  }
+	  function encounterSaveDraft(draft) {
+	    const normalized = encounterNormalizePackage(draft);
+	    encounterSetJsonStorage(ENCOUNTER_DRAFT_STORAGE_KEY, normalized);
+	    return normalized;
+	  }
 
   function encounterReadStandaloneRoles() {
     try {
@@ -10751,24 +10776,28 @@ button.st-work-notice{cursor:pointer}
     return [];
   }
 
-  function encounterSaveStandaloneRoles(roles) {
-    try {
-      const normalized = (Array.isArray(roles) ? roles : [])
-        .map((role, index) => encounterNormalizeRole(role, index))
-        .filter((role) => String(role.name || role.intro || "").trim() || encounterHasPersonaContent(role));
-      localStorage.setItem(ENCOUNTER_ROLE_STORAGE_KEY, JSON.stringify(normalized));
-    } catch {}
-  }
+	  function encounterSaveStandaloneRoles(roles) {
+	    try {
+	      const normalized = (Array.isArray(roles) ? roles : [])
+	        .map((role, index) => encounterNormalizeRole(role, index))
+	        .filter((role) => String(role.name || role.intro || "").trim() || encounterHasPersonaContent(role));
+	      return encounterSetJsonStorage(ENCOUNTER_ROLE_STORAGE_KEY, normalized);
+	    } catch (error) {
+      encounterLastStorageError = encounterStorageErrorMessage(error);
+      console.warn("[邂逅] 保存角色库失败", error);
+      return false;
+    }
+	  }
 
   function encounterUpsertStandaloneRole(role) {
     const normalized = encounterNormalizeRole(role || {});
-    const roles = encounterReadStandaloneRoles();
-    const index = roles.findIndex((item) => item.id === normalized.id || (item.name && item.name === normalized.name));
-    if (index >= 0) roles[index] = normalized;
-    else roles.unshift(normalized);
-    encounterSaveStandaloneRoles(roles);
-    return normalized;
-  }
+	    const roles = encounterReadStandaloneRoles();
+	    const index = roles.findIndex((item) => item.id === normalized.id || (item.name && item.name === normalized.name));
+	    if (index >= 0) roles[index] = normalized;
+	    else roles.unshift(normalized);
+	    if (!encounterSaveStandaloneRoles(roles)) return null;
+	    return normalized;
+	  }
 
   function encounterReadSingleRoleDraft() {
     try {
@@ -10778,13 +10807,11 @@ button.st-work-notice{cursor:pointer}
     return encounterBlankRole();
   }
 
-  function encounterSaveSingleRoleDraft(role) {
-    const normalized = encounterNormalizeRole(role || {});
-    try {
-      localStorage.setItem(ENCOUNTER_ROLE_DRAFT_STORAGE_KEY, JSON.stringify(normalized));
-    } catch {}
-    return normalized;
-  }
+	  function encounterSaveSingleRoleDraft(role) {
+	    const normalized = encounterNormalizeRole(role || {});
+	    encounterSetJsonStorage(ENCOUNTER_ROLE_DRAFT_STORAGE_KEY, normalized);
+	    return normalized;
+	  }
 
   function encounterSingleRolePackageId(role, sourcePackage) {
     const normalized = encounterNormalizeRole(role || {});
@@ -11936,13 +11963,14 @@ button.st-work-notice{cursor:pointer}
     const purchaseDisabled = !hasContent || used || pendingPurchase;
     return '<section class="st-lite-card st-encounter-form" data-encounter-single-role-form>' +
       '<div class="st-encounter-toolbar"><strong>角色定制</strong><span>草稿自动保存</span></div>' +
-      '<p class="st-encounter-note">单独角色会保存到角色库；偶遇页的角色包内角色只由前端临时拆分，不会重复存储。</p>' +
+      '<p class="st-encounter-note">保存到偶遇会生成一个只有此角色的角色包；保存到角色库则只进入角色列表，方便以后复用。</p>' +
       renderEncounterRoleFormCard(role, 0, { single: true, contentSection: encounterRoleContentSection(page) }) +
       '<div class="st-encounter-actions">' +
         '<button type="button" class="st-encounter-button" data-encounter-action="import-role-json">导入角色JSON</button>' +
         '<button type="button" class="st-encounter-button" data-encounter-action="export-role-json">导出角色JSON</button>' +
       '</div>' +
       '<div class="st-encounter-actions">' +
+        '<button type="button" class="st-encounter-button primary" data-encounter-action="save-single-role-package">保存到偶遇</button>' +
         '<button type="button" class="st-encounter-button" data-encounter-action="save-standalone-role">保存到角色库</button>' +
         '<button type="button" class="st-encounter-button" data-encounter-action="clear-single-role">清空草稿</button>' +
       '</div>' +
@@ -12031,13 +12059,60 @@ button.st-work-notice{cursor:pointer}
     bindEncounterPage(page);
   }
 
-  function encounterFileAsDataUrl(file) {
+  function encounterRawFileAsDataUrl(file) {
+	    return new Promise((resolve, reject) => {
+	      const reader = new FileReader();
+	      reader.onload = () => resolve(String(reader.result || ""));
+	      reader.onerror = () => reject(reader.error || new Error("读取文件失败"));
+	      reader.readAsDataURL(file);
+	    });
+	  }
+
+  function encounterLoadImageElement(dataUrl) {
     return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result || ""));
-      reader.onerror = () => reject(reader.error || new Error("读取文件失败"));
-      reader.readAsDataURL(file);
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = () => reject(new Error("图片解码失败"));
+      image.src = dataUrl;
     });
+  }
+
+  async function encounterResizeImageDataUrl(dataUrl, maxSide = 960) {
+    const image = await encounterLoadImageElement(dataUrl);
+    const width = Number(image.naturalWidth || image.width || 0);
+    const height = Number(image.naturalHeight || image.height || 0);
+    if (!width || !height) return dataUrl;
+    const scale = Math.min(1, maxSide / Math.max(width, height));
+    const nextWidth = Math.max(1, Math.round(width * scale));
+    const nextHeight = Math.max(1, Math.round(height * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = nextWidth;
+    canvas.height = nextHeight;
+    const context = canvas.getContext("2d");
+    if (!context) return dataUrl;
+    context.fillStyle = "#fff";
+    context.fillRect(0, 0, nextWidth, nextHeight);
+    context.drawImage(image, 0, 0, nextWidth, nextHeight);
+    const candidates = [
+      canvas.toDataURL("image/webp", 0.82),
+      canvas.toDataURL("image/jpeg", 0.84)
+    ].filter((item) => /^data:image/(?:webp|jpeg);/i.test(item));
+    candidates.sort((a, b) => a.length - b.length);
+    return candidates[0] && candidates[0].length < dataUrl.length ? candidates[0] : dataUrl;
+  }
+
+  async function encounterFileAsDataUrl(file) {
+    const dataUrl = await encounterRawFileAsDataUrl(file);
+    const mime = String(file?.type || "");
+    if (!/^image//i.test(mime) || /^image/(?:gif|svg+xml)$/i.test(mime)) return dataUrl;
+    if (dataUrl.length <= 900000) return dataUrl;
+    try {
+      const resized = await encounterResizeImageDataUrl(dataUrl, 960);
+      if (resized.length <= 900000 || resized.length < dataUrl.length) return resized;
+    } catch (error) {
+      console.warn("[邂逅] 图片压缩失败，使用原图", error);
+    }
+    return dataUrl;
   }
 
   let ENCOUNTER_CRC_TABLE = null;
@@ -12158,14 +12233,23 @@ button.st-work-notice{cursor:pointer}
   }
 
   function encounterDataUrlToBytes(dataUrl) {
-    const text = String(dataUrl || "");
-    const comma = text.indexOf(",");
-    if (comma < 0 || !/^data:/i.test(text)) return new Uint8Array();
-    const body = text.slice(comma + 1);
-    const binary = atob(body);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
-    return bytes;
+    const text = String(dataUrl || "").trim();
+    const match = /^data:([^,]*),(.*)$/i.exec(text);
+    if (!match) return new Uint8Array();
+    const meta = match[1] || "";
+    const body = match[2] || "";
+    try {
+      if (/;base64/i.test(meta)) {
+        const binary = atob(body.replace(/s+/g, ""));
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+        return bytes;
+      }
+      return new TextEncoder().encode(decodeURIComponent(body.replace(/+/g, "%20")));
+    } catch (error) {
+      console.warn("[邂逅] 图片 data URL 解码失败", error);
+      return new Uint8Array();
+    }
   }
 
   function encounterMimeFromDataUrl(dataUrl) {
@@ -12198,40 +12282,80 @@ button.st-work-notice{cursor:pointer}
     return "data:" + (mime || "application/octet-stream") + ";base64," + btoa(binary);
   }
 
+  function encounterExportImageUrl(source) {
+    const text = String(source || "").trim();
+    if (!text || /^data:/i.test(text)) return text;
+    if (/^(?:https?:|blob:)/i.test(text)) return text;
+    if (/^/(?:public/frontends/hypnosis-app/assets|dist/催眠APP前端/assets)//.test(text)) return text;
+    const normalized = text.replace(/\/g, "/").replace(/^.//, "").replace(/^/+/, "");
+    if (normalized.startsWith("public/frontends/hypnosis-app/assets/")) return "/" + normalized;
+    if (normalized.startsWith("dist/催眠APP前端/assets/")) return "/" + normalized;
+    if (normalized.startsWith("assets/")) return stAssetUrl(normalized.slice("assets/".length));
+    return stAssetUrl(normalized);
+  }
+
+  async function encounterExportImageFile(source) {
+    const text = String(source || "").trim();
+    if (!text) return null;
+    if (/^data:/i.test(text)) {
+      const bytes = encounterDataUrlToBytes(text);
+      if (!bytes.length) return null;
+      return { bytes, mime: encounterMimeFromDataUrl(text) };
+    }
+    const url = encounterExportImageUrl(text);
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      const blob = await response.blob();
+      const bytes = new Uint8Array(await blob.arrayBuffer());
+      if (!bytes.length) return null;
+      return { bytes, mime: blob.type || encounterMimeForName(url) };
+    } catch (error) {
+      console.warn("[邂逅] 导出图片资源失败", text, error);
+      return null;
+    }
+  }
+
   function encounterSafeName(name, fallback) {
     const text = String(name || fallback || "item").trim().replace(/[\/:*?"<>|]+/g, "-").replace(/\s+/g, "-");
     return text || String(fallback || "item");
   }
 
-	  function encounterPackageToZipBlob(pkg) {
-	    const normalized = encounterNormalizePackage(pkg);
-	    const manifest = encounterClone(normalized) || encounterNormalizePackage(normalized);
-	    const files = [];
+	  async function encounterPackageToZipBlob(pkg) {
+		    const normalized = encounterNormalizePackage(pkg);
+		    const manifest = encounterClone(normalized) || encounterNormalizePackage(normalized);
+		    const files = [];
     if (normalized.coverDataUrl) {
-      const mime = encounterMimeFromDataUrl(normalized.coverDataUrl);
-      const ext = encounterExtForMime(mime);
-      manifest.cover = "cover." + ext;
+      const imageFile = await encounterExportImageFile(normalized.coverDataUrl);
+      if (imageFile) {
+        const ext = encounterExtForMime(imageFile.mime);
+        manifest.cover = "cover." + ext;
+        files.push({ name: manifest.cover, bytes: imageFile.bytes });
+      }
       delete manifest.coverDataUrl;
-      files.push({ name: manifest.cover, bytes: encounterDataUrlToBytes(normalized.coverDataUrl) });
     }
-	    manifest.roles = normalized.roles.map((role, index) => {
-	      const normalizedRole = encounterNormalizeRole(role, index);
-	      const next = { ...normalizedRole };
-	      delete next.variableEntry;
+		    manifest.roles = [];
+    for (let index = 0; index < normalized.roles.length; index += 1) {
+      const role = normalized.roles[index];
+		      const normalizedRole = encounterNormalizeRole(role, index);
+		      const next = { ...normalizedRole };
+		      delete next.variableEntry;
 	      const personaEntry = encounterPersonaWorldbookEntry(normalizedRole, normalized.name || "角色包");
 	      if (personaEntry) {
 	        next.personaEntry = personaEntry;
 	        next.personaContent = personaEntry.content;
 	      }
-	      if (normalizedRole.imageDataUrl) {
-	        const mime = encounterMimeFromDataUrl(normalizedRole.imageDataUrl);
-	        const ext = encounterExtForMime(mime);
-	        next.image = "roles/" + String(index + 1).padStart(2, "0") + "-" + encounterSafeName(normalizedRole.name, "role") + "." + ext;
-	        files.push({ name: next.image, bytes: encounterDataUrlToBytes(normalizedRole.imageDataUrl) });
-	      }
-	      delete next.imageDataUrl;
-	      return next;
-	    });
+		      if (normalizedRole.imageDataUrl) {
+		        const imageFile = await encounterExportImageFile(normalizedRole.imageDataUrl);
+          if (imageFile) {
+		        const ext = encounterExtForMime(imageFile.mime);
+		        next.image = "roles/" + String(index + 1).padStart(2, "0") + "-" + encounterSafeName(normalizedRole.name, "role") + "." + ext;
+		        files.push({ name: next.image, bytes: imageFile.bytes });
+          }
+		      }
+		      delete next.imageDataUrl;
+		      manifest.roles.push(next);
+    }
     manifest.format = ENCOUNTER_PACKAGE_FORMAT;
     manifest.version = 1;
     const json = JSON.stringify(manifest, null, 2);
@@ -14564,9 +14688,32 @@ button.st-work-notice{cursor:pointer}
             encounterSetStatus(page, "请先填写角色包名字。");
             return;
           }
-          encounterUpsertPackage(draft);
-          encounterSetStatus(page, "已保存到偶遇。");
-          return;
+	          if (!encounterUpsertPackage(draft)) {
+            encounterSetStatus(page, encounterLastStorageError || "保存失败。");
+            return;
+          }
+	          encounterSetStatus(page, "已保存到偶遇。");
+	          return;
+	        }
+        if (action === "save-single-role-package") {
+          const role = encounterReadSingleRoleFromForm(page);
+          if (!String(role.name || "").trim()) {
+            encounterSetStatus(page, "请先填写角色名。");
+            return;
+	          }
+	          const rolePackage = encounterPackageForRole(role, null);
+	          if (!encounterUpsertPackage(rolePackage)) {
+            encounterSetStatus(page, encounterLastStorageError || "保存失败。");
+            return;
+          }
+	          page.dataset.encounterTab = "browse";
+          page.dataset.encounterBrowseSection = "packages";
+          delete page.dataset.encounterView;
+          delete page.dataset.encounterPackageId;
+          delete page.dataset.encounterRoleItemId;
+	          page.dataset.encounterStatus = "已保存到偶遇。";
+	          renderEncounterPage(page);
+	          return;
         }
         if (action === "save-standalone-role") {
           const role = encounterReadSingleRoleFromForm(page);
@@ -14574,10 +14721,21 @@ button.st-work-notice{cursor:pointer}
             encounterSetStatus(page, "请先填写角色名。");
             return;
           }
-          encounterUpsertStandaloneRole(role);
-          encounterSetStatus(page, "已保存到角色库。偶遇页的“角色”里可以看到。");
-          return;
-        }
+	          if (!encounterUpsertStandaloneRole(role)) {
+            encounterSetStatus(page, encounterLastStorageError || "保存失败。");
+            return;
+          }
+          page.dataset.encounterTab = "browse";
+          page.dataset.encounterBrowseSection = "roles";
+          page.dataset.encounterPackageFilter = "standalone";
+          page.dataset.encounterRolePage = "1";
+          delete page.dataset.encounterView;
+          delete page.dataset.encounterPackageId;
+          delete page.dataset.encounterRoleItemId;
+          page.dataset.encounterStatus = "已保存到角色库。";
+          renderEncounterPage(page);
+	          return;
+	        }
         if (action === "use-single-role") {
           const role = encounterReadSingleRoleFromForm(page);
           if (!String(role.name || role.intro || "").trim()) {
@@ -14590,7 +14748,7 @@ button.st-work-notice{cursor:pointer}
         }
         if (action === "export-draft") {
           const draft = encounterReadDraftFromForm(page);
-          const blob = encounterPackageToZipBlob(draft);
+          const blob = await encounterPackageToZipBlob(draft);
           const filename = encounterSafeName(draft.name || "角色包", "role-package") + ".zip";
           encounterDownloadBlob(blob, filename);
           encounterSetStatus(page, "已导出 ZIP。");
