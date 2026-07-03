@@ -1,0 +1,737 @@
+{
+  "source": "/Users/Lain/Downloads/催眠APP（修） (1).json",
+  "packageName": "白楷的角色包",
+  "excludedDefaults": [
+    "西园寺爱丽莎",
+    "犬冢夏美",
+    "月咏深雪"
+  ],
+  "candidates": {
+    "personas": [
+      {
+        "name": "西园寺爱丽莎",
+        "index": 10,
+        "comment": "[mvu_plot]西园寺爱丽莎人设",
+        "uid": 10
+      },
+      {
+        "name": "月咏深雪",
+        "index": 11,
+        "comment": "[mvu_plot]月咏深雪人设",
+        "uid": 11
+      },
+      {
+        "name": "犬冢夏美",
+        "index": 12,
+        "comment": "[mvu_plot]犬冢夏美人设",
+        "uid": 12
+      },
+      {
+        "name": "星野海",
+        "index": 23,
+        "comment": "[mvu_plot]星野海人设",
+        "uid": 23
+      },
+      {
+        "name": "古河诗织",
+        "index": 33,
+        "comment": "[mvu_plot]古河诗织人设",
+        "uid": 33
+      },
+      {
+        "name": "苏清寒",
+        "index": 35,
+        "comment": "[mvu_plot]苏清寒人设",
+        "uid": 35
+      },
+      {
+        "name": "星野千夏",
+        "index": 37,
+        "comment": "[mvu_plot]星野千夏人设",
+        "uid": 37
+      },
+      {
+        "name": "西园寺美织",
+        "index": 39,
+        "comment": "[mvu_plot]西园寺美织人设",
+        "uid": 39
+      },
+      {
+        "name": "西园寺美织",
+        "index": 41,
+        "comment": "[mvu_plot]西园寺美织人设",
+        "uid": 41
+      },
+      {
+        "name": "天泽爱音",
+        "index": 43,
+        "comment": "[mvu_plot]天泽爱音人设",
+        "uid": 43
+      },
+      {
+        "name": "天海真",
+        "index": 45,
+        "comment": "[mvu_plot]天海真人设 ",
+        "uid": 45
+      },
+      {
+        "name": "林语薇",
+        "index": 46,
+        "comment": "[mvu_plot]林语薇人设",
+        "uid": 46
+      },
+      {
+        "name": "夏织",
+        "index": 47,
+        "comment": "[mvu_plot]夏织人设",
+        "uid": 75
+      },
+      {
+        "name": "夏沐",
+        "index": 49,
+        "comment": "[mvu_plot]夏沐人设",
+        "uid": 77
+      },
+      {
+        "name": "凯瑟琳",
+        "index": 52,
+        "comment": "[mvu_plot]凯瑟琳人设",
+        "uid": 80
+      },
+      {
+        "name": "神谷凛",
+        "index": 53,
+        "comment": "[mvu_plot]神谷凛人设",
+        "uid": 81
+      },
+      {
+        "name": "浅野绘里",
+        "index": 57,
+        "comment": "[mvu_plot]浅野绘里人设",
+        "uid": 103
+      },
+      {
+        "name": "浅仓步美",
+        "index": 59,
+        "comment": "[mvu_plot]浅仓步美人设",
+        "uid": 107
+      }
+    ],
+    "variables": [
+      {
+        "name": "西园寺爱丽莎",
+        "index": 5,
+        "comment": "[mvu_update]西园寺爱丽莎变量",
+        "uid": 5
+      },
+      {
+        "name": "月咏深雪",
+        "index": 6,
+        "comment": "[mvu_update]月咏深雪变量",
+        "uid": 6
+      },
+      {
+        "name": "犬冢夏美",
+        "index": 7,
+        "comment": "[mvu_update]犬冢夏美变量",
+        "uid": 7
+      },
+      {
+        "name": "任务",
+        "index": 26,
+        "comment": "[mvu_update]任务变量",
+        "uid": 26
+      },
+      {
+        "name": "天海真",
+        "index": 32,
+        "comment": "[mvu_update]天海真变量",
+        "uid": 32
+      },
+      {
+        "name": "古河诗织",
+        "index": 34,
+        "comment": "[mvu_update]古河诗织变量",
+        "uid": 34
+      },
+      {
+        "name": "苏清寒",
+        "index": 36,
+        "comment": "[mvu_update]苏清寒变量",
+        "uid": 36
+      },
+      {
+        "name": "星野千夏",
+        "index": 38,
+        "comment": "[mvu_update]星野千夏变量",
+        "uid": 38
+      },
+      {
+        "name": "神宫寺凛",
+        "index": 40,
+        "comment": "[mvu_update]神宫寺凛变量",
+        "uid": 40
+      },
+      {
+        "name": "西园寺美织",
+        "index": 42,
+        "comment": "[mvu_update]西园寺美织变量",
+        "uid": 42
+      },
+      {
+        "name": "天泽爱音",
+        "index": 44,
+        "comment": "[mvu_update]天泽爱音变量",
+        "uid": 44
+      },
+      {
+        "name": "夏织",
+        "index": 48,
+        "comment": "[mvu_update]夏织变量",
+        "uid": 76
+      },
+      {
+        "name": "夏沐",
+        "index": 50,
+        "comment": "[mvu_update]夏沐变量",
+        "uid": 78
+      },
+      {
+        "name": "凯瑟琳",
+        "index": 51,
+        "comment": "[mvu_update]凯瑟琳变量",
+        "uid": 79
+      },
+      {
+        "name": "神谷凛",
+        "index": 54,
+        "comment": "[mvu_update]神谷凛变量",
+        "uid": 82
+      },
+      {
+        "name": "星野海",
+        "index": 55,
+        "comment": "[mvu_update]星野海变量",
+        "uid": 100
+      },
+      {
+        "name": "林语薇",
+        "index": 56,
+        "comment": "[mvu_update]林语薇变量",
+        "uid": 102
+      },
+      {
+        "name": "浅野绘里",
+        "index": 58,
+        "comment": "[mvu_update]浅野绘里变量",
+        "uid": 104
+      },
+      {
+        "name": "浅仓步美",
+        "index": 60,
+        "comment": "[mvu_update]浅仓步美变量",
+        "uid": 108
+      }
+    ]
+  },
+  "skipped": [
+    {
+      "name": "犬冢夏美",
+      "reason": "excluded"
+    },
+    {
+      "name": "任务",
+      "reason": "excluded"
+    },
+    {
+      "name": "神宫寺凛",
+      "reason": "missing persona"
+    },
+    {
+      "name": "西园寺爱丽莎",
+      "reason": "excluded"
+    },
+    {
+      "name": "月咏深雪",
+      "reason": "excluded"
+    }
+  ],
+  "roles": [
+    {
+      "name": "古河诗织",
+      "hasPersonaEntry": true,
+      "hasVariableEntry": true,
+      "image": null,
+      "personaLayout": {
+        "title": "[mvu_plot]古河诗织人设",
+        "uid": null,
+        "displayIndex": 34,
+        "order": 99,
+        "insertion_order": 99,
+        "depth": 4,
+        "position": 1,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      },
+      "variableLayout": {
+        "title": "[mvu_update]古河诗织变量",
+        "uid": null,
+        "displayIndex": 10,
+        "order": 98,
+        "insertion_order": 98,
+        "depth": 4,
+        "position": 0,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      }
+    },
+    {
+      "name": "凯瑟琳",
+      "hasPersonaEntry": true,
+      "hasVariableEntry": true,
+      "image": null,
+      "personaLayout": {
+        "title": "[mvu_plot]凯瑟琳人设",
+        "uid": null,
+        "displayIndex": 44,
+        "order": 99,
+        "insertion_order": 99,
+        "depth": 4,
+        "position": 1,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      },
+      "variableLayout": {
+        "title": "[mvu_update]凯瑟琳变量",
+        "uid": null,
+        "displayIndex": 17,
+        "order": 98,
+        "insertion_order": 98,
+        "depth": 4,
+        "position": 0,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      }
+    },
+    {
+      "name": "林语薇",
+      "hasPersonaEntry": true,
+      "hasVariableEntry": true,
+      "image": null,
+      "personaLayout": {
+        "title": "[mvu_plot]林语薇人设",
+        "uid": null,
+        "displayIndex": 40,
+        "order": 99,
+        "insertion_order": 99,
+        "depth": 4,
+        "position": 1,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      },
+      "variableLayout": {
+        "title": "[mvu_update]林语薇变量",
+        "uid": null,
+        "displayIndex": 20,
+        "order": 98,
+        "insertion_order": 98,
+        "depth": 4,
+        "position": 0,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      }
+    },
+    {
+      "name": "浅仓步美",
+      "hasPersonaEntry": true,
+      "hasVariableEntry": true,
+      "image": null,
+      "personaLayout": {
+        "title": "[mvu_plot]浅仓步美人设",
+        "uid": null,
+        "displayIndex": 50,
+        "order": 99,
+        "insertion_order": 99,
+        "depth": 4,
+        "position": 1,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      },
+      "variableLayout": {
+        "title": "[mvu_update]浅仓步美变量",
+        "uid": null,
+        "displayIndex": 21,
+        "order": 98,
+        "insertion_order": 98,
+        "depth": 4,
+        "position": 0,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      }
+    },
+    {
+      "name": "浅野绘里",
+      "hasPersonaEntry": true,
+      "hasVariableEntry": true,
+      "image": null,
+      "personaLayout": {
+        "title": "[mvu_plot]浅野绘里人设",
+        "uid": null,
+        "displayIndex": 48,
+        "order": 99,
+        "insertion_order": 99,
+        "depth": 4,
+        "position": 1,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      },
+      "variableLayout": {
+        "title": "[mvu_update]浅野绘里变量",
+        "uid": null,
+        "displayIndex": 22,
+        "order": 98,
+        "insertion_order": 98,
+        "depth": 4,
+        "position": 0,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      }
+    },
+    {
+      "name": "神谷凛",
+      "hasPersonaEntry": true,
+      "hasVariableEntry": true,
+      "image": null,
+      "personaLayout": {
+        "title": "[mvu_plot]神谷凛人设",
+        "uid": null,
+        "displayIndex": 45,
+        "order": 99,
+        "insertion_order": 99,
+        "depth": 4,
+        "position": 1,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      },
+      "variableLayout": {
+        "title": "[mvu_update]神谷凛变量",
+        "uid": null,
+        "displayIndex": 18,
+        "order": 98,
+        "insertion_order": 98,
+        "depth": 4,
+        "position": 0,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      }
+    },
+    {
+      "name": "苏清寒",
+      "hasPersonaEntry": true,
+      "hasVariableEntry": true,
+      "image": null,
+      "personaLayout": {
+        "title": "[mvu_plot]苏清寒人设",
+        "uid": null,
+        "displayIndex": 35,
+        "order": 99,
+        "insertion_order": 99,
+        "depth": 4,
+        "position": 1,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      },
+      "variableLayout": {
+        "title": "[mvu_update]苏清寒变量",
+        "uid": null,
+        "displayIndex": 9,
+        "order": 98,
+        "insertion_order": 98,
+        "depth": 4,
+        "position": 0,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      }
+    },
+    {
+      "name": "天海真",
+      "hasPersonaEntry": true,
+      "hasVariableEntry": true,
+      "image": null,
+      "personaLayout": {
+        "title": "[mvu_plot]天海真人设 ",
+        "uid": null,
+        "displayIndex": 32,
+        "order": 99,
+        "insertion_order": 99,
+        "depth": 4,
+        "position": 1,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      },
+      "variableLayout": {
+        "title": "[mvu_update]天海真变量",
+        "uid": null,
+        "displayIndex": 8,
+        "order": 98,
+        "insertion_order": 98,
+        "depth": 4,
+        "position": 0,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      }
+    },
+    {
+      "name": "天泽爱音",
+      "hasPersonaEntry": true,
+      "hasVariableEntry": true,
+      "image": null,
+      "personaLayout": {
+        "title": "[mvu_plot]天泽爱音人设",
+        "uid": null,
+        "displayIndex": 39,
+        "order": 99,
+        "insertion_order": 99,
+        "depth": 4,
+        "position": 1,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      },
+      "variableLayout": {
+        "title": "[mvu_update]天泽爱音变量",
+        "uid": null,
+        "displayIndex": 14,
+        "order": 98,
+        "insertion_order": 98,
+        "depth": 4,
+        "position": 0,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      }
+    },
+    {
+      "name": "西园寺美织",
+      "hasPersonaEntry": true,
+      "hasVariableEntry": true,
+      "image": null,
+      "personaLayout": {
+        "title": "[mvu_plot]西园寺美织人设",
+        "uid": null,
+        "displayIndex": 38,
+        "order": 99,
+        "insertion_order": 99,
+        "depth": 4,
+        "position": 1,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      },
+      "variableLayout": {
+        "title": "[mvu_update]西园寺美织变量",
+        "uid": null,
+        "displayIndex": 13,
+        "order": 98,
+        "insertion_order": 98,
+        "depth": 4,
+        "position": 0,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      }
+    },
+    {
+      "name": "夏沐",
+      "hasPersonaEntry": true,
+      "hasVariableEntry": true,
+      "image": null,
+      "personaLayout": {
+        "title": "[mvu_plot]夏沐人设",
+        "uid": null,
+        "displayIndex": 42,
+        "order": 99,
+        "insertion_order": 99,
+        "depth": 4,
+        "position": 1,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      },
+      "variableLayout": {
+        "title": "[mvu_update]夏沐变量",
+        "uid": null,
+        "displayIndex": 16,
+        "order": 98,
+        "insertion_order": 98,
+        "depth": 4,
+        "position": 0,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      }
+    },
+    {
+      "name": "夏织",
+      "hasPersonaEntry": true,
+      "hasVariableEntry": true,
+      "image": null,
+      "personaLayout": {
+        "title": "[mvu_plot]夏织人设",
+        "uid": null,
+        "displayIndex": 41,
+        "order": 99,
+        "insertion_order": 99,
+        "depth": 4,
+        "position": 1,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      },
+      "variableLayout": {
+        "title": "[mvu_update]夏织变量",
+        "uid": null,
+        "displayIndex": 15,
+        "order": 98,
+        "insertion_order": 98,
+        "depth": 4,
+        "position": 0,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      }
+    },
+    {
+      "name": "星野海",
+      "hasPersonaEntry": true,
+      "hasVariableEntry": true,
+      "image": null,
+      "personaLayout": {
+        "title": "[mvu_plot]星野海人设",
+        "uid": null,
+        "displayIndex": 36,
+        "order": 99,
+        "insertion_order": 99,
+        "depth": 4,
+        "position": 1,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      },
+      "variableLayout": {
+        "title": "[mvu_update]星野海变量",
+        "uid": null,
+        "displayIndex": 19,
+        "order": 98,
+        "insertion_order": 98,
+        "depth": 4,
+        "position": 0,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      }
+    },
+    {
+      "name": "星野千夏",
+      "hasPersonaEntry": true,
+      "hasVariableEntry": true,
+      "image": null,
+      "personaLayout": {
+        "title": "[mvu_plot]星野千夏人设",
+        "uid": null,
+        "displayIndex": 37,
+        "order": 99,
+        "insertion_order": 99,
+        "depth": 4,
+        "position": 1,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      },
+      "variableLayout": {
+        "title": "[mvu_update]星野千夏变量",
+        "uid": null,
+        "displayIndex": 11,
+        "order": 98,
+        "insertion_order": 98,
+        "depth": 4,
+        "position": 0,
+        "role": null,
+        "constant": false,
+        "selective": true,
+        "disable": false,
+        "extensions": null
+      }
+    }
+  ]
+}
