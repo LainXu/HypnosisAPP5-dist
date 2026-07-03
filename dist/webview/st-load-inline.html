@@ -2671,9 +2671,14 @@ button.st-work-notice{cursor:pointer}
 #st-operation-workspace>#app>div:first-child{justify-content:flex-start!important;align-items:flex-start!important;padding:0!important}
 #st-operation-side-panel{box-sizing:border-box;min-width:0;height:var(--st-phone-panel-height,min(844px,calc(100vh - 8px)));max-height:var(--st-phone-panel-height,min(844px,calc(100vh - 8px)));border:1px solid rgba(255,255,255,.1);border-radius:18px;background:linear-gradient(180deg,rgba(15,23,42,.96),rgba(2,6,23,.93));box-shadow:0 18px 44px rgba(0,0,0,.3);color:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden;display:flex;flex-direction:column;backdrop-filter:blur(16px)}
 .st-operation-panel-head{flex:0 0 auto;padding:12px 11px 10px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-.st-operation-panel-title{display:grid;gap:4px;min-width:0}
+.st-operation-panel-title{display:grid;gap:7px;min-width:0}
 .st-operation-panel-title strong{font-size:15px;line-height:1.2;color:#fff}
 .st-operation-panel-title span{display:none}
+.st-operation-panel-context{display:grid;gap:2px;min-width:0;color:rgba(203,213,225,.62);font-size:9px;font-weight:850;line-height:1.25}
+.st-operation-panel-context-row{display:grid;grid-template-columns:42px minmax(0,1fr);gap:6px;align-items:center;min-width:0}
+.st-operation-panel-context-row b{color:rgba(148,163,184,.72);font-weight:900;white-space:nowrap}
+.st-operation-panel-context-row em{min-width:0;color:rgba(226,232,240,.78);font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-operation-panel-context-row.is-empty em{color:rgba(148,163,184,.34)}
 .st-operation-panel-meta{flex:0 0 auto;display:flex;align-items:flex-start;gap:5px}
 .st-operation-resources{display:grid;justify-items:end;gap:4px;max-width:none}
 .st-operation-resource-pill{border:1px solid rgba(255,255,255,.1);border-radius:999px;background:rgba(255,255,255,.055);color:rgba(226,232,240,.8);padding:3px 8px;min-height:22px;font-size:12px;font-weight:950;line-height:1.15;white-space:nowrap;font-variant-numeric:tabular-nums}
@@ -15231,6 +15236,38 @@ button.st-work-notice{cursor:pointer}
     '</div>';
   }
 
+  function operationPanelContextSnapshot() {
+    try {
+      const system = getSystemState();
+      const location = firstMeaningfulSystemText(system, ["当前地点", "当前位置", "地点", "所在地点", "位置"]) || "未记录";
+      const state = readMonitorState();
+      const gates = [0, 1, 2].map((index) => {
+        const gate = state?.gates?.[index] || {};
+        return String(gate.roleName || "").trim();
+      });
+      return { location, gates };
+    } catch {
+      return { location: "未记录", gates: ["", "", ""] };
+    }
+  }
+
+  function operationPanelContextHtml(context) {
+    const gates = Array.isArray(context?.gates) ? context.gates : [];
+    const row = (label, value) => {
+      const text = String(value || "").trim();
+      return '<div class="st-operation-panel-context-row' + (text ? "" : " is-empty") + '">' +
+        '<b>' + escapeHtml(label) + '</b>' +
+        '<em>' + escapeHtml(text) + '</em>' +
+      '</div>';
+    };
+    return '<div class="st-operation-panel-context" aria-label="当前地点与派遣区状态">' +
+      row("地点", context?.location || "未记录") +
+      row("1号门", gates[0] || "") +
+      row("2号门", gates[1] || "") +
+      row("3号门", gates[2] || "") +
+    '</div>';
+  }
+
   function compactOperationPanelSummary(item) {
     const text = String(item?.summary || item?.line || "");
     const segments = text.replace(/^-\s*/, "").split("｜").map((part) => part.trim()).filter(Boolean);
@@ -15293,7 +15330,8 @@ button.st-work-notice{cursor:pointer}
     } catch {}
     const keepAfterFlush = readOperationKeepAfterFlush();
     const resources = operationPanelResourceSnapshot();
-    const signature = JSON.stringify(items.map((item) => [item.id, item.key, item.source, item.action, item.summary, item.line, item.at, item.locked])) + "\n" + block + "\nkeep=" + String(keepAfterFlush) + "\nres=" + JSON.stringify(resources);
+    const context = operationPanelContextSnapshot();
+    const signature = JSON.stringify(items.map((item) => [item.id, item.key, item.source, item.action, item.summary, item.line, item.at, item.locked])) + "\n" + block + "\nkeep=" + String(keepAfterFlush) + "\nres=" + JSON.stringify(resources) + "\nctx=" + JSON.stringify(context);
     if (panel.dataset.signature === signature) return;
     panel.dataset.signature = signature;
     const listHtml = items.length
@@ -15316,7 +15354,7 @@ button.st-work-notice{cursor:pointer}
     const adviceHtml = operationPanelAdviceHtml(items, block);
     panel.innerHTML =
       '<header class="st-operation-panel-head">' +
-        '<div class="st-operation-panel-title"><strong>本轮操作</strong></div>' +
+        '<div class="st-operation-panel-title"><strong>本轮操作</strong>' + operationPanelContextHtml(context) + '</div>' +
         '<div class="st-operation-panel-meta">' + operationPanelResourcesHtml(resources) + '<span class="st-operation-count-pill">' + String(count) + '</span></div>' +
       '</header>' +
       '<div class="st-operation-panel-list">' + listHtml + '</div>' +
