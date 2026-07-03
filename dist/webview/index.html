@@ -2483,6 +2483,10 @@ button.st-work-notice{cursor:pointer}
 .st-encounter-browse-tools input,.st-encounter-browse-tools select{height:30px;min-width:0;border:1px solid rgba(127,88,47,.14);border-radius:8px;background:rgba(255,255,255,.72);color:#352b25;padding:0 9px;font-size:11px;font-weight:900;outline:none}
 .st-encounter-browse-tools span{height:30px;border:1px solid rgba(127,88,47,.12);border-radius:8px;background:rgba(255,250,243,.62);color:rgba(70,57,47,.56);display:grid;place-items:center;font-size:10px;font-weight:950}
 .st-encounter-browse-tools input:focus,.st-encounter-browse-tools select:focus{border-color:rgba(217,155,55,.42);box-shadow:0 0 0 3px rgba(217,155,55,.1)}
+.st-encounter-random{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;align-items:center;border:1px solid rgba(217,155,55,.18);border-radius:8px;background:linear-gradient(135deg,rgba(255,247,221,.78),rgba(255,255,255,.66));padding:7px 8px;box-shadow:0 8px 18px rgba(75,54,35,.08)}
+.st-encounter-random button{height:31px;border:1px solid rgba(217,155,55,.28);border-radius:8px;background:linear-gradient(135deg,#ef6f61,#d99b37);color:#fff;font-size:12px;font-weight:950;cursor:pointer;box-shadow:0 8px 16px rgba(217,115,70,.18)}
+.st-encounter-random button:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.32);box-shadow:none}
+.st-encounter-random span{min-width:0;color:rgba(70,57,47,.64);font-size:10px;font-weight:900;line-height:1.35;text-align:right}
 .st-encounter-role-card-entry{cursor:pointer;grid-template-columns:82px minmax(0,1fr);min-height:104px}
 .st-encounter-role-card-entry:active{transform:none}
 .st-encounter-role-card-entry .st-encounter-cover{min-height:104px}
@@ -10236,6 +10240,32 @@ button.st-work-notice{cursor:pointer}
     return names.size + unnamed;
   }
 
+  function encounterRoleItemHasWorldbookContent(item) {
+    const role = encounterNormalizeRole(item?.role || {});
+    return Boolean(encounterPersonaWorldbookEntry(role, item?.sourceName || "角色包"));
+  }
+
+  function encounterRandomRomanceCandidates(page) {
+    if (!page || page.dataset.encounterWorldbookRefreshInFlight === "1" || page.dataset.encounterWorldbookReadOnce !== "1") return [];
+    const seenNames = new Set();
+    const candidates = [];
+    for (const item of encounterRoleLibraryItems()) {
+      const role = encounterNormalizeRole(item?.role || {});
+      const nameKey = encounterRoleNameKey(role.name);
+      if (!nameKey || seenNames.has(nameKey)) continue;
+      if (!encounterRoleItemHasWorldbookContent(item)) continue;
+      const pkg = item?.package || encounterPackageForRole(role, item?.sourcePackage || null);
+      if (!pkg || encounterIsPurchased(pkg.id) || encounterDuplicatePackageConflict(pkg)) continue;
+      const availability = encounterPackageAvailability(pkg, page);
+      if (availability.ready && availability.available <= 0) continue;
+      const filtered = encounterPackageWithoutCachedRoles(pkg, page);
+      if (!filtered.pkg.roles.length) continue;
+      seenNames.add(nameKey);
+      candidates.push({ ...item, role, package: pkg });
+    }
+    return candidates;
+  }
+
   function encounterFindRoleItem(roleItemId) {
     return encounterRoleLibraryItems().find((item) => String(item.id) === String(roleItemId)) || null;
   }
@@ -10933,6 +10963,21 @@ button.st-work-notice{cursor:pointer}
     ].concat(encounterReadPackages().map((pkg) => '<option value="' + escapeAttr(pkg.id) + '"' + (packageFilter === String(pkg.id) ? " selected" : "") + '>' + escapeHtml(pkg.name || pkg.id) + '</option>')).join("");
 	    const packageAvailableCount = packages.reduce((sum, pkg) => sum + encounterPackageAvailability(pkg, page).available, 0);
 	    const roleUniqueNameCount = encounterVisibleRoleUniqueNameCount(roleItems);
+	    const randomReady = page.dataset.encounterWorldbookReadOnce === "1" && page.dataset.encounterWorldbookRefreshInFlight !== "1";
+	    const randomPending = encounterHasPendingPurchaseOperation();
+	    const randomCandidates = randomReady ? encounterRandomRomanceCandidates(page) : [];
+	    const randomDisabled = !randomReady || randomPending || randomCandidates.length <= 0;
+	    const randomHint = !randomReady
+	      ? "世界书检测中"
+	      : randomPending
+	      ? "本轮已有购买"
+	      : randomCandidates.length
+	      ? ("可随机 " + randomCandidates.length + " 名 · " + SCAN_ROLE_COST_STARLIGHT + " 星光点")
+	      : "无非重复角色";
+	    const randomHtml = '<section class="st-encounter-random">' +
+	      '<button type="button" data-encounter-action="random-romance"' + (randomDisabled ? " disabled" : "") + '>随机桃花运</button>' +
+	      '<span>' + escapeHtml(randomHint) + '</span>' +
+	    '</section>';
 	    const packageCards = packages.length ? packages.map((pkg) => encounterPackageCardHtml(pkg, page)).join("") : '<div class="st-encounter-empty">还没有角色包。可以在“角色包定制”里制作并保存。</div>';
 	    const roleCards = pagedRoleItems.length ? pagedRoleItems.map((item) => encounterRoleCardHtml(item, page)).join("") : '<div class="st-encounter-empty">还没有可用角色。角色包内角色会在这里自动拆分显示，单独角色也会出现在这里。</div>';
 	    const rolePager = section === "roles" && roleItems.length > ENCOUNTER_ROLE_PAGE_SIZE
@@ -10950,6 +10995,7 @@ button.st-work-notice{cursor:pointer}
         '<input type="search" data-encounter-search value="' + escapeAttr(query) + '" placeholder="搜索角色包 / 角色">' +
         (section === "roles" ? '<select data-encounter-package-filter aria-label="筛选角色来源">' + packageOptions + '</select>' : '<span>筛选角色包</span>') +
       '</section>' +
+	      randomHtml +
 	      '<section class="st-encounter-browse-head"><strong>' + (section === "roles" ? "角色" : "角色包") + '</strong><span>' + (section === "roles" ? (roleItems.length + " 个 / " + roleUniqueNameCount + " 个非重复名字") : (packages.length + " 包 / " + packageAvailableCount + " 非重复角色")) + '</span></section>' +
 	      '<section class="st-encounter-packages">' + (section === "roles" ? roleCards : packageCards) + '</section>' +
 	      rolePager;
@@ -13201,6 +13247,13 @@ button.st-work-notice{cursor:pointer}
   function encounterPurchasePayload(pkg, result = {}) {
     const roles = (pkg.roles || []).map((role, index) => encounterNormalizeRole(role, index)).filter((role) => String(role.name || role.intro || "").trim());
     const combinedPrompt = encounterPackageCombinedPrompt(pkg);
+    const randomRoleName = String(result.randomRoleName || (result.randomRomance ? roles.map((role) => role.name).filter(Boolean).join("、") : "")).trim();
+    const plotText = result.randomRomance
+      ? "本次消耗星光点在剧情中表现为{{user}}主动按下随机桃花运。前端已经随机抽中本条记录里的角色；{{user}}只知道自己购买了随机桃花运，不知道会遇到谁或对方来自哪个角色包。具体对象按角色列表执行，不得重新随机或替换。"
+      : "本次消耗星光点在剧情中表现为{{user}}主动购买一次桃花运。{{user}}只知道自己购买了桃花运，不知道会遇到谁、会遇到几个角色、对方来自哪个角色包；具体对象由APP暗中安排。";
+    const executionText = result.randomRomance
+      ? "这个随机桃花运已经由前端抽取并使用。不要重新随机，不要换成其他角色，不要重复扣星光点，不要重复插入世界书，不要对已新增角色重复/add。世界书条目已写入当前对话独有的 Chat Lorebook；初始角色变量已由前端创建，若有同名旧角色则前端已用本角色包初始变量覆盖。请把本次事件写成{{user}}主动购买随机桃花运后，由APP暗中安排的偶遇；剧情中的{{user}}不知道具体对象或角色包内容，不能表现为{{user}}精准点名召唤某角色。请根据角色包、已写入世界书、前端初始变量和各角色出场提示词，在本轮剧情中安排对应角色登场；第一回合必须按“待AI补充变量字段”逐项补齐变量，尤其是档案和第一人称心理；工作价值已是前端按人设估算的0-20数字，不要在第一回合为了补全而覆盖它。后续只按剧情变化更新变量。"
+      : "这个角色包已经被前端使用。不要重复扣星光点，不要重复插入世界书，不要对已新增角色重复/add。世界书条目已写入当前对话独有的 Chat Lorebook；初始角色变量已由前端创建，若有同名旧角色则前端已用本角色包初始变量覆盖。请把本次事件写成{{user}}主动购买桃花运后，由APP暗中安排的偶遇；剧情中的{{user}}不知道具体对象或角色包内容，不能表现为{{user}}精准点名召唤某角色。请根据角色包、已写入世界书、前端初始变量和各角色出场提示词，在本轮剧情中安排对应角色登场；第一回合必须按“待AI补充变量字段”逐项补齐变量，尤其是档案和第一人称心理；工作价值已是前端按人设估算的0-20数字，不要在第一回合为了补全而覆盖它。后续只按剧情变化更新变量。";
     const rolePayloads = roles.map((role) => {
       const initialVariable = encounterInitialVariablesObject(role);
       const missingFields = encounterMissingInitialVariableFields(initialVariable);
@@ -13225,6 +13278,7 @@ button.st-work-notice{cursor:pointer}
       角色包ID: pkg.id,
       角色包名称: pkg.name || "未命名角色包",
       角色包介绍: pkg.intro || "无",
+      ...(result.randomRomance ? { 选择方式: "随机桃花运", 随机命中角色: randomRoleName || "无" } : {}),
       AI邂逅提示词: combinedPrompt || "无",
 	      前端处理: "已由前端扣除星光点、创建初始角色变量、缓存角色图片，并尝试写入当前对话独有的 Chat Lorebook。",
       消耗星光点: result.price ?? encounterPackagePrice(pkg),
@@ -13235,15 +13289,43 @@ button.st-work-notice{cursor:pointer}
       世界书新增条目数: result.insertedCount ?? result.worldbookCount ?? 0,
 	      当前对话世界书: result.targetWorldbook || "当前对话 Chat Lorebook",
 	      世界书写入方式: result.method || "前端自动写入",
-	      剧情设定: "本次消耗星光点在剧情中表现为{{user}}主动购买一次桃花运。{{user}}只知道自己购买了桃花运，不知道会遇到谁、会遇到几个角色、对方来自哪个角色包；具体对象由APP暗中安排。",
+	      剧情设定: plotText,
 	      角色变量补全要求: "每个角色都已由前端提供并写入一份初始变量；角色列表里的“前端初始变量”就是当前变量骨架。AI只需要补齐“待AI补充变量字段”列出的字段，补齐时必须参照已导入当前对话 Chat Lorebook 里的对应 [mvu_plot]角色名人设 / [mvu_update]角色名变量 条目。不要把世界书原文整段塞进档案字段。工作价值已由前端按人设估算为0-20的星光点/日数字，后续只有角色身份、资源或能力发生长期变化时才更新。",
       待AI补充变量总览: fillSummary.length ? fillSummary : "无",
       角色列表: rolePayloads,
-	      AI执行规范: "这个角色包已经被前端使用。不要重复扣星光点，不要重复插入世界书，不要对已新增角色重复/add。世界书条目已写入当前对话独有的 Chat Lorebook；初始角色变量已由前端创建，若有同名旧角色则前端已用本角色包初始变量覆盖。请把本次事件写成{{user}}主动购买桃花运后，由APP暗中安排的偶遇；剧情中的{{user}}不知道具体对象或角色包内容，不能表现为{{user}}精准点名召唤某角色。请根据角色包、已写入世界书、前端初始变量和各角色出场提示词，在本轮剧情中安排对应角色登场；第一回合必须按“待AI补充变量字段”逐项补齐变量，尤其是档案和第一人称心理；工作价值已是前端按人设估算的0-20数字，不要在第一回合为了补全而覆盖它。后续只按剧情变化更新变量。"
+	      AI执行规范: executionText
     };
   }
 
-  async function encounterHandlePurchase(page, packageId, providedPackage = null) {
+  async function encounterHandleRandomRomance(page) {
+    if (page.dataset.encounterWorldbookRefreshInFlight === "1" || page.dataset.encounterWorldbookReadOnce !== "1") {
+      encounterSetStatus(page, "当前聊天世界书仍在读取，请稍后再随机桃花运。");
+      return;
+    }
+    if (encounterHasPendingPurchaseOperation()) {
+      encounterSetStatus(page, "本轮已经有一个角色或角色包在暂存区。确认写入前不能再购买其他内容。");
+      renderEncounterPage(page);
+      return;
+    }
+    const candidates = encounterRandomRomanceCandidates(page);
+    if (!candidates.length) {
+      encounterSetStatus(page, "没有可随机的非重复角色。随机桃花运只会从带世界书内容、且当前对话未导入的角色中抽取。");
+      renderEncounterPage(page);
+      return;
+    }
+    const item = candidates[Math.floor(Math.random() * candidates.length)];
+    const roleName = String(item?.role?.name || "").trim() || "未命名角色";
+    const confirmMessage = "随机桃花运会从带世界书内容、且当前对话未导入的角色中抽取1名。\n\n本次已抽中：「" + roleName + "」。确认后与购买单独角色相同：扣除 " + SCAN_ROLE_COST_STARLIGHT + " 星光点、创建角色初始变量、缓存图片，并写入当前对话独有的 Chat Lorebook；如果当前对话没有绑定世界书，会先创建并绑定一本。世界书增加不可撤销，只能之后手动删除；变量可以通过删除楼层恢复。\n\n确认使用随机桃花运？";
+    await encounterHandlePurchase(page, item.package.id, item.package, {
+      confirmMessage,
+      randomRomance: true,
+      randomRoleName: roleName,
+      statusLabel: "随机桃花运：" + roleName
+    });
+  }
+
+  async function encounterHandlePurchase(page, packageId, providedPackage = null, options = {}) {
+    const purchaseOptions = options && typeof options === "object" ? options : {};
     const pkg = providedPackage ? encounterNormalizePackage(providedPackage) : encounterFindPurchasablePackage(packageId);
     if (!pkg) {
       encounterSetStatus(page, "找不到这个角色包。");
@@ -13288,7 +13370,8 @@ button.st-work-notice{cursor:pointer}
 	    const duplicateNote = skippedByWorldbook.length
 	      ? "\n\n当前聊天世界书已存在：" + skippedByWorldbook.join("、") + "；本次会自动跳过这些角色，只导入 " + effectivePkg.roles.length + " 个非重复角色。"
 	      : "";
-		    const ok = window.confirm("这是一次购买桃花运：前端会扣除星光点，并在剧情中让APP暗中安排你遇到角色；{{user}}在剧情里不知道会是谁。\n\n购买后会直接向当前对话独有的 Chat Lorebook 新增条目，并在当前变量中创建角色初始变量；如果当前对话没有绑定世界书，会先创建并绑定一本。世界书增加不可撤销，只能之后手动删除；变量可以通过删除楼层恢复。" + duplicateNote + "\n\n确认使用这个角色包？");
+		    const confirmMessage = purchaseOptions.confirmMessage || ("这是一次购买桃花运：前端会扣除星光点，并在剧情中让APP暗中安排你遇到角色；{{user}}在剧情里不知道会是谁。\n\n购买后会直接向当前对话独有的 Chat Lorebook 新增条目，并在当前变量中创建角色初始变量；如果当前对话没有绑定世界书，会先创建并绑定一本。世界书增加不可撤销，只能之后手动删除；变量可以通过删除楼层恢复。" + duplicateNote + "\n\n确认使用这个角色包？");
+		    const ok = window.confirm(confirmMessage);
 	    if (!ok) return;
 	    encounterSetStatus(page, "正在使用角色包...");
     const deduct = await encounterDeductStarlight(price);
@@ -13328,10 +13411,12 @@ button.st-work-notice{cursor:pointer}
       worldbookCount: worldbook.count,
       insertedCount: worldbook.insertedCount,
       targetWorldbook: worldbook.targetWorldbook,
-      method: worldbook.method
+      method: worldbook.method,
+      randomRomance: Boolean(purchaseOptions.randomRomance),
+      randomRoleName: purchaseOptions.randomRoleName || ""
     }))).then((added) => {
       page.dataset.encounterStatus = added
-	        ? ("已使用：" + (pkg.name || "角色包") + "；已创建变量 " + variables.created.length + " 个；已写入 " + (worldbook.targetWorldbook || "当前对话世界书") + " " + worldbook.count + " 条" + (cached.length ? "；图片已缓存。" : "。"))
+	        ? ("已使用：" + (purchaseOptions.statusLabel || pkg.name || "角色包") + "；已创建变量 " + variables.created.length + " 个；已写入 " + (worldbook.targetWorldbook || "当前对话世界书") + " " + worldbook.count + " 条" + (cached.length ? "；图片已缓存。" : "。"))
         : "角色包已使用，AI提示已存在于暂存区。";
       renderEncounterPage(page);
     });
@@ -13562,6 +13647,10 @@ button.st-work-notice{cursor:pointer}
           page.dataset.encounterBrowseSection = "roles";
           page.dataset.encounterRolePage = String(button.getAttribute("data-page") || "1");
           renderEncounterPage(page);
+          return;
+        }
+        if (action === "random-romance") {
+          await encounterHandleRandomRomance(page);
           return;
         }
         if (action === "open-package") {
