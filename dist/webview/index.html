@@ -9419,14 +9419,54 @@ button.st-work-notice{cursor:pointer}
 	  const ENCOUNTER_PACKAGE_FORMAT = "hypnoos-role-package";
 	  const ENCOUNTER_DUPLICATE_PACKAGE_GROUPS = [];
 	  const ENCOUNTER_ROLE_PAGE_SIZE = 4;
-	  const ENCOUNTER_FEATURED_ROLE_ORDER = [
-	    { name: "月咏皋月", packageId: "orjenrn-role-pack" },
-	    { name: "西园寺美织", packageId: "baikai-role-pack" }
-	  ];
+		  const ENCOUNTER_FEATURED_ROLE_ORDER = [
+		    { name: "月咏皋月", packageId: "orjenrn-role-pack" },
+		    { name: "西园寺美织", packageId: "baikai-role-pack" }
+		  ];
 
-  function encounterId(prefix) {
-    return String(prefix || "encounter") + "-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+  function encounterLibraryScopeText(value) {
+    const text = String(value === null || value === undefined ? "" : value).trim();
+    if (!text) return "";
+    try {
+      return encodeURIComponent(text).slice(0, 180);
+    } catch {
+      return text.slice(0, 180);
+    }
   }
+
+  function encounterLibraryStorageScope() {
+    try {
+      const chatId = window.SillyTavern?.getCurrentChatId?.();
+      const text = encounterLibraryScopeText(chatId);
+      if (text) return "chat:" + text;
+    } catch {}
+    try {
+      const context = window.SillyTavern?.getContext?.() || (typeof getContext === "function" ? getContext() : null);
+      const candidates = [
+        context?.chatId,
+        context?.chat_id,
+        context?.chatFile,
+        context?.chat_file,
+        context?.chat?.id,
+        context?.chat?.chatId,
+        context?.chat?.file_name,
+        context?.chat?.filename,
+        context?.chatMetadata?.chat_id,
+        context?.chatMetadata?.file_name,
+        context?.chatMetadata?.filename
+      ].map(encounterLibraryScopeText).filter(Boolean);
+      if (candidates.length) return "ctx:" + candidates.join(":");
+    } catch {}
+    return "global";
+  }
+
+  function encounterLibraryStorageKey(baseKey) {
+    return String(baseKey || "hypnoos.encounter") + ":" + encounterLibraryStorageScope();
+  }
+
+	  function encounterId(prefix) {
+	    return String(prefix || "encounter") + "-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+	  }
 
   function encounterBlankRole() {
     return {
@@ -10692,13 +10732,13 @@ button.st-work-notice{cursor:pointer}
     return new Set(encounterBuiltInPackages().map((pkg) => pkg.id));
   }
 
-  function encounterReadStoredPackages() {
-    try {
-      const parsed = JSON.parse(localStorage.getItem(ENCOUNTER_PACKAGE_STORAGE_KEY) || "[]");
-      if (Array.isArray(parsed)) return parsed.map(encounterNormalizePackage);
-    } catch {}
-    return [];
-  }
+	  function encounterReadStoredPackages() {
+	    try {
+	      const parsed = JSON.parse(localStorage.getItem(encounterLibraryStorageKey(ENCOUNTER_PACKAGE_STORAGE_KEY)) || "[]");
+	      if (Array.isArray(parsed)) return parsed.map(encounterNormalizePackage);
+	    } catch {}
+	    return [];
+	  }
 
 	  function encounterReadPackages() {
 	    const builtIns = encounterBuiltInPackages();
@@ -10736,7 +10776,7 @@ button.st-work-notice{cursor:pointer}
 	      const stored = (Array.isArray(packages) ? packages : [])
 	        .map(encounterNormalizePackage)
 	        .filter((pkg) => !builtInIds.has(pkg.id));
-	      return encounterSetJsonStorage(ENCOUNTER_PACKAGE_STORAGE_KEY, stored);
+	      return encounterSetJsonStorage(encounterLibraryStorageKey(ENCOUNTER_PACKAGE_STORAGE_KEY), stored);
 	    } catch (error) {
       encounterLastStorageError = encounterStorageErrorMessage(error);
       console.warn("[邂逅] 保存角色包失败", error);
@@ -10754,34 +10794,34 @@ button.st-work-notice{cursor:pointer}
 	    return normalized;
 	  }
 
-  function encounterReadDraft() {
-    try {
-      const parsed = JSON.parse(localStorage.getItem(ENCOUNTER_DRAFT_STORAGE_KEY) || "null");
-      if (parsed && typeof parsed === "object") return encounterNormalizePackage(parsed);
-    } catch {}
-    return encounterBlankDraft();
-  }
-
-	  function encounterSaveDraft(draft) {
-	    const normalized = encounterNormalizePackage(draft);
-	    encounterSetJsonStorage(ENCOUNTER_DRAFT_STORAGE_KEY, normalized);
-	    return normalized;
+	  function encounterReadDraft() {
+	    try {
+	      const parsed = JSON.parse(localStorage.getItem(encounterLibraryStorageKey(ENCOUNTER_DRAFT_STORAGE_KEY)) || "null");
+	      if (parsed && typeof parsed === "object") return encounterNormalizePackage(parsed);
+	    } catch {}
+	    return encounterBlankDraft();
 	  }
 
-  function encounterReadStandaloneRoles() {
-    try {
-      const parsed = JSON.parse(localStorage.getItem(ENCOUNTER_ROLE_STORAGE_KEY) || "[]");
-      if (Array.isArray(parsed)) return parsed.map((role, index) => encounterNormalizeRole(role, index));
-    } catch {}
-    return [];
-  }
+		  function encounterSaveDraft(draft) {
+		    const normalized = encounterNormalizePackage(draft);
+		    encounterSetJsonStorage(encounterLibraryStorageKey(ENCOUNTER_DRAFT_STORAGE_KEY), normalized);
+		    return normalized;
+		  }
+
+	  function encounterReadStandaloneRoles() {
+	    try {
+	      const parsed = JSON.parse(localStorage.getItem(encounterLibraryStorageKey(ENCOUNTER_ROLE_STORAGE_KEY)) || "[]");
+	      if (Array.isArray(parsed)) return parsed.map((role, index) => encounterNormalizeRole(role, index));
+	    } catch {}
+	    return [];
+	  }
 
 	  function encounterSaveStandaloneRoles(roles) {
 	    try {
 	      const normalized = (Array.isArray(roles) ? roles : [])
 	        .map((role, index) => encounterNormalizeRole(role, index))
 	        .filter((role) => String(role.name || role.intro || "").trim() || encounterHasPersonaContent(role));
-	      return encounterSetJsonStorage(ENCOUNTER_ROLE_STORAGE_KEY, normalized);
+	      return encounterSetJsonStorage(encounterLibraryStorageKey(ENCOUNTER_ROLE_STORAGE_KEY), normalized);
 	    } catch (error) {
       encounterLastStorageError = encounterStorageErrorMessage(error);
       console.warn("[邂逅] 保存角色库失败", error);
@@ -10799,19 +10839,19 @@ button.st-work-notice{cursor:pointer}
 	    return normalized;
 	  }
 
-  function encounterReadSingleRoleDraft() {
-    try {
-      const parsed = JSON.parse(localStorage.getItem(ENCOUNTER_ROLE_DRAFT_STORAGE_KEY) || "null");
-      if (parsed && typeof parsed === "object") return encounterNormalizeRole(parsed);
-    } catch {}
-    return encounterBlankRole();
-  }
-
-	  function encounterSaveSingleRoleDraft(role) {
-	    const normalized = encounterNormalizeRole(role || {});
-	    encounterSetJsonStorage(ENCOUNTER_ROLE_DRAFT_STORAGE_KEY, normalized);
-	    return normalized;
+	  function encounterReadSingleRoleDraft() {
+	    try {
+	      const parsed = JSON.parse(localStorage.getItem(encounterLibraryStorageKey(ENCOUNTER_ROLE_DRAFT_STORAGE_KEY)) || "null");
+	      if (parsed && typeof parsed === "object") return encounterNormalizeRole(parsed);
+	    } catch {}
+	    return encounterBlankRole();
 	  }
+
+		  function encounterSaveSingleRoleDraft(role) {
+		    const normalized = encounterNormalizeRole(role || {});
+		    encounterSetJsonStorage(encounterLibraryStorageKey(ENCOUNTER_ROLE_DRAFT_STORAGE_KEY), normalized);
+		    return normalized;
+		  }
 
   function encounterSingleRolePackageId(role, sourcePackage) {
     const normalized = encounterNormalizeRole(role || {});
@@ -11107,7 +11147,7 @@ button.st-work-notice{cursor:pointer}
 
   function encounterReadManagementState() {
     try {
-      const parsed = JSON.parse(localStorage.getItem(ENCOUNTER_MANAGEMENT_STORAGE_KEY) || "{}");
+      const parsed = JSON.parse(localStorage.getItem(encounterLibraryStorageKey(ENCOUNTER_MANAGEMENT_STORAGE_KEY)) || "{}");
       return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
     } catch {
       return {};
@@ -11116,7 +11156,7 @@ button.st-work-notice{cursor:pointer}
 
   function encounterWriteManagementState(state) {
     try {
-      localStorage.setItem(ENCOUNTER_MANAGEMENT_STORAGE_KEY, JSON.stringify(state && typeof state === "object" ? state : {}));
+      localStorage.setItem(encounterLibraryStorageKey(ENCOUNTER_MANAGEMENT_STORAGE_KEY), JSON.stringify(state && typeof state === "object" ? state : {}));
     } catch {}
   }
 
