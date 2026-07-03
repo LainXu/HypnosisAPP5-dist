@@ -12096,15 +12096,15 @@ button.st-work-notice{cursor:pointer}
     const candidates = [
       canvas.toDataURL("image/webp", 0.82),
       canvas.toDataURL("image/jpeg", 0.84)
-    ].filter((item) => /^data:image/(?:webp|jpeg);/i.test(item));
+    ].filter((item) => new RegExp("^data:image/(?:webp|jpeg);", "i").test(item));
     candidates.sort((a, b) => a.length - b.length);
     return candidates[0] && candidates[0].length < dataUrl.length ? candidates[0] : dataUrl;
   }
 
   async function encounterFileAsDataUrl(file) {
     const dataUrl = await encounterRawFileAsDataUrl(file);
-    const mime = String(file?.type || "");
-    if (!/^image//i.test(mime) || /^image/(?:gif|svg+xml)$/i.test(mime)) return dataUrl;
+    const mime = String(file && file.type || "");
+    if (!new RegExp("^image/", "i").test(mime) || new RegExp("^image/(?:gif|svg[+]xml)$", "i").test(mime)) return dataUrl;
     if (dataUrl.length <= 900000) return dataUrl;
     try {
       const resized = await encounterResizeImageDataUrl(dataUrl, 960);
@@ -12245,7 +12245,7 @@ button.st-work-notice{cursor:pointer}
         for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
         return bytes;
       }
-      return new TextEncoder().encode(decodeURIComponent(body.replace(/+/g, "%20")));
+      return new TextEncoder().encode(decodeURIComponent(body.split("+").join("%20")));
     } catch (error) {
       console.warn("[邂逅] 图片 data URL 解码失败", error);
       return new Uint8Array();
@@ -12286,8 +12286,11 @@ button.st-work-notice{cursor:pointer}
     const text = String(source || "").trim();
     if (!text || /^data:/i.test(text)) return text;
     if (/^(?:https?:|blob:)/i.test(text)) return text;
-    if (/^/(?:public/frontends/hypnosis-app/assets|dist/催眠APP前端/assets)//.test(text)) return text;
-    const normalized = text.replace(/\/g, "/").replace(/^.//, "").replace(/^/+/, "");
+    if (new RegExp("^/(?:public/frontends/hypnosis-app/assets|dist/催眠APP前端/assets)/").test(text)) return text;
+    const normalized = text
+      .split("\\").join("/")
+      .replace(new RegExp("^[.]/"), "")
+      .replace(new RegExp("^/+"), "");
     if (normalized.startsWith("public/frontends/hypnosis-app/assets/")) return "/" + normalized;
     if (normalized.startsWith("dist/催眠APP前端/assets/")) return "/" + normalized;
     if (normalized.startsWith("assets/")) return stAssetUrl(normalized.slice("assets/".length));
