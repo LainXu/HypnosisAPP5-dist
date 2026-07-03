@@ -1355,6 +1355,7 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     "阿宅": stAssetUrl("profiles/otaku.png")
   };
   const ST_OTAKU_FEMALE_PROFILE_PHOTO = stAssetUrl("profiles/otaku-female.png");
+  const ST_OTAKU_FEMALE_TRANSFORM_TRIGGER = "HYPNOOS_OTAKU_FEMALE_TRANSFORM_ACCEPT_V1";
   const ST_LOCKED_PROFILE_ROLES = new Set(["西园寺爱丽莎", "月咏深雪", "犬冢夏美", "阿宅"]);
   const BOARD_NAMES = DEFAULT_BOARDS.map((board) => board.name);
   const BOARD_ID_BY_NAME = Object.fromEntries(DEFAULT_BOARDS.map((board) => [board.name, board.id]));
@@ -6540,6 +6541,7 @@ button.st-work-notice{cursor:pointer}
     const payload = {
       "来源": "人物档案",
       "操作": "请求女性化改造阿宅",
+      "前端触发码": ST_OTAKU_FEMALE_TRANSFORM_TRIGGER,
       "角色名": roleName,
       "当前好感度": statNumber(statValue(roleData, "好感度"), 0),
       "当前服从度": statNumber(statValue(roleData, "服从度"), 0),
@@ -6548,7 +6550,7 @@ button.st-work-notice{cursor:pointer}
       "变量改写": "replace /系统/阿宅性别 为 女；replace /角色/" + roleName + " 为女性格式；同一时间只能保留男女其中一套身体字段。保留好感度、警戒度、服从度、性欲、快感值、是否派遣中、临时催眠效果和永久催眠效果；工作价值固定改为2星光点/日；移除阴茎长度、男性敏感度和男性高潮次数字段；改用三围、女性敏感度和女性高潮次数。",
       "必须删除字段": ["档案.阴茎长度", "阴茎敏感度", "龟头敏感度", "睾丸敏感度", "前列腺敏感度", "阴茎高潮次数", "龟头高潮次数", "睾丸高潮次数", "前列腺高潮次数"],
       "女性化变量模板": otakuFemaleVariableTemplate(roleName, roleData),
-      "AI执行规范": "仅当" + roleName + "好感度>=100且服从度>=100并且尚未女性化时成功；成功后描写面包车趁无人时线下带走阿宅，推进当前时间约3小时，把她带回{{user}}面前，并更新/系统/阿宅性别为女和阿宅变量。若条件不满足、用户反悔或剧情强阻碍，则不改变量。"
+      "AI执行规范": "只有本轮APP操作暂存区包含前端触发码 " + ST_OTAKU_FEMALE_TRANSFORM_TRIGGER + " 才表示用户点击并接受女性化改造；普通正文提到阿宅、女性化、阿宅妹妹或APP改造为女性都不能触发。仅当" + roleName + "好感度>=100且服从度>=100并且尚未女性化时成功；成功后描写面包车趁无人时线下带走阿宅，推进当前时间约3小时，把她带回{{user}}面前，并更新/系统/阿宅性别为女和阿宅变量。若已女性化、条件不满足、用户反悔或剧情强阻碍，则不改变量，不重复安排改造。"
     };
     Promise.resolve(appendAppOperation(payload)).then((added) => {
       page.dataset.profileTransformNotice = added ? "改造请求已暂存，确认发送后由AI带走并归还阿宅。" : "暂存区已有相同请求。";
