@@ -1842,7 +1842,12 @@
         "菊穴高潮次数": 0,
         "尿道高潮次数": 0,
         "乳头高潮次数": 0
-      }
+      },
+      "images": [
+        "encounter/orjenrn/role-08.png",
+        "encounter/sdz-aser/roles/桐生刹那/桐生刹那1.png",
+        "encounter/sdz-aser/roles/桐生刹那/桐生刹那2.png"
+      ]
     },
     {
       "id": "role-小鸟游柚子",
