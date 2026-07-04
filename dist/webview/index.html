@@ -3249,13 +3249,28 @@ button.st-work-notice{cursor:pointer}
 .st-profile-app .st-meter.is-overflow .st-meter-fill{width:100%;background:linear-gradient(90deg,#b94c44,#d28a43,#7d5f9c)}
 .st-profile-app .st-meter.is-overflow .st-meter-track::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(110deg,rgba(255,255,255,.46) 0 5px,transparent 5px 10px);mix-blend-mode:screen;opacity:.5}
 .st-profile-app .st-meter-overflow{display:inline-flex;align-items:center;border:1px solid rgba(137,69,54,.22);border-radius:999px;background:rgba(137,69,54,.1);padding:1px 5px;color:#7d3025;font-size:9px;font-weight:900}
+.st-profile-app .st-state-meter-grid{display:grid;grid-template-columns:1fr;gap:7px}
+.st-profile-app .st-state-meter{min-width:0;border:1px solid rgba(81,64,49,.2);border-radius:8px;background:rgba(247,241,229,.72);padding:7px 8px;box-shadow:inset 0 1px 0 rgba(255,255,255,.45)}
+.st-profile-app .st-state-meter-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:6px}
+.st-profile-app .st-state-meter-label{color:#33291f;font-size:12px;font-weight:950;white-space:nowrap}
+.st-profile-app .st-state-meter-value{display:inline-flex;align-items:center;gap:5px;color:#30261d;font-size:12px;font-weight:950;font-variant-numeric:tabular-nums;white-space:nowrap}
+.st-profile-app .st-state-meter-value small{border:1px solid rgba(81,64,49,.18);border-radius:999px;background:rgba(255,255,255,.38);padding:1px 5px;color:rgba(68,54,42,.58);font-size:9px;font-weight:900;line-height:1.2}
+.st-profile-app .st-state-meter-track{position:relative;height:10px;border:1px solid rgba(81,64,49,.16);border-radius:999px;background:linear-gradient(90deg,rgba(137,69,54,.12),rgba(77,60,45,.08) 48%,rgba(77,60,45,.12) 50%,rgba(77,60,45,.08) 52%,rgba(95,143,122,.12));overflow:hidden}
+.st-profile-app .st-state-meter-track::before{content:"";position:absolute;top:-2px;bottom:-2px;left:50%;width:2px;background:rgba(81,64,49,.32);border-radius:999px;transform:translateX(-50%);z-index:2}
+.st-profile-app .st-state-meter-track::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 0 24.5%,rgba(81,64,49,.13) 24.5% 25.5%,transparent 25.5% 49.5%,rgba(81,64,49,.2) 49.5% 50.5%,transparent 50.5% 74.5%,rgba(81,64,49,.13) 74.5% 75.5%,transparent 75.5%);pointer-events:none}
+.st-profile-app .st-state-meter-fill{position:absolute;top:0;bottom:0;left:50%;width:var(--bar-width,0%);border-radius:999px;background:linear-gradient(90deg,var(--tone-soft,rgba(95,143,122,.48)),var(--tone,#6b8f71));box-shadow:0 0 12px var(--tone-glow,rgba(107,143,113,.2));z-index:1}
+.st-profile-app .st-state-meter.is-negative .st-state-meter-fill{left:auto;right:50%;background:linear-gradient(90deg,var(--tone,#b94c44),var(--tone-soft,rgba(185,76,68,.46)))}
+.st-profile-app .st-state-meter-scale{display:grid;grid-template-columns:1fr auto 1fr;margin-top:4px;color:rgba(68,54,42,.45);font-size:8px;font-weight:900}
+.st-profile-app .st-state-meter-scale span:nth-child(3){text-align:right}
 .st-profile-radar-card{position:relative;margin-bottom:8px;border:1px solid rgba(81,64,49,.18);border-radius:10px;background:radial-gradient(circle at 50% 44%,rgba(250,224,150,.26),rgba(247,241,229,.56) 56%,rgba(230,217,197,.46));box-shadow:inset 0 1px 0 rgba(255,255,255,.48),0 8px 18px rgba(60,45,32,.08);padding:7px 8px 5px;display:grid;place-items:center;overflow:hidden}
+.st-profile-radar-card.is-sensitivity{background:radial-gradient(circle at 50% 50%,rgba(185,76,68,.14),rgba(196,145,77,.14) 34%,rgba(107,143,113,.13) 68%,rgba(125,95,156,.12));}
 .st-profile-radar-card svg{width:100%;max-width:230px;height:auto;display:block;overflow:visible}
 .st-profile-radar-grid{fill:none;stroke:rgba(81,64,49,.18);stroke-width:1}
 .st-profile-radar-axis{stroke:rgba(81,64,49,.16);stroke-width:1}
 .st-profile-radar-shape{fill:rgba(139,92,48,.22);stroke:#8b5e3c;stroke-width:2;filter:drop-shadow(0 5px 7px rgba(67,45,28,.16))}
+.st-profile-radar-shape.is-sensitivity{stroke:#6b8f71;filter:drop-shadow(0 5px 7px rgba(67,70,45,.14))}
 .st-profile-radar-dot{stroke:rgba(247,241,229,.62);stroke-width:.35}
-.st-profile-radar-dot.is-low{fill:#8fa09a}.st-profile-radar-dot.is-mid{fill:#6b8f71}.st-profile-radar-dot.is-high{fill:#c4914d}.st-profile-radar-dot.is-peak{fill:#c25d55}.st-profile-radar-dot.is-overflow{fill:#7d5f9c}.st-profile-radar-dot.is-negative{fill:#6f6258}
+.st-profile-radar-dot.is-low{fill:#8fa09a}.st-profile-radar-dot.is-mid{fill:#6b8f71}.st-profile-radar-dot.is-high{fill:#c4914d}.st-profile-radar-dot.is-peak{fill:#c25d55}.st-profile-radar-dot.is-overflow{fill:#7d5f9c}.st-profile-radar-dot.is-negative{fill:#6f6258}.st-profile-radar-dot.is-base{fill:#c4914d}.st-profile-radar-dot.is-bad{fill:#b94c44}
 .st-profile-radar-label{font:900 9px -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;fill:rgba(51,41,31,.76);paint-order:stroke;stroke:rgba(247,241,229,.82);stroke-width:3px;stroke-linejoin:round}
 .st-profile-radar-value{font:900 8px ui-monospace,SFMono-Regular,Menlo,monospace;fill:rgba(68,54,42,.56);paint-order:stroke;stroke:rgba(247,241,229,.82);stroke-width:2px}
 .st-profile-radar-note{position:absolute;right:8px;bottom:6px;color:rgba(68,54,42,.46);font-size:8px;font-weight:900}
@@ -6287,7 +6302,7 @@ button.st-work-notice{cursor:pointer}
   }
 
   const ST_CORE_STATS = ["好感度", "警戒度", "服从度", "性欲", "快感值"];
-  const ST_RADAR_STATS = ["警戒度", "好感度", "服从度", "性欲", "快感值"];
+  const ST_STATE_BAR_STATS = ["好感度", "服从度", "警戒度", "性欲", "快感值"];
   const ST_SENSITIVITY_STATS = ["阴蒂敏感度", "小穴敏感度", "菊穴敏感度", "尿道敏感度", "乳头敏感度"];
   const ST_MALE_SENSITIVITY_STATS = ["阴茎敏感度", "龟头敏感度", "睾丸敏感度", "前列腺敏感度", "乳头敏感度"];
   const ST_COUNT_STATS = ["阴蒂高潮次数", "小穴高潮次数", "菊穴高潮次数", "尿道高潮次数", "乳头高潮次数"];
@@ -6347,10 +6362,15 @@ button.st-work-notice{cursor:pointer}
     return isSensitivityStat(label) ? 2000 : 200;
   }
 
+  function statLowerLimit(label) {
+    return isSensitivityStat(label) ? 0 : -200;
+  }
+
   function cappedStatNumber(label, value, fallback = 0) {
     const number = statNumber(value, fallback);
     const cap = statUpperLimit(label);
-    return Math.min(number, cap);
+    const floor = statLowerLimit(label);
+    return Math.max(floor, Math.min(number, cap));
   }
 
   function formatStatNumber(value) {
@@ -6386,6 +6406,48 @@ button.st-work-notice{cursor:pointer}
       '</article>';
   }
 
+  function stateMeterTone(label, number) {
+    const isAlert = label === "警戒度";
+    const magnitude = Math.min(100, Math.abs(number));
+    const strength = Math.max(0.32, magnitude / 100);
+    if (number === 0) {
+      return {
+        tone: "rgba(116,102,89,.62)",
+        soft: "rgba(116,102,89,.3)",
+        glow: "rgba(116,102,89,.12)"
+      };
+    }
+    if (isAlert ? number > 0 : number < 0) {
+      return {
+        tone: magnitude >= 85 ? "#b94c44" : magnitude >= 45 ? "#c4914d" : "#a56d55",
+        soft: "rgba(185,76,68," + (0.24 + strength * 0.28).toFixed(2) + ")",
+        glow: "rgba(185,76,68," + (0.12 + strength * 0.14).toFixed(2) + ")"
+      };
+    }
+    return {
+      tone: magnitude >= 85 ? "#5f8f7a" : magnitude >= 45 ? "#6b8f71" : "#8fa09a",
+      soft: "rgba(107,143,113," + (0.24 + strength * 0.28).toFixed(2) + ")",
+      glow: "rgba(107,143,113," + (0.12 + strength * 0.14).toFixed(2) + ")"
+    };
+  }
+
+  function renderStateMeterStat(label, value) {
+    const number = cappedStatNumber(label, value, 0);
+    const directionNumber = label === "警戒度" ? -number : number;
+    const visual = Math.max(-100, Math.min(100, directionNumber));
+    const width = Math.abs(visual) / 2;
+    const tone = stateMeterTone(label, number);
+    const directionClass = directionNumber < 0 ? "is-negative" : directionNumber > 0 ? "is-positive" : "is-zero";
+    const style = "--bar-width:" + width.toFixed(1) + "%;--tone:" + tone.tone + ";--tone-soft:" + tone.soft + ";--tone-glow:" + tone.glow;
+    const guide = label === "警戒度" ? "警戒 ← 0 → 信任" : "低 ← 0 → 高";
+    return '<article class="st-state-meter ' + directionClass + '" style="' + style + '">' +
+      '<div class="st-state-meter-top"><span class="st-state-meter-label">' + escapeHtml(label) + '</span>' +
+      '<span class="st-state-meter-value">' + escapeHtml(formatStatNumber(number)) + '<small>' + escapeHtml(guide) + '</small></span></div>' +
+      '<div class="st-state-meter-track"><span class="st-state-meter-fill"></span></div>' +
+      '<div class="st-state-meter-scale"><span>-100</span><span>0</span><span>+100</span></div>' +
+      '</article>';
+  }
+
   function shortCountLabel(label) {
     return bodyStatDisplayLabel(label).replace("高潮次数", "高潮");
   }
@@ -6395,17 +6457,19 @@ button.st-work-notice{cursor:pointer}
     return '<article class="st-count-chip"><strong>' + escapeHtml(display) + '</strong><span>' + escapeHtml(shortCountLabel(label)) + '</span></article>';
   }
 
-  function radarToneClass(number) {
-    if (number < 0) return "is-negative";
-    if (number > 100) return "is-overflow";
-    if (number >= 85) return "is-peak";
-    if (number >= 60) return "is-high";
-    if (number >= 25) return "is-mid";
+  function sensitivityRadarToneClass(number) {
+    if (number < 100) return number <= 25 ? "is-bad" : "is-negative";
+    if (number === 100) return "is-base";
+    if (number > 1000) return "is-overflow";
+    if (number >= 800) return "is-peak";
+    if (number >= 500) return "is-high";
+    if (number >= 200) return "is-mid";
     return "is-low";
   }
 
-  function radarPoint(cx, cy, radius, index, ratio) {
-    const angle = (-90 + index * 72) * Math.PI / 180;
+  function radarPoint(cx, cy, radius, index, count, ratio) {
+    const step = count > 0 ? 360 / count : 72;
+    const angle = (-90 + index * step) * Math.PI / 180;
     const distance = radius * Math.max(0, Math.min(1, ratio));
     return {
       x: cx + Math.cos(angle) * distance,
@@ -6413,27 +6477,33 @@ button.st-work-notice{cursor:pointer}
     };
   }
 
-  function renderPersonRadar(roleData) {
+  function shortSensitivityLabel(label) {
+    return bodyStatDisplayLabel(label).replace("敏感度", "");
+  }
+
+  function renderPersonSensitivityRadar(roleData, roleName) {
+    const stats = roleSensitivityStats(roleData, roleName);
     const cx = 100;
     const cy = 100;
     const radius = 56;
     const labelRadius = 77;
-    const ring = (ratio) => ST_RADAR_STATS.map((_, index) => {
-      const point = radarPoint(cx, cy, radius, index, ratio);
+    const count = stats.length || 5;
+    const ring = (ratio) => stats.map((_, index) => {
+      const point = radarPoint(cx, cy, radius, index, count, ratio);
       return point.x.toFixed(1) + "," + point.y.toFixed(1);
     }).join(" ");
-    const values = ST_RADAR_STATS.map((label, index) => {
-      const number = cappedStatNumber(label, statValue(roleData, label), 0);
-      const ratio = Math.max(0, Math.min(100, number)) / 100;
-      const point = radarPoint(cx, cy, radius, index, ratio);
-      const labelPoint = radarPoint(cx, cy, labelRadius, index, 1);
+    const values = stats.map((label, index) => {
+      const number = cappedStatNumber(label, statValue(roleData, label), statFallback(label));
+      const ratio = Math.max(0, Math.min(1000, number)) / 1000;
+      const point = radarPoint(cx, cy, radius, index, count, ratio);
+      const labelPoint = radarPoint(cx, cy, labelRadius, index, count, 1);
       const anchor = Math.abs(labelPoint.x - cx) < 4 ? "middle" : (labelPoint.x < cx ? "end" : "start");
       const valueY = labelPoint.y + (labelPoint.y < cy - 18 ? -11 : 13);
-      return { label, number, point, labelPoint, valueY, anchor, tone: radarToneClass(number) };
+      return { label: shortSensitivityLabel(label), number, point, labelPoint, valueY, anchor, tone: sensitivityRadarToneClass(number) };
     });
     const shape = values.map((item) => item.point.x.toFixed(1) + "," + item.point.y.toFixed(1)).join(" ");
-    const axes = ST_RADAR_STATS.map((_, index) => {
-      const edge = radarPoint(cx, cy, radius, index, 1);
+    const axes = stats.map((_, index) => {
+      const edge = radarPoint(cx, cy, radius, index, count, 1);
       return '<line class="st-profile-radar-axis" x1="' + cx + '" y1="' + cy + '" x2="' + edge.x.toFixed(1) + '" y2="' + edge.y.toFixed(1) + '"></line>';
     }).join("");
     const dots = values.map((item) => (
@@ -6443,15 +6513,21 @@ button.st-work-notice{cursor:pointer}
       '<text class="st-profile-radar-label" x="' + item.labelPoint.x.toFixed(1) + '" y="' + item.labelPoint.y.toFixed(1) + '" text-anchor="' + item.anchor + '">' + escapeHtml(item.label) + '</text>' +
       '<text class="st-profile-radar-value" x="' + item.labelPoint.x.toFixed(1) + '" y="' + item.valueY.toFixed(1) + '" text-anchor="' + item.anchor + '">' + escapeHtml(formatStatNumber(item.number)) + '</text>'
     )).join("");
-    return '<div class="st-profile-radar-card">' +
-      '<svg viewBox="0 0 200 200" role="img" aria-label="五维状态雷达图">' +
+    return '<div class="st-profile-radar-card is-sensitivity">' +
+      '<svg viewBox="0 0 200 200" role="img" aria-label="五项敏感度雷达图">' +
+        '<defs><radialGradient id="st-profile-sensitivity-gradient" cx="50%" cy="50%" r="62%">' +
+          '<stop offset="0%" stop-color="#b94c44" stop-opacity=".34"></stop>' +
+          '<stop offset="24%" stop-color="#c4914d" stop-opacity=".28"></stop>' +
+          '<stop offset="66%" stop-color="#6b8f71" stop-opacity=".3"></stop>' +
+          '<stop offset="100%" stop-color="#7d5f9c" stop-opacity=".28"></stop>' +
+        '</radialGradient></defs>' +
         [0.25, 0.5, 0.75, 1].map((ratio) => '<polygon class="st-profile-radar-grid" points="' + ring(ratio) + '"></polygon>').join("") +
         axes +
-        '<polygon class="st-profile-radar-shape" points="' + shape + '"></polygon>' +
+        '<polygon class="st-profile-radar-shape is-sensitivity" fill="url(#st-profile-sensitivity-gradient)" points="' + shape + '"></polygon>' +
         dots +
         labels +
       '</svg>' +
-      '<span class="st-profile-radar-note">0-100</span>' +
+      '<span class="st-profile-radar-note">100基准 / 1000满</span>' +
     '</div>';
   }
 
@@ -7976,16 +8052,16 @@ button.st-work-notice{cursor:pointer}
 
   function renderPersonStatePanel(roleName, roleData) {
     const counts = roleCountStats(roleData, roleName).map((label) => renderCountStat(label, statValue(roleData, label))).join("");
+    const stateBars = ST_STATE_BAR_STATS.map((label) => renderStateMeterStat(label, statValue(roleData, label))).join("");
     return '<section class="st-person-lines is-body">' +
-      renderPersonPanel("状态", renderPersonRadar(roleData), "超出100贴边，低于0归心") +
+      renderPersonPanel("状态", '<div class="st-state-meter-grid">' + stateBars + '</div>', "-100 到 +100 为视觉两端") +
       renderPersonPanel("次数", '<div class="st-count-grid">' + counts + '</div>') +
       '</section>';
   }
 
   function renderPersonSensitivityPanel(roleName, roleData) {
-    const sensitivity = roleSensitivityStats(roleData, roleName).map((label) => renderMeterStat(label, statValue(roleData, label))).join("");
     return '<section class="st-person-lines is-body">' +
-      renderPersonPanel("敏感度", '<div class="st-meter-grid">' + sensitivity + '</div>', "1000 为满刻度") +
+      renderPersonPanel("敏感度", renderPersonSensitivityRadar(roleData, roleName), "100 以下偏迟钝") +
       '</section>';
   }
 
