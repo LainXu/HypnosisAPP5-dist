@@ -1706,6 +1706,12 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
       if (pathname.includes("/public/frontends/hypnosis-app/") || pathname.includes("/dist/催眠APP前端/")) {
         return new URL("assets/", window.location.href).href;
       }
+      if (pathname.includes("/public/frontends/hypnosis-app-phone/")) {
+        return new URL("../hypnosis-app/assets/", window.location.href).href;
+      }
+      if (pathname.includes("/dist/phone/")) {
+        return new URL("../webview/assets/", window.location.href).href;
+      }
     } catch {}
     return "/public/frontends/hypnosis-app/assets/";
   }
