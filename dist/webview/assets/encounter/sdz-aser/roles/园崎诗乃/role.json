@@ -3,7 +3,7 @@
   "name": "园崎诗乃",
   "aliases": "",
   "intro": "identity_positioning: affiliation: 高三B班学生 / 图书委员会委员长。 social_role: 表面是温柔知性、自带书卷气的优等生；暗地里是校园情报网的支配者，利用图书室收集隐私、操纵舆论并观测人性脆弱的幕后黑手。 appearance: normal_state: 标志性的黑框眼镜中和了过于锋利的审视感。坐在借阅台前背部永远挺拔，如神像般端庄；指尖修长干净。 attire_normal: 剪裁极其合身的私立学园制服（领结弧度经过精确计算），黑色丝袜包裹的双腿在长裙下若隐若现…",
-  "encounterPrompt": "在当前剧情中让园崎诗乃自然登场；如果当前世界书或剧情中已有同名/高度重复角色，则不要重复/add，只使用SDZ版人设补充其表现。",
+  "encounterPrompt": "",
   "variables": "  园崎诗乃:\n    {{format_message_variable::stat_data.角色.园崎诗乃}}\n",
   "variableEntry": {
     "key": [
