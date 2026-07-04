@@ -9024,12 +9024,12 @@ button.st-work-notice{cursor:pointer}
     const text = String(startText || "").trim();
     const dateMatch = text.match(/(d{1,2})月(d{1,2})日/);
     const timeMatch = text.match(/(d{1,2}):(d{2})/);
-    if (!dateMatch || !timeMatch) return hours ? "开始后" + hours + "小时" : text || "未知";
+    if (!dateMatch || !timeMatch) return hours ? "" : text || "未知";
     const month = Number(dateMatch[1]);
     const day = Number(dateMatch[2]);
     const hour = Number(timeMatch[1]);
     const minute = Number(timeMatch[2]);
-    if (![month, day, hour, minute].every(Number.isFinite)) return hours ? "开始后" + hours + "小时" : text || "未知";
+    if (![month, day, hour, minute].every(Number.isFinite)) return hours ? "" : text || "未知";
     const totalMinutes = hour * 60 + minute + hours * 60;
     const dayOffset = Math.floor(totalMinutes / 1440);
     const endMinutes = ((totalMinutes % 1440) + 1440) % 1440;
@@ -9038,15 +9038,25 @@ button.st-work-notice{cursor:pointer}
     return (date.getMonth() + 1) + "月" + date.getDate() + "日 " + formatPeriodTime(endMinutes);
   }
 
-  function normalizeWorkBuffEndText(startText, endText) {
+  function workRelativeBuffHours(text) {
+    const raw = String(text || "").trim();
+    const hourMatch = raw.match(/(?:开始后|后)?s*(d+(?:.d+)?)s*小时/u);
+    if (hourMatch) return Math.max(1, Math.round(Number(hourMatch[1]) || 24));
+    if (/开始后s*(?:1|一)s*天|(?:1|一)s*天后|打工开始后s*(?:1|一)s*天/u.test(raw)) return 24;
+    return 24;
+  }
+
+  function normalizeWorkBuffEndText(startText, endText, fallbackStartText = "") {
     const rawEnd = String(endText || "").trim();
     if (rawEnd && monitorStampFromText(rawEnd)) return rawEnd;
-    const rawStart = String(startText || "").trim();
-    if (rawStart && monitorStampFromText(rawStart)) return workOffsetDateTimeText(rawStart, 24);
+    const rawStart = [startText, fallbackStartText]
+      .map((value) => String(value || "").trim())
+      .find((value) => value && monitorStampFromText(value));
+    if (rawStart) return workOffsetDateTimeText(rawStart, workRelativeBuffHours(rawEnd));
     return "";
   }
 
-  function readWorkBuffLock(expectedBuff = "") {
+  function readWorkBuffLock(expectedBuff = "", fallbackStartText = "") {
     try {
       const parsed = JSON.parse(localStorage.getItem(workBuffLockStorageKey()) || "null");
       if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
@@ -9054,8 +9064,8 @@ button.st-work-notice{cursor:pointer}
       if (!buff || buff === "无") return null;
       const expected = String(expectedBuff || "").trim();
       if (expected && buff !== expected) return null;
-      const startText = String(parsed.startText || "").trim();
-      const endText = normalizeWorkBuffEndText(startText, parsed.endText || parsed.removeText || parsed["打工buff结束时间"] || parsed["buff结束时间"] || parsed["打工buff预计去除时间"]);
+      const startText = String(parsed.startText || "").trim() || String(fallbackStartText || "").trim();
+      const endText = normalizeWorkBuffEndText(startText, parsed.endText || parsed.removeText || parsed["打工buff结束时间"] || parsed["buff结束时间"] || parsed["打工buff预计去除时间"], fallbackStartText);
       if (endText && endText !== parsed.endText) {
         try {
           localStorage.setItem(workBuffLockStorageKey(), JSON.stringify({ ...parsed, buff, startText, endText }));
@@ -9076,6 +9086,7 @@ button.st-work-notice{cursor:pointer}
       }
       const startText = String(payload?.["打工buff开始时间"] || payload?.["开始时间"] || payload?.startText || "").trim();
       const endText = normalizeWorkBuffEndText(startText, payload?.["打工buff结束时间"] || payload?.["buff结束时间"] || payload?.["打工buff预计去除时间"] || payload?.["buff预计去除时间"] || payload?.endText || "");
+      if (!endText) return;
       localStorage.setItem(workBuffLockStorageKey(), JSON.stringify({
         buff,
         startText,
@@ -9434,17 +9445,24 @@ button.st-work-notice{cursor:pointer}
       window.__ST_SET_WORK_BUFF_STATUS_REMINDER__?.(null);
       return;
     }
-    const lock = readWorkBuffLock(buff);
     const latest = latestWorkStartPayloadFromChat();
     const latestBuff = String(latest?.["打工获得buff"] || "").trim();
     const latestMatchesBuff = latest && (latestBuff === buff || !latestBuff || latestBuff === "按世界书判定");
-    const startText = lock?.startText || (latestMatchesBuff
+    const latestStartText = latestMatchesBuff
       ? String(latest?.["打工buff开始时间"] || latest?.["开始时间"] || "").trim()
+      : "";
+    const lock = readWorkBuffLock(buff, latestStartText);
+    const startText = lock?.startText || (latestMatchesBuff
+      ? latestStartText
       : "");
     const rawEndText = lock?.endText || (latestMatchesBuff
       ? String(latest?.["打工buff结束时间"] || latest?.["buff结束时间"] || latest?.["打工buff预计去除时间"] || latest?.["buff去除时间"] || latest?.["打工buff预计结束时间"] || "").trim()
       : "");
-    const endText = normalizeWorkBuffEndText(startText, rawEndText);
+    const endText = normalizeWorkBuffEndText(startText, rawEndText, latestStartText);
+    if (!endText || !monitorStampFromText(endText)) {
+      window.__ST_SET_WORK_BUFF_STATUS_REMINDER__?.(null);
+      return;
+    }
     const endStamp = endText ? monitorStampFromText(endText) : 0;
     const currentStamp = workCurrentStamp();
     const expired = Boolean(endStamp && currentStamp && currentStamp >= endStamp);
@@ -10594,15 +10612,9 @@ button.st-work-notice{cursor:pointer}
     const roles = (Array.isArray(pkg?.roles) ? pkg.roles : [])
       .map((role, index) => encounterNormalizeRole(role, index))
       .filter((role) => String(role.name || role.intro || role.encounterPrompt || role.firstEncounter || "").trim());
-    const lines = [];
-    roles.forEach((role, index) => {
-      const prompt = encounterRoleEncounterPrompt(role, pkg);
-      if (!prompt) return;
-      const name = String(role.name || ("角色" + (index + 1))).trim();
-      lines.push(String(index + 1) + ". " + name + "：" + prompt);
-    });
-    if (packagePrompt) lines.push("整体串联：" + packagePrompt);
-    return lines.join("\n").trim();
+    if (packagePrompt) return packagePrompt;
+    if (roles.length === 1) return encounterRoleEncounterPrompt(roles[0], pkg);
+    return "";
   }
 
   function encounterPackagePrice(pkg) {
@@ -12144,7 +12156,7 @@ button.st-work-notice{cursor:pointer}
       '</div>' +
       '<label class="st-encounter-field"><span>角色包名字</span><input name="name" value="' + escapeAttr(draft.name) + '" placeholder="例如：斋明学园扩展角色包"></label>' +
       '<label class="st-encounter-field"><span>介绍</span><textarea name="intro" placeholder="用户在偶遇页会看到的角色包简介">' + escapeHtml(draft.intro) + '</textarea></label>' +
-      '<label class="st-encounter-field"><span>包级串联补充</span><textarea name="encounterPrompt" placeholder="可留空；实际提示词会由角色页每个角色的出场提示词组合，包级内容只作为整体顺序或连接补充">' + escapeHtml(draft.encounterPrompt) + '</textarea></label>' +
+      '<label class="st-encounter-field"><span>包级邂逅开场</span><textarea name="encounterPrompt" placeholder="多角色包会只使用这里作为整体串联开场；单独角色才使用角色自己的出场提示词。">' + escapeHtml(draft.encounterPrompt) + '</textarea></label>' +
       '<label class="st-encounter-field"><span>价格（星光点）</span><input name="price" type="number" min="0" step="1" value="' + escapeAttr(draft.price) + '" placeholder="默认人数 × 4"></label>' +
       '<div class="st-encounter-actions">' +
         '<button type="button" class="st-encounter-button" data-encounter-action="save-library">保存到偶遇</button>' +
@@ -14398,21 +14410,15 @@ button.st-work-notice{cursor:pointer}
 
   function encounterPurchasePayload(pkg, result = {}) {
     const roles = (pkg.roles || []).map((role, index) => encounterNormalizeRole(role, index)).filter((role) => String(role.name || role.intro || "").trim());
+    const combinedPrompt = encounterPackageCombinedPrompt(pkg);
     const randomRoleName = String(result.randomRoleName || (result.randomRomance ? roles.map((role) => role.name).filter(Boolean).join("、") : "")).trim();
     const plotText = result.randomRomance
-      ? "本次消耗星光点在剧情中表现为{{user}}主动按下随机桃花运。前端已经随机抽中本条记录里的角色；{{user}}只知道自己购买了随机桃花运，不知道会遇到谁或对方来自哪个角色包。具体对象按角色列表执行，不得重新随机或替换。"
+      ? "本次消耗星光点在剧情中表现为{{user}}主动按下随机桃花运。前端已经随机抽中本条记录里的角色；{{user}}只知道自己购买了随机桃花运，不知道会遇到谁或对方来自哪个角色包。具体对象按随机命中角色和AI邂逅提示词执行，不得重新随机或替换。"
       : "本次消耗星光点在剧情中表现为{{user}}主动购买一次桃花运。{{user}}只知道自己购买了桃花运，不知道会遇到谁、会遇到几个角色、对方来自哪个角色包；具体对象由APP暗中安排。";
+    const fillFocusText = "对本次角色包涉及的每个登场/在场角色，重点检查变量中仍为未记录的档案.头发、档案.面部、档案.上衣、档案.下衣和心理；根据已写入的人设世界书与AI邂逅提示词开场尽量补齐为简短具体描述，不要改写已记录项，不要粘贴世界书原文。";
     const executionText = result.randomRomance
-      ? "这个随机桃花运已经由前端抽取并使用。不要重新随机，不要换成其他角色，不要重复扣星光点，不要重复插入世界书，不要对已新增角色重复/add。世界书条目已写入当前对话独有的 Chat Lorebook；初始角色变量已由前端创建，若有同名旧角色则前端已用本角色包初始变量覆盖。请把本次事件写成{{user}}主动购买随机桃花运后，由APP暗中安排的偶遇；剧情中的{{user}}不知道具体对象或角色包内容，不能表现为{{user}}精准点名召唤某角色。请根据已写入世界书、前端初始变量和角色列表，在本轮剧情中安排对应角色登场；若变量中仍有未记录字段，只按剧情需要简短补齐，不要把世界书原文整段塞进档案字段。工作价值已是前端按人设估算的0-20数字，不要在第一回合为了补全而覆盖它。后续只按剧情变化更新变量。"
-      : "这个角色包已经被前端使用。不要重复扣星光点，不要重复插入世界书，不要对已新增角色重复/add。世界书条目已写入当前对话独有的 Chat Lorebook；初始角色变量已由前端创建，若有同名旧角色则前端已用本角色包初始变量覆盖。请把本次事件写成{{user}}主动购买桃花运后，由APP暗中安排的偶遇；剧情中的{{user}}不知道会遇到谁、会遇到几个角色、对方来自哪个角色包，不能表现为{{user}}精准点名召唤某角色。请根据已写入世界书、前端初始变量和角色列表，在本轮剧情中安排对应角色登场；若变量中仍有未记录字段，只按剧情需要简短补齐，不要把世界书原文整段塞进档案字段。工作价值已是前端按人设估算的0-20数字，不要在第一回合为了补全而覆盖它。后续只按剧情变化更新变量。";
-    const rolePayloads = roles.map((role) => {
-      return {
-        角色名: role.name || "由AI按角色包内容命名",
-        别名: role.aliases || "",
-        角色出场提示摘要: encounterProfileSnippet(encounterRoleEncounterPrompt(role), 96) || "见世界书",
-        前端图片缓存: role.imageDataUrl ? "角色图片已缓存" : "无"
-      };
-    });
+      ? "这个随机桃花运已经由前端抽取并使用。不要重新随机，不要换成其他角色，不要重复扣星光点，不要重复插入世界书，不要对已新增角色重复/add。世界书条目已写入当前对话独有的 Chat Lorebook；初始角色变量已由前端创建，若有同名旧角色则前端已用本角色包初始变量覆盖。请把本次事件写成{{user}}主动购买随机桃花运后，由APP暗中安排的偶遇；剧情中的{{user}}不知道具体对象或角色包内容，不能表现为{{user}}精准点名召唤某角色。请优先按AI邂逅提示词里的整体串联开场安排登场；变量补全按“变量补全重点”执行。工作价值已是前端按人设估算的0-20数字，不要在第一回合为了补全而覆盖它。后续只按剧情变化更新变量。"
+      : "这个角色包已经被前端使用。不要重复扣星光点，不要重复插入世界书，不要对已新增角色重复/add。世界书条目已写入当前对话独有的 Chat Lorebook；初始角色变量已由前端创建，若有同名旧角色则前端已用本角色包初始变量覆盖。请把本次事件写成{{user}}主动购买桃花运后，由APP暗中安排的偶遇；剧情中的{{user}}不知道会遇到谁、会遇到几个角色、对方来自哪个角色包，不能表现为{{user}}精准点名召唤某角色。请优先按AI邂逅提示词里的整体串联开场安排登场；变量补全按“变量补全重点”执行。工作价值已是前端按人设估算的0-20数字，不要在第一回合为了补全而覆盖它。后续只按剧情变化更新变量。";
     return {
       来源: "邂逅",
       操作: "角色包已使用",
@@ -14421,7 +14427,7 @@ button.st-work-notice{cursor:pointer}
       角色包名称: pkg.name || "未命名角色包",
       角色包介绍: encounterProfileSnippet(pkg.intro, 120) || "无",
       ...(result.randomRomance ? { 选择方式: "随机桃花运", 随机命中角色: randomRoleName || "无" } : {}),
-      AI邂逅提示词: "见当前对话 Chat Lorebook 中本次写入的角色包/角色条目。",
+      AI邂逅提示词: combinedPrompt || "见当前对话 Chat Lorebook 中本次写入的角色包/角色条目。",
 	      前端处理: "已由前端扣除星光点、创建初始角色变量、缓存角色图片，并尝试写入当前对话独有的 Chat Lorebook。",
       消耗星光点: result.price ?? encounterPackagePrice(pkg),
       初始变量新增角色: Array.isArray(result.createdRoles) && result.createdRoles.length ? result.createdRoles.join("、") : "无",
@@ -14432,9 +14438,10 @@ button.st-work-notice{cursor:pointer}
 	      当前对话世界书: result.targetWorldbook || "当前对话 Chat Lorebook",
 	      世界书写入方式: result.method || "前端自动写入",
 	      剧情设定: plotText,
-	      角色变量补全要求: "每个角色都已由前端创建/覆盖初始变量；若变量中仍有未记录字段，AI只按剧情需要简短补齐，并参照当前对话 Chat Lorebook 里的对应人设/变量条目。不要把世界书原文整段塞进档案字段。工作价值已由前端按人设估算为0-20的星光点/日数字，后续只有角色身份、资源或能力发生长期变化时才更新。",
-      角色列表: rolePayloads,
-	      AI执行规范: executionText
+		      角色变量补全要求: "每个角色都已由前端创建/覆盖初始变量；AI只补齐仍为未记录的必要字段，参照当前对话 Chat Lorebook 里的对应人设/变量条目。不要把世界书原文整段塞进档案字段。工作价值已由前端按人设估算为0-20的星光点/日数字，后续只有角色身份、资源或能力发生长期变化时才更新。",
+      变量补全重点: fillFocusText,
+      角色处理: "角色变量、图片缓存和世界书写入已由前端处理；具体登场只按AI邂逅提示词的整体串联开场，不逐个复述角色单独出场提示。",
+      AI执行规范: executionText
     };
   }
 
