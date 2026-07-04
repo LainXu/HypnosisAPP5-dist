@@ -1745,6 +1745,18 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
     "阿宅": stAssetUrl("profiles/otaku.png")
   };
   const ST_DEFAULT_PROFILE_PHOTO_SLOTS = {
+    "西园寺爱丽莎": [
+      stAssetUrl("profiles/saionji-alisa.png"),
+      stAssetUrl("profiles/saionji-alisa-old.png")
+    ],
+    "月咏深雪": [
+      stAssetUrl("profiles/tsukuyomi-miyuki.png"),
+      stAssetUrl("profiles/tsukuyomi-miyuki-old.png")
+    ],
+    "犬冢夏美": [
+      stAssetUrl("profiles/inuzuka-natsumi.png"),
+      stAssetUrl("profiles/inuzuka-natsumi-old.png")
+    ],
     "桐生刹那": [
       stAssetUrl("encounter/sdz-aser/roles/桐生刹那/桐生刹那1.png"),
       stAssetUrl("encounter/sdz-aser/roles/桐生刹那/桐生刹那2.png")
@@ -2789,7 +2801,9 @@ button.st-work-notice{cursor:pointer}
 .st-encounter-confirm-actions button:active{transform:scale(.98)}
 .st-encounter-role-card-entry{cursor:pointer;grid-template-columns:82px minmax(0,1fr);min-height:104px}
 .st-encounter-role-card-entry:active{transform:none}
-.st-encounter-role-card-entry .st-encounter-cover{min-height:104px}
+.st-encounter-role-card-entry .st-encounter-cover{min-height:104px;padding:5px}
+.st-encounter-role-card-entry .st-encounter-cover .st-encounter-role-preview-images{width:100%;height:100%;display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:4px}
+.st-encounter-role-card-entry .st-encounter-cover .st-encounter-role-preview-image{width:auto;height:auto;aspect-ratio:auto;border-radius:5px;font-size:8px}
 .st-encounter-role-card-summary{margin:0;color:rgba(70,57,47,.64);font-size:10px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .st-encounter-role-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .st-encounter-role-actions button{height:28px;border:1px solid rgba(127,88,47,.16);border-radius:8px;background:rgba(255,255,255,.72);color:#7c3219;font-size:10px;font-weight:950;cursor:pointer}
@@ -2823,7 +2837,9 @@ button.st-work-notice{cursor:pointer}
 .st-encounter-name-option{width:100%;height:30px;border:1px solid rgba(127,88,47,.14);border-radius:8px;background:rgba(255,250,243,.66);color:rgba(70,57,47,.72);padding:0 9px;text-align:left;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer}
 .st-encounter-name-option.active{border-color:rgba(14,116,144,.25);background:rgba(224,247,244,.75);color:#244c4a}
 .st-encounter-role-preview{display:grid;grid-template-columns:78px minmax(0,1fr);gap:9px;align-items:start}
+.st-encounter-role-preview-images{width:78px;display:grid;grid-template-columns:1fr 1fr;gap:4px}
 .st-encounter-role-preview-image{width:78px;height:96px;border:1px solid rgba(127,88,47,.14);border-radius:8px;background:#fff;display:grid;place-items:center;overflow:hidden;color:rgba(70,57,47,.46);font-size:10px;font-weight:900}
+.st-encounter-role-preview-images .st-encounter-role-preview-image{width:auto;height:auto;aspect-ratio:4/5;border-radius:6px;font-size:9px}
 .st-encounter-role-preview-image img{width:100%;height:100%;object-fit:cover;display:block}
 .st-encounter-role-preview-body{min-width:0;display:grid;gap:6px}
 .st-encounter-role-preview-body strong{color:#352b25;font-size:14px;line-height:1.25}
@@ -2885,9 +2901,17 @@ button.st-work-notice{cursor:pointer}
 .st-encounter-role-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .st-encounter-role-head strong{color:#352b25;font-size:12px}
 .st-encounter-role-head button{height:24px;border:1px solid rgba(225,29,72,.2);border-radius:999px;background:rgba(255,228,230,.72);color:#be123c;font-size:10px;font-weight:900;padding:0 8px;cursor:pointer}
-.st-encounter-role-image-row{display:grid;grid-template-columns:58px 1fr;gap:8px;align-items:center}
+.st-encounter-role-image-row{display:grid;grid-template-columns:1fr;gap:8px;align-items:start}
 .st-encounter-role-image{width:58px;height:58px;border:1px solid rgba(127,88,47,.14);border-radius:8px;background:#fff;overflow:hidden;display:grid;place-items:center;color:rgba(70,57,47,.46);font-size:9px;font-weight:900;text-align:center}
 .st-encounter-role-image img{width:100%;height:100%;object-fit:cover;display:block}
+.st-encounter-role-image-slots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.st-encounter-role-image-slot{min-width:0;border:1px solid rgba(127,88,47,.13);border-radius:8px;background:rgba(255,250,243,.68);padding:7px;display:grid;gap:6px}
+.st-encounter-role-image-slot-preview{aspect-ratio:4/5;border:1px solid rgba(127,88,47,.14);border-radius:6px;background:#fff;display:grid;place-items:center;overflow:hidden;color:rgba(70,57,47,.42);font-size:10px;font-weight:900;text-align:center}
+.st-encounter-role-image-slot-preview img{width:100%;height:100%;object-fit:cover;display:block}
+.st-encounter-role-image-slot-actions{display:grid;grid-template-columns:1fr auto;gap:5px;align-items:center}
+.st-encounter-role-image-slot-actions label{min-width:0;height:25px;border:1px solid rgba(127,88,47,.16);border-radius:6px;background:rgba(255,255,255,.7);color:#7c3219;font-size:10px;font-weight:950;display:grid;place-items:center;cursor:pointer}
+.st-encounter-role-image-slot-actions button{height:25px;border:1px solid rgba(225,29,72,.18);border-radius:6px;background:rgba(255,228,230,.68);color:#be123c;font-size:10px;font-weight:950;padding:0 7px;cursor:pointer}
+.st-encounter-role-image-slot-actions button:disabled{opacity:.38;cursor:not-allowed}
 .st-encounter-pager{display:grid;grid-template-columns:34px 1fr 34px;gap:7px;align-items:center}
 .st-encounter-pager button{height:30px;border:1px solid rgba(127,88,47,.14);border-radius:8px;background:rgba(255,255,255,.72);color:#7c3219;font-size:15px;font-weight:950;cursor:pointer}
 .st-encounter-pager button:disabled{opacity:.35;cursor:not-allowed}
@@ -2904,7 +2928,7 @@ button.st-work-notice{cursor:pointer}
 .st-encounter-shop-row{display:grid;grid-template-columns:92px minmax(0,1fr);gap:7px}
 .st-encounter-shop-row input{min-width:0;height:33px;border:1px solid rgba(127,88,47,.14);border-radius:8px;background:rgba(255,251,235,.75);color:#352b25;padding:0 9px;font-size:12px;font-weight:900;outline:none}
 .st-encounter-shop-row button{min-height:33px}
-@media (max-width:420px){.st-encounter-grid2{grid-template-columns:1fr}.st-encounter-package{grid-template-columns:88px minmax(0,1fr)}.st-encounter-detail-hero{grid-template-columns:100px minmax(0,1fr)}.st-encounter-actions{grid-template-columns:1fr}.st-encounter-kv{grid-template-columns:1fr}.st-encounter-role-preview{grid-template-columns:70px minmax(0,1fr)}.st-encounter-role-preview-image{width:70px;height:88px}}
+@media (max-width:420px){.st-encounter-grid2{grid-template-columns:1fr}.st-encounter-package{grid-template-columns:88px minmax(0,1fr)}.st-encounter-detail-hero{grid-template-columns:100px minmax(0,1fr)}.st-encounter-actions{grid-template-columns:1fr}.st-encounter-kv{grid-template-columns:1fr}.st-encounter-role-preview{grid-template-columns:70px minmax(0,1fr)}.st-encounter-role-preview-image{width:70px;height:88px}.st-encounter-role-preview-images{width:70px}.st-encounter-role-preview-images .st-encounter-role-preview-image{width:auto;height:auto}}
 @media (max-width:420px){.st-location-summary{grid-template-columns:minmax(0,1fr) 32px 18px}.st-location-suggest{grid-column:1 / -1}.st-graph-delete{justify-self:stretch}.st-location-title{flex-wrap:wrap}}
 #st-operation-workspace{box-sizing:border-box;width:100%;max-width:680px;min-height:0;margin:0;display:grid;grid-template-columns:minmax(320px,420px) minmax(150px,1fr);gap:8px;align-items:start;justify-content:start;padding:4px 0 4px 4px}
 #st-operation-workspace>#app{min-width:0;width:100%}
@@ -7614,7 +7638,7 @@ button.st-work-notice{cursor:pointer}
 	      '<div class="st-person-picker ' + (pickerOpen && !staticView ? "is-open" : "") + '">' +
 	        '<button type="button" class="st-person-select" data-profile-picker-toggle aria-label="选择角色档案" aria-expanded="' + (pickerOpen && !staticView ? "true" : "false") + '"' + (staticView ? " disabled" : "") + '><span>' + selectedLabelHtml + '</span></button>' +
 	        '<button type="button" class="st-person-favorite ' + (favorite ? "active" : "") + '" data-profile-favorite aria-label="' + (favorite ? "取消收藏" : "收藏角色") + '" aria-pressed="' + (favorite ? "true" : "false") + '"' + (!selectedValue || staticView ? " disabled" : "") + '>' + (favorite ? "★" : "☆") + '</button>' +
-	        '<input class="st-person-search" type="search" data-profile-search value="' + escapeAttr(searchValue || "") + '" placeholder="搜索" autocomplete="off" aria-label="搜索角色档案">' +
+	        '<input class="st-person-search" type="text" data-profile-search value="' + escapeAttr(searchValue || "") + '" placeholder="搜索" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="搜索角色档案">' +
 	        '<div class="st-person-menu" role="listbox">' + menuHtml + '</div>' +
 	      '</div>' +
 	    '</div>';
@@ -7741,6 +7765,15 @@ button.st-work-notice{cursor:pointer}
         const parsed = JSON.parse(raw);
         if (!parsed || !Array.isArray(parsed.slots)) continue;
         const slots = normalizeProfilePhotoSlots(parsed.slots);
+        const configured = normalizeProfilePhotoSlots(ST_DEFAULT_PROFILE_PHOTO_SLOTS[roleName] || []);
+        if (configured.some(Boolean)) {
+          for (const source of configured) {
+            if (!source || slots.includes(source)) continue;
+            const empty = slots.findIndex((item) => !item);
+            if (empty < 0) break;
+            slots[empty] = source;
+          }
+        }
         const selected = Math.max(0, Math.min(3, Math.trunc(Number(parsed?.selected) || 0)));
         const firstFilled = slots.findIndex(Boolean);
         return { slots, selected: slots[selected] ? selected : firstFilled >= 0 ? firstFilled : 0 };
@@ -8247,9 +8280,25 @@ button.st-work-notice{cursor:pointer}
       event.stopPropagation();
       selectPersonProfile(page, target.value);
     });
+    page.addEventListener("compositionstart", (event) => {
+      const target = event.target?.closest?.("[data-profile-search]");
+      if (!target || !page.contains(target)) return;
+      page.dataset.profileSearchComposing = "true";
+    });
+    page.addEventListener("compositionend", (event) => {
+      const target = event.target?.closest?.("[data-profile-search]");
+      if (!target || !page.contains(target)) return;
+      delete page.dataset.profileSearchComposing;
+      window.setTimeout(() => searchPersonProfile(page, target.value), 0);
+    });
     page.addEventListener("input", (event) => {
       const target = event.target?.closest?.("[data-profile-search]");
       if (!target || !page.contains(target)) return;
+      if (event.isComposing || page.dataset.profileSearchComposing === "true") {
+        page.dataset.profileSearch = String(target.value || "");
+        page.dataset.profilePickerOpen = "true";
+        return;
+      }
       searchPersonProfile(page, target.value);
     });
     page.addEventListener("submit", (event) => {
@@ -10025,6 +10074,7 @@ button.st-work-notice{cursor:pointer}
 	  const ENCOUNTER_PACKAGE_FORMAT = "hypnoos-role-package";
 	  const ENCOUNTER_DUPLICATE_PACKAGE_GROUPS = [];
 	  const ENCOUNTER_ROLE_PAGE_SIZE = 4;
+	  const ENCOUNTER_ROLE_IMAGE_SLOT_COUNT = 4;
 		  const ENCOUNTER_FEATURED_ROLE_ORDER = [
 		    { name: "月咏皋月", packageId: "orjenrn-role-pack" },
 		    { name: "西园寺美织", packageId: "baikai-role-pack" }
@@ -10098,7 +10148,8 @@ button.st-work-notice{cursor:pointer}
 	      personaFields: [],
 	      variableEntry: null,
 	      personaEntry: null,
-	      imageDataUrl: ""
+	      imageDataUrl: "",
+	      images: Array.from({ length: ENCOUNTER_ROLE_IMAGE_SLOT_COUNT }, () => "")
     };
   }
 
@@ -10165,6 +10216,65 @@ button.st-work-notice{cursor:pointer}
 	    }
 	    return "";
 	  }
+
+  function encounterRoleImageText(value) {
+    const text = String(value ?? "").trim();
+    return text && !["无", "空", "未记录"].includes(text) ? text : "";
+  }
+
+  function encounterImageAssetUrl(value) {
+    const text = encounterRoleImageText(value);
+    if (!text || /^(?:data:|https?:|blob:)/i.test(text)) return text;
+    return stAssetUrl(text);
+  }
+
+  function encounterNormalizeRoleImageSlots(value) {
+    const source = value && typeof value === "object" && !Array.isArray(value) ? value : {};
+    const slots = Array.from({ length: ENCOUNTER_ROLE_IMAGE_SLOT_COUNT }, () => "");
+    const arrays = [
+      source.images,
+      source.imageDataUrls,
+      source.imageUrls,
+      source.photos,
+      source.photoSlots,
+      source["图片列表"],
+      source["照片列表"]
+    ];
+    for (const items of arrays) {
+      if (!Array.isArray(items)) continue;
+      items.slice(0, ENCOUNTER_ROLE_IMAGE_SLOT_COUNT).forEach((item, index) => {
+        const text = encounterRoleImageText(item);
+        if (text) slots[index] = text;
+      });
+      if (slots.some(Boolean)) break;
+    }
+    if (!slots.some(Boolean)) {
+      const legacy = encounterRoleImageText(source.imageDataUrl || source.image || source.cover || source["图片"] || source["照片"]);
+      if (legacy) slots[0] = legacy;
+    } else if (!slots[0]) {
+      const legacy = encounterRoleImageText(source.imageDataUrl || source.image || source["图片"] || source["照片"]);
+      if (legacy) slots[0] = legacy;
+    }
+    return slots;
+  }
+
+  function encounterRoleImageSlots(role) {
+    return encounterNormalizeRoleImageSlots(role);
+  }
+
+  function encounterRolePrimaryImage(role) {
+    return encounterRoleImageSlots(role).find(Boolean) || "";
+  }
+
+  function encounterSetRoleImageSlot(role, slot, image) {
+    const normalized = encounterNormalizeRole(role || {});
+    const slots = encounterRoleImageSlots(normalized);
+    const safeSlot = Math.max(0, Math.min(ENCOUNTER_ROLE_IMAGE_SLOT_COUNT - 1, Math.trunc(Number(slot) || 0)));
+    slots[safeSlot] = encounterRoleImageText(image);
+    normalized.images = slots;
+    normalized.imageDataUrl = slots.find(Boolean) || "";
+    return encounterNormalizeRole(normalized);
+  }
 
 	  function encounterLeadingSpaces(line) {
 	    let count = 0;
@@ -10878,6 +10988,7 @@ button.st-work-notice{cursor:pointer}
 	        content: String(personaExtra || "")
 	      });
 	    }
+	    const imageSlots = encounterNormalizeRoleImageSlots(source);
 	    return {
 	      id: String(source.id || source.roleId || encounterId("role-" + index)),
 	      name,
@@ -10901,7 +11012,8 @@ button.st-work-notice{cursor:pointer}
 	      personaFields,
 	      variableEntry: encounterNormalizeRoleWorldbookEntry(source.variableEntry || source["人物变量世界书条目"] || source["人物变量条目"]),
 	      personaEntry: encounterNormalizeRoleWorldbookEntry(source.personaEntry || source["人设世界书条目"] || source["人设条目"]),
-	      imageDataUrl: String(source.imageDataUrl || source.image || source["图片"] || "")
+	      imageDataUrl: imageSlots.find(Boolean) || "",
+	      images: imageSlots
 	    };
 	  }
 
@@ -11280,7 +11392,11 @@ button.st-work-notice{cursor:pointer}
           initialVariables: ankoInitialVariables,
           persona: ankoPersona,
           personaEntry: encounterBuiltinWorldbookEntry("[mvu_plot]白枢暗子人设", ["白枢暗子", "暗子", "白枢同学", "灵异学", "鬼怪"], ankoPersona),
-          imageDataUrl: stAssetUrl("encounter/shirakusu-anko.png")
+          imageDataUrl: stAssetUrl("encounter/shirakusu-anko.png"),
+          images: [
+            stAssetUrl("encounter/shirakusu-anko.png"),
+            stAssetUrl("encounter/shirakusu-anko-old.png")
+          ]
         },
         {
           id: "role-senkoro-momoka",
@@ -11292,7 +11408,11 @@ button.st-work-notice{cursor:pointer}
           initialVariables: momokaInitialVariables,
           persona: momokaPersona,
           personaEntry: encounterBuiltinWorldbookEntry("[mvu_plot]千杀百花人设", ["千杀百花", "百花", "千杀", "异世界杀手", "勇者"], momokaPersona),
-          imageDataUrl: stAssetUrl("encounter/senkoro-momoka.png")
+          imageDataUrl: stAssetUrl("encounter/senkoro-momoka.png"),
+          images: [
+            stAssetUrl("encounter/senkoro-momoka.png"),
+            stAssetUrl("encounter/senkoro-momoka-old.png")
+          ]
         },
         {
           id: "role-nakamura-sakura",
@@ -11304,7 +11424,11 @@ button.st-work-notice{cursor:pointer}
           initialVariables: sakuraInitialVariables,
           persona: sakuraPersona,
           personaEntry: encounterBuiltinWorldbookEntry("[mvu_plot]中村樱人设", ["中村樱", "樱酱", "中村总裁", "神宫寺莲", "作弊模式"], sakuraPersona),
-          imageDataUrl: stAssetUrl("encounter/nakamura-sakura.png")
+          imageDataUrl: stAssetUrl("encounter/nakamura-sakura.png"),
+          images: [
+            stAssetUrl("encounter/nakamura-sakura.png"),
+            stAssetUrl("encounter/nakamura-sakura-old.png")
+          ]
         }
       ]
     })];
@@ -11313,15 +11437,17 @@ button.st-work-notice{cursor:pointer}
         const source = pkg && typeof pkg === "object" && !Array.isArray(pkg) ? pkg : {};
         const roles = (Array.isArray(source.roles) ? source.roles : []).map((role) => {
           const roleSource = role && typeof role === "object" && !Array.isArray(role) ? role : {};
+          const imageSlots = encounterNormalizeRoleImageSlots(roleSource).map((image) => image ? encounterImageAssetUrl(image) : "");
           return {
             ...roleSource,
-            imageDataUrl: roleSource.imageDataUrl || roleSource.image ? stAssetUrl(roleSource.imageDataUrl || roleSource.image) : ""
+            images: imageSlots,
+            imageDataUrl: imageSlots.find(Boolean) || ""
           };
         });
-        const fallbackCover = roles.find((role) => String(role.imageDataUrl || "").trim())?.imageDataUrl || "";
+        const fallbackCover = roles.find((role) => String(encounterRolePrimaryImage(role) || "").trim())?.imageDataUrl || "";
         return encounterNormalizePackage({
           ...source,
-          coverDataUrl: source.coverDataUrl || source.cover ? stAssetUrl(source.coverDataUrl || source.cover) : fallbackCover,
+          coverDataUrl: source.coverDataUrl || source.cover ? encounterImageAssetUrl(source.coverDataUrl || source.cover) : fallbackCover,
           roles
         });
       });
@@ -11495,7 +11621,7 @@ button.st-work-notice{cursor:pointer}
       price: SCAN_ROLE_COST_STARLIGHT,
       variableWorldbook: sourcePackage?.variableWorldbook || "人物变量世界书",
       personaWorldbook: sourcePackage?.personaWorldbook || "人设世界书",
-      coverDataUrl: normalizedRole.imageDataUrl || sourcePackage?.coverDataUrl || "",
+      coverDataUrl: encounterRolePrimaryImage(normalizedRole) || sourcePackage?.coverDataUrl || "",
       roles: [normalizedRole]
     });
   }
@@ -12108,6 +12234,33 @@ button.st-work-notice{cursor:pointer}
       : '<span>' + escapeHtml(text) + '</span>';
   }
 
+  function encounterRolePreviewImagesHtml(role) {
+    const normalized = encounterNormalizeRole(role || {});
+    const slots = encounterRoleImageSlots(normalized);
+    return '<div class="st-encounter-role-preview-images">' + slots.map((source, index) => (
+      '<div class="st-encounter-role-preview-image">' +
+        (source ? '<img alt="' + escapeAttr((normalized.name || "角色") + " 图片" + (index + 1)) + '" src="' + escapeAttr(source) + '" loading="lazy" decoding="async">' : '<span>图' + (index + 1) + '</span>') +
+      '</div>'
+    )).join("") + '</div>';
+  }
+
+  function encounterRoleImageEditorHtml(role, selectedIndex, single) {
+    const normalized = encounterNormalizeRole(role || {}, selectedIndex);
+    const slots = encounterRoleImageSlots(normalized);
+    const cells = slots.map((source, slot) => (
+      '<article class="st-encounter-role-image-slot">' +
+        '<div class="st-encounter-role-image-slot-preview">' +
+          (source ? '<img alt="' + escapeAttr((normalized.name || "角色") + " 图片" + (slot + 1)) + '" src="' + escapeAttr(source) + '">' : '<span>图片 ' + (slot + 1) + '</span>') +
+        '</div>' +
+        '<div class="st-encounter-role-image-slot-actions">' +
+          '<label><span>' + (source ? "更换" : "选择") + '</span><input type="file" accept="image/*" ' + (single ? "data-encounter-single-role-image" : 'data-encounter-role-image="' + selectedIndex + '"') + ' data-image-slot="' + slot + '" hidden></label>' +
+          '<button type="button" data-encounter-action="clear-role-image" data-image-slot="' + slot + '" data-role-index="' + selectedIndex + '"' + (single ? ' data-single="1"' : "") + (!source ? " disabled" : "") + '>删除</button>' +
+        '</div>' +
+      '</article>'
+    )).join("");
+    return '<div class="st-encounter-role-image-row"><div class="st-encounter-role-image-slots">' + cells + '</div></div>';
+  }
+
   function encounterReadRoleFromCard(card, fallbackRole) {
     const role = encounterNormalizeRole(fallbackRole || {});
     if (!card) return role;
@@ -12180,7 +12333,7 @@ button.st-work-notice{cursor:pointer}
     if (!roles.length) return "";
     return '<div class="st-encounter-role-strip">' + roles.map((role) => (
       '<div class="st-encounter-role-chip">' +
-        (role.imageDataUrl ? '<img alt="' + escapeAttr(role.name || "角色") + '" src="' + escapeAttr(role.imageDataUrl) + '" loading="lazy" decoding="async">' : '<span></span>') +
+        (encounterRolePrimaryImage(role) ? '<img alt="' + escapeAttr(role.name || "角色") + '" src="' + escapeAttr(encounterRolePrimaryImage(role)) + '" loading="lazy" decoding="async">' : '<span></span>') +
         '<div><strong>' + escapeHtml(role.name || "未命名") + '</strong><small>' + escapeHtml((role.aliases || role.intro || "角色").split(/[，,、]/)[0]) + '</small></div>' +
       '</div>'
     )).join("") + '</div>';
@@ -12246,7 +12399,7 @@ button.st-work-notice{cursor:pointer}
 	    const priceText = duplicated ? "已存在" : used ? "已使用" : (pendingPurchase ? "本轮已使用" : SCAN_ROLE_COST_STARLIGHT + ' 星光点');
 	    const useButton = '<button type="button" class="primary" data-encounter-action="purchase" data-package-id="' + escapeAttr(pkg.id) + '"' + ((used || pendingPurchase || duplicated) ? " disabled" : "") + '>' + (duplicated ? "已存在" : (pendingPurchase && !used ? "本轮已有" : (packageRole ? "单独使用" : "使用"))) + '</button>';
 	    return '<article class="st-encounter-package st-encounter-role-card-entry' + (used || duplicated ? " is-used" : "") + (duplicated ? " is-conflict" : "") + (pendingPurchase && !used ? " is-pending" : "") + '" data-encounter-role-open-id="' + escapeAttr(item?.id || pkg.id) + '">' +
-	      '<div class="st-encounter-cover">' + encounterCoverHtml(role.imageDataUrl, role.name || "角色") + '</div>' +
+	      '<div class="st-encounter-cover">' + encounterRolePreviewImagesHtml(role) + '</div>' +
 	      '<div class="st-encounter-package-body">' +
 	        '<div class="st-encounter-package-title"><strong>' + escapeHtml(role.name || "未命名角色") + '</strong></div>' +
         '<div class="st-encounter-package-facts"><span>' + escapeHtml(item?.sourceName || "角色") + '</span>' + (firstAlias ? '<span>' + escapeHtml(firstAlias) + '</span>' : '') + '<span class="st-encounter-price">' + priceText + '</span></div>' +
@@ -12323,7 +12476,7 @@ button.st-work-notice{cursor:pointer}
         '<button type="button" class="' + (section === "roles" ? "active" : "") + '" data-encounter-action="browse-section" data-section="roles">角色</button>' +
       '</nav>' +
       '<section class="st-encounter-browse-tools">' +
-        '<input type="search" data-encounter-search value="' + escapeAttr(query) + '" placeholder="搜索角色包 / 角色">' +
+        '<input type="text" data-encounter-search value="' + escapeAttr(query) + '" placeholder="搜索角色包 / 角色" autocomplete="off" autocapitalize="off" spellcheck="false">' +
         (section === "roles" ? '<select data-encounter-package-filter aria-label="筛选角色来源">' + packageOptions + '</select>' : '<span>筛选角色包</span>') +
       '</section>' +
 	      randomHtml +
@@ -12416,7 +12569,7 @@ button.st-work-notice{cursor:pointer}
       '<div class="st-encounter-name-list">' + names + '</div>' +
       (hiddenRoleCount ? '<p class="st-encounter-note">另有 ' + hiddenRoleCount + ' 名角色会在购买 / 使用时一并导入。</p>' : '') +
       '<div class="st-encounter-role-preview">' +
-        '<div class="st-encounter-role-preview-image">' + encounterCoverHtml(selected.imageDataUrl, selected.name || "角色图") + '</div>' +
+        encounterRolePreviewImagesHtml(selected) +
         '<div class="st-encounter-role-preview-body">' +
           '<strong>' + escapeHtml(selected.name || ("角色 " + (selectedIndex + 1))) + '</strong>' +
           '<small>' + escapeHtml(selected.aliases || "无别名") + '</small>' +
@@ -12566,10 +12719,7 @@ button.st-work-notice{cursor:pointer}
     const normalized = encounterNormalizeRole(role || {}, selectedIndex);
     return '<article class="st-encounter-role-card" data-encounter-role-card data-role-index="' + selectedIndex + '">' +
       encounterRoleFieldDotsHtml(normalized) +
-      '<div class="st-encounter-role-image-row">' +
-        '<div class="st-encounter-role-image">' + encounterCoverHtml(normalized.imageDataUrl, "角色图") + '</div>' +
-        '<label class="st-encounter-field"><span>角色图片</span><input type="file" accept="image/*" ' + (single ? "data-encounter-single-role-image" : 'data-encounter-role-image="' + selectedIndex + '"') + '></label>' +
-      '</div>' +
+      encounterRoleImageEditorHtml(normalized, selectedIndex, single) +
       '<div class="st-encounter-grid2">' +
         '<label class="st-encounter-field"><span>角色名</span><input name="roleName" value="' + escapeAttr(normalized.name) + '" placeholder="角色名"></label>' +
         '<label class="st-encounter-field"><span>别名 / 关键词</span><input name="roleAliases" value="' + escapeAttr(normalized.aliases) + '" placeholder="逗号分隔"></label>' +
@@ -12620,7 +12770,7 @@ button.st-work-notice{cursor:pointer}
       '</div>' +
       '<div class="st-encounter-actions is-single"><button type="button" class="st-encounter-button primary" data-encounter-action="save-library">保存到偶遇</button></div>' +
       '<input type="file" accept=".json,application/json" data-encounter-import-role-json hidden>' +
-      '<p class="st-encounter-note">人物变量 entry 会按角色名自动生成固定格式；初始变量会在购买/使用时写入当前楼层变量；人设 entry 会由 title/gender 等固定字段重新拼成固定格式，并统一写入当前对话 Chat Lorebook。角色JSON导入/导出不覆盖角色图片。</p>' +
+      '<p class="st-encounter-note">人物变量 entry 会按角色名自动生成固定格式；初始变量会在购买/使用时写入当前楼层变量；人设 entry 会由 title/gender 等固定字段重新拼成固定格式，并统一写入当前对话 Chat Lorebook。角色JSON导入/导出不覆盖4张角色图片。</p>' +
     '</section>';
   }
 
@@ -13018,13 +13168,24 @@ button.st-work-notice{cursor:pointer}
 	        next.personaEntry = personaEntry;
 	        next.personaContent = personaEntry.content;
 	      }
-		      if (normalizedRole.imageDataUrl) {
-		        const imageFile = await encounterExportImageFile(normalizedRole.imageDataUrl);
-          if (imageFile) {
-		        const ext = encounterExtForMime(imageFile.mime);
-		        next.image = "roles/" + String(index + 1).padStart(2, "0") + "-" + encounterSafeName(normalizedRole.name, "role") + "." + ext;
-		        files.push({ name: next.image, bytes: imageFile.bytes });
-          }
+		      const imageSlots = encounterRoleImageSlots(normalizedRole);
+		      const exportedSlots = Array.from({ length: ENCOUNTER_ROLE_IMAGE_SLOT_COUNT }, () => "");
+		      for (let slot = 0; slot < imageSlots.length; slot += 1) {
+		        const source = imageSlots[slot];
+		        if (!source) continue;
+		        const imageFile = await encounterExportImageFile(source);
+		        if (imageFile) {
+		          const ext = encounterExtForMime(imageFile.mime);
+		          const imagePath = "roles/" + String(index + 1).padStart(2, "0") + "-" + encounterSafeName(normalizedRole.name, "role") + "-" + String(slot + 1) + "." + ext;
+		          exportedSlots[slot] = imagePath;
+		          files.push({ name: imagePath, bytes: imageFile.bytes });
+		        } else if (!/^data:/i.test(source)) {
+		          exportedSlots[slot] = source;
+		        }
+		      }
+		      if (exportedSlots.some(Boolean)) {
+		        next.images = exportedSlots;
+		        next.image = exportedSlots.find(Boolean) || "";
 		      }
 		      delete next.imageDataUrl;
 		      manifest.roles.push(next);
@@ -13040,6 +13201,7 @@ button.st-work-notice{cursor:pointer}
 	    const normalized = encounterNormalizeRole(role || {});
 	    const exported = { ...normalized };
 	    delete exported.imageDataUrl;
+	    delete exported.images;
 	    delete exported.variableEntry;
 	    const personaEntry = encounterPersonaWorldbookEntry(normalized, packageName || "角色包");
 	    if (personaEntry) {
@@ -13117,9 +13279,20 @@ button.st-work-notice{cursor:pointer}
     if (coverBytes) normalized.coverDataUrl = encounterBytesToDataUrl(coverBytes, encounterMimeForName(coverName));
     normalized.roles = normalized.roles.map((role, index) => {
       const sourceRole = Array.isArray(manifest.roles) ? manifest.roles[index] : {};
-      const imageName = sourceRole?.image || sourceRole?.imagePath || sourceRole?.["图片文件"];
-      const imageBytes = asset(imageName);
-      if (imageBytes) role.imageDataUrl = encounterBytesToDataUrl(imageBytes, encounterMimeForName(imageName));
+      const sourceSlots = encounterNormalizeRoleImageSlots({
+        images: Array.isArray(sourceRole?.images) ? sourceRole.images : null,
+        imageDataUrls: Array.isArray(sourceRole?.imageDataUrls) ? sourceRole.imageDataUrls : null,
+        imageDataUrl: sourceRole?.imageDataUrl,
+        image: sourceRole?.image || sourceRole?.imagePath || sourceRole?.["图片文件"]
+      });
+      const nextSlots = sourceSlots.map((imageName) => {
+        if (!imageName) return "";
+        const imageBytes = asset(imageName);
+        if (imageBytes) return encounterBytesToDataUrl(imageBytes, encounterMimeForName(imageName));
+        return encounterRoleImageText(imageName);
+      });
+      role.images = encounterNormalizeRoleImageSlots({ images: nextSlots });
+      role.imageDataUrl = role.images.find(Boolean) || "";
       return role;
     });
     return normalized;
@@ -13140,9 +13313,12 @@ button.st-work-notice{cursor:pointer}
     const cached = [];
     for (const role of pkg.roles || []) {
       const name = String(role.name || "").trim();
-      if (!name || !role.imageDataUrl) continue;
+      const slots = encounterRoleImageSlots(role);
+      const firstIndex = slots.findIndex(Boolean);
+      if (!name || firstIndex < 0) continue;
       try {
-        profileSaveLocalPhoto(name, role.imageDataUrl);
+        profileSaveLocalPhoto(name, slots[firstIndex]);
+        profileSaveLocalPhotoSlots(name, slots, firstIndex);
         cached.push(name);
       } catch {}
     }
@@ -13196,16 +13372,19 @@ button.st-work-notice{cursor:pointer}
 
   function encounterRoleFromJson(parsed, currentRole) {
     const current = encounterNormalizeRole(currentRole || {});
+    const currentImageSlots = encounterRoleImageSlots(current);
+    const currentPrimaryImage = currentImageSlots.find(Boolean) || "";
     const picked = encounterPickRoleJsonSource(parsed, current);
     const source = picked.source && typeof picked.source === "object" && !Array.isArray(picked.source) ? picked.source : {};
     const direct = encounterNormalizeRole({
       ...source,
       name: source.name || source["角色名"] || picked.name || current.name,
-	      imageDataUrl: current.imageDataUrl
+	      imageDataUrl: currentPrimaryImage,
+	      images: currentImageSlots
 	    });
 	    const hasDirect = [direct.name, direct.aliases, direct.intro, direct.encounterPrompt, direct.variables, direct.initialVariables].some((value) => String(value || "").trim()) || encounterHasPersonaContent(direct);
 	    if (hasDirect && (direct.variables || direct.initialVariables || direct.intro || direct.encounterPrompt || direct.aliases || encounterHasPersonaContent(direct) || picked.name)) {
-	      return { ...current, ...direct, imageDataUrl: current.imageDataUrl };
+	      return { ...current, ...direct, imageDataUrl: currentPrimaryImage, images: currentImageSlots };
 	    }
     const entries = encounterWorldbookEntriesFromJson(parsed);
     const roleName = String(current.name || picked.name || "").trim();
@@ -15018,7 +15197,23 @@ button.st-work-notice{cursor:pointer}
       page.dataset.encounterEditRoleIndex = String(event.target.value || "0");
       renderEncounterPage(page);
     });
-    page.querySelector("[data-encounter-search]")?.addEventListener("input", (event) => {
+    const encounterSearchInput = page.querySelector("[data-encounter-search]");
+    encounterSearchInput?.addEventListener("compositionstart", () => {
+      page.dataset.encounterSearchComposing = "true";
+    });
+    encounterSearchInput?.addEventListener("compositionend", (event) => {
+      delete page.dataset.encounterSearchComposing;
+      window.setTimeout(() => {
+        page.dataset.encounterSearch = String(event.target?.value || "");
+        page.dataset.encounterRolePage = "1";
+        renderEncounterPage(page);
+      }, 0);
+    });
+    encounterSearchInput?.addEventListener("input", (event) => {
+      if (event.isComposing || page.dataset.encounterSearchComposing === "true") {
+        page.dataset.encounterSearch = String(event.target.value || "");
+        return;
+      }
       page.dataset.encounterSearch = String(event.target.value || "");
       page.dataset.encounterRolePage = "1";
       renderEncounterPage(page);
@@ -15070,23 +15265,24 @@ button.st-work-notice{cursor:pointer}
         const file = event.target.files?.[0];
         if (!file) return;
         const index = Number(input.getAttribute("data-encounter-role-image"));
+        const slot = Number(input.getAttribute("data-image-slot") || 0);
         const draft = encounterReadDraftFromForm(page);
         if (!draft.roles[index]) draft.roles[index] = encounterBlankRole();
-        draft.roles[index].imageDataUrl = await encounterFileAsDataUrl(file);
+        draft.roles[index] = encounterSetRoleImageSlot(draft.roles[index], slot, await encounterFileAsDataUrl(file));
         encounterSaveDraft(draft);
         page.dataset.encounterStatus = "已更新角色图片并保存草稿。";
         renderEncounterPage(page);
       });
     });
-    page.querySelector("[data-encounter-single-role-image]")?.addEventListener("change", async (event) => {
+    page.querySelectorAll("[data-encounter-single-role-image]").forEach((input) => input.addEventListener("change", async (event) => {
       const file = event.target.files?.[0];
       if (!file) return;
+      const slot = Number(input.getAttribute("data-image-slot") || 0);
       const role = encounterReadSingleRoleFromForm(page);
-      role.imageDataUrl = await encounterFileAsDataUrl(file);
-      encounterSaveSingleRoleDraft(role);
+      encounterSaveSingleRoleDraft(encounterSetRoleImageSlot(role, slot, await encounterFileAsDataUrl(file)));
       page.dataset.encounterStatus = "已更新角色图片并保存草稿。";
       renderEncounterPage(page);
-    });
+    }));
     page.querySelector("[data-encounter-form]")?.addEventListener("input", () => {
       encounterReadDraftFromForm(page);
       encounterRefreshRoleFieldDots(page);
@@ -15101,6 +15297,27 @@ button.st-work-notice{cursor:pointer}
       button.addEventListener("click", async () => {
         const action = button.getAttribute("data-encounter-action");
         if (button.disabled) return;
+        if (action === "clear-role-image") {
+          const slot = Number(button.getAttribute("data-image-slot") || 0);
+          const isSingle = button.getAttribute("data-single") === "1" || page.dataset.encounterTab === "role";
+          if (isSingle) {
+            const role = encounterReadSingleRoleFromForm(page);
+            encounterSaveSingleRoleDraft(encounterSetRoleImageSlot(role, slot, ""));
+            page.dataset.encounterStatus = "已删除这个图片槽。";
+            renderEncounterPage(page);
+            return;
+          }
+          const draft = encounterReadDraftFromForm(page);
+          const index = Number(button.getAttribute("data-role-index"));
+          const safeIndex = Number.isInteger(index) && index >= 0 ? index : encounterEditRoleIndex(page, draft);
+          draft.roles[safeIndex] = encounterSetRoleImageSlot(draft.roles[safeIndex] || encounterBlankRole(), slot, "");
+          encounterSaveDraft(draft);
+          page.dataset.encounterEditSection = "role";
+          page.dataset.encounterEditRoleIndex = String(safeIndex);
+          page.dataset.encounterStatus = "已删除这个图片槽。";
+          renderEncounterPage(page);
+          return;
+        }
         if (action === "import-library") {
           page.querySelector("[data-encounter-import-library]")?.click();
           return;
