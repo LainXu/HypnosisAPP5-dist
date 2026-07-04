@@ -2939,8 +2939,8 @@ button.st-work-notice{cursor:pointer}
 .st-profile-mini-line b{color:#403126;font-size:7px;line-height:1.25;white-space:nowrap}
 .st-profile-mini-line span{color:rgba(68,54,42,.66);font-size:7px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
 .st-profile-desk-empty{align-self:center;justify-self:center;color:rgba(255,248,237,.72);font-size:13px;font-weight:850}
-.st-profile-desk-pager{position:absolute;z-index:5;left:50%;bottom:10px;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;gap:8px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;pointer-events:auto}
-.st-profile-desk-pager button{width:27px;height:27px;border:1px solid rgba(247,241,229,.28);border-radius:999px;background:rgba(247,241,229,.18);color:#fff8ed;font-size:18px;font-weight:950;line-height:1;cursor:pointer;box-shadow:0 8px 18px rgba(24,14,9,.2),inset 0 1px 0 rgba(255,255,255,.18);backdrop-filter:blur(3px)}
+.st-profile-desk-pager{position:absolute;z-index:5;left:50%;bottom:10px;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;gap:8px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;pointer-events:none}
+.st-profile-desk-pager button{width:27px;height:27px;border:1px solid rgba(247,241,229,.28);border-radius:999px;background:rgba(247,241,229,.18);color:#fff8ed;font-size:18px;font-weight:950;line-height:1;cursor:pointer;box-shadow:0 8px 18px rgba(24,14,9,.2),inset 0 1px 0 rgba(255,255,255,.18);backdrop-filter:blur(3px);pointer-events:auto}
 .st-profile-desk-pager span{min-width:44px;border:1px solid rgba(247,241,229,.22);border-radius:999px;background:rgba(34,21,15,.36);color:#fff8ed;padding:5px 9px;font-size:10px;font-weight:950;text-align:center;box-shadow:0 8px 18px rgba(24,14,9,.18)}
 .st-profile-detail-stage{position:relative;width:100%;height:100%;display:grid;place-items:start center}
 .st-profile-paper-stack{position:absolute;inset:12px -4px 8px -4px;pointer-events:none;z-index:0}
@@ -7770,7 +7770,7 @@ button.st-work-notice{cursor:pointer}
     if (page.dataset.profileBound === "true") return;
     page.dataset.profileBound = "true";
     page.addEventListener("click", (event) => {
-      const deskPageButton = event.target?.closest?.("[data-profile-desk-page]");
+      const deskPageButton = event.target?.closest?.(".st-profile-desk-pager button[data-profile-desk-page]");
       if (deskPageButton && page.contains(deskPageButton)) {
         event.preventDefault();
         event.stopPropagation();
@@ -7870,20 +7870,24 @@ button.st-work-notice{cursor:pointer}
         return;
       }
       if (event.key === "ArrowLeft") {
-        event.preventDefault();
         if (!isIsaacProfilePage(page) && page.dataset.profileDeskMode !== "detail") {
-          turnPersonProfileDeskPage(page, "prev");
           return;
         }
+        event.preventDefault();
         turnPersonProfilePage(page, -1);
       }
       if (event.key === "ArrowRight") {
-        event.preventDefault();
         if (!isIsaacProfilePage(page) && page.dataset.profileDeskMode !== "detail") {
-          turnPersonProfileDeskPage(page, "next");
           return;
         }
+        event.preventDefault();
         turnPersonProfilePage(page, 1);
+      }
+      const deskCard = event.target?.closest?.("[data-profile-desk-role]");
+      if ((event.key === "Enter" || event.key === " ") && deskCard && page.contains(deskCard)) {
+        event.preventDefault();
+        deskCard.click();
+        return;
       }
       if ((event.key === "Enter" || event.key === " ") && event.target?.closest?.('[data-profile-action="upload-photo"]')) {
         event.preventDefault();
@@ -7939,13 +7943,13 @@ button.st-work-notice{cursor:pointer}
       '</div>'
     )).join("");
     return '<article class="st-profile-desk-wrap">' +
-      '<button class="st-profile-desk-card" type="button" data-profile-desk-role="' + escapeAttr(roleName) + '">' +
+      '<div class="st-profile-desk-card" role="button" tabindex="0" data-profile-desk-role="' + escapeAttr(roleName) + '">' +
         '<div class="st-profile-mini-head">人物档案</div>' +
         '<div class="st-profile-mini-picker"><strong>' + profileDisplayNameHtml(roleName, roleData, "st-profile-mini-name") + '</strong><i>☆</i></div>' +
         '<div class="st-profile-mini-photo">' + (photo ? '<img alt="' + escapeAttr(profileDisplayNameText(roleName, roleData)) + '" src="' + escapeAttr(photo) + '">' : '<span>照片</span>') + '</div>' +
         '<nav class="st-profile-mini-tabs" aria-hidden="true"><span>衣着</span><span>信息</span><span>状态</span><span>敏感</span><span>效果</span></nav>' +
         '<section class="st-profile-mini-lines">' + lines + '</section>' +
-      '</button>' +
+      '</div>' +
     '</article>';
   }
 
@@ -9039,7 +9043,7 @@ button.st-work-notice{cursor:pointer}
     if (rawEnd && monitorStampFromText(rawEnd)) return rawEnd;
     const rawStart = String(startText || "").trim();
     if (rawStart && monitorStampFromText(rawStart)) return workOffsetDateTimeText(rawStart, 24);
-    return rawEnd;
+    return "";
   }
 
   function readWorkBuffLock(expectedBuff = "") {
@@ -9051,7 +9055,12 @@ button.st-work-notice{cursor:pointer}
       const expected = String(expectedBuff || "").trim();
       if (expected && buff !== expected) return null;
       const startText = String(parsed.startText || "").trim();
-      const endText = normalizeWorkBuffEndText(startText, parsed.endText || parsed.removeText || parsed["打工buff预计去除时间"]);
+      const endText = normalizeWorkBuffEndText(startText, parsed.endText || parsed.removeText || parsed["打工buff结束时间"] || parsed["buff结束时间"] || parsed["打工buff预计去除时间"]);
+      if (endText && endText !== parsed.endText) {
+        try {
+          localStorage.setItem(workBuffLockStorageKey(), JSON.stringify({ ...parsed, buff, startText, endText }));
+        } catch {}
+      }
       return { ...parsed, buff, startText, endText };
     } catch {
       return null;
@@ -9066,7 +9075,7 @@ button.st-work-notice{cursor:pointer}
         return;
       }
       const startText = String(payload?.["打工buff开始时间"] || payload?.["开始时间"] || payload?.startText || "").trim();
-      const endText = normalizeWorkBuffEndText(startText, payload?.["打工buff预计去除时间"] || payload?.["buff预计去除时间"] || payload?.endText || "");
+      const endText = normalizeWorkBuffEndText(startText, payload?.["打工buff结束时间"] || payload?.["buff结束时间"] || payload?.["打工buff预计去除时间"] || payload?.["buff预计去除时间"] || payload?.endText || "");
       localStorage.setItem(workBuffLockStorageKey(), JSON.stringify({
         buff,
         startText,
@@ -9433,7 +9442,7 @@ button.st-work-notice{cursor:pointer}
       ? String(latest?.["打工buff开始时间"] || latest?.["开始时间"] || "").trim()
       : "");
     const rawEndText = lock?.endText || (latestMatchesBuff
-      ? String(latest?.["打工buff预计去除时间"] || latest?.["buff去除时间"] || latest?.["打工buff预计结束时间"] || "").trim()
+      ? String(latest?.["打工buff结束时间"] || latest?.["buff结束时间"] || latest?.["打工buff预计去除时间"] || latest?.["buff去除时间"] || latest?.["打工buff预计结束时间"] || "").trim()
       : "");
     const endText = normalizeWorkBuffEndText(startText, rawEndText);
     const endStamp = endText ? monitorStampFromText(endText) : 0;
@@ -9441,19 +9450,23 @@ button.st-work-notice{cursor:pointer}
     const expired = Boolean(endStamp && currentStamp && currentStamp >= endStamp);
     const cleared = expired ? setCurrentLayerSystemField("buff", "") : false;
     if (expired && cleared) clearWorkBuffLock();
-    const buffEndSummary = endText || "打工开始后1天";
-    window.__ST_SET_WORK_BUFF_STATUS_REMINDER__?.({
+    const buffEndSummary = endText || "未记录";
+    const reminderPayload = {
       来源: "打工",
       操作: "打工buff提醒",
-      暂存摘要: expired ? "已到期｜" + buffEndSummary : "持续至｜" + buffEndSummary,
+      暂存摘要: expired ? "已到期 " + buffEndSummary : "持续至 " + buffEndSummary,
       当前buff: buff,
-      buff开始时间: startText || "未记录",
-      buff预计去除时间: endText || "按打工开始后1天由AI判断",
+      buff结束时间: buffEndSummary,
       当前时间: workEffectiveCurrentTimeText(),
-      前端处理: expired ? (cleared ? "已由前端在buff预计去除时间后清空/系统/buff。" : "buff已到预计去除时间，但前端未能写入当前层；若变量仍是旧buff，请清空/系统/buff。") : "未到期，不改变量。",
-      AI执行规范: expired ? "本条只告知打工buff到期处理；若当前变量已清空buff，AI不得重新补回该buff。若剧情已有更新buff，则以新buff为准。" : "本条只提醒打工buff持续与预计去除时间，不是新的打工或结算。",
-      提醒: expired ? "buff已到预计去除时间；前端会清空旧buff。" : "当前buff仍在持续，按世界书规则影响相关操作；到达buff预计去除时间后由前端清空。"
-    });
+      AI执行规范: expired ? "本条只告知打工buff到期处理；若当前变量已清空buff，AI不得重新补回该buff。若剧情已有更新buff，则以新buff为准。" : "本条只提醒打工buff持续到结束时间，不是新的打工或结算。",
+      提醒: expired ? "buff已到结束时间；前端会清空旧buff。" : "当前buff仍在持续，按世界书规则影响相关操作；到达buff结束时间后由前端清空。"
+    };
+    if (expired) {
+      reminderPayload["前端处理"] = cleared
+        ? "已由前端在buff结束时间后清空/系统/buff。"
+        : "buff已到结束时间，但前端未能写入当前层；若变量仍是旧buff，请清空/系统/buff。";
+    }
+    window.__ST_SET_WORK_BUFF_STATUS_REMINDER__?.(reminderPayload);
   }
 
   function flashWorkButton(button, text) {
@@ -9572,8 +9585,7 @@ button.st-work-notice{cursor:pointer}
         const postWorkTargetText = String(timeInfo.postWorkTargetText || "").trim();
         const shachikuGain = workShachikuGain(job, currentValue);
         const nextValue = Math.min(200, currentValue + shachikuGain);
-        const workBuffStartText = timingInfo.buff ? timeInfo.startText : "无";
-        const workBuffRemoveText = timingInfo.buff ? workOffsetDateTimeText(timeInfo.startText, 24) : "无";
+        const workBuffEndText = timingInfo.buff ? workOffsetDateTimeText(timeInfo.startText, 24) : "无";
         const payload = {
           来源: "打工",
           操作: "开始打工",
@@ -9593,10 +9605,8 @@ button.st-work-notice{cursor:pointer}
           结算后建议时间: postWorkTargetText || "无",
           结算后时间处理: postWorkTargetText ? "先按预计结束时间完成6小时打工并结算；随后把剧情时间推进到结算后建议时间。这段等待/过渡不是额外打工，不增加额外工资或社畜值。" : "无",
           打工获得buff: timingInfo.buff || "无",
-          打工buff开始时间: workBuffStartText,
-          打工buff预计去除时间: workBuffRemoveText,
-          buff判定规则: "若开始时间为上课日8:30-16:10，获得“社会的蔑视”，所有角色好感不能提升；若开始时间为16:10-18:00，获得“全盛出击”，并一次性恢复MC能量到上限；若开始时间为夜班（18:00后或6:00前），获得“无精打采”，补充MC能量获得量减半；其他时间无新增buff。若产生buff，则从打工开始时间起持续1天；任意当前buff持续期间不能开始打工。",
-          buff持续时间: "若本次按规则产生buff，buff开始时间就是打工开始时间，持续1天；到达打工buff预计去除时间后由前端清空/系统/buff。",
+          打工buff结束时间: workBuffEndText,
+          buff判定规则: "若开始时间为上课日8:30-16:10，获得“社会的蔑视”，所有角色好感不能提升；若开始时间为16:10-18:00，获得“全盛出击”，并一次性恢复MC能量到上限；若开始时间为夜班（18:00后或6:00前），获得“无精打采”，补充MC能量获得量减半；其他时间无新增buff。若产生buff，则持续到打工buff结束时间；任意当前buff持续期间不能开始打工。",
           获得零花钱: job.wage,
           社畜值基础增量: job.shachiku,
           获得社畜值: shachikuGain,
@@ -14388,40 +14398,30 @@ button.st-work-notice{cursor:pointer}
 
   function encounterPurchasePayload(pkg, result = {}) {
     const roles = (pkg.roles || []).map((role, index) => encounterNormalizeRole(role, index)).filter((role) => String(role.name || role.intro || "").trim());
-    const combinedPrompt = encounterPackageCombinedPrompt(pkg);
     const randomRoleName = String(result.randomRoleName || (result.randomRomance ? roles.map((role) => role.name).filter(Boolean).join("、") : "")).trim();
     const plotText = result.randomRomance
       ? "本次消耗星光点在剧情中表现为{{user}}主动按下随机桃花运。前端已经随机抽中本条记录里的角色；{{user}}只知道自己购买了随机桃花运，不知道会遇到谁或对方来自哪个角色包。具体对象按角色列表执行，不得重新随机或替换。"
       : "本次消耗星光点在剧情中表现为{{user}}主动购买一次桃花运。{{user}}只知道自己购买了桃花运，不知道会遇到谁、会遇到几个角色、对方来自哪个角色包；具体对象由APP暗中安排。";
     const executionText = result.randomRomance
-      ? "这个随机桃花运已经由前端抽取并使用。不要重新随机，不要换成其他角色，不要重复扣星光点，不要重复插入世界书，不要对已新增角色重复/add。世界书条目已写入当前对话独有的 Chat Lorebook；初始角色变量已由前端创建，若有同名旧角色则前端已用本角色包初始变量覆盖。请把本次事件写成{{user}}主动购买随机桃花运后，由APP暗中安排的偶遇；剧情中的{{user}}不知道具体对象或角色包内容，不能表现为{{user}}精准点名召唤某角色。请根据角色包、已写入世界书、前端初始变量和各角色出场提示词，在本轮剧情中安排对应角色登场；第一回合必须按“待AI补充变量字段”逐项补齐变量，尤其是档案和第一人称心理；工作价值已是前端按人设估算的0-20数字，不要在第一回合为了补全而覆盖它。后续只按剧情变化更新变量。"
-      : "这个角色包已经被前端使用。不要重复扣星光点，不要重复插入世界书，不要对已新增角色重复/add。世界书条目已写入当前对话独有的 Chat Lorebook；初始角色变量已由前端创建，若有同名旧角色则前端已用本角色包初始变量覆盖。请把本次事件写成{{user}}主动购买桃花运后，由APP暗中安排的偶遇；剧情中的{{user}}不知道具体对象或角色包内容，不能表现为{{user}}精准点名召唤某角色。请根据角色包、已写入世界书、前端初始变量和各角色出场提示词，在本轮剧情中安排对应角色登场；第一回合必须按“待AI补充变量字段”逐项补齐变量，尤其是档案和第一人称心理；工作价值已是前端按人设估算的0-20数字，不要在第一回合为了补全而覆盖它。后续只按剧情变化更新变量。";
+      ? "这个随机桃花运已经由前端抽取并使用。不要重新随机，不要换成其他角色，不要重复扣星光点，不要重复插入世界书，不要对已新增角色重复/add。世界书条目已写入当前对话独有的 Chat Lorebook；初始角色变量已由前端创建，若有同名旧角色则前端已用本角色包初始变量覆盖。请把本次事件写成{{user}}主动购买随机桃花运后，由APP暗中安排的偶遇；剧情中的{{user}}不知道具体对象或角色包内容，不能表现为{{user}}精准点名召唤某角色。请根据已写入世界书、前端初始变量和角色列表，在本轮剧情中安排对应角色登场；若变量中仍有未记录字段，只按剧情需要简短补齐，不要把世界书原文整段塞进档案字段。工作价值已是前端按人设估算的0-20数字，不要在第一回合为了补全而覆盖它。后续只按剧情变化更新变量。"
+      : "这个角色包已经被前端使用。不要重复扣星光点，不要重复插入世界书，不要对已新增角色重复/add。世界书条目已写入当前对话独有的 Chat Lorebook；初始角色变量已由前端创建，若有同名旧角色则前端已用本角色包初始变量覆盖。请把本次事件写成{{user}}主动购买桃花运后，由APP暗中安排的偶遇；剧情中的{{user}}不知道会遇到谁、会遇到几个角色、对方来自哪个角色包，不能表现为{{user}}精准点名召唤某角色。请根据已写入世界书、前端初始变量和角色列表，在本轮剧情中安排对应角色登场；若变量中仍有未记录字段，只按剧情需要简短补齐，不要把世界书原文整段塞进档案字段。工作价值已是前端按人设估算的0-20数字，不要在第一回合为了补全而覆盖它。后续只按剧情变化更新变量。";
     const rolePayloads = roles.map((role) => {
-      const initialVariable = encounterInitialVariablesObject(role);
-      const missingFields = encounterMissingInitialVariableFields(initialVariable);
       return {
         角色名: role.name || "由AI按角色包内容命名",
         别名: role.aliases || "",
-        档案摘要: role.intro || "",
-        角色出场提示词: encounterRoleEncounterPrompt(role) || "",
-        前端图片缓存: role.imageDataUrl ? "角色图片已由前端缓存到人物档案本地照片，变量出现后自动显示。" : "无",
-        前端初始变量: encounterInitialVariablePromptSnapshot(initialVariable),
-        待AI补充变量字段: missingFields.length ? missingFields.join("、") : "无",
-	        补全依据: "以当前对话 Chat Lorebook 中已经写入的 " + (role.name ? "[mvu_plot]" + role.name + "人设" : "对应人设") + " 为准，补齐待补变量字段。"
+        角色出场提示摘要: encounterProfileSnippet(encounterRoleEncounterPrompt(role), 96) || "见世界书",
+        前端图片缓存: role.imageDataUrl ? "角色图片已缓存" : "无"
       };
     });
-    const fillSummary = rolePayloads
-      .filter((role) => role.待AI补充变量字段 !== "无")
-      .map((role) => role.角色名 + "：" + role.待AI补充变量字段);
     return {
       来源: "邂逅",
       操作: "角色包已使用",
       不可删除: true,
       角色包ID: pkg.id,
       角色包名称: pkg.name || "未命名角色包",
-      角色包介绍: pkg.intro || "无",
+      角色包介绍: encounterProfileSnippet(pkg.intro, 120) || "无",
       ...(result.randomRomance ? { 选择方式: "随机桃花运", 随机命中角色: randomRoleName || "无" } : {}),
-      AI邂逅提示词: combinedPrompt || "无",
+      AI邂逅提示词: "见当前对话 Chat Lorebook 中本次写入的角色包/角色条目。",
 	      前端处理: "已由前端扣除星光点、创建初始角色变量、缓存角色图片，并尝试写入当前对话独有的 Chat Lorebook。",
       消耗星光点: result.price ?? encounterPackagePrice(pkg),
       初始变量新增角色: Array.isArray(result.createdRoles) && result.createdRoles.length ? result.createdRoles.join("、") : "无",
@@ -14432,8 +14432,7 @@ button.st-work-notice{cursor:pointer}
 	      当前对话世界书: result.targetWorldbook || "当前对话 Chat Lorebook",
 	      世界书写入方式: result.method || "前端自动写入",
 	      剧情设定: plotText,
-	      角色变量补全要求: "每个角色都已由前端提供并写入一份初始变量；角色列表里的“前端初始变量”就是当前变量骨架。AI只需要补齐“待AI补充变量字段”列出的字段，补齐时必须参照已导入当前对话 Chat Lorebook 里的对应 [mvu_plot]角色名人设 / [mvu_update]角色名变量 条目。不要把世界书原文整段塞进档案字段。工作价值已由前端按人设估算为0-20的星光点/日数字，后续只有角色身份、资源或能力发生长期变化时才更新。",
-      待AI补充变量总览: fillSummary.length ? fillSummary : "无",
+	      角色变量补全要求: "每个角色都已由前端创建/覆盖初始变量；若变量中仍有未记录字段，AI只按剧情需要简短补齐，并参照当前对话 Chat Lorebook 里的对应人设/变量条目。不要把世界书原文整段塞进档案字段。工作价值已由前端按人设估算为0-20的星光点/日数字，后续只有角色身份、资源或能力发生长期变化时才更新。",
       角色列表: rolePayloads,
 	      AI执行规范: executionText
     };
