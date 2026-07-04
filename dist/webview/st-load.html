@@ -3260,20 +3260,14 @@ button.st-work-notice{cursor:pointer}
 .st-profile-app .st-state-meter-track::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 0 24.5%,rgba(81,64,49,.13) 24.5% 25.5%,transparent 25.5% 49.5%,rgba(81,64,49,.2) 49.5% 50.5%,transparent 50.5% 74.5%,rgba(81,64,49,.13) 74.5% 75.5%,transparent 75.5%);pointer-events:none}
 .st-profile-app .st-state-meter-fill{position:absolute;top:0;bottom:0;left:50%;width:var(--bar-width,0%);border-radius:999px;background:linear-gradient(90deg,var(--tone-soft,rgba(255,250,253,.86)),var(--tone,#ff8fc4));box-shadow:0 0 12px var(--tone-glow,rgba(255,143,196,.22));z-index:1;overflow:hidden}
 .st-profile-app .st-state-meter.is-negative .st-state-meter-fill{left:auto;right:50%;background:linear-gradient(90deg,var(--tone,#2d3138),var(--tone-soft,rgba(112,112,120,.48)))}
-.st-profile-app .st-state-meter-fill::before,.st-profile-app .st-state-meter-fill::after{position:absolute;left:-6px;right:-5px;display:block;color:rgba(255,255,255,.9);font:900 6.2px/1 Georgia,"Times New Roman","Noto Serif SC",serif;letter-spacing:5px;white-space:nowrap;text-shadow:none;pointer-events:none}
-.st-profile-app .st-state-meter-fill::before{content:"♥       ♥          ♥";top:0;transform:rotate(-3deg)}
-.st-profile-app .st-state-meter-fill::after{content:"    ♥          ♥";top:6px;transform:translateX(5px) rotate(2deg);opacity:.76}
-.st-profile-app .st-state-meter.is-mid-density .st-state-meter-fill::before{content:"♥    ♥      ♥    ♥";letter-spacing:4px}
-.st-profile-app .st-state-meter.is-mid-density .st-state-meter-fill::after{content:"  ♥    ♥     ♥";letter-spacing:4px}
-.st-profile-app .st-state-meter.is-high-density .st-state-meter-fill::before{content:"♥  ♥   ♥  ♥   ♥";letter-spacing:3px}
-.st-profile-app .st-state-meter.is-high-density .st-state-meter-fill::after{content:"  ♥  ♥   ♥  ♥";letter-spacing:3px}
-.st-profile-app .st-state-meter.is-negative .st-state-meter-fill::before,.st-profile-app .st-state-meter.is-negative .st-state-meter-fill::after{color:rgba(255,255,255,.78);font:800 6.4px/1 "Apple Symbols","Segoe UI Symbol","Noto Sans Symbols","Noto Sans Symbols 2",sans-serif;letter-spacing:5px;text-shadow:none;filter:grayscale(1)}
-.st-profile-app .st-state-meter.is-negative .st-state-meter-fill::before{content:"☠        ☠          ☠";top:0;transform:rotate(2deg)}
-.st-profile-app .st-state-meter.is-negative .st-state-meter-fill::after{content:"    ☠          ☠";top:6px;transform:translateX(4px) rotate(-3deg);opacity:.72}
-.st-profile-app .st-state-meter.is-negative.is-mid-density .st-state-meter-fill::before{content:"☠    ☠     ☠";letter-spacing:4px}
-.st-profile-app .st-state-meter.is-negative.is-mid-density .st-state-meter-fill::after{content:"  ☠    ☠    ☠";letter-spacing:4px}
-.st-profile-app .st-state-meter.is-negative.is-high-density .st-state-meter-fill::before{content:"☠  ☠   ☠  ☠";letter-spacing:3px}
-.st-profile-app .st-state-meter.is-negative.is-high-density .st-state-meter-fill::after{content:" ☠  ☠   ☠";letter-spacing:3px}
+.st-profile-app .st-state-meter-fill::before,.st-profile-app .st-state-meter-fill::after{position:absolute;left:-6px;right:4px;display:block;color:rgba(255,255,255,.92);font:900 7.2px/1 Georgia,"Times New Roman","Noto Serif SC",serif;letter-spacing:5px;white-space:nowrap;text-align:right;text-shadow:none;pointer-events:none}
+.st-profile-app .st-state-meter-fill::before{content:"♥       ♥     ♥";top:0;transform:rotate(-3deg)}
+.st-profile-app .st-state-meter-fill::after{content:"    ♥       ♥";top:6px;transform:translateX(2px) rotate(2deg);opacity:.78}
+.st-profile-app .st-state-meter.is-mid-density .st-state-meter-fill::before{content:"♥    ♥   ♥    ♥";letter-spacing:4px}
+.st-profile-app .st-state-meter.is-mid-density .st-state-meter-fill::after{content:"  ♥   ♥    ♥";letter-spacing:4px}
+.st-profile-app .st-state-meter.is-high-density .st-state-meter-fill::before{content:"♥ ♥  ♥ ♥  ♥ ♥";letter-spacing:3px}
+.st-profile-app .st-state-meter.is-high-density .st-state-meter-fill::after{content:"  ♥ ♥  ♥ ♥ ♥";letter-spacing:3px}
+.st-profile-app .st-state-meter.is-negative .st-state-meter-fill::before,.st-profile-app .st-state-meter.is-negative .st-state-meter-fill::after{content:""}
 .st-profile-app .st-state-meter.is-zero .st-state-meter-fill::before,.st-profile-app .st-state-meter.is-zero .st-state-meter-fill::after{content:""}
 .st-profile-app .st-state-meter-scale{display:none}
 .st-profile-app .st-state-meter-scale span:nth-child(3){text-align:right}
@@ -3288,7 +3282,7 @@ button.st-work-notice{cursor:pointer}
 .st-profile-radar-shape.is-sensitivity{fill:url(#st-profile-sensitivity-gradient);stroke:rgba(255,116,178,.66);stroke-width:1.15;filter:drop-shadow(0 5px 7px rgba(255,143,196,.13))}
 .st-profile-radar-dot{stroke:rgba(247,241,229,.62);stroke-width:.35}
 .st-profile-radar-dot.is-low{fill:#8fa09a}.st-profile-radar-dot.is-mid{fill:#6b8f71}.st-profile-radar-dot.is-high{fill:#c4914d}.st-profile-radar-dot.is-peak{fill:#c25d55}.st-profile-radar-dot.is-overflow{fill:#7d5f9c}.st-profile-radar-dot.is-negative{fill:#6f6258}.st-profile-radar-dot.is-base{fill:#c4914d}.st-profile-radar-dot.is-bad{fill:#b94c44}
-.st-profile-sensitivity-heart{font:900 6.2px/1 Georgia,"Times New Roman","Noto Serif SC",serif;fill:rgba(255,255,255,.92)}
+.st-profile-sensitivity-heart{font:900 6.2px/1 Georgia,"Times New Roman","Noto Serif SC",serif;fill:rgba(255,58,153,.72)}
 .st-profile-radar-label{font:900 9px -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;fill:rgba(51,41,31,.76);paint-order:stroke;stroke:rgba(247,241,229,.82);stroke-width:3px;stroke-linejoin:round}
 .st-profile-radar-value{font:900 8px ui-monospace,SFMono-Regular,Menlo,monospace;fill:rgba(68,54,42,.56);paint-order:stroke;stroke:rgba(247,241,229,.82);stroke-width:2px}
 .st-profile-radar-note{position:absolute;right:8px;bottom:6px;color:rgba(68,54,42,.46);font-size:8px;font-weight:900}
