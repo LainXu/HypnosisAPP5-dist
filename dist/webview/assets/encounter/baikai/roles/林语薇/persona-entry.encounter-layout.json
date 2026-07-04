@@ -11,7 +11,7 @@
   "selective": true,
   "selectiveLogic": 0,
   "addMemo": true,
-  "order": 99,
+  "order": 90,
   "position": 1,
   "disable": false,
   "excludeRecursion": true,
@@ -38,7 +38,7 @@
   "sticky": 0,
   "cooldown": 0,
   "delay": 0,
-  "displayIndex": 40,
+  "displayIndex": 63,
   "ignoreBudget": false,
   "outletName": "",
   "triggers": [],
@@ -51,6 +51,5 @@
     "林语薇",
     "文学老师"
   ],
-  "secondary_keys": [],
-  "insertion_order": 99
+  "secondary_keys": []
 }
