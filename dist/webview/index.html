@@ -2971,7 +2971,19 @@ button.st-work-notice{cursor:pointer}
 .st-operation-panel-actions button.primary{background:linear-gradient(135deg,#8b5cf6,#ec4899);border-color:rgba(255,255,255,.18);color:white;box-shadow:0 10px 22px rgba(131,24,67,.22)}
 .st-operation-panel-actions button:disabled{opacity:.42;cursor:not-allowed;box-shadow:none;filter:grayscale(.35)}
 .st-operation-panel-actions button:not(:disabled):active{transform:scale(.98)}
+.st-operation-float-toggle{border-color:rgba(125,211,252,.2)!important;background:rgba(14,165,233,.1)!important;color:#bae6fd!important}
+#st-operation-float-ball{position:fixed;left:var(--st-operation-float-left,calc(100vw - 72px));top:var(--st-operation-float-top,62vh);z-index:2147482600;width:54px;height:54px;border:1px solid rgba(94,234,212,.42);border-radius:999px;background:linear-gradient(180deg,rgba(15,23,42,.96),rgba(17,34,64,.96));color:#dff7ff;box-shadow:0 16px 34px rgba(0,0,0,.42),inset 0 0 0 1px rgba(255,255,255,.08);display:none;grid-template-rows:auto auto;align-content:center;align-items:center;justify-items:center;gap:1px;padding:5px;font:850 10px/1.05 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:0;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none}
+#st-operation-float-ball .st-operation-float-label{display:block;color:rgba(223,247,255,.82);font-size:9px;font-weight:900}
+#st-operation-float-ball .st-operation-float-count{min-width:24px;height:20px;border-radius:999px;display:grid;place-items:center;background:rgba(34,211,238,.2);color:#a5f3fc;font-size:13px;font-weight:950;line-height:1}
+#st-operation-float-ball.is-open{background:linear-gradient(180deg,rgba(30,41,59,.98),rgba(8,47,73,.98));border-color:rgba(125,211,252,.72)}
+#st-operation-float-ball.is-dragging{transition:none;box-shadow:0 18px 38px rgba(0,0,0,.5),0 0 0 4px rgba(34,211,238,.12),inset 0 0 0 1px rgba(255,255,255,.1)}
+body.st-operation-floating #st-operation-workspace{max-width:430px;grid-template-columns:minmax(320px,420px);padding-right:4px}
+body.st-operation-floating #st-operation-side-panel{position:fixed!important;left:auto!important;top:12px!important;right:calc(-1 * min(360px,calc(100vw - 62px)) - 16px)!important;z-index:2147482500;width:min(360px,calc(100vw - 62px))!important;max-width:min(360px,calc(100vw - 62px))!important;height:calc(100vh - 24px)!important;max-height:calc(100vh - 24px)!important;min-height:0!important;border-radius:18px 0 0 18px!important;opacity:0;pointer-events:none;transition:right 180ms ease,opacity 160ms ease}
+body.st-operation-floating.st-operation-floating-open #st-operation-side-panel{right:10px!important;opacity:1;pointer-events:auto}
+body.st-operation-floating #st-operation-float-ball{display:grid}
+html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .st-operation-float-toggle{display:none!important}
 @media (max-width:500px){#st-operation-workspace{width:min(100%,430px);grid-template-columns:1fr;gap:8px;padding:6px;min-height:0}#st-operation-side-panel{height:auto!important;max-height:320px!important;border-radius:18px}.st-operation-panel-actions{grid-template-columns:1fr 1.2fr}.st-operation-panel-preview pre{max-height:82px}}
+@media (max-width:500px){body.st-operation-floating #st-operation-side-panel{height:calc(100vh - 24px)!important;max-height:calc(100vh - 24px)!important;border-radius:18px 0 0 18px!important}.st-operation-floating .st-operation-panel-actions{grid-template-columns:1fr}}
 .st-operation-warning{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;background:rgba(2,6,23,.58);backdrop-filter:blur(8px);padding:22px}
 .st-operation-warning-card{width:min(340px,calc(100vw - 44px));border:1px solid rgba(244,114,182,.35);border-radius:20px;background:linear-gradient(180deg,rgba(15,23,42,.98),rgba(2,6,23,.96));box-shadow:0 24px 70px rgba(0,0,0,.48);padding:16px;color:#f8fafc}
 .st-operation-warning-card strong{display:block;font-size:15px;line-height:1.25}
@@ -16998,6 +17010,187 @@ button.st-work-notice{cursor:pointer}
     }
   }
 
+  const ST_OPERATION_FLOAT_MODE_KEY = "st_operation_desktop_float_mode";
+  const ST_OPERATION_FLOAT_POS_KEY = "st_operation_desktop_float_position";
+  let operationFloatBallDrag = null;
+
+  function isPhonePortFrontend() {
+    return document.documentElement.classList.contains("st-hypnoos-phone-port");
+  }
+
+  function readOperationFloatMode() {
+    if (isPhonePortFrontend()) return false;
+    try {
+      return localStorage.getItem(ST_OPERATION_FLOAT_MODE_KEY) === "1";
+    } catch {
+      return false;
+    }
+  }
+
+  function writeOperationFloatMode(value) {
+    try {
+      localStorage.setItem(ST_OPERATION_FLOAT_MODE_KEY, value ? "1" : "0");
+    } catch {}
+  }
+
+  function operationFloatNumber(value, fallback) {
+    const parsed = Number.parseFloat(String(value || "").replace("px", ""));
+    return Number.isFinite(parsed) ? parsed : fallback;
+  }
+
+  function operationFloatClamp(value, min, max) {
+    if (max < min) return min;
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function readOperationFloatPosition() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(ST_OPERATION_FLOAT_POS_KEY) || "null");
+      if (parsed && Number.isFinite(Number(parsed.left)) && Number.isFinite(Number(parsed.top))) {
+        return { left: Number(parsed.left), top: Number(parsed.top) };
+      }
+    } catch {}
+    return null;
+  }
+
+  function writeOperationFloatPosition(left, top) {
+    try {
+      localStorage.setItem(ST_OPERATION_FLOAT_POS_KEY, JSON.stringify({ left: Math.round(left), top: Math.round(top) }));
+    } catch {}
+  }
+
+  function setOperationFloatBallPosition(left, top, persist = false) {
+    const button = document.getElementById("st-operation-float-ball");
+    if (!button) return;
+    const width = Math.max(1, window.innerWidth || document.documentElement.clientWidth || 430);
+    const height = Math.max(1, window.innerHeight || document.documentElement.clientHeight || 760);
+    const size = Math.max(44, Math.round(button.offsetWidth || 54));
+    const clampedLeft = operationFloatClamp(Math.round(left), 8, width - size - 8);
+    const clampedTop = operationFloatClamp(Math.round(top), 8, height - size - 8);
+    button.style.setProperty("--st-operation-float-left", clampedLeft + "px");
+    button.style.setProperty("--st-operation-float-top", clampedTop + "px");
+    if (persist) writeOperationFloatPosition(clampedLeft, clampedTop);
+  }
+
+  function clampOperationFloatBallPosition() {
+    const button = document.getElementById("st-operation-float-ball");
+    if (!button) return;
+    const saved = readOperationFloatPosition();
+    const fallbackLeft = (window.innerWidth || document.documentElement.clientWidth || 430) - Math.max(44, button.offsetWidth || 54) - 18;
+    const fallbackTop = Math.round((window.innerHeight || document.documentElement.clientHeight || 760) * 0.62);
+    const left = operationFloatNumber(button.style.getPropertyValue("--st-operation-float-left"), saved?.left ?? fallbackLeft);
+    const top = operationFloatNumber(button.style.getPropertyValue("--st-operation-float-top"), saved?.top ?? fallbackTop);
+    setOperationFloatBallPosition(left, top, false);
+  }
+
+  function setOperationFloatingOpen(open) {
+    document.body.classList.toggle("st-operation-floating-open", Boolean(open));
+    syncOperationFloatBall();
+  }
+
+  function syncOperationFloatMode() {
+    const enabled = readOperationFloatMode();
+    document.body.classList.toggle("st-operation-floating", enabled);
+    if (!enabled) document.body.classList.remove("st-operation-floating-open");
+    ensureOperationFloatBall();
+    syncOperationFloatBall();
+  }
+
+  function enableOperationFloatMode(value) {
+    writeOperationFloatMode(Boolean(value));
+    syncOperationFloatMode();
+    setOperationFloatingOpen(Boolean(value));
+    const panel = document.getElementById("st-operation-side-panel");
+    if (panel) {
+      panel.dataset.signature = "";
+      updateOperationSidePanel();
+    }
+  }
+
+  function ensureOperationFloatBall() {
+    let button = document.getElementById("st-operation-float-ball");
+    if (!button) {
+      button = document.createElement("button");
+      button.id = "st-operation-float-ball";
+      button.type = "button";
+      button.innerHTML = '<span class="st-operation-float-label">本轮</span><span class="st-operation-float-count">0</span>';
+      document.body.appendChild(button);
+    } else if (button.parentElement !== document.body) {
+      document.body.appendChild(button);
+    }
+    if (button.dataset.bound !== "true") {
+      button.dataset.bound = "true";
+      button.addEventListener("pointerdown", (event) => {
+        if (!readOperationFloatMode()) return;
+        const left = operationFloatNumber(button.style.getPropertyValue("--st-operation-float-left"), button.offsetLeft || 0);
+        const top = operationFloatNumber(button.style.getPropertyValue("--st-operation-float-top"), button.offsetTop || 0);
+        operationFloatBallDrag = {
+          pointerId: event.pointerId,
+          startX: event.clientX,
+          startY: event.clientY,
+          startLeft: left,
+          startTop: top,
+          moved: false
+        };
+        button.classList.add("is-dragging");
+        try { button.setPointerCapture(event.pointerId); } catch {}
+        event.preventDefault();
+      }, true);
+      button.addEventListener("pointermove", (event) => {
+        if (!operationFloatBallDrag || operationFloatBallDrag.pointerId !== event.pointerId) return;
+        const dx = event.clientX - operationFloatBallDrag.startX;
+        const dy = event.clientY - operationFloatBallDrag.startY;
+        if (Math.abs(dx) > 4 || Math.abs(dy) > 4) operationFloatBallDrag.moved = true;
+        setOperationFloatBallPosition(operationFloatBallDrag.startLeft + dx, operationFloatBallDrag.startTop + dy, false);
+        event.preventDefault();
+      }, true);
+      button.addEventListener("pointerup", (event) => {
+        if (!operationFloatBallDrag || operationFloatBallDrag.pointerId !== event.pointerId) return;
+        const moved = Boolean(operationFloatBallDrag.moved);
+        const left = operationFloatNumber(button.style.getPropertyValue("--st-operation-float-left"), button.offsetLeft || 0);
+        const top = operationFloatNumber(button.style.getPropertyValue("--st-operation-float-top"), button.offsetTop || 0);
+        writeOperationFloatPosition(left, top);
+        operationFloatBallDrag = null;
+        button.classList.remove("is-dragging");
+        try { button.releasePointerCapture(event.pointerId); } catch {}
+        if (!moved) setOperationFloatingOpen(!document.body.classList.contains("st-operation-floating-open"));
+        event.preventDefault();
+      }, true);
+      button.addEventListener("pointercancel", (event) => {
+        if (!operationFloatBallDrag || operationFloatBallDrag.pointerId !== event.pointerId) return;
+        operationFloatBallDrag = null;
+        button.classList.remove("is-dragging");
+      }, true);
+      button.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        if (!readOperationFloatMode()) return;
+        setOperationFloatingOpen(!document.body.classList.contains("st-operation-floating-open"));
+        event.preventDefault();
+      }, true);
+    }
+    if (!window.__ST_OPERATION_FLOAT_RESIZE_BOUND__) {
+      window.__ST_OPERATION_FLOAT_RESIZE_BOUND__ = true;
+      window.addEventListener("resize", () => {
+        if (readOperationFloatMode()) clampOperationFloatBallPosition();
+      }, { passive: true });
+    }
+    clampOperationFloatBallPosition();
+    return button;
+  }
+
+  function syncOperationFloatBall() {
+    const button = ensureOperationFloatBall();
+    if (!button) return;
+    const count = pendingOperationCount();
+    const badge = button.querySelector(".st-operation-float-count");
+    if (badge) badge.textContent = String(count);
+    const open = document.body.classList.contains("st-operation-floating-open");
+    button.classList.toggle("is-open", open);
+    button.setAttribute("aria-expanded", open ? "true" : "false");
+    button.setAttribute("aria-label", "本轮操作暂存区，当前 " + count + " 条");
+    if (readOperationFloatMode()) clampOperationFloatBallPosition();
+  }
+
   function removeHomeOperationConfirm(root) {
     root?.querySelectorAll?.(".st-operation-confirm").forEach((button) => button.remove());
   }
@@ -17163,6 +17356,7 @@ button.st-work-notice{cursor:pointer}
   }
 
   function syncOperationSidePanelSize(panel) {
+    if (readOperationFloatMode()) return;
     const workspace = document.getElementById("st-operation-workspace");
     const phone = document.querySelector("#st-operation-workspace #app .w-full.h-full.bg-black.overflow-hidden.relative")
       || document.querySelector("#st-operation-workspace #app > div");
@@ -17185,9 +17379,10 @@ button.st-work-notice{cursor:pointer}
       block = window.__ST_BUILD_PENDING_OPERATION_BLOCK__?.() || "";
     } catch {}
     const keepAfterFlush = readOperationKeepAfterFlush();
+    const floatMode = readOperationFloatMode();
     const resources = operationPanelResourceSnapshot();
     const context = operationPanelContextSnapshot();
-    const signature = JSON.stringify(items.map((item) => [item.id, item.key, item.source, item.action, item.summary, item.line, item.at, item.locked])) + "\n" + block + "\nkeep=" + String(keepAfterFlush) + "\nres=" + JSON.stringify(resources) + "\nctx=" + JSON.stringify(context);
+    const signature = JSON.stringify(items.map((item) => [item.id, item.key, item.source, item.action, item.summary, item.line, item.at, item.locked])) + "\n" + block + "\nkeep=" + String(keepAfterFlush) + "\nfloat=" + String(floatMode) + "\nres=" + JSON.stringify(resources) + "\nctx=" + JSON.stringify(context);
     if (panel.dataset.signature === signature) return;
     panel.dataset.signature = signature;
     const listHtml = items.length
@@ -17224,9 +17419,11 @@ button.st-work-notice{cursor:pointer}
         '<span>确认写入后不清空暂存</span>' +
       '</label>' +
       '<div class="st-operation-panel-actions">' +
+        '<button class="st-operation-float-toggle" type="button" data-operation-panel-action="float">' + (floatMode ? "停靠暂存区" : "悬浮球模式") + '</button>' +
         '<button type="button" data-operation-panel-action="clear" ' + (count ? "" : "disabled") + '>清空</button>' +
         '<button class="primary" type="button" data-operation-panel-action="flush" ' + (count ? "" : "disabled") + '>确认写入</button>' +
       '</div>';
+    syncOperationFloatBall();
   }
 
   function bindOperationSidePanel(panel) {
@@ -17254,6 +17451,10 @@ button.st-work-notice{cursor:pointer}
       event.preventDefault();
       event.stopPropagation();
       const action = actionButton.dataset.operationPanelAction;
+      if (action === "float") {
+        enableOperationFloatMode(!readOperationFloatMode());
+        return;
+      }
       if (action === "clear") {
         clearOperationSidePanelWithWarning();
         updateOperationSidePanel();
@@ -17269,6 +17470,13 @@ button.st-work-notice{cursor:pointer}
         }
       }
     });
+    panel.addEventListener("click", (event) => {
+      if (!readOperationFloatMode()) return;
+      const head = event.target?.closest?.(".st-operation-panel-head");
+      if (!head || !panel.contains(head)) return;
+      if (event.target?.closest?.("button,input,a,summary")) return;
+      setOperationFloatingOpen(false);
+    }, true);
   }
 
   function ensureOperationSidePanel() {
@@ -17294,6 +17502,7 @@ button.st-work-notice{cursor:pointer}
     } else if (panel.parentElement !== workspace) {
       workspace.appendChild(panel);
     }
+    syncOperationFloatMode();
     bindOperationSidePanel(panel);
     updateOperationSidePanel();
     return panel;
