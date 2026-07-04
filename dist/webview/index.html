@@ -9079,7 +9079,7 @@ button.st-work-notice{cursor:pointer}
 
   function writeWorkBuffLock(payload) {
     try {
-      const buff = String(payload?.["打工获得buff"] || payload?.buff || "").trim();
+      const buff = String(payload?.["打工获得buff"] || payload?.["当前buff"] || payload?.buff || "").trim();
       if (!buff || buff === "无") {
         localStorage.removeItem(workBuffLockStorageKey());
         return;
@@ -9092,6 +9092,7 @@ button.st-work-notice{cursor:pointer}
         startText,
         endText,
         workId: String(payload?.["工作ID"] || ""),
+        source: String(payload?.source || payload?.["来源记录"] || "frontend"),
         createdAt: Date.now()
       }));
     } catch {}
@@ -9149,12 +9150,12 @@ button.st-work-notice{cursor:pointer}
     return sources.sort((a, b) => b.length - a.length).find((items) => Array.isArray(items) && items.length) || [];
   }
 
-  function workParseOperationLine(line) {
+  function workParsePipePayloadLine(line, actionPattern = null) {
     const text = String(line || "").trim();
     if (!text.startsWith("-")) return null;
     const parts = text.replace(/^-s*/, "").split("｜").map((item) => item.trim()).filter(Boolean);
     const action = parts.shift() || "";
-    if (!/开始打工/.test(action)) return null;
+    if (actionPattern && !actionPattern.test(action)) return null;
     const payload = { 来源: "打工", 操作: action };
     for (const part of parts) {
       const index = part.indexOf("=");
@@ -9164,6 +9165,53 @@ button.st-work-notice{cursor:pointer}
       if (key) payload[key] = value;
     }
     return payload;
+  }
+
+  function workParseOperationLine(line) {
+    return workParsePipePayloadLine(line, /开始打工/);
+  }
+
+  function workFirstField(payload, keys) {
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) return "";
+    for (const key of keys) {
+      const text = String(payload[key] || "").trim();
+      if (text) return text;
+    }
+    return "";
+  }
+
+  function workLooksLikeBuffPayload(payload) {
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) return false;
+    const action = String(payload["操作"] || "").trim();
+    const buff = workFirstField(payload, ["当前buff", "打工获得buff", "buff"]);
+    const endText = workFirstField(payload, ["打工buff结束时间", "buff结束时间", "打工buff预计结束时间", "打工buff预计去除时间", "buff预计去除时间", "buff去除时间"]);
+    return Boolean((/开始打工|打工buff提醒|打工结算|buff/.test(action) || buff) && endText);
+  }
+
+  function workBuffPayloadsFromText(text) {
+    const result = [];
+    const source = String(text || "");
+    const blocks = source.match(/<打工>[\s\S]*?<\/打工>/g) || [];
+    for (const workBlock of blocks) {
+      for (const line of workBlock.split(/\n+/)) {
+        const payload = workParsePipePayloadLine(line, /开始打工|打工buff提醒|打工结算|buff/);
+        if (workLooksLikeBuffPayload(payload)) result.push({ ...payload, 来源记录: "chat-block" });
+      }
+    }
+    const endMatch = source.match(/(?:打工buff结束时间|buff结束时间|打工buff预计结束时间|打工buff预计去除时间|buff预计去除时间|buff去除时间)\s*[=:：]\s*([^\n｜；;，,]+)/u);
+    if (endMatch) {
+      const buffMatch = source.match(/(?:当前buff|打工获得buff|buff)\s*[=:：]\s*([^\n｜；;，,]+)/u);
+      const startMatch = source.match(/(?:打工buff开始时间|开始时间)\s*[=:：]\s*([^\n｜；;，,]+)/u);
+      result.push({
+        来源: "打工",
+        操作: "打工buff回写",
+        当前buff: buffMatch ? String(buffMatch[1] || "").trim() : "",
+        开始时间: startMatch ? String(startMatch[1] || "").trim() : "",
+        打工buff结束时间: String(endMatch[1] || "").trim(),
+        来源记录: "chat-text"
+      });
+    }
+    return result;
   }
 
   function workStartPayloadsFromText(text) {
@@ -9180,6 +9228,29 @@ button.st-work-notice{cursor:pointer}
       }
     }
     return result;
+  }
+
+  function latestWorkBuffPayloadFromChat(expectedBuff = "", fallbackStartText = "") {
+    let latest = null;
+    const expected = String(expectedBuff || "").trim();
+    for (const message of workChatMessages()) {
+      for (const payload of workBuffPayloadsFromText(workMessageBody(message))) {
+        const payloadBuff = workFirstField(payload, ["当前buff", "打工获得buff", "buff"]);
+        if (expected && payloadBuff && payloadBuff !== expected) continue;
+        const startText = workFirstField(payload, ["打工buff开始时间", "开始时间", "startText"]) || fallbackStartText;
+        const rawEndText = workFirstField(payload, ["打工buff结束时间", "buff结束时间", "打工buff预计结束时间", "打工buff预计去除时间", "buff预计去除时间", "buff去除时间", "endText"]);
+        const endText = normalizeWorkBuffEndText(startText, rawEndText, fallbackStartText);
+        if (!endText || !monitorStampFromText(endText)) continue;
+        latest = {
+          ...payload,
+          当前buff: payloadBuff || expected,
+          开始时间: startText,
+          打工buff结束时间: endText,
+          source: "chat"
+        };
+      }
+    }
+    return latest;
   }
 
 	  function pendingOperationPayloads() {
@@ -9451,11 +9522,14 @@ button.st-work-notice{cursor:pointer}
     const latestStartText = latestMatchesBuff
       ? String(latest?.["打工buff开始时间"] || latest?.["开始时间"] || "").trim()
       : "";
+    const chatBuffPayload = latestWorkBuffPayloadFromChat(buff, latestStartText);
+    if (chatBuffPayload) writeWorkBuffLock(chatBuffPayload);
     const lock = readWorkBuffLock(buff, latestStartText);
-    const startText = lock?.startText || (latestMatchesBuff
+    const chatStartText = workFirstField(chatBuffPayload, ["打工buff开始时间", "开始时间", "startText"]);
+    const startText = lock?.startText || chatStartText || (latestMatchesBuff
       ? latestStartText
       : "");
-    const rawEndText = lock?.endText || (latestMatchesBuff
+    const rawEndText = lock?.endText || workFirstField(chatBuffPayload, ["打工buff结束时间", "buff结束时间", "打工buff预计结束时间", "打工buff预计去除时间", "buff预计去除时间", "buff去除时间", "endText"]) || (latestMatchesBuff
       ? String(latest?.["打工buff结束时间"] || latest?.["buff结束时间"] || latest?.["打工buff预计去除时间"] || latest?.["buff去除时间"] || latest?.["打工buff预计结束时间"] || "").trim()
       : "");
     const endText = normalizeWorkBuffEndText(startText, rawEndText, latestStartText);
@@ -9625,6 +9699,7 @@ button.st-work-notice{cursor:pointer}
           打工获得buff: timingInfo.buff || "无",
           打工buff结束时间: workBuffEndText,
           buff判定规则: "若开始时间为上课日8:30-16:10，获得“社会的蔑视”，所有角色好感不能提升；若开始时间为16:10-18:00，获得“全盛出击”，并一次性恢复MC能量到上限；若开始时间为夜班（18:00后或6:00前），获得“无精打采”，补充MC能量获得量减半；其他时间无新增buff。若产生buff，则持续到打工buff结束时间；任意当前buff持续期间不能开始打工。",
+          buff结束时间存储: timingInfo.buff ? "AI若写入或保留本次buff，必须保留绝对故事时间格式的“打工buff结束时间=" + workBuffEndText + "”；前端会从AI回复回读并写入当前聊天前端存储，不要使用相对时长。" : "无",
           获得零花钱: job.wage,
           社畜值基础增量: job.shachiku,
           获得社畜值: shachikuGain,
