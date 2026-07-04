@@ -525,7 +525,7 @@ window.setTimeout(() => {
       if (/^监控$/.test(source) && /派遣中提醒/.test(action)) return 0;
       if (/^打工$/.test(source) && /打工中提醒|打工buff提醒/.test(action)) return 0;
       if (/^(时钟|地图|学校地图)$/.test(source)) return 0;
-      if (/建议剧情开始时间|建议时间|当前时间|推进到该时间|建议剧情地点|请求新增地点|当前地点变量|建议地点/.test(haystack)) return 0;
+      if (/强制剧情开始时间|强制时间|目标时间|建议剧情开始时间|建议时间|当前时间|推进到该时间|建议剧情地点|请求新增地点|当前地点变量|建议地点/.test(haystack)) return 0;
       return 10;
     };
     const sortOperationEntries = (entries) => (Array.isArray(entries) ? entries.slice() : [])
@@ -582,7 +582,7 @@ window.setTimeout(() => {
         }
       }
 	      if (/^打工$/.test(source) && /^(开始打工|打工中提醒)$/.test(action)) return "work:active";
-	      if (/^时钟$/.test(source) && /建议剧情开始时间|建议时间|当前时间|推进到该时间/.test(action)) return "clock:suggest-time";
+	      if (/^时钟$/.test(source) && /强制剧情开始时间|强制时间|目标时间|建议剧情开始时间|建议时间|当前时间|推进到该时间/.test(action)) return "clock:suggest-time";
 	      if (/^(地图|学校地图)$/.test(source)) {
 	        if (/^建议剧情地点$/.test(action)) return "map:suggest-location";
 	        if (/^请求新增地点$/.test(action)) return "map:add-location:" + (/^学校地图$/.test(source) ? "school" : "world");
@@ -2908,7 +2908,7 @@ button.st-work-notice{cursor:pointer}
 .st-profile-app .st-lite-back{border-color:rgba(81,64,49,.14);background:rgba(247,241,229,.2);color:#5a4737;box-shadow:none}
 .st-profile-app .st-app-island{max-width:300px}
 .st-profile-body{padding:0;display:grid;place-items:stretch;background:radial-gradient(circle at 22% 10%,rgba(255,238,184,.18),transparent 30%),linear-gradient(135deg,#6f4428,#3f2619 58%,#21140e)}
-.st-profile-body.is-desk{padding:58px 18px 18px;align-content:center}
+.st-profile-body.is-desk{position:relative;padding:58px 18px 42px;align-content:center}
 .st-profile-body.is-detail{padding:34px 14px 4px;place-items:center;overflow:hidden}
 .st-profile-desk{position:relative;width:100%;height:100%;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:12px 14px;align-items:center}
 .st-profile-desk-wrap{position:relative;min-width:0;min-height:0;width:min(100%,128px);justify-self:center;align-self:center;aspect-ratio:336/520;transform:rotate(var(--rot,0deg))}
@@ -2939,6 +2939,9 @@ button.st-work-notice{cursor:pointer}
 .st-profile-mini-line b{color:#403126;font-size:7px;line-height:1.25;white-space:nowrap}
 .st-profile-mini-line span{color:rgba(68,54,42,.66);font-size:7px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
 .st-profile-desk-empty{align-self:center;justify-self:center;color:rgba(255,248,237,.72);font-size:13px;font-weight:850}
+.st-profile-desk-pager{position:absolute;z-index:5;left:50%;bottom:10px;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;gap:8px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;pointer-events:auto}
+.st-profile-desk-pager button{width:27px;height:27px;border:1px solid rgba(247,241,229,.28);border-radius:999px;background:rgba(247,241,229,.18);color:#fff8ed;font-size:18px;font-weight:950;line-height:1;cursor:pointer;box-shadow:0 8px 18px rgba(24,14,9,.2),inset 0 1px 0 rgba(255,255,255,.18);backdrop-filter:blur(3px)}
+.st-profile-desk-pager span{min-width:44px;border:1px solid rgba(247,241,229,.22);border-radius:999px;background:rgba(34,21,15,.36);color:#fff8ed;padding:5px 9px;font-size:10px;font-weight:950;text-align:center;box-shadow:0 8px 18px rgba(24,14,9,.18)}
 .st-profile-detail-stage{position:relative;width:100%;height:100%;display:grid;place-items:start center}
 .st-profile-paper-stack{position:absolute;inset:12px -4px 8px -4px;pointer-events:none;z-index:0}
 .st-profile-paper-stack::before,.st-profile-paper-stack::after,.st-profile-paper-stack span{content:"";position:absolute;border:1px solid rgba(81,64,49,.22);border-radius:5px;background:#eee4d3;box-shadow:0 12px 26px rgba(24,14,9,.24);pointer-events:none}
@@ -6962,6 +6965,16 @@ button.st-work-notice{cursor:pointer}
     return Number(match[1]) * 60 + Number(match[2]);
   }
 
+  function nextStoryDateLabel(dateText) {
+    const parsed = parseStoryDate(dateText);
+    if (!parsed) return "明天";
+    const maxDay = ST_MONTH_DAYS[parsed.month] || 30;
+    if (parsed.day < maxDay) return parsed.month + "月" + (parsed.day + 1) + "日";
+    const index = ST_SCHOOL_MONTH_ORDER.indexOf(parsed.month);
+    const nextMonth = ST_SCHOOL_MONTH_ORDER[(index + 1) % ST_SCHOOL_MONTH_ORDER.length] || ((parsed.month % 12) + 1);
+    return nextMonth + "月1日";
+  }
+
   function specialDayForDate(parsedDate) {
     if (!parsedDate) return null;
     const matches = ST_SPECIAL_DAYS.filter((item) => {
@@ -7272,6 +7285,7 @@ button.st-work-notice{cursor:pointer}
     { id: "sensitivity", label: "敏感" },
     { id: "effects", label: "效果" }
   ];
+  const PERSON_PROFILE_DESK_PAGE_SIZE = 6;
   const PERSON_PROFILE_EASTER_KEY = "__isaac_binding_easter__";
   const PERSON_PROFILE_EASTER = {
     name: "以撒",
@@ -7595,6 +7609,28 @@ button.st-work-notice{cursor:pointer}
     return ((Math.trunc(index) % count) + count) % count;
   }
 
+  function profileDeskPageCount(count) {
+    return Math.max(1, Math.ceil(Math.max(0, count) / PERSON_PROFILE_DESK_PAGE_SIZE));
+  }
+
+  function normalizeProfileDeskPage(page, count) {
+    const pageCount = profileDeskPageCount(count);
+    const raw = Number(page.dataset.profileDeskPage || 0);
+    const index = Number.isFinite(raw) ? Math.trunc(raw) : 0;
+    return Math.max(0, Math.min(pageCount - 1, index));
+  }
+
+  function turnPersonProfileDeskPage(page, direction) {
+    const roleNames = orderedProfileRoleNames(getStatsRoles());
+    const pageCount = profileDeskPageCount(roleNames.length);
+    if (pageCount <= 1) return;
+    const current = normalizeProfileDeskPage(page, roleNames.length);
+    const delta = direction === "prev" || Number(direction) < 0 ? -1 : 1;
+    page.dataset.profileDeskPage = String(((current + delta) % pageCount + pageCount) % pageCount);
+    delete page.dataset.profilePickerOpen;
+    renderPersonProfilePage(page);
+  }
+
   function closePersonProfilePage(page) {
     const root = page.parentElement;
     if (root?.dataset?.stPhoneApp === "profile") setPhoneActiveApp(root, "");
@@ -7633,6 +7669,9 @@ button.st-work-notice{cursor:pointer}
     if (action === "desk") {
       delete page.dataset.profileStatic;
       delete page.dataset.profilePickerOpen;
+      const roleNames = orderedProfileRoleNames(getStatsRoles());
+      const index = normalizeProfileIndex(page, roleNames.length);
+      page.dataset.profileDeskPage = String(Math.floor(index / PERSON_PROFILE_DESK_PAGE_SIZE));
       page.dataset.profileDeskMode = "desk";
       renderPersonProfilePage(page);
       return;
@@ -7731,6 +7770,13 @@ button.st-work-notice{cursor:pointer}
     if (page.dataset.profileBound === "true") return;
     page.dataset.profileBound = "true";
     page.addEventListener("click", (event) => {
+      const deskPageButton = event.target?.closest?.("[data-profile-desk-page]");
+      if (deskPageButton && page.contains(deskPageButton)) {
+        event.preventDefault();
+        event.stopPropagation();
+        turnPersonProfileDeskPage(page, deskPageButton.getAttribute("data-profile-desk-page") || "next");
+        return;
+      }
       const deskDelete = event.target?.closest?.("[data-profile-desk-delete-role]");
       if (deskDelete && page.contains(deskDelete)) {
         event.preventDefault();
@@ -7825,10 +7871,18 @@ button.st-work-notice{cursor:pointer}
       }
       if (event.key === "ArrowLeft") {
         event.preventDefault();
+        if (!isIsaacProfilePage(page) && page.dataset.profileDeskMode !== "detail") {
+          turnPersonProfileDeskPage(page, "prev");
+          return;
+        }
         turnPersonProfilePage(page, -1);
       }
       if (event.key === "ArrowRight") {
         event.preventDefault();
+        if (!isIsaacProfilePage(page) && page.dataset.profileDeskMode !== "detail") {
+          turnPersonProfileDeskPage(page, "next");
+          return;
+        }
         turnPersonProfilePage(page, 1);
       }
       if ((event.key === "Enter" || event.key === " ") && event.target?.closest?.('[data-profile-action="upload-photo"]')) {
@@ -7867,6 +7921,7 @@ button.st-work-notice{cursor:pointer}
       index,
       names: roleNames,
       favorites: readFavoriteRoleNames(),
+      deskPage: normalizeProfileDeskPage(page, roleNames.length),
       tab: activePersonProfileTab(page),
       profile: roleProfileData(roleName, roleData),
       roleData,
@@ -7895,8 +7950,19 @@ button.st-work-notice{cursor:pointer}
   }
 
   function renderPersonProfileDeskPage(page, roleNames, roles) {
-    const visible = roleNames.slice(0, 6);
+    const pageCount = profileDeskPageCount(roleNames.length);
+    const pageIndex = normalizeProfileDeskPage(page, roleNames.length);
+    page.dataset.profileDeskPage = String(pageIndex);
+    const start = pageIndex * PERSON_PROFILE_DESK_PAGE_SIZE;
+    const visible = roleNames.slice(start, start + PERSON_PROFILE_DESK_PAGE_SIZE);
     const cards = visible.map((roleName) => profileDeskCardHtml(roleName, isPlainObject(roles[roleName]) ? roles[roleName] : {})).join("");
+    const pager = pageCount > 1
+      ? '<nav class="st-profile-desk-pager" aria-label="人物档案桌面分页">' +
+          '<button type="button" data-profile-desk-page="prev" aria-label="上一页">‹</button>' +
+          '<span>' + (pageIndex + 1) + ' / ' + pageCount + '</span>' +
+          '<button type="button" data-profile-desk-page="next" aria-label="下一页">›</button>' +
+        '</nav>'
+      : "";
     page.dataset.profileSignature = personProfileSignature(page);
     page.innerHTML =
       renderLiteHeader(page, { title: "人物档案", html: recordingIslandHtml() }) +
@@ -7904,6 +7970,7 @@ button.st-work-notice{cursor:pointer}
         (cards
           ? '<section class="st-profile-desk" aria-label="桌面人物档案">' + cards + '</section>'
           : '<section class="st-profile-desk-empty">没有可显示的角色档案。</section>') +
+        pager +
       '</main>';
     bindLiteHeader(page, () => renderPersonProfilePage(page));
     page.querySelector('[data-lite-action="back"]')?.addEventListener("click", () => closePersonProfilePage(page));
@@ -8165,8 +8232,8 @@ button.st-work-notice{cursor:pointer}
 	            '<b class="st-clock-colon">:</b>' +
 	            '<label><span>分</span><input data-clock-minute inputmode="numeric" autocomplete="off" maxlength="2" min="0" max="59" value="' + escapeAttr(String(seed.minute).padStart(2, "0")) + '"></label>' +
           '</div>' +
-	          '<button type="button" class="st-clock-action" data-clock-action="suggest"' + (pendingClock ? " disabled" : "") + '>' + (pendingClock ? "已暂存" : "建议此时间") + '</button>' +
-          '<p class="st-clock-note">这只会写入本轮操作，请 AI 按剧情连续性判断是否推进时间；前端不会直接改当前时间变量。</p>' +
+	          '<button type="button" class="st-clock-action" data-clock-action="suggest"' + (pendingClock ? " disabled" : "") + '>' + (pendingClock ? "已暂存" : "锚定此时间") + '</button>' +
+          '<p class="st-clock-note">这会写入本轮强制时间锚点；若目标时间早于当前时间，前端会直接标为明天。</p>' +
         '</section>' +
       '</main>';
     bindLiteHeader(page, () => renderClockPage(page));
@@ -8196,12 +8263,23 @@ button.st-work-notice{cursor:pointer}
 	      const hour = normalizeClockPart(page.querySelector("[data-clock-hour]")?.value, 23);
 	      const minute = normalizeClockPart(page.querySelector("[data-clock-minute]")?.value, 59);
 	      const suggested = formatClockInput(hour, minute);
+	      const currentTimeText = storyTimeOnly(getSystemState()["当前时间"], "未知");
+	      const currentDateText = String(getSystemState()["当前日期"] || "").trim() || "当前日";
+	      const currentMinutes = minutesFromTimeText(currentTimeText);
+	      const suggestedMinutes = hour * 60 + minute;
+	      const isNextDay = Number.isFinite(currentMinutes) && suggestedMinutes < currentMinutes;
+	      const targetDateText = isNextDay ? nextStoryDateLabel(currentDateText) : currentDateText;
 	      Promise.resolve(appendAppOperation({
 	        来源: "时钟",
-	        操作: "建议剧情开始时间",
-	        当前时间: storyTimeOnly(getSystemState()["当前时间"], "未知"),
+	        操作: "强制剧情开始时间",
+	        暂存摘要: "强制到 " + (isNextDay ? "明天 " : "") + suggested,
+	        当前日期: currentDateText,
+	        当前时间: currentTimeText,
 	        建议时间: suggested,
-	        AI执行规范: "这是用户建议剧情从该时间开始或推进到该时间；AI应按剧情连续性判断是否成立。成立时只更新/系统/当前时间和必要的/系统/当前事件；若跨日则更新/系统/当前日期。/系统/_当前周几、/系统/_当前日程、/系统/_当前特殊日期和/系统/当天课程表为前端只读同步字段，AI不要手写这些字段。"
+	        目标日期: targetDateText,
+	        目标时间: suggested,
+	        时间解释: isNextDay ? "前端已判定目标时间早于当前时间，因此目标日期=明天。" : "前端已判定目标时间不早于当前时间，因此目标日期=当前日期。",
+	        AI执行规范: "这是用户设置的强制剧情时间锚点，不是可忽略建议。AI必须让本轮剧情从目标日期与目标时间开始或推进到该时间点；除非用户最新正文明确取消或改时间，不得绕开、忽略或另选时间。前端已经判断目标日期：直接按/目标日期和/目标时间执行，不要重新判断是否跨天。只更新/系统/当前时间和必要的/系统/当前事件；目标日期不同于当前日期时同步更新/系统/当前日期。/系统/_当前周几、/系统/_当前日程、/系统/_当前特殊日期和/系统/当天课程表为前端只读同步字段，AI不要手写这些字段。"
 	      })).then(() => renderClockPage(page));
 	    });
     updateClockFace(page);
@@ -8839,6 +8917,21 @@ button.st-work-notice{cursor:pointer}
     return "hypnoos.work.roll.v1:" + graphScopeKey();
   }
 
+  function workBuffLockStorageKey() {
+    let scope = "";
+    try {
+      const chatId = window?.SillyTavern?.getCurrentChatId?.();
+      if (chatId !== undefined && chatId !== null && String(chatId).trim()) scope = String(chatId).trim();
+    } catch {}
+    try {
+      if (!scope) {
+        const context = typeof getContext === "function" ? getContext() : window?.SillyTavern?.getContext?.();
+        scope = String(context?.chatId || context?.chat_id || context?.chatFile || context?.chat_file || context?.chat?.id || context?.chat?.file_name || "").trim();
+      }
+    } catch {}
+    return "hypnoos.work.buffLock.v1:" + (scope || graphScopeKey());
+  }
+
   function workRoleText(role) {
     if (!role || typeof role !== "object" || Array.isArray(role)) return "";
     const profile = role["档案"] && typeof role["档案"] === "object" && !Array.isArray(role["档案"]) ? role["档案"] : {};
@@ -8941,6 +9034,55 @@ button.st-work-notice{cursor:pointer}
     return (date.getMonth() + 1) + "月" + date.getDate() + "日 " + formatPeriodTime(endMinutes);
   }
 
+  function normalizeWorkBuffEndText(startText, endText) {
+    const rawEnd = String(endText || "").trim();
+    if (rawEnd && monitorStampFromText(rawEnd)) return rawEnd;
+    const rawStart = String(startText || "").trim();
+    if (rawStart && monitorStampFromText(rawStart)) return workOffsetDateTimeText(rawStart, 24);
+    return rawEnd;
+  }
+
+  function readWorkBuffLock(expectedBuff = "") {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(workBuffLockStorageKey()) || "null");
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+      const buff = String(parsed.buff || "").trim();
+      if (!buff || buff === "无") return null;
+      const expected = String(expectedBuff || "").trim();
+      if (expected && buff !== expected) return null;
+      const startText = String(parsed.startText || "").trim();
+      const endText = normalizeWorkBuffEndText(startText, parsed.endText || parsed.removeText || parsed["打工buff预计去除时间"]);
+      return { ...parsed, buff, startText, endText };
+    } catch {
+      return null;
+    }
+  }
+
+  function writeWorkBuffLock(payload) {
+    try {
+      const buff = String(payload?.["打工获得buff"] || payload?.buff || "").trim();
+      if (!buff || buff === "无") {
+        localStorage.removeItem(workBuffLockStorageKey());
+        return;
+      }
+      const startText = String(payload?.["打工buff开始时间"] || payload?.["开始时间"] || payload?.startText || "").trim();
+      const endText = normalizeWorkBuffEndText(startText, payload?.["打工buff预计去除时间"] || payload?.["buff预计去除时间"] || payload?.endText || "");
+      localStorage.setItem(workBuffLockStorageKey(), JSON.stringify({
+        buff,
+        startText,
+        endText,
+        workId: String(payload?.["工作ID"] || ""),
+        createdAt: Date.now()
+      }));
+    } catch {}
+  }
+
+  function clearWorkBuffLock() {
+    try {
+      localStorage.removeItem(workBuffLockStorageKey());
+    } catch {}
+  }
+
   function workStableHash(text) {
     let hash = 0;
     const source = String(text || "");
@@ -9034,7 +9176,7 @@ button.st-work-notice{cursor:pointer}
 	  }
 
 	  function hasPendingClockSuggestionOperation() {
-	    return pendingOperationPayloads().some((payload) => pendingPayloadMatches(payload, "时钟", /建议剧情开始时间|建议时间|当前时间|推进到该时间/));
+	    return pendingOperationPayloads().some((payload) => pendingPayloadMatches(payload, "时钟", /强制剧情开始时间|强制时间|目标时间|建议剧情开始时间|建议时间|当前时间|推进到该时间/));
 	  }
 
 	  function graphOperationSource(scope) {
@@ -9054,8 +9196,8 @@ button.st-work-notice{cursor:pointer}
     for (let index = payloads.length - 1; index >= 0; index -= 1) {
       const payload = payloads[index];
       if (payload?.["来源"] !== "时钟") continue;
-      if (!/建议剧情开始时间|建议时间|当前时间|推进到该时间/.test(String(payload?.["操作"] || ""))) continue;
-      const timeText = storyTimeOnly(payload["建议时间"] || payload["目标时间"] || payload["当前时间变量"] || "", "");
+      if (!/强制剧情开始时间|强制时间|目标时间|建议剧情开始时间|建议时间|当前时间|推进到该时间/.test(String(payload?.["操作"] || ""))) continue;
+      const timeText = storyTimeOnly(payload["目标时间"] || payload["建议时间"] || payload["当前时间变量"] || "", "");
       if (/^d{1,2}:d{2}$/.test(timeText)) return timeText;
     }
     return "";
@@ -9111,27 +9253,16 @@ button.st-work-notice{cursor:pointer}
     const distance = workMinutesUntilNext(currentMinutes, pendingMinutes);
     const pendingDayOffset = Number.isFinite(distance) && distance > 0 && pendingMinutes <= currentMinutes ? 1 : 0;
     const pendingDateText = workDateTextWithOffset(dateText, pendingDayOffset);
-    const currentScore = workTimingBenefitScore(dateText, currentMinutes);
-    const pendingScore = workTimingBenefitScore(pendingDateText, pendingMinutes);
     const pendingTargetText = [pendingDateText, pendingTime].filter(Boolean).join(" ");
-    const choosePending = Number.isFinite(distance) && (distance < 360 || pendingScore > currentScore);
-    const timeText = choosePending ? pendingTime : currentTimeText;
-    const chosenDateText = choosePending ? pendingDateText : dateText;
-    const postWorkTargetText = !choosePending && Number.isFinite(distance) && distance >= 360 ? pendingTargetText : "";
-    const selectionRule = choosePending
-      ? (distance < 360
-        ? "暂存区建议时间距离当前时间小于6小时，无论是否偶遇，都从暂存区建议时间开始打工。"
-        : "暂存区建议时间比当前时间的打工buff结果更有利，因此从暂存区建议时间开始打工。")
-      : "当前变量时间比暂存区建议时间的打工buff结果更有利，因此立刻开始打工；若暂存目标晚于6小时结算点，结算后再推进到暂存目标时间。";
     return {
-      dateText: chosenDateText,
-      timeText,
+      dateText: pendingDateText,
+      timeText: pendingTime,
       pendingTime,
       pendingTargetText,
-      postWorkTargetText,
+      postWorkTargetText: "",
       pendingDistanceMinutes: distance,
-      selectionRule,
-      source: choosePending ? "暂存区时钟建议时间（有利选择）" : "当前变量时间（有利选择）"
+      selectionRule: "暂存区存在时钟强制时间锚点，按目标日期和目标时间开始；不再与当前变量时间做有利选择。",
+      source: "暂存区时钟强制时间锚点"
     };
   }
 
@@ -9290,24 +9421,31 @@ button.st-work-notice{cursor:pointer}
     const buff = String(system["buff"] || "").trim();
     if (!buff || buff === "无") {
       if (pendingClearedWorkBuffReminder()) return;
+      if (!pendingWorkStartPayloads().length) clearWorkBuffLock();
       window.__ST_SET_WORK_BUFF_STATUS_REMINDER__?.(null);
       return;
     }
+    const lock = readWorkBuffLock(buff);
     const latest = latestWorkStartPayloadFromChat();
     const latestBuff = String(latest?.["打工获得buff"] || "").trim();
-    const startText = latest && (latestBuff === buff || !latestBuff || latestBuff === "按世界书判定")
+    const latestMatchesBuff = latest && (latestBuff === buff || !latestBuff || latestBuff === "按世界书判定");
+    const startText = lock?.startText || (latestMatchesBuff
       ? String(latest?.["打工buff开始时间"] || latest?.["开始时间"] || "").trim()
-      : "";
-    const endText = startText
-      ? String(latest?.["打工buff预计去除时间"] || latest?.["buff去除时间"] || latest?.["打工buff预计结束时间"] || workOffsetDateTimeText(startText, 24)).trim()
-      : "";
+      : "");
+    const rawEndText = lock?.endText || (latestMatchesBuff
+      ? String(latest?.["打工buff预计去除时间"] || latest?.["buff去除时间"] || latest?.["打工buff预计结束时间"] || "").trim()
+      : "");
+    const endText = normalizeWorkBuffEndText(startText, rawEndText);
     const endStamp = endText ? monitorStampFromText(endText) : 0;
     const currentStamp = workCurrentStamp();
     const expired = Boolean(endStamp && currentStamp && currentStamp >= endStamp);
     const cleared = expired ? setCurrentLayerSystemField("buff", "") : false;
+    if (expired && cleared) clearWorkBuffLock();
+    const buffEndSummary = endText || "打工开始后1天";
     window.__ST_SET_WORK_BUFF_STATUS_REMINDER__?.({
       来源: "打工",
       操作: "打工buff提醒",
+      暂存摘要: expired ? "已到期｜" + buffEndSummary : "持续至｜" + buffEndSummary,
       当前buff: buff,
       buff开始时间: startText || "未记录",
       buff预计去除时间: endText || "按打工开始后1天由AI判断",
@@ -9469,6 +9607,7 @@ button.st-work-notice{cursor:pointer}
           处理方式: (encounterRole ? "先写到工作途中偶遇节点；下一轮锁定提醒处理互动后结算。" : "直接写到预计结束时间并结算。") + (postWorkTargetText ? " 结算后再推进到结算后建议时间。" : "")
         };
         Promise.resolve(appendAppOperation(payload)).then((added) => {
+          if (added) writeWorkBuffLock(payload);
           flashWorkButton(button, added ? "已暂存" : "已在暂存区");
           renderWorkPage(page);
         });
