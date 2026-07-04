@@ -3255,25 +3255,40 @@ button.st-work-notice{cursor:pointer}
 .st-profile-app .st-state-meter-label{color:#33291f;font-size:12px;font-weight:950;white-space:nowrap}
 .st-profile-app .st-state-meter-value{display:inline-flex;align-items:center;gap:5px;color:#30261d;font-size:12px;font-weight:950;font-variant-numeric:tabular-nums;white-space:nowrap}
 .st-profile-app .st-state-meter-value small{border:1px solid rgba(81,64,49,.18);border-radius:999px;background:rgba(255,255,255,.38);padding:1px 5px;color:rgba(68,54,42,.58);font-size:9px;font-weight:900;line-height:1.2}
-.st-profile-app .st-state-meter-track{position:relative;height:10px;border:1px solid rgba(81,64,49,.16);border-radius:999px;background:linear-gradient(90deg,rgba(30,31,36,.16),rgba(77,60,45,.08) 48%,rgba(77,60,45,.12) 50%,rgba(77,60,45,.08) 52%,rgba(255,143,196,.18));overflow:hidden}
+.st-profile-app .st-state-meter-track{position:relative;height:13px;border:1px solid rgba(81,64,49,.16);border-radius:999px;background:linear-gradient(90deg,rgba(30,31,36,.16),rgba(77,60,45,.08) 48%,rgba(77,60,45,.12) 50%,rgba(77,60,45,.08) 52%,rgba(255,143,196,.18));overflow:hidden}
 .st-profile-app .st-state-meter-track::before{content:"";position:absolute;top:-2px;bottom:-2px;left:50%;width:2px;background:rgba(81,64,49,.32);border-radius:999px;transform:translateX(-50%);z-index:2}
 .st-profile-app .st-state-meter-track::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 0 24.5%,rgba(81,64,49,.13) 24.5% 25.5%,transparent 25.5% 49.5%,rgba(81,64,49,.2) 49.5% 50.5%,transparent 50.5% 74.5%,rgba(81,64,49,.13) 74.5% 75.5%,transparent 75.5%);pointer-events:none}
 .st-profile-app .st-state-meter-fill{position:absolute;top:0;bottom:0;left:50%;width:var(--bar-width,0%);border-radius:999px;background:linear-gradient(90deg,var(--tone-soft,rgba(255,250,253,.86)),var(--tone,#ff8fc4));box-shadow:0 0 12px var(--tone-glow,rgba(255,143,196,.22));z-index:1;overflow:hidden}
 .st-profile-app .st-state-meter.is-negative .st-state-meter-fill{left:auto;right:50%;background:linear-gradient(90deg,var(--tone,#2d3138),var(--tone-soft,rgba(112,112,120,.48)))}
-.st-profile-app .st-state-meter-fill::after{content:"♡ ♡ ♡ ♡ ♡ ♡";position:absolute;inset:-2px 4px 0;display:flex;align-items:center;justify-content:space-around;gap:7px;color:rgba(255,255,255,.78);font:900 9px/1 Georgia,"Times New Roman","Noto Serif SC",serif;letter-spacing:0;white-space:nowrap;text-shadow:0 1px 0 rgba(160,46,98,.22);pointer-events:none}
-.st-profile-app .st-state-meter.is-negative .st-state-meter-fill::after{content:"👎︎ 👎︎ 👎︎ 👎︎";inset:-1px 4px 0;color:rgba(245,245,245,.72);font:800 8px/1 "Apple Symbols","Segoe UI Symbol","Noto Sans Symbols","Noto Sans Symbols 2",sans-serif;text-shadow:none;filter:grayscale(1)}
-.st-profile-app .st-state-meter.is-zero .st-state-meter-fill::after{content:""}
-.st-profile-app .st-state-meter-scale{display:grid;grid-template-columns:1fr auto 1fr;margin-top:4px;color:rgba(68,54,42,.45);font-size:8px;font-weight:900}
+.st-profile-app .st-state-meter-fill::before,.st-profile-app .st-state-meter-fill::after{position:absolute;left:-6px;right:-5px;display:block;color:rgba(255,255,255,.72);font:900 5px/1 Georgia,"Times New Roman","Noto Serif SC",serif;letter-spacing:5px;white-space:nowrap;text-shadow:0 .5px 0 rgba(160,46,98,.18);pointer-events:none}
+.st-profile-app .st-state-meter-fill::before{content:"♡       ♡          ♡";top:0;transform:rotate(-3deg)}
+.st-profile-app .st-state-meter-fill::after{content:"    ♡          ♡";top:6px;transform:translateX(5px) rotate(2deg);opacity:.58}
+.st-profile-app .st-state-meter.is-mid-density .st-state-meter-fill::before{content:"♡    ♡       ♡    ♡";letter-spacing:4px}
+.st-profile-app .st-state-meter.is-mid-density .st-state-meter-fill::after{content:"  ♡      ♡    ♡";letter-spacing:4px}
+.st-profile-app .st-state-meter.is-high-density .st-state-meter-fill::before{content:"♡  ♡    ♡  ♡    ♡";letter-spacing:3px}
+.st-profile-app .st-state-meter.is-high-density .st-state-meter-fill::after{content:"  ♡   ♡    ♡   ♡";letter-spacing:3px}
+.st-profile-app .st-state-meter.is-negative .st-state-meter-fill::before,.st-profile-app .st-state-meter.is-negative .st-state-meter-fill::after{color:rgba(246,246,248,.62);font:800 5.5px/1 "Apple Symbols","Segoe UI Symbol","Noto Sans Symbols","Noto Sans Symbols 2",sans-serif;letter-spacing:6px;text-shadow:none;filter:grayscale(1)}
+.st-profile-app .st-state-meter.is-negative .st-state-meter-fill::before{content:"👎︎        👎︎          👎︎";top:0;transform:rotate(2deg)}
+.st-profile-app .st-state-meter.is-negative .st-state-meter-fill::after{content:"    👎︎          👎︎";top:6px;transform:translateX(4px) rotate(-3deg);opacity:.52}
+.st-profile-app .st-state-meter.is-negative.is-mid-density .st-state-meter-fill::before{content:"👎︎     👎︎       👎︎";letter-spacing:5px}
+.st-profile-app .st-state-meter.is-negative.is-mid-density .st-state-meter-fill::after{content:"   👎︎      👎︎    👎︎";letter-spacing:5px}
+.st-profile-app .st-state-meter.is-negative.is-high-density .st-state-meter-fill::before{content:"👎︎   👎︎    👎︎   👎︎";letter-spacing:4px}
+.st-profile-app .st-state-meter.is-negative.is-high-density .st-state-meter-fill::after{content:"  👎︎    👎︎   👎︎";letter-spacing:4px}
+.st-profile-app .st-state-meter.is-zero .st-state-meter-fill::before,.st-profile-app .st-state-meter.is-zero .st-state-meter-fill::after{content:""}
+.st-profile-app .st-state-meter-scale{display:none}
 .st-profile-app .st-state-meter-scale span:nth-child(3){text-align:right}
 .st-profile-radar-card{position:relative;margin-bottom:8px;border:1px solid rgba(81,64,49,.18);border-radius:10px;background:radial-gradient(circle at 50% 44%,rgba(250,224,150,.26),rgba(247,241,229,.56) 56%,rgba(230,217,197,.46));box-shadow:inset 0 1px 0 rgba(255,255,255,.48),0 8px 18px rgba(60,45,32,.08);padding:7px 8px 5px;display:grid;place-items:center;overflow:hidden}
-.st-profile-radar-card.is-sensitivity{background:radial-gradient(circle at 50% 50%,rgba(185,76,68,.14),rgba(196,145,77,.14) 34%,rgba(107,143,113,.13) 68%,rgba(125,95,156,.12));}
+.st-profile-radar-card.is-sensitivity{background:radial-gradient(circle at 50% 50%,rgba(255,244,249,.58),rgba(255,238,246,.34) 46%,rgba(247,241,229,.44));}
 .st-profile-radar-card svg{width:100%;max-width:230px;height:auto;display:block;overflow:visible}
 .st-profile-radar-grid{fill:none;stroke:rgba(81,64,49,.18);stroke-width:1}
 .st-profile-radar-axis{stroke:rgba(81,64,49,.16);stroke-width:1}
 .st-profile-radar-shape{fill:rgba(139,92,48,.22);stroke:#8b5e3c;stroke-width:2;filter:drop-shadow(0 5px 7px rgba(67,45,28,.16))}
-.st-profile-radar-shape.is-sensitivity{fill:url(#st-profile-sensitivity-gradient);stroke:#cc5b92;stroke-width:2.15;filter:drop-shadow(0 5px 7px rgba(160,46,98,.16))}
+.st-profile-radar-card.is-sensitivity .st-profile-radar-grid{stroke:rgba(255,143,196,.24);stroke-width:.7}
+.st-profile-radar-card.is-sensitivity .st-profile-radar-axis{stroke:rgba(255,143,196,.18);stroke-width:.55}
+.st-profile-radar-shape.is-sensitivity{fill:url(#st-profile-sensitivity-gradient);stroke:rgba(255,116,178,.66);stroke-width:1.15;filter:drop-shadow(0 5px 7px rgba(255,143,196,.13))}
 .st-profile-radar-dot{stroke:rgba(247,241,229,.62);stroke-width:.35}
 .st-profile-radar-dot.is-low{fill:#8fa09a}.st-profile-radar-dot.is-mid{fill:#6b8f71}.st-profile-radar-dot.is-high{fill:#c4914d}.st-profile-radar-dot.is-peak{fill:#c25d55}.st-profile-radar-dot.is-overflow{fill:#7d5f9c}.st-profile-radar-dot.is-negative{fill:#6f6258}.st-profile-radar-dot.is-base{fill:#c4914d}.st-profile-radar-dot.is-bad{fill:#b94c44}
+.st-profile-sensitivity-heart{font:900 4.5px/1 Georgia,"Times New Roman","Noto Serif SC",serif;fill:rgba(255,92,167,.62);paint-order:stroke;stroke:rgba(255,250,253,.6);stroke-width:.45px;stroke-linejoin:round}
 .st-profile-radar-label{font:900 9px -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;fill:rgba(51,41,31,.76);paint-order:stroke;stroke:rgba(247,241,229,.82);stroke-width:3px;stroke-linejoin:round}
 .st-profile-radar-value{font:900 8px ui-monospace,SFMono-Regular,Menlo,monospace;fill:rgba(68,54,42,.56);paint-order:stroke;stroke:rgba(247,241,229,.82);stroke-width:2px}
 .st-profile-radar-note{position:absolute;right:8px;bottom:6px;color:rgba(68,54,42,.46);font-size:8px;font-weight:900}
@@ -6441,9 +6456,10 @@ button.st-work-notice{cursor:pointer}
     const width = Math.abs(visual) / 2;
     const tone = stateMeterTone(label, number);
     const directionClass = directionNumber < 0 ? "is-negative" : directionNumber > 0 ? "is-positive" : "is-zero";
+    const density = Math.abs(visual) >= 82 ? "is-high-density" : Math.abs(visual) >= 45 ? "is-mid-density" : "is-low-density";
     const style = "--bar-width:" + width.toFixed(1) + "%;--tone:" + tone.tone + ";--tone-soft:" + tone.soft + ";--tone-glow:" + tone.glow;
-    const guide = label === "警戒度" ? "警戒 ← 0 → 信任" : "低 ← 0 → 高";
-    return '<article class="st-state-meter ' + directionClass + '" style="' + style + '">' +
+    const guide = "恶 ← 0 → 善";
+    return '<article class="st-state-meter ' + directionClass + ' ' + density + '" style="' + style + '">' +
       '<div class="st-state-meter-top"><span class="st-state-meter-label">' + escapeHtml(label) + '</span>' +
       '<span class="st-state-meter-value">' + escapeHtml(formatStatNumber(number)) + '<small>' + escapeHtml(guide) + '</small></span></div>' +
       '<div class="st-state-meter-track"><span class="st-state-meter-fill"></span></div>' +
@@ -6512,6 +6528,19 @@ button.st-work-notice{cursor:pointer}
     const dots = values.map((item) => (
       '<circle class="st-profile-radar-dot ' + item.tone + '" cx="' + item.point.x.toFixed(1) + '" cy="' + item.point.y.toFixed(1) + '" r="0.9"></circle>'
     )).join("");
+    const hearts = values.flatMap((item, index) => {
+      if (item.number < 400) return [];
+      const amount = item.number >= 900 ? 4 : item.number >= 700 ? 3 : 2;
+      const pieces = [];
+      for (let step = 0; step < amount; step += 1) {
+        const ratio = Math.min(1, (0.42 + step * 0.14 + ((index + step) % 2) * 0.035) * Math.min(1, item.number / 1000));
+        const base = radarPoint(cx, cy, radius, index, count, ratio);
+        const jitterX = (((index * 17 + step * 11) % 9) - 4) * 0.75;
+        const jitterY = (((index * 13 + step * 7) % 7) - 3) * 0.72;
+        pieces.push('<text class="st-profile-sensitivity-heart" x="' + (base.x + jitterX).toFixed(1) + '" y="' + (base.y + jitterY).toFixed(1) + '" text-anchor="middle">♡</text>');
+      }
+      return pieces;
+    }).join("");
     const labels = values.map((item) => (
       '<text class="st-profile-radar-label" x="' + item.labelPoint.x.toFixed(1) + '" y="' + item.labelPoint.y.toFixed(1) + '" text-anchor="' + item.anchor + '">' + escapeHtml(item.label) + '</text>' +
       '<text class="st-profile-radar-value" x="' + item.labelPoint.x.toFixed(1) + '" y="' + item.valueY.toFixed(1) + '" text-anchor="' + item.anchor + '">' + escapeHtml(formatStatNumber(item.number)) + '</text>'
@@ -6519,16 +6548,16 @@ button.st-work-notice{cursor:pointer}
     return '<div class="st-profile-radar-card is-sensitivity">' +
       '<svg viewBox="0 0 200 200" role="img" aria-label="五项敏感度雷达图">' +
         '<defs><radialGradient id="st-profile-sensitivity-gradient" gradientUnits="userSpaceOnUse" cx="100" cy="100" r="56">' +
-          '<stop offset="0%" stop-color="#262930" stop-opacity=".48"></stop>' +
-          '<stop offset="10%" stop-color="#78747c" stop-opacity=".42"></stop>' +
-          '<stop offset="18%" stop-color="#fff8fc" stop-opacity=".62"></stop>' +
-          '<stop offset="44%" stop-color="#ffd1e5" stop-opacity=".66"></stop>' +
-          '<stop offset="74%" stop-color="#ff8fc4" stop-opacity=".72"></stop>' +
-          '<stop offset="100%" stop-color="#ff4fa3" stop-opacity=".78"></stop>' +
+          '<stop offset="0%" stop-color="#fff8fc" stop-opacity=".24"></stop>' +
+          '<stop offset="18%" stop-color="#fff0f7" stop-opacity=".32"></stop>' +
+          '<stop offset="44%" stop-color="#ffd8ea" stop-opacity=".48"></stop>' +
+          '<stop offset="74%" stop-color="#ffacd3" stop-opacity=".62"></stop>' +
+          '<stop offset="100%" stop-color="#ff79b9" stop-opacity=".72"></stop>' +
         '</radialGradient></defs>' +
         [0.25, 0.5, 0.75, 1].map((ratio) => '<polygon class="st-profile-radar-grid" points="' + ring(ratio) + '"></polygon>').join("") +
         axes +
         '<polygon class="st-profile-radar-shape is-sensitivity" style="fill:url(#st-profile-sensitivity-gradient);fill-opacity:.92" points="' + shape + '"></polygon>' +
+        hearts +
         dots +
         labels +
       '</svg>' +
@@ -8056,17 +8085,17 @@ button.st-work-notice{cursor:pointer}
   }
 
   function renderPersonStatePanel(roleName, roleData) {
-    const counts = roleCountStats(roleData, roleName).map((label) => renderCountStat(label, statValue(roleData, label))).join("");
     const stateBars = ST_STATE_BAR_STATS.map((label) => renderStateMeterStat(label, statValue(roleData, label))).join("");
     return '<section class="st-person-lines is-body">' +
       renderPersonPanel("状态", '<div class="st-state-meter-grid">' + stateBars + '</div>', "-100 到 +100 为视觉两端") +
-      renderPersonPanel("次数", '<div class="st-count-grid">' + counts + '</div>') +
       '</section>';
   }
 
   function renderPersonSensitivityPanel(roleName, roleData) {
+    const counts = roleCountStats(roleData, roleName).map((label) => renderCountStat(label, statValue(roleData, label))).join("");
     return '<section class="st-person-lines is-body">' +
       renderPersonPanel("敏感度", renderPersonSensitivityRadar(roleData, roleName), "100 以下偏迟钝") +
+      renderPersonPanel("次数", '<div class="st-count-grid">' + counts + '</div>') +
       '</section>';
   }
 
