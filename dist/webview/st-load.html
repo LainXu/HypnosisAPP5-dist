@@ -2407,25 +2407,31 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-city-map-app .st-lite-body{padding:10px 12px 14px;gap:9px;overflow:hidden;display:grid;grid-template-rows:minmax(0,1fr) auto}
 .st-city-map-app .st-lite-back{border-color:rgba(92,64,38,.22);background:rgba(255,250,240,.84);color:#6b3f22;box-shadow:0 8px 18px rgba(92,64,38,.14),inset 0 1px 0 rgba(255,255,255,.55)}
 .st-city-map-app .st-app-island{border-color:rgba(255,255,255,.12);background:linear-gradient(180deg,rgba(7,10,24,.92),rgba(2,5,16,.82));color:#f8fafc;box-shadow:0 12px 28px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.06)}
-.st-city-map-stage{position:relative;min-height:0;border:1px solid rgba(92,64,38,.18);border-radius:18px;overflow:hidden;background:radial-gradient(circle at 18% 18%,rgba(255,255,255,.82),transparent 24%),radial-gradient(circle at 76% 18%,rgba(186,230,253,.45),transparent 27%),linear-gradient(145deg,#fdf4dc 0%,#eef7dc 46%,#d9ecf4 100%);box-shadow:0 18px 36px rgba(80,57,34,.14),inset 0 0 0 1px rgba(255,255,255,.5);touch-action:manipulation}
-.st-city-map-stage::before{content:"";position:absolute;inset:8%;border-radius:999px;background:radial-gradient(circle,rgba(255,255,255,.34),transparent 66%);pointer-events:none}
-.st-city-road{position:absolute;left:var(--x);top:var(--y);width:var(--w);height:6px;border-radius:999px;background:linear-gradient(90deg,rgba(255,255,255,.74),rgba(134,125,99,.28),rgba(255,255,255,.68));box-shadow:0 1px 0 rgba(92,64,38,.13),inset 0 0 0 1px rgba(92,64,38,.08);transform:rotate(var(--r));transform-origin:left center;pointer-events:none}
-.st-city-river{position:absolute;left:-8%;right:-8%;top:66%;height:44px;border-radius:999px;background:linear-gradient(90deg,rgba(125,211,252,.46),rgba(186,230,253,.6),rgba(103,232,249,.34));transform:rotate(-7deg);box-shadow:inset 0 0 0 1px rgba(14,116,144,.08);pointer-events:none}
-.st-city-district{position:absolute;border:1px solid rgba(255,255,255,.46);border-radius:18px;background:rgba(255,255,255,.22);box-shadow:inset 0 0 18px rgba(255,255,255,.16);pointer-events:none}
-.st-city-district.is-school{left:44%;top:20%;width:33%;height:30%}
-.st-city-district.is-home{left:12%;top:42%;width:31%;height:34%}
-.st-city-district.is-business{left:62%;top:48%;width:27%;height:30%}
+.st-city-map-stage{position:relative;min-height:0;border:1px solid rgba(92,64,38,.18);border-radius:18px;overflow:hidden;background:linear-gradient(180deg,rgba(255,253,240,.95),rgba(236,248,223,.93) 58%,rgba(226,242,231,.95));box-shadow:0 18px 36px rgba(80,57,34,.14),inset 0 0 0 1px rgba(255,255,255,.62);touch-action:manipulation}
+.st-city-map-stage::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(105,91,64,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(105,91,64,.045) 1px,transparent 1px);background-size:42px 42px;opacity:.72;pointer-events:none}
+.st-city-map-stage::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 18% 20%,rgba(255,255,255,.55),transparent 22%),radial-gradient(circle at 82% 82%,rgba(187,247,208,.32),transparent 24%);pointer-events:none}
+.st-city-road{position:absolute;left:var(--x);top:var(--y);width:var(--w);height:var(--h);border-radius:6px;background:linear-gradient(180deg,#f8f3e8,#dfd7c6);box-shadow:0 1px 0 rgba(92,64,38,.12),inset 0 0 0 1px rgba(92,64,38,.12),inset 0 0 0 4px rgba(255,255,255,.28);pointer-events:none;z-index:1}
+.st-city-road::after{content:"";position:absolute;left:8px;right:8px;top:50%;height:1px;background:repeating-linear-gradient(90deg,rgba(148,128,95,.45) 0 7px,transparent 7px 15px);transform:translateY(-50%)}
+.st-city-road.is-v::after{left:50%;right:auto;top:8px;bottom:8px;width:1px;height:auto;background:repeating-linear-gradient(180deg,rgba(148,128,95,.45) 0 7px,transparent 7px 15px);transform:translateX(-50%)}
+.st-city-greenery{position:absolute;left:var(--x);top:var(--y);width:var(--w);height:var(--h);display:flex;align-items:center;justify-content:space-around;gap:2px;pointer-events:none;z-index:2;color:#4d9d58;font-size:12px;line-height:1;filter:drop-shadow(0 1px 0 rgba(255,255,255,.75))}
+.st-city-greenery.is-v{flex-direction:column;font-size:11px}
+.st-city-greenery span{display:block;transform:translateY(var(--dy,0))}
 .st-city-point{position:absolute;left:var(--x);top:var(--y);width:74px;border:0;background:transparent;color:#3d2f25;display:grid;justify-items:center;gap:4px;transform:translate(-50%,-50%);cursor:pointer;z-index:3;text-align:center}
 .st-city-point:focus-visible{outline:3px solid rgba(20,184,166,.36);outline-offset:4px;border-radius:14px}
 .st-city-point:hover .st-city-landmark,.st-city-point.active .st-city-landmark{transform:translateY(-3px) scale(1.05);border-color:rgba(20,184,166,.55);box-shadow:0 14px 24px rgba(20,184,166,.22),0 0 0 5px rgba(45,212,191,.13),inset 0 1px 0 rgba(255,255,255,.74)}
 .st-city-point.active .st-city-name{color:#0f766e}
 .st-city-landmark{position:relative;width:42px;height:42px;border:1px solid rgba(92,64,38,.18);border-radius:13px;background:linear-gradient(180deg,#fffef8,#f6e5c8);box-shadow:0 10px 20px rgba(92,64,38,.15),inset 0 1px 0 rgba(255,255,255,.72);transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+.st-city-landmark-symbol{position:absolute;left:50%;top:-12px;z-index:3;display:grid;place-items:center;width:23px;height:23px;border:1px solid rgba(92,64,38,.16);border-radius:999px;background:rgba(255,253,247,.94);font-size:14px;line-height:1;transform:translateX(-50%);box-shadow:0 4px 10px rgba(92,64,38,.14)}
 .st-city-landmark::before{content:"";position:absolute;left:9px;right:9px;bottom:8px;height:22px;border-radius:4px 4px 3px 3px;background:linear-gradient(180deg,var(--city-c1,#fca5a5),var(--city-c2,#fb7185));box-shadow:inset 0 0 0 1px rgba(92,64,38,.14)}
 .st-city-landmark::after{content:"";position:absolute;left:15px;right:15px;bottom:8px;height:10px;border-radius:3px 3px 0 0;background:rgba(255,255,255,.72);box-shadow:0 -9px 0 -5px rgba(255,255,255,.86),-8px -8px 0 -5px rgba(255,255,255,.72),8px -8px 0 -5px rgba(255,255,255,.72)}
 .st-city-point[data-city-icon="school"] .st-city-landmark{--city-c1:#93c5fd;--city-c2:#3b82f6}
 .st-city-point[data-city-icon="university"] .st-city-landmark{--city-c1:#c4b5fd;--city-c2:#8b5cf6}
 .st-city-point[data-city-icon="company"] .st-city-landmark{--city-c1:#fdba74;--city-c2:#f97316}
 .st-city-point[data-city-icon="home"] .st-city-landmark{--city-c1:#fda4af;--city-c2:#fb7185}
+.st-city-point[data-city-icon="company"] .st-city-landmark::before{left:11px;right:11px;height:27px;border-radius:3px}
+.st-city-point[data-city-icon="company"] .st-city-landmark::after{left:16px;right:16px;height:4px;bottom:12px;box-shadow:0 -7px 0 rgba(255,255,255,.72),0 -14px 0 rgba(255,255,255,.72)}
+.st-city-point[data-city-icon="school"] .st-city-landmark::before,.st-city-point[data-city-icon="university"] .st-city-landmark::before{left:8px;right:8px;height:18px}
+.st-city-point[data-city-icon="school"] .st-city-landmark::after,.st-city-point[data-city-icon="university"] .st-city-landmark::after{left:13px;right:13px;height:7px;box-shadow:0 -9px 0 -4px rgba(255,255,255,.86)}
 .st-city-point[data-city-icon="home"] .st-city-landmark::before{clip-path:polygon(50% 0,100% 32%,100% 100%,0 100%,0 32%)}
 .st-city-point[data-city-icon="home"] .st-city-landmark::after{height:9px}
 .st-city-name{max-width:78px;border:1px solid rgba(92,64,38,.13);border-radius:999px;background:rgba(255,250,240,.82);padding:3px 7px;color:rgba(61,47,37,.78);font-size:10px;font-weight:950;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 5px 12px rgba(92,64,38,.08)}
@@ -2548,6 +2554,32 @@ var __webpack_exports__ = __webpack_require__("./src/催眠APP前端/index.tsx")
 .st-graph-add button{border:1px solid rgba(146,64,14,.28);border-radius:8px;background:linear-gradient(135deg,rgba(146,64,14,.16),rgba(217,119,6,.14));color:#5b341f;font-size:12px;font-weight:850;padding:9px 10px;cursor:pointer}
 .st-graph-add button:disabled{opacity:.48;cursor:not-allowed;filter:saturate(.65);box-shadow:none}
 .st-graph-add-hint{margin:0;color:rgba(61,47,37,.55);font-size:10px;line-height:1.45}
+.st-campus-card{display:grid;gap:10px}
+.st-campus-stage{position:relative;min-height:310px;aspect-ratio:1/1.1;border:1px solid rgba(92,64,38,.2);border-radius:16px;overflow:hidden;background:linear-gradient(180deg,#fff9e9,#eef8df 58%,#e2f1e7);box-shadow:0 15px 34px rgba(59,42,25,.13),inset 0 0 0 1px rgba(255,255,255,.64);touch-action:manipulation}
+.st-campus-stage::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.24) 1px,transparent 1px),linear-gradient(rgba(255,255,255,.2) 1px,transparent 1px);background-size:38px 38px;opacity:.55;pointer-events:none}
+.st-campus-path{position:absolute;left:var(--x);top:var(--y);width:var(--w);height:var(--h);border-radius:9px;background:linear-gradient(180deg,#f7eedc,#d9ccb5);box-shadow:inset 0 0 0 1px rgba(92,64,38,.12),inset 0 0 0 4px rgba(255,255,255,.24),0 1px 0 rgba(92,64,38,.12);z-index:1;pointer-events:none}
+.st-campus-field{position:absolute;left:var(--x);top:var(--y);width:var(--w);height:var(--h);border:1px solid rgba(34,197,94,.24);border-radius:var(--radius,14px);background:repeating-linear-gradient(90deg,rgba(134,239,172,.22) 0 9px,rgba(187,247,208,.28) 9px 18px);box-shadow:inset 0 0 0 3px rgba(255,255,255,.18);z-index:0;pointer-events:none}
+.st-campus-point{position:absolute;left:var(--x);top:var(--y);width:var(--w);border:0;background:transparent;color:#3d2f25;display:grid;justify-items:center;gap:4px;transform:translate(-50%,-50%);cursor:pointer;z-index:3;text-align:center}
+.st-campus-point:focus-visible{outline:3px solid rgba(20,184,166,.34);outline-offset:4px;border-radius:12px}
+.st-campus-block{position:relative;display:grid;place-items:center;width:100%;height:var(--h);border:1px solid rgba(92,64,38,.2);border-radius:8px;background:linear-gradient(180deg,var(--c1,#fde68a),var(--c2,#f59e0b));box-shadow:0 12px 18px rgba(92,64,38,.16),inset 0 1px 0 rgba(255,255,255,.52);transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
+.st-campus-block::before{content:"";position:absolute;left:5px;right:5px;top:7px;height:4px;border-radius:999px;background:rgba(255,255,255,.54);box-shadow:0 9px 0 rgba(255,255,255,.34),0 18px 0 rgba(255,255,255,.24)}
+.st-campus-block::after{content:"";position:absolute;right:-7px;top:7px;bottom:-6px;width:7px;border-radius:0 7px 7px 0;background:linear-gradient(180deg,rgba(92,64,38,.18),rgba(92,64,38,.08));transform:skewY(36deg);transform-origin:left top}
+.st-campus-symbol{position:relative;z-index:2;display:grid;place-items:center;width:25px;height:25px;border:1px solid rgba(92,64,38,.15);border-radius:999px;background:rgba(255,253,247,.88);font-size:14px;line-height:1;box-shadow:0 4px 10px rgba(92,64,38,.13)}
+.st-campus-label{max-width:92px;border:1px solid rgba(92,64,38,.13);border-radius:999px;background:rgba(255,250,240,.86);padding:3px 7px;color:rgba(61,47,37,.78);font-size:10px;font-weight:950;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 5px 12px rgba(92,64,38,.08)}
+.st-campus-point:hover .st-campus-block,.st-campus-point.active .st-campus-block{transform:translateY(-3px);border-color:rgba(20,184,166,.52);box-shadow:0 16px 24px rgba(20,184,166,.2),0 0 0 5px rgba(45,212,191,.11),inset 0 1px 0 rgba(255,255,255,.58)}
+.st-campus-point.is-current .st-campus-label{color:#0f766e;border-color:rgba(20,184,166,.34)}
+.st-campus-info{display:grid;gap:8px;border:1px solid rgba(92,64,38,.2);border-radius:13px;background:linear-gradient(180deg,rgba(255,250,240,.96),rgba(248,236,216,.94));padding:10px;box-shadow:0 12px 26px rgba(80,57,34,.12),inset 0 1px 0 rgba(255,255,255,.62)}
+.st-campus-info-head{display:flex;align-items:flex-start;justify-content:space-between;gap:9px}
+.st-campus-info-head strong{font-size:15px;line-height:1.25;color:#2f241c}
+.st-campus-info-head small{border:1px solid rgba(146,64,14,.18);border-radius:999px;background:rgba(254,243,199,.65);color:#92400e;font-size:10px;font-weight:850;padding:3px 7px;white-space:nowrap}
+.st-campus-info p{margin:0;color:rgba(61,47,37,.72);font-size:12px;line-height:1.55;white-space:pre-wrap}
+.st-campus-actions{display:flex;gap:7px;flex-wrap:wrap}
+.st-campus-extra{display:grid;gap:6px}
+.st-campus-extra-title{color:rgba(61,47,37,.58);font-size:10px;font-weight:900}
+.st-campus-extra-list{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.st-campus-extra-list::-webkit-scrollbar{display:none}
+.st-campus-extra-list button{flex:0 0 auto;border:1px solid rgba(92,64,38,.14);border-radius:999px;background:rgba(255,255,255,.54);color:rgba(61,47,37,.68);font-size:10px;font-weight:850;padding:5px 9px;cursor:pointer}
+.st-campus-extra-list button.active{border-color:rgba(20,184,166,.36);background:rgba(204,251,241,.58);color:#0f766e}
 .st-rule-paper{border-color:rgba(92,64,38,.24)!important;background:linear-gradient(180deg,#fffaf0,#f8ecd8)!important;color:#3d2f25!important;box-shadow:0 15px 34px rgba(59,42,25,.14),inset 0 0 0 1px rgba(255,255,255,.55)!important}
 .st-rule-paper-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border-bottom:2px double rgba(92,64,38,.22);padding-bottom:8px;margin-bottom:9px}
 .st-rule-paper-title{display:grid;gap:3px}
@@ -17598,6 +17630,150 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
     renderGraphAddLocationCard(scope, graph);
   }
 
+  const ST_CAMPUS_MAP_POINTS = [
+    { id: "school", graphId: "school", label: "校门", short: "校门", category: "学校", symbol: "🏫", x: 50, y: 12, w: 58, h: 30, c1: "#bfdbfe", c2: "#60a5fa" },
+    { id: "classroom", graphId: "classroom", label: "教学楼", short: "教学楼", category: "学习", symbol: "📘", x: 50, y: 33, w: 100, h: 45, c1: "#fde68a", c2: "#f59e0b" },
+    { id: "corridor", graphId: "corridor", label: "连廊", short: "连廊", category: "公共", symbol: "🚶", x: 50, y: 48, w: 72, h: 22, c1: "#e5e7eb", c2: "#9ca3af" },
+    { id: "library", graphId: "library", label: "图书馆", short: "图书馆", category: "学习", symbol: "📚", x: 25, y: 58, w: 66, h: 38, c1: "#c4b5fd", c2: "#8b5cf6" },
+    { id: "principal", graphId: "principal", label: "校长室", short: "校长室", category: "行政", symbol: "🗂", x: 74, y: 23, w: 62, h: 36, c1: "#fdba74", c2: "#ea580c" },
+    { id: "old-school-building", graphId: "old-school-building", label: "旧校舍", short: "旧校舍", category: "灵异", symbol: "🏚", x: 22, y: 28, w: 64, h: 38, c1: "#d6d3d1", c2: "#78716c" },
+    { id: "pool", graphId: "pool", label: "泳池", short: "泳池", category: "体育", symbol: "🏊", x: 78, y: 66, w: 72, h: 35, c1: "#bae6fd", c2: "#38bdf8" },
+    { id: "field", graphId: "field", label: "操场", short: "操场", category: "体育", symbol: "🏃", x: 42, y: 82, w: 116, h: 40, c1: "#bbf7d0", c2: "#22c55e" }
+  ];
+
+  const ST_CAMPUS_MAP_PATHS = [
+    { x: 47, y: 13, w: 7, h: 70 },
+    { x: 18, y: 46, w: 66, h: 7 },
+    { x: 22, y: 62, w: 58, h: 7 },
+    { x: 38, y: 78, w: 39, h: 7 },
+    { x: 70, y: 23, w: 7, h: 45 }
+  ];
+
+  const ST_CAMPUS_FIELDS = [
+    { x: 13, y: 74, w: 56, h: 18, radius: "999px" },
+    { x: 65, y: 58, w: 27, h: 17, radius: "12px" },
+    { x: 9, y: 12, w: 28, h: 16, radius: "14px" }
+  ];
+
+  function campusPointData(graph = loadStaticGraph("school")) {
+    const graphById = new Map((graph.locations || []).map((location) => [String(location.id), location]));
+    return ST_CAMPUS_MAP_POINTS.map((point) => {
+      const location = graphById.get(String(point.graphId || point.id)) || {
+        id: point.graphId || point.id,
+        label: point.label,
+        category: point.category,
+        info: "暂无地点信息。"
+      };
+      return {
+        ...point,
+        location,
+        label: location.label || point.label,
+        short: point.short || location.label || point.label,
+        category: location.category || point.category || "地点",
+        info: location.info || "暂无地点信息。"
+      };
+    });
+  }
+
+  function campusExtraLocations(graph, points) {
+    const pointIds = new Set(points.map((point) => String(point.location?.id || point.graphId || point.id)));
+    return (graph.locations || []).filter((location) => String(location?.id || "") && !pointIds.has(String(location.id)));
+  }
+
+  function campusSelectedLocation(page, points, extras) {
+    const selected = String(page?.dataset?.campusSelected || "").trim();
+    if (!selected) return null;
+    const point = points.find((item) => String(item.id) === selected || String(item.location?.id) === selected);
+    if (point) return { type: "point", id: point.id, location: point.location, point };
+    const extra = extras.find((location) => String(location.id) === selected);
+    if (extra) return { type: "extra", id: extra.id, location: extra, point: null };
+    return null;
+  }
+
+  function renderCampusInfoPanel(page, selected, extras) {
+    const currentLocation = getCurrentStoryLocation() || "未记录";
+    const pendingStoryLocation = hasPendingStoryLocationOperation();
+    const location = selected?.location || {
+      id: "school",
+      label: "私立斋明学园",
+      category: "学校",
+      info: "从校门、教学楼、旧校舍、图书馆、操场到泳池，斋明学园的主要活动区域被压缩成一张轻量校园图。点击楼栋查看介绍，点击空白处回到校园总览。"
+    };
+    const suggest = selected?.location
+      ? '<button type="button" class="st-location-suggest" data-graph-suggest-location="' + escapeAttr(location.id) + '" data-graph-scope="school"' + (pendingStoryLocation ? " disabled" : "") + '>' + (pendingStoryLocation ? "已暂存" : "建议设为地点") + '</button>'
+      : "";
+    const extraHtml = extras.length
+      ? '<div class="st-campus-extra"><span class="st-campus-extra-title">更多校内地点</span><div class="st-campus-extra-list">' + extras.map((item) => (
+          '<button type="button" class="' + (String(selected?.id || "") === String(item.id) ? "active" : "") + '" data-campus-extra="' + escapeAttr(item.id) + '">' + escapeHtml(item.label || item.id) + '</button>'
+        )).join("") + '</div></div>'
+      : '<p>后续用户自己添加的校内地点会收在这里，不会挤进主校园图。</p>';
+    return '<section class="st-campus-info">' +
+      '<div class="st-campus-info-head"><strong>' + escapeHtml(location.label || "校园总览") + '</strong><small>' + escapeHtml(location.category || "校园") + '</small></div>' +
+      '<p>' + escapeHtml(location.info || "暂无地点信息。") + '</p>' +
+      '<div class="st-campus-actions">' + suggest + '</div>' +
+      '<div class="st-location-current"><span>当前地点变量</span><strong>' + escapeHtml(operationPanelLocationText(currentLocation)) + '</strong></div>' +
+      extraHtml +
+    '</section>';
+  }
+
+  function renderCampusMapCard(page) {
+    const graph = loadStaticGraph("school");
+    const currentLocation = getCurrentStoryLocation();
+    const points = campusPointData(graph);
+    const extras = campusExtraLocations(graph, points);
+    const selected = campusSelectedLocation(page, points, extras);
+    const fields = ST_CAMPUS_FIELDS.map((field) => '<i class="st-campus-field" style="--x:' + field.x + '%;--y:' + field.y + '%;--w:' + field.w + '%;--h:' + field.h + '%;--radius:' + escapeAttr(field.radius || "14px") + '"></i>').join("");
+    const paths = ST_CAMPUS_MAP_PATHS.map((path) => '<i class="st-campus-path" style="--x:' + path.x + '%;--y:' + path.y + '%;--w:' + path.w + '%;--h:' + path.h + '%"></i>').join("");
+    const pointHtml = points.map((point) => {
+      const location = point.location || {};
+      const isSelected = selected?.type === "point" && selected.id === point.id;
+      const isCurrent = isGraphLocationCurrent(location, currentLocation);
+      return '<button type="button" class="st-campus-point ' + (isSelected ? "active " : "") + (isCurrent ? "is-current" : "") + '" data-campus-point="' + escapeAttr(point.id) + '" style="--x:' + point.x + '%;--y:' + point.y + '%;--w:' + point.w + 'px;--h:' + point.h + 'px;--c1:' + escapeAttr(point.c1 || "#fde68a") + ';--c2:' + escapeAttr(point.c2 || "#f59e0b") + '" aria-label="' + escapeAttr(location.label || point.label) + '">' +
+        '<span class="st-campus-block" aria-hidden="true"><span class="st-campus-symbol">' + escapeHtml(point.symbol || "📍") + '</span></span>' +
+        '<span class="st-campus-label">' + escapeHtml(point.short || location.label || point.label) + '</span>' +
+      '</button>';
+    }).join("");
+    return '<section class="st-lite-card st-graph-card st-graph-paper st-campus-card">' +
+      '<div class="st-graph-head"><strong>斋明学园校园图</strong><span>' + graph.locations.length + ' 校内地点</span></div>' +
+      '<section class="st-campus-stage" data-campus-stage aria-label="斋明学园校园地图">' +
+        fields +
+        paths +
+        pointHtml +
+      '</section>' +
+      renderCampusInfoPanel(page, selected, extras) +
+    '</section>' +
+    renderGraphAddLocationCard("school", graph);
+  }
+
+  function bindCampusMapActions(page) {
+    page.querySelector("[data-campus-stage]")?.addEventListener("click", (event) => {
+      if (event.target?.closest?.("[data-campus-point]")) return;
+      if (!page.dataset.campusSelected) return;
+      delete page.dataset.campusSelected;
+      renderSchoolPage(page);
+    });
+    page.querySelectorAll("[data-campus-point]").forEach((button) => {
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const id = button.getAttribute("data-campus-point") || "";
+        if (page.dataset.campusSelected === id) delete page.dataset.campusSelected;
+        else page.dataset.campusSelected = id;
+        renderSchoolPage(page);
+      });
+    });
+    page.querySelectorAll("[data-campus-extra]").forEach((button) => {
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const id = button.getAttribute("data-campus-extra") || "";
+        if (page.dataset.campusSelected === id) delete page.dataset.campusSelected;
+        else page.dataset.campusSelected = id;
+        renderSchoolPage(page);
+      });
+    });
+  }
+
   function getSchoolRules() {
     const variables = getLatestStatDataSync();
     const rules = variables?.["校规"] || variables?.["系统"]?.["校规"];
@@ -17867,22 +18043,31 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
   }
 
   const ST_CITY_MAP_POINTS = [
-    { id: "school", graphId: "school", label: "私立斋明学园", short: "斋明学园", category: "校园", icon: "school", x: 55, y: 33, enter: "school", intro: "东京近郊的老牌私立升学高中，前千金女校，今年正式改为男女混校。这里是主角日常、课程、社团和校内事件的中心。" },
-    { id: "university", specialId: "university", label: "明德大学", short: "明德大学", category: "大学", icon: "university", x: 25, y: 26, intro: "紧邻私立斋明学园的开放式综合大学，是高中生与大学生圈层交汇的灰色地带。它属于特殊地点，但会作为城市主地图的一部分展示。" },
-    { id: "saionji-company", graphId: "saionji-company", label: "西园寺企业", short: "西园寺企业", category: "商业", icon: "company", x: 75, y: 45, intro: "西园寺财团相关企业据点，象征爱丽莎家族的财富、人脉和社会影响力。" },
-    { id: "saionji-home", graphId: "saionji-home", label: "西园寺的家", short: "西园寺宅邸", category: "住宅", icon: "home", x: 70, y: 70, intro: "西园寺爱丽莎的家。豪宅、佣人和严格家族秩序构成她日常生活的背景。" },
-    { id: "miyuki-home", graphId: "miyuki-home", label: "深雪的家", short: "深雪的家", category: "住宅", icon: "home", x: 31, y: 61, intro: "月咏深雪的住处。安静、整洁、书卷气重，适合处理学习、班务和私人阅读情节。" },
-    { id: "natsumi-home", graphId: "natsumi-home", label: "夏美的家", short: "夏美的家", category: "住宅", icon: "home", x: 41, y: 78, intro: "犬冢夏美的家。生活气息更强，和运动、饮食、训练后的休息场景容易连接。" }
+    { id: "school", graphId: "school", label: "私立斋明学园", short: "斋明学园", category: "校园", icon: "school", symbol: "🏫", x: 56, y: 31, enter: "school", intro: "东京近郊的老牌私立升学高中，前千金女校，今年正式改为男女混校。这里是主角日常、课程、社团和校内事件的中心。" },
+    { id: "university", specialId: "university", label: "明德大学", short: "明德大学", category: "大学", icon: "university", symbol: "🎓", x: 25, y: 31, intro: "紧邻私立斋明学园的开放式综合大学，是高中生与大学生圈层交汇的灰色地带。它属于特殊地点，但会作为城市主地图的一部分展示。" },
+    { id: "saionji-company", graphId: "saionji-company", label: "西园寺企业", short: "西园寺企业", category: "商业", icon: "company", symbol: "🏢", x: 79, y: 45, intro: "西园寺财团相关企业据点，象征爱丽莎家族的财富、人脉和社会影响力。" },
+    { id: "saionji-home", graphId: "saionji-home", label: "西园寺的家", short: "西园寺宅邸", category: "住宅", icon: "home", symbol: "🏠", x: 72, y: 69, intro: "西园寺爱丽莎的家。豪宅、佣人和严格家族秩序构成她日常生活的背景。" },
+    { id: "miyuki-home", graphId: "miyuki-home", label: "深雪的家", short: "深雪的家", category: "住宅", icon: "home", symbol: "🏠", x: 29, y: 61, intro: "月咏深雪的住处。安静、整洁、书卷气重，适合处理学习、班务和私人阅读情节。" },
+    { id: "natsumi-home", graphId: "natsumi-home", label: "夏美的家", short: "夏美的家", category: "住宅", icon: "home", symbol: "🏠", x: 39, y: 79, intro: "犬冢夏美的家。生活气息更强，和运动、饮食、训练后的休息场景容易连接。" }
   ];
 
   const ST_CITY_MAP_ROADS = [
-    { x: 25, y: 28, w: 34, r: 12 },
-    { x: 55, y: 35, w: 25, r: 20 },
-    { x: 57, y: 40, w: 42, r: 104 },
-    { x: 30, y: 61, w: 22, r: 56 },
-    { x: 41, y: 77, w: 31, r: -14 },
-    { x: 70, y: 68, w: 25, r: -65 },
-    { x: 35, y: 58, w: 42, r: -17 }
+    { x: 18, y: 30, w: 48, h: 7, axis: "h" },
+    { x: 56, y: 30, w: 7, h: 34, axis: "v" },
+    { x: 56, y: 43, w: 30, h: 7, axis: "h" },
+    { x: 26, y: 59, w: 53, h: 7, axis: "h" },
+    { x: 26, y: 59, w: 7, h: 24, axis: "v" },
+    { x: 37, y: 77, w: 39, h: 7, axis: "h" },
+    { x: 70, y: 48, w: 7, h: 34, axis: "v" },
+    { x: 38, y: 43, w: 7, h: 22, axis: "v" }
+  ];
+
+  const ST_CITY_MAP_GREENERY = [
+    { x: 19, y: 22, w: 36, h: 8, axis: "h", count: 6 },
+    { x: 63, y: 34, w: 22, h: 7, axis: "h", count: 4 },
+    { x: 33, y: 67, w: 32, h: 7, axis: "h", count: 5 },
+    { x: 78, y: 53, w: 7, h: 26, axis: "v", count: 4 },
+    { x: 18, y: 61, w: 7, h: 20, axis: "v", count: 3 }
   ];
 
   function cityMapPointData() {
@@ -17948,10 +18133,15 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
     const selected = cityMapSelectedPoint(page, points);
     const extras = cityMapAdditionalLocations();
     const currentLocation = getCurrentStoryLocation() || "未记录";
-    const roads = ST_CITY_MAP_ROADS.map((road) => '<i class="st-city-road" style="--x:' + road.x + '%;--y:' + road.y + '%;--w:' + road.w + '%;--r:' + road.r + 'deg"></i>').join("");
+    const roads = ST_CITY_MAP_ROADS.map((road) => '<i class="st-city-road is-' + escapeAttr(road.axis || "h") + '" style="--x:' + road.x + '%;--y:' + road.y + '%;--w:' + road.w + '%;--h:' + road.h + '%"></i>').join("");
+    const greenery = ST_CITY_MAP_GREENERY.map((line) => {
+      const count = Math.max(1, Math.min(8, Number(line.count) || 4));
+      const trees = Array.from({ length: count }, (_, index) => '<span style="--dy:' + ((index % 2 ? 1 : -1) * (1 + index % 3)) + 'px">🌳</span>').join("");
+      return '<i class="st-city-greenery is-' + escapeAttr(line.axis || "h") + '" style="--x:' + line.x + '%;--y:' + line.y + '%;--w:' + line.w + '%;--h:' + line.h + '%">' + trees + '</i>';
+    }).join("");
     const pointHtml = points.map((point) => (
       '<button type="button" class="st-city-point ' + (selected?.id === point.id ? "active" : "") + '" data-city-map-point="' + escapeAttr(point.id) + '" data-city-icon="' + escapeAttr(point.icon || "home") + '" style="--x:' + point.x + '%;--y:' + point.y + '%" aria-label="' + escapeAttr(point.label) + '">' +
-        '<span class="st-city-landmark" aria-hidden="true"></span>' +
+        '<span class="st-city-landmark" aria-hidden="true"><span class="st-city-landmark-symbol">' + escapeHtml(point.symbol || "📍") + '</span></span>' +
         '<span class="st-city-name">' + escapeHtml(point.short || point.label) + '</span>' +
       '</button>'
     )).join("");
@@ -17959,11 +18149,8 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
       renderLiteHeader(page, { title: "地图改", html: '<strong>' + escapeHtml(operationPanelLocationText(currentLocation)) + '</strong>' }) +
       '<main class="st-lite-body">' +
         '<section class="st-city-map-stage" data-city-map-stage aria-label="简易城市地图">' +
-          '<i class="st-city-river"></i>' +
-          '<i class="st-city-district is-school"></i>' +
-          '<i class="st-city-district is-home"></i>' +
-          '<i class="st-city-district is-business"></i>' +
           roads +
+          greenery +
           pointHtml +
         '</section>' +
         renderCityMapInfoPanel(page, selected, extras) +
@@ -18056,7 +18243,7 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
           '<button type="button" class="st-graph-tab ' + (active === "map" ? "active" : "") + '" data-school-tab="map">学校地图</button>' +
           '<button type="button" class="st-graph-tab ' + (active === "rules" ? "active" : "") + '" data-school-tab="rules">校规</button>' +
         '</section>' +
-        (active === "rules" ? renderSchoolRulesCard() : renderStaticGraphCard("school", page)) +
+        (active === "rules" ? renderSchoolRulesCard() : renderCampusMapCard(page)) +
       '</main>';
     bindLiteHeader(page, () => renderSchoolPage(page));
 	    page.querySelector('[data-lite-action="back"]')?.addEventListener("click", () => {
@@ -18071,6 +18258,7 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
         renderSchoolPage(page);
       });
     });
+    if (active === "map") bindCampusMapActions(page);
     bindGraphPageActions(page);
     restoreGraphUiState(page, "school");
   }
