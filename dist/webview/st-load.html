@@ -9815,35 +9815,16 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
   function workEffectiveClockInfo() {
     const system = getSystemState();
     const dateText = String(system["当前日期"] || "").trim();
-    const pendingTime = latestPendingClockTimeText();
     const currentTimeText = storyTimeOnly(system["当前时间"], "00:00");
-    if (!pendingTime) {
-      return {
-        dateText,
-        timeText: currentTimeText,
-        pendingTime,
-        pendingTargetText: "",
-        postWorkTargetText: "",
-        pendingDistanceMinutes: NaN,
-        selectionRule: "没有暂存区时钟建议，按当前变量时间开始打工。",
-        source: "当前变量时间"
-      };
-    }
-    const currentMinutes = minutesFromTimeText(currentTimeText || "00:00");
-    const pendingMinutes = minutesFromTimeText(pendingTime || "00:00");
-    const distance = workMinutesUntilNext(currentMinutes, pendingMinutes);
-    const pendingDayOffset = Number.isFinite(distance) && distance > 0 && pendingMinutes <= currentMinutes ? 1 : 0;
-    const pendingDateText = workDateTextWithOffset(dateText, pendingDayOffset);
-    const pendingTargetText = [pendingDateText, pendingTime].filter(Boolean).join(" ");
     return {
-      dateText: pendingDateText,
-      timeText: pendingTime,
-      pendingTime,
-      pendingTargetText,
+      dateText,
+      timeText: currentTimeText,
+      pendingTime: "",
+      pendingTargetText: "",
       postWorkTargetText: "",
-      pendingDistanceMinutes: distance,
-      selectionRule: "暂存区存在时钟强制时间锚点，按目标日期和目标时间开始；不再与当前变量时间做有利选择。",
-      source: "暂存区时钟强制时间锚点"
+      pendingDistanceMinutes: NaN,
+      selectionRule: "打工不与同轮时钟锚点连锁；按当前变量时间开始。",
+      source: "当前变量时间"
     };
   }
 
@@ -17043,7 +17024,7 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
     { title: "人物档案", tag: "角色", body: "查看已记录角色的衣着、信息、状态、敏感度和效果，也能在符合条件时触发少量角色专属操作。" },
     { title: "日历", tag: "时间", body: "查看日期与日程；点选某天可以看当天详情，月份切换不会强行改掉原本选中的日期。" },
     { title: "课程表", tag: "学校", body: "查看当天课程与待上课程，用来判断上课、逃课、打工等时间冲突。" },
-    { title: "时钟", tag: "时间", body: "查看和选择当前时间；部分操作会参考这里选择的时间来安排开始或结束。" },
+    { title: "时钟", tag: "时间", body: "设置本轮独立的剧情时间锚点；其他按钮不会自动把它当作自身开始时间。" },
     { title: "成就和任务", tag: "奖励", body: "领取已达成成就、查看任务、接受每日任务；奖励以星光点和物品为主。" },
     { title: "库存", tag: "物品", body: "查看持有物品与数量，点选物品后能看简短说明。" },
     { title: "MC匿名版", tag: "论坛", body: "浏览匿名帖子和楼层，作为世界内的轻量信息来源。" },
@@ -17435,10 +17416,16 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
     '</div>';
   }
 
+  function operationPanelLocationText(value) {
+    const text = String(value || "").trim();
+    const shortened = text.replace(/^私立斋明学园s*[/／]s*/u, "").trim();
+    return shortened || text;
+  }
+
   function operationPanelContextSnapshot() {
     try {
       const system = getSystemState();
-      const location = firstMeaningfulSystemText(system, ["当前地点", "当前位置", "地点", "所在地点", "位置"]) || "未记录";
+      const location = operationPanelLocationText(firstMeaningfulSystemText(system, ["当前地点", "当前位置", "地点", "所在地点", "位置"]) || "未记录");
       const state = readMonitorState();
       const gates = [0, 1, 2].map((index) => {
         const gate = state?.gates?.[index] || {};
