@@ -256,13 +256,13 @@ window.setTimeout(() => {
         return "";
       }
     };
-    const writeOperationNote = (value) => {
+    const writeOperationNote = (value, options = {}) => {
       const text = String(value || "").trim();
       try {
         if (text) localStorage.setItem(operationNoteStorageKey(), text);
         else localStorage.removeItem(operationNoteStorageKey());
       } catch {}
-      emitOperationQueueChanged();
+      if (!options || options.emit !== false) emitOperationQueueChanged();
     };
 	    const cleanOperationText = (value) => String(value ?? "").replace(/[<>]/g, "").trim();
 	    const cleanOperationFieldText = (value) => cleanOperationText(value).replace(/[。．.，,、；;：:！？!?]+$/u, "");
@@ -1131,7 +1131,7 @@ window.setTimeout(() => {
     window.__ST_GET_PENDING_OPERATION_INPUT_LOG__ = () => sortOperationEntries(window.__ST_OPERATION_INPUT_LOG__);
     window.__ST_GET_PENDING_OPERATION_VIEW__ = () => sortOperationEntries(window.__ST_OPERATION_INPUT_LOG__).map(describeOperationEntry);
     window.__ST_GET_PENDING_OPERATION_NOTE__ = () => readOperationNote();
-    window.__ST_SET_PENDING_OPERATION_NOTE__ = (value) => writeOperationNote(value);
+    window.__ST_SET_PENDING_OPERATION_NOTE__ = (value, options) => writeOperationNote(value, options);
     window.__ST_BUILD_PENDING_OPERATION_BLOCK__ = () => buildPendingOperationText();
     window.__ST_BUILD_OPERATION_BLOCK_FROM_PAYLOADS__ = (payloads) => {
       const list = Array.isArray(payloads) ? payloads : [payloads];
@@ -17835,9 +17835,9 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
     }
   }
 
-  function writeOperationPanelNote(value) {
+  function writeOperationPanelNote(value, options) {
     try {
-      window.__ST_SET_PENDING_OPERATION_NOTE__?.(value);
+      window.__ST_SET_PENDING_OPERATION_NOTE__?.(value, options);
     } catch {}
   }
 
@@ -18210,6 +18210,7 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
   function updateOperationSidePanel() {
     const panel = document.getElementById("st-operation-side-panel");
     if (!panel) return;
+    if (panel.dataset.operationNoteComposing === "true") return;
     syncOperationSidePanelSize(panel);
     const items = getPendingOperationViews();
     const count = pendingOperationCount();
@@ -18276,7 +18277,7 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
     panel.addEventListener("input", (event) => {
       const noteInput = event.target?.closest?.("[data-operation-note]");
       if (!noteInput) return;
-      writeOperationPanelNote(noteInput.value);
+      writeOperationPanelNote(noteInput.value, { emit: false });
       const count = pendingOperationCount();
       panel.querySelectorAll('[data-operation-panel-action="clear"],[data-operation-panel-action="flush"]').forEach((button) => {
         button.disabled = !count;
@@ -18284,6 +18285,24 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
       const badge = panel.querySelector(".st-operation-count-pill");
       if (badge) badge.textContent = String(count);
       syncOperationFloatBall();
+    });
+    panel.addEventListener("compositionstart", (event) => {
+      const noteInput = event.target?.closest?.("[data-operation-note]");
+      if (!noteInput) return;
+      panel.dataset.operationNoteComposing = "true";
+    });
+    panel.addEventListener("compositionend", (event) => {
+      const noteInput = event.target?.closest?.("[data-operation-note]");
+      if (!noteInput) return;
+      panel.dataset.operationNoteComposing = "";
+      writeOperationPanelNote(noteInput.value, { emit: false });
+    });
+    panel.addEventListener("focusout", (event) => {
+      const noteInput = event.target?.closest?.("[data-operation-note]");
+      if (!noteInput) return;
+      panel.dataset.operationNoteComposing = "";
+      writeOperationPanelNote(noteInput.value, { emit: true });
+      updateOperationSidePanel();
     });
     panel.addEventListener("change", (event) => {
       const toggle = event.target?.closest?.("[data-operation-keep-after-flush]");
