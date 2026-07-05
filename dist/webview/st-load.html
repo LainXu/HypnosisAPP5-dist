@@ -3369,7 +3369,14 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
 .st-profile-app .st-count-chip{min-width:0;border:1px solid rgba(81,64,49,.18);border-radius:8px;background:rgba(247,241,229,.72);padding:7px 3px;text-align:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.42)}
 .st-profile-app .st-count-chip strong{display:block;color:#30261d;font-size:14px;font-weight:950;line-height:1;font-variant-numeric:tabular-nums}
 .st-profile-app .st-count-chip span{display:block;margin-top:5px;color:rgba(68,54,42,.62);font-size:9px;font-weight:850;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.st-person-effects{display:grid;gap:9px}
+.st-person-effects{display:grid;gap:8px;min-width:0}
+.st-effect-segments{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.st-effect-segments button{min-width:0;height:30px;border:1px solid rgba(81,64,49,.2);border-radius:999px;background:rgba(247,241,229,.66);color:rgba(68,54,42,.68);display:flex;align-items:center;justify-content:center;gap:5px;padding:0 8px;font-size:11px;font-weight:950;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.42)}
+.st-effect-segments button.active{border-color:rgba(81,64,49,.42);background:rgba(81,64,49,.9);color:#fff8ed}
+.st-effect-segments button span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.st-effect-segments button em{font-style:normal;border:1px solid currentColor;border-radius:999px;min-width:18px;height:18px;display:inline-grid;place-items:center;padding:0 4px;font-size:9px;line-height:1;opacity:.78}
+.st-effect-page-card{border:1px solid rgba(81,64,49,.22);border-radius:8px;background:rgba(247,241,229,.72);overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.42);min-width:0}
+.st-effect-page-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 9px;background:rgba(81,64,49,.08);border-bottom:1px dashed rgba(81,64,49,.2)}
 .st-profile-app .st-effect-card{border:1px solid rgba(81,64,49,.22);border-radius:8px;background:rgba(247,241,229,.72);overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.42)}
 .st-profile-app .st-effect-card summary{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 9px;background:rgba(81,64,49,.08);cursor:pointer;list-style:none;user-select:none}
 .st-profile-app .st-effect-card[open] summary{border-bottom:1px dashed rgba(81,64,49,.2)}
@@ -3378,11 +3385,12 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
 .st-profile-app .st-effect-card[open] summary::after{transform:rotate(225deg);margin-top:4px}
 .st-profile-app .st-effect-title{display:flex;align-items:center;gap:7px;min-width:0}
 .st-profile-app .st-effect-dot{width:6px;height:6px;border-radius:999px;background:#6b8f71;box-shadow:0 0 10px rgba(107,143,113,.36)}
-.st-profile-app .st-effect-card.is-permanent .st-effect-dot{background:#8d6e9f;box-shadow:0 0 10px rgba(141,110,159,.34)}
+.st-profile-app .st-effect-card.is-permanent .st-effect-dot,.st-profile-app .st-effect-page-card.is-permanent .st-effect-dot{background:#8d6e9f;box-shadow:0 0 10px rgba(141,110,159,.34)}
 .st-profile-app .st-effect-title strong{min-width:0;color:#33291f;font-size:12px;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .st-profile-app .st-effect-count{color:rgba(68,54,42,.58);font-size:10px;font-weight:850;white-space:nowrap}
 .st-profile-app .st-effect-empty{padding:11px 10px;color:rgba(68,54,42,.58);font-size:12px;line-height:1.45}
-.st-profile-app .st-effect-list{display:grid;gap:7px;padding:8px}
+.st-profile-app .st-effect-list{display:grid;gap:7px;padding:8px;max-height:236px;overflow:auto;scrollbar-width:none}
+.st-profile-app .st-effect-list::-webkit-scrollbar{display:none}
 .st-profile-app .st-effect-item{border:1px solid rgba(81,64,49,.16);border-radius:8px;background:rgba(255,251,241,.58);padding:8px}
 .st-profile-app .st-effect-item-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .st-profile-app .st-effect-item strong{display:block;min-width:0;color:#30261d;font-size:12px;line-height:1.35;overflow:hidden;text-overflow:ellipsis}
@@ -3391,6 +3399,9 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
 .st-profile-app .st-effect-item p{margin:5px 0 0;color:rgba(48,38,29,.82);font-size:11px;line-height:1.48;white-space:pre-wrap;overflow-wrap:anywhere}
 .st-profile-app .st-effect-meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
 .st-profile-app .st-effect-meta span{border:1px solid rgba(81,64,49,.16);border-radius:999px;background:rgba(81,64,49,.06);color:rgba(68,54,42,.66);padding:3px 7px;font-size:10px;line-height:1.2}
+.st-effect-pager{display:flex;align-items:center;justify-content:center;gap:7px;padding:0 8px 8px}
+.st-effect-pager button{width:24px;height:24px;border:1px solid rgba(81,64,49,.2);border-radius:999px;background:rgba(255,251,241,.62);color:rgba(68,54,42,.72);font-size:18px;font-weight:950;line-height:1;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.42)}
+.st-effect-pager span{min-width:46px;border:1px solid rgba(81,64,49,.16);border-radius:999px;background:rgba(81,64,49,.06);color:rgba(68,54,42,.58);padding:4px 8px;text-align:center;font:900 10px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 .st-person-page-count{position:relative;z-index:1;margin-top:12px;text-align:center;color:rgba(68,54,42,.48);font-size:11px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-weight:800}
 .st-person-delete-role{position:absolute;z-index:3;right:5px;bottom:5px;width:28px;height:22px;border:0;background:rgba(247,241,229,.72);border-radius:999px;color:rgba(151,40,31,.58);display:grid;place-items:center;cursor:pointer;opacity:.78;box-shadow:0 2px 8px rgba(55,28,18,.12)}
 .st-person-delete-role::before{content:"";position:absolute;left:9px;right:9px;bottom:5px;height:12px;border:2px solid currentColor;border-top:0;border-radius:0 0 4px 4px}
@@ -6991,25 +7002,68 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
     return text ? [{ key: "效果", title: "效果", description: text, meta: [] }] : [];
   }
 
-  function renderEffectCard(roleName, label, value, variant) {
+  function profileEffectDatasetKey(effectType) {
+    return String(effectType || "").includes("永久") ? "profilePermanentEffectPage" : "profileTemporaryEffectPage";
+  }
+
+  function activeProfileEffectType(page) {
+    const value = String(page?.dataset?.profileEffectType || "");
+    return value === "永久催眠效果" ? "永久催眠效果" : "临时催眠效果";
+  }
+
+  function normalizeProfileEffectPage(page, effectType, count) {
+    const pageCount = Math.max(1, Math.ceil(Math.max(0, count) / PERSON_PROFILE_EFFECT_PAGE_SIZE));
+    const key = profileEffectDatasetKey(effectType);
+    const raw = Number(page?.dataset?.[key] || 0);
+    const index = Number.isFinite(raw) ? Math.trunc(raw) : 0;
+    return Math.max(0, Math.min(pageCount - 1, index));
+  }
+
+  function turnProfileEffectPage(page, effectType, direction) {
+    const context = currentEditableProfileContext(page);
+    if (!context) return;
+    const type = effectType === "永久催眠效果" ? "永久催眠效果" : "临时催眠效果";
+    const entries = normalizeEffectEntries(context.roleData[type]);
+    const pageCount = Math.max(1, Math.ceil(entries.length / PERSON_PROFILE_EFFECT_PAGE_SIZE));
+    const current = normalizeProfileEffectPage(page, type, entries.length);
+    const delta = direction === "prev" || Number(direction) < 0 ? -1 : 1;
+    page.dataset[profileEffectDatasetKey(type)] = String(((current + delta) % pageCount + pageCount) % pageCount);
+    page.dataset.profileEffectType = type;
+    renderPersonProfilePage(page);
+  }
+
+  function renderEffectItem(roleName, effectType, entry) {
+    const meta = entry.meta.length
+      ? '<div class="st-effect-meta">' + entry.meta.map(([key, text]) => '<span>' + escapeHtml(key) + '：' + escapeHtml(text) + '</span>').join("") + '</div>'
+      : "";
+    return '<article class="st-effect-item"><div class="st-effect-item-head"><strong>' + escapeHtml(entry.title) + '</strong>' +
+      '<button type="button" class="st-effect-delete" data-effect-delete="true" data-effect-role="' + escapeAttr(roleName) + '" data-effect-type="' + escapeAttr(effectType) + '" data-effect-key="' + escapeAttr(entry.key || entry.title) + '" data-effect-title="' + escapeAttr(entry.title) + '">删除</button></div>' +
+      (entry.description ? '<p>' + escapeHtml(entry.description) + '</p>' : '') +
+      meta + '</article>';
+  }
+
+  function renderEffectPageCard(page, roleName, label, value, variant) {
     const entries = normalizeEffectEntries(value);
     const emptyText = label.includes("临时") ? "暂无临时效果" : "暂无永久效果";
+    const pageCount = Math.max(1, Math.ceil(entries.length / PERSON_PROFILE_EFFECT_PAGE_SIZE));
+    const pageIndex = normalizeProfileEffectPage(page, label, entries.length);
+    const visible = entries.slice(pageIndex * PERSON_PROFILE_EFFECT_PAGE_SIZE, pageIndex * PERSON_PROFILE_EFFECT_PAGE_SIZE + PERSON_PROFILE_EFFECT_PAGE_SIZE);
     const body = entries.length
-      ? '<div class="st-effect-list">' + entries.map((entry) => {
-          const meta = entry.meta.length
-            ? '<div class="st-effect-meta">' + entry.meta.map(([key, text]) => '<span>' + escapeHtml(key) + '：' + escapeHtml(text) + '</span>').join("") + '</div>'
-            : "";
-          return '<article class="st-effect-item"><div class="st-effect-item-head"><strong>' + escapeHtml(entry.title) + '</strong>' +
-            '<button type="button" class="st-effect-delete" data-effect-delete="true" data-effect-role="' + escapeAttr(roleName) + '" data-effect-type="' + escapeAttr(label) + '" data-effect-key="' + escapeAttr(entry.key || entry.title) + '" data-effect-title="' + escapeAttr(entry.title) + '">删除</button></div>' +
-            (entry.description ? '<p>' + escapeHtml(entry.description) + '</p>' : '') +
-            meta + '</article>';
-        }).join("") + '</div>'
+      ? '<div class="st-effect-list">' + visible.map((entry) => renderEffectItem(roleName, label, entry)).join("") + '</div>'
       : '<div class="st-effect-empty">' + emptyText + '</div>';
-    return '<details class="st-effect-card ' + variant + '">' +
-      '<summary><div class="st-effect-title"><span class="st-effect-dot"></span><strong>' + escapeHtml(label) + '</strong></div>' +
-      '<div class="st-effect-count">' + entries.length + ' 项</div></summary>' +
+    const pager = pageCount > 1
+      ? '<nav class="st-effect-pager" aria-label="' + escapeAttr(label) + '分页">' +
+          '<button type="button" data-effect-page="prev" data-effect-type="' + escapeAttr(label) + '" aria-label="上一页">‹</button>' +
+          '<span>' + (pageIndex + 1) + ' / ' + pageCount + '</span>' +
+          '<button type="button" data-effect-page="next" data-effect-type="' + escapeAttr(label) + '" aria-label="下一页">›</button>' +
+        '</nav>'
+      : "";
+    return '<section class="st-effect-page-card ' + variant + '">' +
+      '<header class="st-effect-page-head"><div class="st-effect-title"><span class="st-effect-dot"></span><strong>' + escapeHtml(label) + '</strong></div>' +
+      '<div class="st-effect-count">' + entries.length + ' 项</div></header>' +
       body +
-      '</details>';
+      pager +
+      '</section>';
   }
 
   function safeSignature(value) {
@@ -7785,6 +7839,7 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
     { id: "effects", label: "效果" }
   ];
   const PERSON_PROFILE_DESK_PAGE_SIZE = 6;
+  const PERSON_PROFILE_EFFECT_PAGE_SIZE = 3;
   const PERSON_PROFILE_EASTER_KEY = "__isaac_binding_easter__";
   const PERSON_PROFILE_EASTER = {
     name: "以撒",
@@ -8391,13 +8446,23 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
       '</section>';
   }
 
-  function renderPersonEffectsPanel(roleName, roleData) {
+  function renderPersonEffectsPanel(page, roleName, roleData) {
     const mind = pickFirstText(roleData, ST_MIND_FIELDS[0].keys) || "未记录";
+    const activeType = activeProfileEffectType(page);
+    const tempEntries = normalizeEffectEntries(roleData["临时催眠效果"]);
+    const permanentEntries = normalizeEffectEntries(roleData["永久催眠效果"]);
+    const segmentHtml = '<div class="st-effect-segments" role="tablist" aria-label="催眠效果分段">' +
+      '<button type="button" data-effect-tab="临时催眠效果" class="' + (activeType === "临时催眠效果" ? "active" : "") + '"><span>临时催眠效果</span><em>' + tempEntries.length + '</em></button>' +
+      '<button type="button" data-effect-tab="永久催眠效果" class="' + (activeType === "永久催眠效果" ? "active" : "") + '"><span>永久催眠效果</span><em>' + permanentEntries.length + '</em></button>' +
+      '</div>';
+    const activeCard = activeType === "永久催眠效果"
+      ? renderEffectPageCard(page, roleName, "永久催眠效果", roleData["永久催眠效果"], "is-permanent")
+      : renderEffectPageCard(page, roleName, "临时催眠效果", roleData["临时催眠效果"], "is-temporary");
     return '<section class="st-person-lines is-body">' +
       renderPersonPanel("心理", '<p class="st-person-note">' + escapeHtml(mind) + '</p>') +
       '<div class="st-person-effects">' +
-        renderEffectCard(roleName, "临时催眠效果", roleData["临时催眠效果"], "is-temporary") +
-        renderEffectCard(roleName, "永久催眠效果", roleData["永久催眠效果"], "is-permanent") +
+        segmentHtml +
+        activeCard +
       '</div>' +
       '</section>';
   }
@@ -8613,6 +8678,25 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
         togglePersonProfileFavorite(page);
         return;
       }
+      const effectTab = event.target?.closest?.("[data-effect-tab]");
+      if (effectTab && page.contains(effectTab)) {
+        event.preventDefault();
+        event.stopPropagation();
+        page.dataset.profileEffectType = effectTab.getAttribute("data-effect-tab") || "临时催眠效果";
+        renderPersonProfilePage(page);
+        return;
+      }
+      const effectPageButton = event.target?.closest?.("[data-effect-page]");
+      if (effectPageButton && page.contains(effectPageButton)) {
+        event.preventDefault();
+        event.stopPropagation();
+        turnProfileEffectPage(
+          page,
+          effectPageButton.getAttribute("data-effect-type") || activeProfileEffectType(page),
+          effectPageButton.getAttribute("data-effect-page") || "next"
+        );
+        return;
+      }
       const photoAction = event.target?.closest?.("[data-profile-photo-action]");
       if (photoAction && page.contains(photoAction)) {
         event.preventDefault();
@@ -8764,7 +8848,10 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
         favorites: readFavoriteRoleNames(),
         profile: PERSON_PROFILE_EASTER.profile,
         photo: PERSON_PROFILE_EASTER.photo,
-        tab: activePersonProfileTab(page)
+        tab: activePersonProfileTab(page),
+        effectType: activeProfileEffectType(page),
+        tempEffectPage: Number(page?.dataset?.profileTemporaryEffectPage || 0) || 0,
+        permanentEffectPage: Number(page?.dataset?.profilePermanentEffectPage || 0) || 0
       });
     }
     const index = normalizeProfileIndex(page, roleNames.length);
@@ -8779,7 +8866,10 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
       profile: roleProfileData(roleName, roleData),
       roleData,
       photo: profilePhotoSource(roleName, roleData),
-      photoSlots: profilePhotoSlotsState(roleName, roleData)
+      photoSlots: profilePhotoSlotsState(roleName, roleData),
+      effectType: activeProfileEffectType(page),
+      tempEffectPage: Number(page?.dataset?.profileTemporaryEffectPage || 0) || 0,
+      permanentEffectPage: Number(page?.dataset?.profilePermanentEffectPage || 0) || 0
     });
   }
 
@@ -8890,7 +8980,7 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
       : activeTab === "sensitivity"
         ? renderPersonSensitivityPanel(roleName, roleData)
         : activeTab === "effects"
-          ? renderPersonEffectsPanel(roleName, roleData)
+          ? renderPersonEffectsPanel(page, roleName, roleData)
           : '<section class="st-person-lines">' + fieldsHtml + '</section>';
     const activeTabLabel = PERSON_PROFILE_TABS.find((tab) => tab.id === activeTab)?.label || "档案";
     const canDeleteRole = !staticIsaac && roleName && !ST_LOCKED_PROFILE_ROLES.has(roleName);
