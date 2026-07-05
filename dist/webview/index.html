@@ -8105,8 +8105,7 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
     }));
     const pending = keys.filter((key) => !profilePhotoMemoryStorage.has(String(key || "")));
     if (!pending.length) return;
-    const signature = pending.join("
-");
+    const signature = pending.join("\n");
     if (page.__stProfilePhotoHydratingSignature === signature) return;
     page.__stProfilePhotoHydratingSignature = signature;
     Promise.all(pending.map(profileHydratePhotoStorageKey)).then((results) => {
