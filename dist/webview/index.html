@@ -19555,74 +19555,10 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
   function patchMapAndSchoolTiles() {
     const root = findPhoneRoot(document.body);
     if (!root || !looksLikePhoneHome(root)) return;
-    const anchor = findHomeTileByText("MC匿名版") || findHomeTileByText("库存") || findHomeTileByText("成就和任务");
-    if (!anchor?.parentElement) return;
-    const parent = anchor.parentElement;
-    const clearTileClickBindings = (tile, flags) => {
-      if (!tile || !flags.some((flag) => tile.dataset?.[flag] === "true")) return tile;
-      const clone = tile.cloneNode(true);
-      flags.forEach((flag) => {
-        try { delete clone.dataset[flag]; } catch {}
-      });
-      tile.replaceWith(clone);
-      return clone;
-    };
-    let mapTile = dedupeHomeTilesByText("地图") || dedupeHomeTilesByText("地图改") || parent.querySelector('[data-st-map-tile="true"]') || parent.querySelector('[data-st-city-map-tile="true"]');
-    let createdMap = false;
-    if (!mapTile) {
-      mapTile = anchor.cloneNode(true);
-      createdMap = true;
-      mapTile.removeAttribute("data-st-mchan-internal-patched");
-      setHomeTileLabel(mapTile, "地图");
-      mapTile.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
-      anchor.insertAdjacentElement("afterend", mapTile);
-    }
-    mapTile = clearTileClickBindings(mapTile, ["stMapTilePatched", "stCityMapTilePatched"]);
-    mapTile.dataset.stMapTile = "true";
-    mapTile.removeAttribute("data-st-city-map-tile");
-    setHomeTileLabel(mapTile, "地图");
-    setHomeTileIcon(mapTile, ST_APP_ICONS.cityMap, "地图");
-    bindHomeTileAction(mapTile, "stMapTilePatched", "打开地图", openCityMapPage);
-    const staleCityMapTiles = new Set([
-      ...homeTilesByText("地图改"),
-      ...Array.from(parent.querySelectorAll('[data-st-city-map-tile="true"]'))
-    ]);
-    staleCityMapTiles.forEach((tile) => {
-      if (tile && tile !== mapTile) tile.remove();
-    });
-    let schoolTile = dedupeHomeTilesByText("校规") || dedupeHomeTilesByText("学校") || parent.querySelector('[data-st-school-tile="true"]');
-    let createdSchool = false;
-    if (!schoolTile) {
-      schoolTile = mapTile.cloneNode(true);
-      createdSchool = true;
-      schoolTile.removeAttribute("data-st-city-map-tile");
-      schoolTile.removeAttribute("data-st-city-map-tile-patched");
-      schoolTile.removeAttribute("data-st-map-tile");
-      setHomeTileLabel(schoolTile, "校规");
-      schoolTile.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
-      mapTile.insertAdjacentElement("afterend", schoolTile);
-    }
-    schoolTile = clearTileClickBindings(schoolTile, ["stSchoolTilePatched", "stMapTilePatched", "stCityMapTilePatched"]);
-    schoolTile.dataset.stSchoolTile = "true";
-    schoolTile.removeAttribute("data-st-city-map-tile");
-    schoolTile.removeAttribute("data-st-map-tile");
-    setHomeTileLabel(schoolTile, "校规");
-    setHomeTileIcon(schoolTile, ST_APP_ICONS.school, "校规");
-    bindHomeTileAction(schoolTile, "stSchoolTilePatched", "打开校规", (tile) => openTodoPage(tile, "school", "st-school-app", "校规", "校规", true));
-    const staleSchoolTiles = new Set([
-      ...homeTilesByText("学校"),
-      ...Array.from(parent.querySelectorAll('[data-st-school-tile="true"]'))
-    ]);
-    staleSchoolTiles.forEach((tile) => {
-      if (tile && tile !== schoolTile) tile.remove();
-    });
-    const staleSpecialTiles = new Set([
-      ...homeTilesByText("特殊地点"),
-      ...Array.from(parent.querySelectorAll('[data-st-special-location-tile="true"]'))
-    ]);
-    staleSpecialTiles.forEach((tile) => {
-      if (tile && tile !== mapTile && tile !== schoolTile) tile.remove();
-    });
+    const mapTile = findHomeTileByText("地图");
+    if (mapTile) bindHomeTileAction(mapTile, "stMapTilePatched", "打开地图", openCityMapPage);
+    const schoolTile = findHomeTileByText("校规");
+    if (schoolTile) bindHomeTileAction(schoolTile, "stSchoolTilePatched", "打开校规", (tile) => openTodoPage(tile, "school", "st-school-app", "校规", "校规", true));
   }
 
   function patchInternalCoreAppTiles() {
