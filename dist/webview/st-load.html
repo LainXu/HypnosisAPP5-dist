@@ -226,8 +226,16 @@ window.setTimeout(() => {
     const OPERATION_SOURCE_KEYS = ["来源", "应用", "模块", "source", "app"];
     const OPERATION_ACTION_KEYS = ["操作", "动作", "类型", "action", "type"];
     const OPERATION_KEEP_AFTER_FLUSH_KEY = "hypnoos.operation.keepAfterFlush.v1";
+    const OPERATION_NOTE_STORAGE_PREFIX = "hypnoos.operation.note.v1:";
     window.__ST_OPERATION_INPUT_LOG__ = Array.isArray(window.__ST_OPERATION_INPUT_LOG__) ? window.__ST_OPERATION_INPUT_LOG__ : [];
     let persistLockedOperationInputLog = () => {};
+    const operationScopedStorageKey = (prefix) => {
+      let scope = "";
+      try {
+        scope = String(window.__ST_HYPNOOS_FRONTEND_MESSAGE_SCOPE__?.() || window.__ST_HYPNOOS_FRONTEND_SLOT_SCOPE__?.() || "frontend:unknown");
+      } catch {}
+      return String(prefix || "") + (scope || "frontend:unknown");
+    };
     const readOperationKeepAfterFlush = () => {
       try {
         return localStorage.getItem(OPERATION_KEEP_AFTER_FLUSH_KEY) === "1";
@@ -239,6 +247,22 @@ window.setTimeout(() => {
       try {
         localStorage.setItem(OPERATION_KEEP_AFTER_FLUSH_KEY, value ? "1" : "0");
       } catch {}
+    };
+    const operationNoteStorageKey = () => operationScopedStorageKey(OPERATION_NOTE_STORAGE_PREFIX);
+    const readOperationNote = () => {
+      try {
+        return String(localStorage.getItem(operationNoteStorageKey()) || "").trim();
+      } catch {
+        return "";
+      }
+    };
+    const writeOperationNote = (value) => {
+      const text = String(value || "").trim();
+      try {
+        if (text) localStorage.setItem(operationNoteStorageKey(), text);
+        else localStorage.removeItem(operationNoteStorageKey());
+      } catch {}
+      emitOperationQueueChanged();
     };
 	    const cleanOperationText = (value) => String(value ?? "").replace(/[<>]/g, "").trim();
 	    const cleanOperationFieldText = (value) => cleanOperationText(value).replace(/[。．.，,、；;：:！？!?]+$/u, "");
@@ -812,6 +836,14 @@ window.setTimeout(() => {
         window.__ST_OPERATION_INPUT_LOG__.push(entry);
       }
     };
+    const operationEntryIsClockSuggestionLocked = (entry) => {
+      try {
+        const checker = window.__ST_IS_CLOCK_SUGGESTION_LOCKED_BY_PENDING_WORK_BUFF__;
+        return typeof checker === "function" ? Boolean(checker(entry)) : false;
+      } catch {
+        return false;
+      }
+    };
     const describeOperationEntry = (entry) => {
       const payload = operationEntryPayload(entry);
       const record = normalizeOperationPayload(payload);
@@ -826,7 +858,7 @@ window.setTimeout(() => {
         id: String(entry?.id || key),
         key: String(key),
         at: Number(entry?.at || 0),
-        locked: Boolean(entry?.locked || isClockSuggestionLockedByPendingWorkBuff(entry)),
+        locked: Boolean(entry?.locked || operationEntryIsClockSuggestionLocked(entry)),
         source: cleanOperationText(record.source || "APP"),
         action: cleanOperationText(record.action || "操作"),
         summary: fields.join("｜") || "无附加信息",
@@ -983,6 +1015,13 @@ window.setTimeout(() => {
       lines.push("</本轮操作>");
       return lines.join("\n");
     };
+    const buildPendingOperationText = (entries = window.__ST_OPERATION_INPUT_LOG__) => {
+      const parts = [];
+      if (Array.isArray(entries) && entries.length) parts.push(buildOperationBlock(entries));
+      const note = readOperationNote();
+      if (note) parts.push(note);
+      return parts.join("\n");
+    };
     const stripOperationBlocks = (value) => String(value || "").replace(OPERATION_BLOCK_RE, "").replace(/[ \t]*\n{3,}/g, "\n\n").trim();
     const writeOperationBlockToInput = (input, block) => {
       const current = "value" in input ? input.value : input.textContent;
@@ -999,7 +1038,7 @@ window.setTimeout(() => {
         window.dispatchEvent(new CustomEvent("HYPNOOS_OPERATION_QUEUE_CHANGED", {
           detail: {
             count: window.__ST_OPERATION_INPUT_LOG__.length,
-            block: window.__ST_OPERATION_INPUT_LOG__.length ? buildOperationBlock() : ""
+            block: buildPendingOperationText()
           }
         }));
       } catch {}
@@ -1086,12 +1125,14 @@ window.setTimeout(() => {
     pruneStaleLockedOperationInputLogs();
     restoreLockedOperationInputLog();
     window.__ST_CLEAR_OPERATION_INPUT_LOG__ = () => {
-      window.__ST_OPERATION_INPUT_LOG__ = window.__ST_OPERATION_INPUT_LOG__.filter((entry) => Boolean(entry?.locked || isClockSuggestionLockedByPendingWorkBuff(entry)));
+      window.__ST_OPERATION_INPUT_LOG__ = window.__ST_OPERATION_INPUT_LOG__.filter((entry) => Boolean(entry?.locked || operationEntryIsClockSuggestionLocked(entry)));
       emitOperationQueueChanged();
     };
     window.__ST_GET_PENDING_OPERATION_INPUT_LOG__ = () => sortOperationEntries(window.__ST_OPERATION_INPUT_LOG__);
     window.__ST_GET_PENDING_OPERATION_VIEW__ = () => sortOperationEntries(window.__ST_OPERATION_INPUT_LOG__).map(describeOperationEntry);
-    window.__ST_BUILD_PENDING_OPERATION_BLOCK__ = () => window.__ST_OPERATION_INPUT_LOG__.length ? buildOperationBlock() : "";
+    window.__ST_GET_PENDING_OPERATION_NOTE__ = () => readOperationNote();
+    window.__ST_SET_PENDING_OPERATION_NOTE__ = (value) => writeOperationNote(value);
+    window.__ST_BUILD_PENDING_OPERATION_BLOCK__ = () => buildPendingOperationText();
     window.__ST_BUILD_OPERATION_BLOCK_FROM_PAYLOADS__ = (payloads) => {
       const list = Array.isArray(payloads) ? payloads : [payloads];
       return buildOperationBlock(list.filter((payload) => payload !== undefined).map(makeOperationEntry));
@@ -1253,11 +1294,11 @@ window.setTimeout(() => {
       return true;
     };
     window.__ST_FLUSH_OPERATION_TO_INPUT__ = async () => {
-      if (!window.__ST_OPERATION_INPUT_LOG__.length) {
+      const block = buildPendingOperationText();
+      if (!block) {
         emitOperationQueueChanged();
         return false;
       }
-      const block = buildOperationBlock();
       const input = findOperationInput();
       if (input) {
         if (shouldWarnDuplicateOperation(input)) {
@@ -1268,6 +1309,7 @@ window.setTimeout(() => {
         try { globalThis.__HYPNOOS_MARK_SENT_REWARD_OPERATIONS__?.(window.__ST_OPERATION_INPUT_LOG__); } catch {}
         if (!readOperationKeepAfterFlush()) {
           window.__ST_OPERATION_INPUT_LOG__ = window.__ST_OPERATION_INPUT_LOG__.filter((entry) => Boolean(entry?.locked));
+          writeOperationNote("");
         }
         emitOperationQueueChanged();
         return true;
@@ -1279,6 +1321,7 @@ window.setTimeout(() => {
           try { globalThis.__HYPNOOS_MARK_SENT_REWARD_OPERATIONS__?.(window.__ST_OPERATION_INPUT_LOG__); } catch {}
           if (!readOperationKeepAfterFlush()) {
             window.__ST_OPERATION_INPUT_LOG__ = window.__ST_OPERATION_INPUT_LOG__.filter((entry) => Boolean(entry?.locked));
+            writeOperationNote("");
           }
           emitOperationQueueChanged();
           return true;
@@ -2967,6 +3010,11 @@ button.st-work-notice{cursor:pointer}
 .st-operation-panel-advice{flex:0 0 auto;margin:0 9px 8px;border:1px solid rgba(250,204,21,.16);border-radius:12px;background:rgba(250,204,21,.065);color:rgba(253,230,138,.78);padding:7px 8px;font-size:10px;line-height:1.45}
 .st-operation-panel-advice strong{color:rgba(254,240,138,.96);font-weight:950}
 .st-operation-panel-advice.is-strong{border-color:rgba(251,113,133,.2);background:rgba(251,113,133,.07);color:rgba(254,205,211,.82)}
+.st-operation-note{flex:0 0 auto;margin:0 9px 8px;border:1px solid rgba(148,163,184,.14);border-radius:12px;background:rgba(15,23,42,.32);display:grid;gap:5px;padding:7px 8px}
+.st-operation-note span{color:rgba(203,213,225,.64);font-size:10px;font-weight:900;line-height:1}
+.st-operation-note textarea{width:100%;min-height:46px;max-height:92px;resize:vertical;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(2,6,23,.46);color:rgba(241,245,249,.9);outline:none;padding:7px 8px;font:11px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.st-operation-note textarea:focus{border-color:rgba(56,189,248,.5);box-shadow:0 0 0 3px rgba(56,189,248,.12)}
+.st-operation-note textarea::placeholder{color:rgba(148,163,184,.48)}
 .st-operation-item{min-width:0;border:1px solid rgba(255,255,255,.1);border-radius:13px;background:rgba(255,255,255,.055);padding:8px;box-shadow:0 8px 18px rgba(0,0,0,.13);display:grid;gap:5px}
 .st-operation-item-top{display:flex;align-items:flex-start;justify-content:space-between;gap:6px}
 .st-operation-item-main{min-width:0;display:grid;gap:3px}
@@ -10003,6 +10051,7 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
   function isClockSuggestionLockedByPendingWorkBuff(entry) {
     return pendingPayloadMatches(operationEntryPayload(entry), "时钟", /强制剧情开始时间|强制时间|目标时间|建议剧情开始时间|建议时间|当前时间|推进到该时间/) && shouldLockClockForPendingWorkBuff();
   }
+  window.__ST_IS_CLOCK_SUGGESTION_LOCKED_BY_PENDING_WORK_BUFF__ = isClockSuggestionLockedByPendingWorkBuff;
 
   function syncWorkStatusReminder() {
     if (pendingWorkStartPayloads().length) {
@@ -17222,10 +17271,25 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
   function pendingOperationCount() {
     try {
       const pending = window.__ST_GET_PENDING_OPERATION_INPUT_LOG__?.();
-      return Array.isArray(pending) ? pending.length : 0;
+      const note = String(window.__ST_GET_PENDING_OPERATION_NOTE__?.() || "").trim();
+      return (Array.isArray(pending) ? pending.length : 0) + (note ? 1 : 0);
     } catch {
       return 0;
     }
+  }
+
+  function readOperationPanelNote() {
+    try {
+      return String(window.__ST_GET_PENDING_OPERATION_NOTE__?.() || "");
+    } catch {
+      return "";
+    }
+  }
+
+  function writeOperationPanelNote(value) {
+    try {
+      window.__ST_SET_PENDING_OPERATION_NOTE__?.(value);
+    } catch {}
   }
 
   const ST_OPERATION_FLOAT_MODE_KEY = "st_operation_desktop_float_mode";
@@ -17437,18 +17501,20 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
 
   function clearOperationSidePanelWithWarning() {
     const items = getPendingOperationViews();
-    if (!items.length) return false;
+    const note = readOperationPanelNote().trim();
+    if (!items.length && !note) return false;
     const lockedCount = items.filter((item) => Boolean(item.locked)).length;
-    const removableCount = Math.max(0, items.length - lockedCount);
+    const removableCount = Math.max(0, items.length - lockedCount) + (note ? 1 : 0);
     if (!removableCount) {
       window.alert?.("暂存区里只有锁定操作，不能清空。角色包/角色购买等已产生前端副作用的操作会一直保留到确认写入。");
       return false;
     }
-    const message = "确认清空暂存区里的 " + removableCount + " 条未锁定操作？"
+    const message = "确认清空暂存区里的 " + removableCount + " 条未锁定内容？"
       + (lockedCount ? "\n\n另外 " + lockedCount + " 条锁定操作会保留，例如角色包/角色购买或进行中的派遣、打工锁。" : "")
-      + "\n\n清空后这些未锁定操作不会写入本轮输入。";
+      + "\n\n清空后这些未锁定内容不会写入本轮输入。";
     if (!window.confirm?.(message)) return false;
     window.__ST_CLEAR_OPERATION_INPUT_LOG__?.();
+    writeOperationPanelNote("");
     return true;
   }
 
@@ -17602,11 +17668,12 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
     try {
       block = window.__ST_BUILD_PENDING_OPERATION_BLOCK__?.() || "";
     } catch {}
+    const note = readOperationPanelNote();
     const keepAfterFlush = readOperationKeepAfterFlush();
     const floatMode = readOperationFloatMode();
     const resources = operationPanelResourceSnapshot();
     const context = operationPanelContextSnapshot();
-    const signature = JSON.stringify(items.map((item) => [item.id, item.key, item.source, item.action, item.summary, item.line, item.at, item.locked])) + "\n" + block + "\nkeep=" + String(keepAfterFlush) + "\nfloat=" + String(floatMode) + "\nres=" + JSON.stringify(resources) + "\nctx=" + JSON.stringify(context);
+    const signature = JSON.stringify(items.map((item) => [item.id, item.key, item.source, item.action, item.summary, item.line, item.at, item.locked])) + "\n" + block + "\nnote=" + note + "\nkeep=" + String(keepAfterFlush) + "\nfloat=" + String(floatMode) + "\nres=" + JSON.stringify(resources) + "\nctx=" + JSON.stringify(context);
     if (panel.dataset.signature === signature) return;
     panel.dataset.signature = signature;
     const listHtml = items.length
@@ -17634,6 +17701,10 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
       '</header>' +
       '<div class="st-operation-panel-list">' + listHtml + '</div>' +
       adviceHtml +
+      '<label class="st-operation-note">' +
+        '<span>备注</span>' +
+        '<textarea data-operation-note rows="2" placeholder="写给AI的普通备注，会放在本轮操作外">' + escapeHtml(note) + '</textarea>' +
+      '</label>' +
       '<details class="st-operation-panel-preview">' +
         '<summary>将写入输入框的内容</summary>' +
         '<pre>' + escapeHtml(block || "暂无待写入内容") + '</pre>' +
@@ -17653,6 +17724,18 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
   function bindOperationSidePanel(panel) {
     if (!panel || panel.dataset.bound === "true") return;
     panel.dataset.bound = "true";
+    panel.addEventListener("input", (event) => {
+      const noteInput = event.target?.closest?.("[data-operation-note]");
+      if (!noteInput) return;
+      writeOperationPanelNote(noteInput.value);
+      const count = pendingOperationCount();
+      panel.querySelectorAll('[data-operation-panel-action="clear"],[data-operation-panel-action="flush"]').forEach((button) => {
+        button.disabled = !count;
+      });
+      const badge = panel.querySelector(".st-operation-count-pill");
+      if (badge) badge.textContent = String(count);
+      syncOperationFloatBall();
+    });
     panel.addEventListener("change", (event) => {
       const toggle = event.target?.closest?.("[data-operation-keep-after-flush]");
       if (!toggle) return;
