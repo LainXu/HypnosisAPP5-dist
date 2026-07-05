@@ -826,7 +826,7 @@ window.setTimeout(() => {
         id: String(entry?.id || key),
         key: String(key),
         at: Number(entry?.at || 0),
-        locked: Boolean(entry?.locked),
+        locked: Boolean(entry?.locked || isClockSuggestionLockedByPendingWorkBuff(entry)),
         source: cleanOperationText(record.source || "APP"),
         action: cleanOperationText(record.action || "操作"),
         summary: fields.join("｜") || "无附加信息",
@@ -1086,7 +1086,7 @@ window.setTimeout(() => {
     pruneStaleLockedOperationInputLogs();
     restoreLockedOperationInputLog();
     window.__ST_CLEAR_OPERATION_INPUT_LOG__ = () => {
-      window.__ST_OPERATION_INPUT_LOG__ = window.__ST_OPERATION_INPUT_LOG__.filter((entry) => Boolean(entry?.locked));
+      window.__ST_OPERATION_INPUT_LOG__ = window.__ST_OPERATION_INPUT_LOG__.filter((entry) => Boolean(entry?.locked || isClockSuggestionLockedByPendingWorkBuff(entry)));
       emitOperationQueueChanged();
     };
     window.__ST_GET_PENDING_OPERATION_INPUT_LOG__ = () => sortOperationEntries(window.__ST_OPERATION_INPUT_LOG__);
@@ -3916,6 +3916,7 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
   const HYP_CUSTOM_ITEM_COST_STARLIGHT = 5;
   const HYP_CUSTOM_ITEM_MIN_VIP_RANK = 2;
   const HYP_CUSTOM_ITEM_RULE_TEXT = "只能生成衣物或性道具；没有精神方面的影响操作，只能迎合用户性趣味；可以违背一定程度的物理法则，但不能带来直接金钱收益、增强战斗力、强迫他人、远程监控、读心、催眠、洗脑、强制命令或其他明显影响剧情发展的能力。";
+  const HYP_SUPPLY_QTY_MAX = Number.MAX_SAFE_INTEGER;
 
   function reactVipRank(tier) {
     const match = String(tier || "").toUpperCase().match(/VIP\s*([1-6])/);
@@ -3929,8 +3930,8 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
   }
 
   function hypnosisDrawerQty(root) {
-    const value = Number(root?.dataset?.stHypnosisDrawerQty || 1);
-    return Math.max(1, Math.min(999, Math.floor(Number.isFinite(value) ? value : 1)));
+    const value = Number(String(root?.dataset?.stHypnosisDrawerQty || 1).replace(/,/g, ""));
+    return Math.max(1, Math.min(HYP_SUPPLY_QTY_MAX, Math.floor(Number.isFinite(value) ? value : 1)));
   }
 
   function hypnosisDrawerHtml(root, system) {
@@ -3964,7 +3965,7 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
     return '<section class="st-hypnosis-redrawer" aria-label="催眠APP抽屉">' +
       '<div class="st-hypnosis-redrawer-head"><strong>补给 / VIP</strong><span>当前 ' + escapeHtml(currentTier || "未买断") + '</span></div>' +
       '<div class="st-hypnosis-redrawer-grid">' +
-        '<input type="number" min="1" max="999" step="1" value="' + qty + '" data-hypnosis-drawer-qty aria-label="数量">' +
+        '<input type="number" min="1" step="1" value="' + qty + '" data-hypnosis-drawer-qty aria-label="数量">' +
         '<button type="button" class="primary' + (pendingEnergy ? " is-pending" : "") + '" data-hypnosis-drawer-action="energy">补充能量 <small>¥' + energyPrice.toLocaleString() + '</small></button>' +
         '<button type="button" class="primary' + (pendingMaxEnergy ? " is-pending" : "") + '" data-hypnosis-drawer-action="max-energy">提升上限 <small>¥' + maxEnergyPrice.toLocaleString() + '</small></button>' +
         '<button type="button" class="primary st-hypnosis-drawer-wide" data-hypnosis-drawer-action="custom-item"' + (canBuyCustomItem ? "" : " disabled") + '>定制物品 <small>' + customItemLabel + ' · 5星光点</small></button>' +
@@ -5459,7 +5460,7 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
         '<span><strong>' + escapeHtml(String(suspicion) + "%") + '</strong>可疑度</span>' +
       '</section>' +
       '<div class="st-hypnosis-form-grid">' +
-        '<input type="number" min="1" max="999" step="1" value="' + qty + '" data-hypnosis-drawer-qty aria-label="数量">' +
+        '<input type="number" min="1" step="1" value="' + qty + '" data-hypnosis-drawer-qty aria-label="数量">' +
         '<button class="st-hypnosis-button' + (pendingEnergy ? " is-pending" : "") + '" type="button" data-hypnosis-supply-action="energy">补充能量 <small>¥' + energyPrice.toLocaleString() + '</small></button>' +
         '<button class="st-hypnosis-button' + (pendingMaxEnergy ? " is-pending" : "") + '" type="button" data-hypnosis-supply-action="max-energy">提升上限 <small>¥' + maxEnergyPrice.toLocaleString() + '</small></button>' +
       '</div>' +
@@ -8839,6 +8840,8 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
 	  function renderClockPage(page) {
 	    const seed = getClockSeed();
 	    const pendingClock = hasPendingClockSuggestionOperation();
+	    const workBuffClockLocked = shouldLockClockForPendingWorkBuff();
+	    const clockActionLocked = pendingClock || workBuffClockLocked;
     const marks = Array.from({ length: 12 }, (_, index) => {
       const angle = index * 30;
       const radians = angle * Math.PI / 180;
@@ -8859,7 +8862,7 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
 	            '<b class="st-clock-colon">:</b>' +
 	            '<label><span>分</span><input data-clock-minute inputmode="numeric" autocomplete="off" maxlength="2" min="0" max="59" value="' + escapeAttr(String(seed.minute).padStart(2, "0")) + '"></label>' +
           '</div>' +
-	          '<button type="button" class="st-clock-action" data-clock-action="suggest"' + (pendingClock ? " disabled" : "") + '>' + (pendingClock ? "已暂存" : "锚定此时间") + '</button>' +
+	          '<button type="button" class="st-clock-action" data-clock-action="suggest"' + (clockActionLocked ? " disabled" : "") + '>' + (pendingClock ? "已暂存" : (workBuffClockLocked ? "打工锁定" : "锚定此时间")) + '</button>' +
           '<p class="st-clock-note">这会写入本轮强制时间锚点；若目标时间早于当前时间，前端会直接标为明天。</p>' +
         '</section>' +
       '</main>';
@@ -8883,7 +8886,7 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
       });
     });
 	    page.querySelector('[data-clock-action="suggest"]')?.addEventListener("click", () => {
-	      if (hasPendingClockSuggestionOperation()) {
+	      if (hasPendingClockSuggestionOperation() || shouldLockClockForPendingWorkBuff()) {
 	        renderClockPage(page);
 	        return;
 	      }
@@ -9593,7 +9596,7 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
   }
 
   function workCurrentTimeInfo(hours = 6) {
-    const clock = workEffectiveClockInfo();
+    const clock = workStartClockInfo();
     const dateText = clock.dateText;
     const timeText = storyTimeOnly(clock.timeText, "00:00");
     const startText = [dateText, timeText].filter(Boolean).join(" ") || "未知";
@@ -9760,6 +9763,31 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
 	    return pendingOperationPayloads().some((payload) => pendingPayloadMatches(payload, "时钟", /强制剧情开始时间|强制时间|目标时间|建议剧情开始时间|建议时间|当前时间|推进到该时间/));
 	  }
 
+  function latestPendingClockTargetInfo() {
+    const payloads = pendingOperationPayloads();
+    const system = getSystemState();
+    const fallbackDateText = String(system["当前日期"] || "").trim();
+    for (let index = payloads.length - 1; index >= 0; index -= 1) {
+      const payload = payloads[index];
+      if (payload?.["来源"] !== "时钟") continue;
+      if (!/强制剧情开始时间|强制时间|目标时间|建议剧情开始时间|建议时间|当前时间|推进到该时间/.test(String(payload?.["操作"] || ""))) continue;
+      const timeText = storyTimeOnly(payload["目标时间"] || payload["建议时间"] || payload["当前时间变量"] || "", "");
+      if (!/^d{1,2}:d{2}$/.test(timeText)) continue;
+      const dateText = String(payload["目标日期"] || payload["当前日期"] || fallbackDateText || "").trim();
+      const targetText = [dateText, timeText].filter(Boolean).join(" ");
+      const targetStamp = monitorStampFromText(targetText);
+      return {
+        payload,
+        dateText,
+        timeText,
+        targetText,
+        targetStamp,
+        source: "暂存时钟"
+      };
+    }
+    return null;
+  }
+
 	  function graphOperationSource(scope) {
 	    return String(scope || "") === "school" ? "学校地图" : "地图";
 	  }
@@ -9773,15 +9801,7 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
 	  }
 
   function latestPendingClockTimeText() {
-    const payloads = pendingOperationPayloads();
-    for (let index = payloads.length - 1; index >= 0; index -= 1) {
-      const payload = payloads[index];
-      if (payload?.["来源"] !== "时钟") continue;
-      if (!/强制剧情开始时间|强制时间|目标时间|建议剧情开始时间|建议时间|当前时间|推进到该时间/.test(String(payload?.["操作"] || ""))) continue;
-      const timeText = storyTimeOnly(payload["目标时间"] || payload["建议时间"] || payload["当前时间变量"] || "", "");
-      if (/^d{1,2}:d{2}$/.test(timeText)) return timeText;
-    }
-    return "";
+    return latestPendingClockTargetInfo()?.timeText || "";
   }
 
   function workDateTextWithOffset(dateText, dayOffset = 0) {
@@ -9828,6 +9848,32 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
     };
   }
 
+  function workPendingClockAfterBuffInfo(system = getSystemState()) {
+    const currentBuffRaw = String(system["buff"] || "").trim();
+    if (!currentBuffRaw || currentBuffRaw === "无") return null;
+    const endText = workSystemBuffEndText(system);
+    const endStamp = endText ? monitorStampFromText(endText) : 0;
+    if (!endStamp) return null;
+    const currentStamp = workCurrentStamp();
+    if (currentStamp && currentStamp >= endStamp) return null;
+    const pending = latestPendingClockTargetInfo();
+    if (!pending?.targetStamp || pending.targetStamp < endStamp) return null;
+    return {
+      dateText: pending.dateText,
+      timeText: pending.timeText,
+      pendingTime: pending.timeText,
+      pendingTargetText: pending.targetText,
+      postWorkTargetText: "",
+      pendingDistanceMinutes: NaN,
+      selectionRule: "当前存在buff，但暂存时钟目标已到达或晚于buff结束时间；本次打工按暂存时钟目标时间开始。暂存打工后不要再修改该时钟锚点。",
+      source: "暂存时钟解除buff锁"
+    };
+  }
+
+  function workStartClockInfo(system = getSystemState()) {
+    return workPendingClockAfterBuffInfo(system) || workEffectiveClockInfo();
+  }
+
   function workEffectiveCurrentTimeText() {
     const clock = workEffectiveClockInfo();
     const text = [clock.dateText, storyTimeOnly(clock.timeText, "未知")].filter(Boolean).join(" ");
@@ -9846,7 +9892,7 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
 
   function workStartTimingInfo() {
     const system = getSystemState();
-    const clock = workEffectiveClockInfo();
+    const clock = workStartClockInfo(system);
     const dateText = clock.dateText;
     const timeText = storyTimeOnly(clock.timeText, "00:00");
     const parsed = parseStoryDate(dateText);
@@ -9866,7 +9912,8 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
       setCurrentLayerSystemField("buff", "");
       setCurrentLayerSystemField("buff结束时间", "");
     }
-    const currentBuff = currentBuffExpired ? "" : currentBuffRaw;
+    const pendingClockClearsBuffForWork = Boolean(!currentBuffExpired && currentBuffRaw && currentBuffRaw !== "无" && clock.source === "暂存时钟解除buff锁");
+    const currentBuff = currentBuffExpired || pendingClockClearsBuffForWork ? "" : currentBuffRaw;
     const hasCurrentBuff = Boolean(currentBuff && currentBuff !== "无");
     const buffLockRule = hasCurrentBuff
       ? "当前仍处于“" + currentBuff + "”状态" + (currentBuffEndText ? "，持续至" + currentBuffEndText : "") + "，精力不足，任意buff持续期间不能开始新的打工。"
@@ -9937,6 +9984,24 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
 
   function hasPendingWorkOperation() {
     return pendingWorkPayloads().length > 0;
+  }
+
+  function hasActiveWorkBuffAtCurrentTime(system = getSystemState()) {
+    const buff = String(system["buff"] || "").trim();
+    if (!buff || buff === "无") return false;
+    const endText = workSystemBuffEndText(system);
+    const endStamp = endText ? monitorStampFromText(endText) : 0;
+    if (!endStamp) return true;
+    const currentStamp = monitorCurrentStamp();
+    return !currentStamp || currentStamp < endStamp;
+  }
+
+  function shouldLockClockForPendingWorkBuff() {
+    return hasPendingWorkOperation() && hasActiveWorkBuffAtCurrentTime();
+  }
+
+  function isClockSuggestionLockedByPendingWorkBuff(entry) {
+    return pendingPayloadMatches(operationEntryPayload(entry), "时钟", /强制剧情开始时间|强制时间|目标时间|建议剧情开始时间|建议时间|当前时间|推进到该时间/) && shouldLockClockForPendingWorkBuff();
   }
 
   function syncWorkStatusReminder() {
