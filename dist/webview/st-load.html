@@ -9989,7 +9989,8 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
     const special = specialDayForDate(parsed);
     const isSchoolDay = weekdayIndex >= 1 && weekdayIndex <= 5 && !special?.holiday;
     const isSchoolTime = Boolean(isSchoolDay && minutes >= 510 && minutes < 970);
-    const isNormalWorkStart = minutes >= 970 && minutes <= 1080;
+    const isFreeDay = !isSchoolDay;
+    const isNormalWorkStart = (isSchoolDay && minutes >= 970 && minutes <= 1080) || (isFreeDay && minutes >= 360 && minutes <= 1080);
     const isNightWork = minutes > 1080 || minutes < 360;
     const currentBuffRaw = String(system["buff"] || "").trim();
     const currentBuffEndText = workSystemBuffEndText(system);
@@ -10007,7 +10008,7 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
       : "";
     const dayRule = isSchoolDay
       ? "当前是上课日，8:30-16:10内开始打工算逃学。"
-      : "当前是周末或假日，不算逃学，不会因白天打工触发“社会的蔑视”；但夜班仍会触发“无精打采”。";
+      : "当前是周末或假日，不算逃学；白天打工按“全盛出击”处理，不触发“社会的蔑视”，但夜班仍会触发“无精打采”。";
     if (isSchoolTime) {
       return {
         kind: "上学时间逃课",
@@ -10031,7 +10032,7 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
         timeSource: clock.source,
         pendingTime: clock.pendingTime,
         dayRule,
-        rule: "16:10-18:00期间开始打工，视为正常时间；成功开始/结算本次打工时将/系统/buff写为“全盛出击”，并把/系统/MC能量一次性恢复到/系统/MC能量上限。该buff效果只触发一次但显示从打工开始时间起持续1天；持续期间不能开始新的打工。"
+        rule: "上课日16:10-18:00期间，或周末/假日6:00-18:00期间开始打工，视为正常时间；成功开始/结算本次打工时将/系统/buff写为“全盛出击”，并把/系统/MC能量一次性恢复到/系统/MC能量上限。该buff效果只触发一次但显示从打工开始时间起持续1天；持续期间不能开始新的打工。"
       };
     }
     if (isNightWork) {
@@ -10056,7 +10057,7 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
       timeSource: clock.source,
       pendingTime: clock.pendingTime,
       dayRule,
-      rule: "当前不是上学时间逃课，也不是夜班；但只有16:10-18:00期间开始才算完全正常。本次打工不新增buff；若已有buff则因精力不足不能开始新的打工。"
+      rule: "当前不是上学时间逃课，也不是夜班；但只有上课日16:10-18:00期间，或周末/假日6:00-18:00期间开始才算完全正常。本次打工不新增buff；若已有buff则因精力不足不能开始新的打工。"
     };
   }
 
@@ -10239,7 +10240,7 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
             '<span>' + escapeHtml(timingInfo.dayRule || "") + '</span>' +
             (timingInfo.buffLockRule ? '<span>' + escapeHtml(timingInfo.buffLockRule) + '</span>' : '') +
             '<span>打工可能会偶遇女角色，越高级的工作偶遇概率越高；具体是否偶遇不会在界面暴露。</span>' +
-            '<span>社会的蔑视：逃学被其他人蔑视，打工开始后1天内好感不提升。无精打采：夜班开始后1天内补充MC能量减半。全盛出击：正常时间开始时一次性恢复全部MC能量，并显示到开始后1天。任意buff持续期间不能再次打工。</span>' +
+            '<span>社会的蔑视：上课日逃学打工才会触发，打工开始后1天内好感不提升；周末/假日白天改为全盛出击。无精打采：夜班开始后1天内补充MC能量减半。全盛出击：正常时间开始时一次性恢复全部MC能量，并显示到开始后1天。任意buff持续期间不能再次打工。</span>' +
           '</section>' +
           '<p class="st-work-note">墙上共有 ' + ST_WORK_JOBS.length + ' 张寻工启事，已解锁 ' + unlockedCount + ' 张。每次打工按6小时结算，赶路去工作场所、到场交接、收工和必要返回时间都包含在这6小时内。</p>' +
         '</section>' +
@@ -10302,7 +10303,7 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
           结算后时间处理: postWorkTargetText ? "先按预计结束时间完成6小时打工并结算；随后把剧情时间推进到结算后建议时间。这段等待/过渡不是额外打工，不增加额外工资或社畜值。" : "无",
           打工获得buff: timingInfo.buff || "无",
           buff结束时间: workBuffEndText,
-          buff判定规则: "若开始时间为上课日8:30-16:10，获得“社会的蔑视”，所有角色好感不能提升；若开始时间为16:10-18:00，获得“全盛出击”，并一次性恢复MC能量到上限；若开始时间为夜班（18:00后或6:00前），获得“无精打采”，补充MC能量获得量减半；其他时间无新增buff。若产生buff，则写入/系统/buff和/系统/buff结束时间；任意当前buff持续期间不能开始打工。",
+          buff判定规则: "若开始时间为上课日8:30-16:10，获得“社会的蔑视”，所有角色好感不能提升；若开始时间为上课日16:10-18:00或周末/假日6:00-18:00，获得“全盛出击”，并一次性恢复MC能量到上限；若开始时间为夜班（18:00后或6:00前），获得“无精打采”，补充MC能量获得量减半；其他时间无新增buff。若产生buff，则写入/系统/buff和/系统/buff结束时间；任意当前buff持续期间不能开始打工。",
           变量写入路径: timingInfo.buff ? ["/系统/buff", "/系统/buff结束时间", "/系统/持有零花钱", "/系统/社畜值"] : ["/系统/持有零花钱", "/系统/社畜值"],
           AI执行规范: timingInfo.buff ? "本次打工成功结算时，必须把/系统/buff写为打工获得buff，并把/系统/buff结束时间写为本条buff结束时间；前端会在到期后直接清空这两个变量。不要写相对时长。" : "本次打工无新增buff；不要新增或清空/系统/buff和/系统/buff结束时间。",
           获得零花钱: job.wage,
@@ -10376,6 +10377,8 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
 	  const ENCOUNTER_DUPLICATE_PACKAGE_GROUPS = [];
 	  const ENCOUNTER_ROLE_PAGE_SIZE = 4;
 	  const ENCOUNTER_ROLE_IMAGE_SLOT_COUNT = 4;
+  const ENCOUNTER_IMAGE_DATA_URL_SOFT_LIMIT = 420000;
+  const ENCOUNTER_IMAGE_RESIZE_STEPS = [720, 540];
 		  const ENCOUNTER_FEATURED_ROLE_ORDER = [
 		    { name: "月咏皋月", packageId: "orjenrn-role-pack" },
 		    { name: "西园寺美织", packageId: "baikai-role-pack" }
@@ -13159,7 +13162,10 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
     '</section>';
   }
 
-  function renderEncounterPage(page) {
+  function renderEncounterPage(page, options = {}) {
+    const preserveScroll = Boolean(options?.preserveScroll);
+    const previousBody = page.querySelector(".st-lite-body");
+    const previousScrollTop = preserveScroll ? Math.max(0, Number(previousBody?.scrollTop || 0) || 0) : 0;
     const tab = page.dataset.encounterTab || "browse";
     const detailOpen = tab === "browse" && page.dataset.encounterView === "detail";
     const content = tab === "shop" ? renderEncounterShop(page) : tab === "edit" ? renderEncounterEdit(page) : tab === "role" ? renderEncounterSingleRoleEdit(page) : (detailOpen ? renderEncounterDetail(page) : renderEncounterBrowse(page));
@@ -13178,6 +13184,13 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
       '</main>';
     bindLiteHeader(page, () => renderEncounterPage(page));
     bindEncounterPage(page);
+    if (preserveScroll) {
+      const nextBody = page.querySelector(".st-lite-body");
+      if (nextBody) {
+        nextBody.scrollTop = previousScrollTop;
+        requestAnimationFrame(() => { nextBody.scrollTop = previousScrollTop; });
+      }
+    }
   }
 
   function encounterRawFileAsDataUrl(file) {
@@ -13226,14 +13239,18 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
     const dataUrl = await encounterRawFileAsDataUrl(file);
     const mime = String(file && file.type || "");
     if (!new RegExp("^image/", "i").test(mime) || new RegExp("^image/(?:gif|svg[+]xml)$", "i").test(mime)) return dataUrl;
-    if (dataUrl.length <= 900000) return dataUrl;
+    if (dataUrl.length <= ENCOUNTER_IMAGE_DATA_URL_SOFT_LIMIT) return dataUrl;
+    let best = dataUrl;
     try {
-      const resized = await encounterResizeImageDataUrl(dataUrl, 960);
-      if (resized.length <= 900000 || resized.length < dataUrl.length) return resized;
+      for (const maxSide of ENCOUNTER_IMAGE_RESIZE_STEPS) {
+        const resized = await encounterResizeImageDataUrl(best, maxSide);
+        if (resized.length < best.length) best = resized;
+        if (best.length <= ENCOUNTER_IMAGE_DATA_URL_SOFT_LIMIT) break;
+      }
     } catch (error) {
       console.warn("[邂逅] 图片压缩失败，使用原图", error);
     }
-    return dataUrl;
+    return best;
   }
 
   let ENCOUNTER_CRC_TABLE = null;
@@ -15562,8 +15579,8 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
       const draft = encounterReadDraftFromForm(page);
       draft.coverDataUrl = await encounterFileAsDataUrl(file);
       encounterSaveDraft(draft);
-      page.dataset.encounterStatus = "已更新封面并保存草稿。";
-      renderEncounterPage(page);
+      page.dataset.encounterStatus = encounterLastStorageError || "已更新封面并保存草稿。";
+      renderEncounterPage(page, { preserveScroll: true });
     });
     page.querySelectorAll("[data-encounter-role-image]").forEach((input) => {
       input.addEventListener("change", async (event) => {
@@ -15575,8 +15592,8 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
         if (!draft.roles[index]) draft.roles[index] = encounterBlankRole();
         draft.roles[index] = encounterSetRoleImageSlot(draft.roles[index], slot, await encounterFileAsDataUrl(file));
         encounterSaveDraft(draft);
-        page.dataset.encounterStatus = "已更新角色图片并保存草稿。";
-        renderEncounterPage(page);
+        page.dataset.encounterStatus = encounterLastStorageError || "已更新角色图片并保存草稿。";
+        renderEncounterPage(page, { preserveScroll: true });
       });
     });
     page.querySelectorAll("[data-encounter-single-role-image]").forEach((input) => input.addEventListener("change", async (event) => {
@@ -15585,8 +15602,8 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
       const slot = Number(input.getAttribute("data-image-slot") || 0);
       const role = encounterReadSingleRoleFromForm(page);
       encounterSaveSingleRoleDraft(encounterSetRoleImageSlot(role, slot, await encounterFileAsDataUrl(file)));
-      page.dataset.encounterStatus = "已更新角色图片并保存草稿。";
-      renderEncounterPage(page);
+      page.dataset.encounterStatus = encounterLastStorageError || "已更新角色图片并保存草稿。";
+      renderEncounterPage(page, { preserveScroll: true });
     }));
     page.querySelector("[data-encounter-form]")?.addEventListener("input", () => {
       encounterReadDraftFromForm(page);
@@ -15608,8 +15625,8 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
           if (isSingle) {
             const role = encounterReadSingleRoleFromForm(page);
             encounterSaveSingleRoleDraft(encounterSetRoleImageSlot(role, slot, ""));
-            page.dataset.encounterStatus = "已删除这个图片槽。";
-            renderEncounterPage(page);
+            page.dataset.encounterStatus = encounterLastStorageError || "已删除这个图片槽。";
+            renderEncounterPage(page, { preserveScroll: true });
             return;
           }
           const draft = encounterReadDraftFromForm(page);
@@ -15619,8 +15636,8 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
           encounterSaveDraft(draft);
           page.dataset.encounterEditSection = "role";
           page.dataset.encounterEditRoleIndex = String(safeIndex);
-          page.dataset.encounterStatus = "已删除这个图片槽。";
-          renderEncounterPage(page);
+          page.dataset.encounterStatus = encounterLastStorageError || "已删除这个图片槽。";
+          renderEncounterPage(page, { preserveScroll: true });
           return;
         }
         if (action === "import-library") {
@@ -15845,8 +15862,8 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
             fields.push({ id: encounterId("persona-field"), key: "自定义字段" + String(fields.length + 1), content: "" });
             role.personaFields = fields;
             encounterSaveSingleRoleDraft(role);
-            page.dataset.encounterStatus = "已新增自定义人设字段。";
-            renderEncounterPage(page);
+            page.dataset.encounterStatus = encounterLastStorageError || "已新增自定义人设字段。";
+            renderEncounterPage(page, { preserveScroll: true });
             return;
           }
           const draft = encounterReadDraftFromForm(page);
@@ -15860,8 +15877,8 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
           encounterSaveDraft(draft);
           page.dataset.encounterEditSection = "role";
           page.dataset.encounterEditRoleIndex = String(safeIndex);
-          page.dataset.encounterStatus = "已新增自定义人设字段。";
-          renderEncounterPage(page);
+          page.dataset.encounterStatus = encounterLastStorageError || "已新增自定义人设字段。";
+          renderEncounterPage(page, { preserveScroll: true });
           return;
         }
         if (action === "remove-persona-field") {
@@ -15873,8 +15890,8 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
             if (Number.isInteger(fieldIndex) && fieldIndex >= 0) fields.splice(fieldIndex, 1);
             role.personaFields = fields;
             encounterSaveSingleRoleDraft(role);
-            page.dataset.encounterStatus = "已删除自定义人设字段。";
-            renderEncounterPage(page);
+            page.dataset.encounterStatus = encounterLastStorageError || "已删除自定义人设字段。";
+            renderEncounterPage(page, { preserveScroll: true });
             return;
           }
           const draft = encounterReadDraftFromForm(page);
@@ -15888,8 +15905,8 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
           encounterSaveDraft(draft);
           page.dataset.encounterEditSection = "role";
           page.dataset.encounterEditRoleIndex = String(safeIndex);
-          page.dataset.encounterStatus = "已删除自定义人设字段。";
-          renderEncounterPage(page);
+          page.dataset.encounterStatus = encounterLastStorageError || "已删除自定义人设字段。";
+          renderEncounterPage(page, { preserveScroll: true });
           return;
         }
         if (action === "save-library") {
