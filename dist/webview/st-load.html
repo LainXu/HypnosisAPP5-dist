@@ -653,9 +653,10 @@ window.setTimeout(() => {
         .filter(Boolean);
       return "- " + cleanOperationText(record.action || "操作") + (fields.length ? "｜" + fields.join("｜") : "");
     };
-    const operationEntryPayload = (entry) => entry && typeof entry === "object" && Object.prototype.hasOwnProperty.call(entry, "payload") ? entry.payload : entry;
+    const rawOperationEntryPayload = (entry) => entry && typeof entry === "object" && Object.prototype.hasOwnProperty.call(entry, "payload") ? entry.payload : entry;
+    const operationEntryPayload = (entry) => derivePendingWorkPayloadForClock(rawOperationEntryPayload(entry));
     const operationTopPriority = (entry) => {
-      const payload = operationEntryPayload(entry);
+      const payload = rawOperationEntryPayload(entry);
       const record = normalizeOperationPayload(payload);
       const source = cleanOperationText(record.source || "");
       const action = cleanOperationText(record.action || "");
@@ -828,9 +829,9 @@ window.setTimeout(() => {
     const restoreLockedOperationInputLog = () => {
       const stored = readLockedOperationInputLog();
       if (!stored.length) return;
-      const seen = new Set(window.__ST_OPERATION_INPUT_LOG__.map((entry) => entry.key || operationRecordKey(operationEntryPayload(entry))));
+      const seen = new Set(window.__ST_OPERATION_INPUT_LOG__.map((entry) => entry.key || operationRecordKey(rawOperationEntryPayload(entry))));
       for (const entry of stored) {
-        const key = entry.key || operationRecordKey(operationEntryPayload(entry));
+        const key = entry.key || operationRecordKey(rawOperationEntryPayload(entry));
         if (seen.has(key)) continue;
         seen.add(key);
         window.__ST_OPERATION_INPUT_LOG__.push(entry);
@@ -10183,8 +10184,13 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
     return String(system["buff结束时间"] || "").trim();
   }
 
+	  function pendingRawOperationPayloads() {
+	    const entries = Array.isArray(window.__ST_OPERATION_INPUT_LOG__) ? window.__ST_OPERATION_INPUT_LOG__ : [];
+	    return entries.map((entry) => rawOperationEntryPayload(entry));
+	  }
+
 	  function pendingOperationPayloads() {
-	    return (window.__ST_GET_PENDING_OPERATION_INPUT_LOG__?.() || []).map((entry) => entry?.payload || entry);
+	    return (window.__ST_GET_PENDING_OPERATION_INPUT_LOG__?.() || []).map((entry) => operationEntryPayload(entry));
 	  }
 
 	  function pendingPayloadMatches(payload, sourcePattern, operationPattern) {
@@ -10197,11 +10203,11 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
 	  }
 
 	  function hasPendingClockSuggestionOperation() {
-	    return pendingOperationPayloads().some((payload) => pendingPayloadMatches(payload, "时钟", /强制剧情开始时间|强制时间|目标时间|建议剧情开始时间|建议时间|当前时间|推进到该时间/));
+	    return pendingRawOperationPayloads().some((payload) => pendingPayloadMatches(payload, "时钟", /强制剧情开始时间|强制时间|目标时间|建议剧情开始时间|建议时间|当前时间|推进到该时间/));
 	  }
 
   function latestPendingClockTargetInfo() {
-    const payloads = pendingOperationPayloads();
+    const payloads = pendingRawOperationPayloads();
     const system = getSystemState();
     const fallbackDateText = String(system["当前日期"] || "").trim();
     const resolvePendingClockDateText = (payload, timeText) => {
@@ -10346,8 +10352,23 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
     };
   }
 
+  function workPendingClockStartInfo(system = getSystemState()) {
+    const pending = latestPendingClockTargetInfo();
+    if (!pending?.timeText) return null;
+    return {
+      dateText: pending.dateText,
+      timeText: pending.timeText,
+      pendingTime: pending.timeText,
+      pendingTargetText: pending.targetText,
+      postWorkTargetText: "",
+      pendingDistanceMinutes: NaN,
+      selectionRule: "暂存区存在时钟时，打工开始时间跟随该时钟目标；删除时钟后恢复按当前变量时间开始。",
+      source: "暂存时钟"
+    };
+  }
+
   function workStartClockInfo(system = getSystemState()) {
-    return workPendingClockAfterBuffInfo(system) || workEffectiveClockInfo();
+    return workPendingClockAfterBuffInfo(system) || workPendingClockStartInfo(system) || workEffectiveClockInfo();
   }
 
   function workEffectiveCurrentTimeText() {
@@ -10448,6 +10469,45 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
       dayRule,
       rule: "当前不是上学时间逃课，也不是夜班；但只有上课日16:10-18:00期间，或周末/假日6:00-18:00期间开始才算完全正常。本次打工不新增buff；若已有buff则因精力不足不能开始新的打工。"
     };
+  }
+
+  function derivePendingWorkPayloadForClock(payload) {
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) return payload;
+    if (String(payload["来源"] || "") !== "打工" || String(payload["操作"] || "") !== "开始打工") return payload;
+    const pendingClock = latestPendingClockTargetInfo();
+    if (!pendingClock?.timeText) return payload;
+    const timeInfo = workCurrentTimeInfo(6);
+    if (!timeInfo?.pendingTargetText) return payload;
+    const timingInfo = workStartTimingInfo();
+    const next = { ...payload };
+    const startText = timeInfo.startText || pendingClock.targetText || next["开始时间"] || "未知";
+    const endText = timeInfo.endText || workOffsetDateTimeText(startText, 6) || next["预计结束时间"] || "未知";
+    const buffText = timingInfo.buff || "无";
+    const buffEndText = timingInfo.buff ? workOffsetDateTimeText(startText, 24) : "无";
+    const oldStartStamp = monitorStampFromText(String(payload["开始时间"] || ""));
+    const oldEncounterStamp = monitorStampFromText(String(payload["偶遇发生时间"] || ""));
+    const hasEncounter = String(payload["偶遇女角色"] || "无").trim() && String(payload["偶遇女角色"] || "无").trim() !== "无";
+    const encounterDelayHours = hasEncounter && oldStartStamp && oldEncounterStamp && oldEncounterStamp > oldStartStamp
+      ? Math.max(1, Math.round((oldEncounterStamp - oldStartStamp) / 60))
+      : 0;
+    next["开始时间"] = startText;
+    next["开始时间来源"] = timeInfo.timeSource || "暂存时钟";
+    next["暂存区建议时间"] = timeInfo.pendingTime || pendingClock.timeText || "无";
+    next["暂存区目标时间"] = timeInfo.pendingTargetText || pendingClock.targetText || "无";
+    next["暂存区时间选择规则"] = "本条已按当前暂存区时钟重算；删除时钟后会恢复打工原本的开始时间。";
+    next["预计结束时间"] = endText;
+    next["结算后建议时间"] = "无";
+    next["结算后时间处理"] = "无";
+    next["打工获得buff"] = buffText;
+    next["buff结束时间"] = buffEndText;
+    next["变量写入路径"] = timingInfo.buff ? ["/系统/buff", "/系统/buff结束时间", "/系统/持有零花钱", "/系统/社畜值"] : ["/系统/持有零花钱", "/系统/社畜值"];
+    next["AI执行规范"] = timingInfo.buff
+      ? "本次打工成功结算时，必须把/系统/buff写为打工获得buff，并把/系统/buff结束时间写为本条buff结束时间；前端会在到期后直接清空这两个变量。不要写相对时长。"
+      : "本次打工无新增buff；不要新增或清空/系统/buff和/系统/buff结束时间。";
+    if (hasEncounter) next["偶遇发生时间"] = encounterDelayHours ? workOffsetDateTimeText(startText, encounterDelayHours) : next["偶遇发生时间"];
+    next["处理方式"] = (hasEncounter ? "先写到工作途中偶遇节点；下一轮锁定提醒处理互动后结算。" : "直接写到预计结束时间并结算。");
+    next["时钟联动"] = "打工开始时间已跟随本轮暂存时钟：" + (timeInfo.pendingTargetText || pendingClock.targetText || startText);
+    return next;
   }
 
   function pendingWorkPayloads() {
@@ -17777,7 +17837,7 @@ html.st-hypnoos-phone-port #st-operation-float-ball,html.st-hypnoos-phone-port .
     { title: "人物档案", tag: "角色", body: "查看已记录角色的衣着、信息、状态、敏感度和效果，也能在符合条件时触发少量角色专属操作。" },
     { title: "日历", tag: "时间", body: "查看日期与日程；点选某天可以看当天详情，月份切换不会强行改掉原本选中的日期。" },
     { title: "课程表", tag: "学校", body: "查看当天课程与待上课程，用来判断上课、逃课、打工等时间冲突。" },
-    { title: "时钟", tag: "时间", body: "设置本轮独立的剧情时间锚点；其他按钮不会自动把它当作自身开始时间。" },
+    { title: "时钟", tag: "时间", body: "设置本轮剧情时间锚点；若本轮同时暂存打工，打工开始时间会跟随该时钟，删除时钟后恢复。" },
     { title: "成就和任务", tag: "奖励", body: "领取已达成成就、查看任务、接受每日任务；奖励以星光点和物品为主。" },
     { title: "库存", tag: "物品", body: "查看持有物品与数量，点选物品后能看简短说明。" },
     { title: "MC匿名版", tag: "论坛", body: "浏览匿名帖子和楼层，作为世界内的轻量信息来源。" },
