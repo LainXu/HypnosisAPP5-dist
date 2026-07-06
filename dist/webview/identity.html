@@ -218,17 +218,24 @@
   }
 
   .identity-cover-school {
+    position: absolute;
+    top: 16%;
+    left: 22%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
     color: rgba(255, 236, 176, 0.92);
     font-size: 14px;
     font-weight: 950;
-    writing-mode: vertical-rl;
-    justify-self: start;
-    align-self: start;
-    line-height: 1.1;
+    writing-mode: horizontal-tb;
+    white-space: nowrap;
+    line-height: 0.92;
     letter-spacing: 0;
   }
 
   .identity-cover-title {
+    grid-row: 2;
     color: #ffe7a6;
     font-size: clamp(21px, 3vw, 28px);
     font-weight: 950;
@@ -236,6 +243,7 @@
   }
 
   .identity-cover-name {
+    grid-row: 3;
     min-width: 0;
     max-width: 100%;
     color: rgba(255, 248, 237, 0.9);
@@ -247,6 +255,7 @@
   }
 
   .identity-cover-meta {
+    grid-row: 4;
     width: 100%;
     display: flex;
     align-items: center;
@@ -547,6 +556,13 @@
 
     .identity-book-cover {
       padding: 20px 14px 15px 19px;
+    }
+
+    .identity-cover-school {
+      top: 15.5%;
+      left: 22%;
+      font-size: 12px;
+      line-height: 0.94;
     }
 
     .identity-detail-screen {
@@ -963,7 +979,7 @@
       const displayName = String(card.name || "").trim() || "未命名";
       return '<button type="button" class="identity-book' + (card.id === selectedId ? ' is-active' : '') + '" data-card-id="' + escapeHtml(card.id) + '" style="--tilt:' + TILTS[index % TILTS.length] + '">' +
         '<span class="identity-book-cover">' +
-          '<span class="identity-cover-school">私立斋明学园</span>' +
+          '<span class="identity-cover-school" aria-label="私立斋明学园"><span>私</span><span>立</span><span>斋</span><span>明</span><span>学</span><span>园</span></span>' +
           '<span class="identity-cover-title">学生证</span>' +
           '<span class="identity-cover-name">' + escapeHtml(displayName) + '</span>' +
           '<span class="identity-cover-meta"><span>No. ' + String(index + 1).padStart(2, "0") + '</span><span>' + escapeHtml(card.difficulty) + '</span></span>' +
