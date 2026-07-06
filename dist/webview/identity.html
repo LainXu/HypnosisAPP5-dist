@@ -1,6 +1,62 @@
 <!doctype html>
 <meta charset="UTF-8">
 <style>
+  html.st-hypnoos-identity-port {
+    --st-identity-port-vh: 100dvh;
+    --st-identity-port-width: 100vw;
+  }
+
+  html.st-hypnoos-identity-port,
+  html.st-hypnoos-identity-port body {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    height: var(--st-identity-port-vh, 100dvh) !important;
+    min-height: 0 !important;
+    max-height: var(--st-identity-port-vh, 100dvh) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: #3f2619 !important;
+  }
+
+  html.st-hypnoos-identity-port body {
+    position: relative !important;
+    touch-action: manipulation;
+    overscroll-behavior: none;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  html.st-hypnoos-identity-port #st-hypnoos-identity-frontend-host,
+  html.st-hypnoos-identity-port #identityRoot {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 2147483000 !important;
+    display: block !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: var(--st-identity-port-vh, 100dvh) !important;
+    min-height: 0 !important;
+    max-height: var(--st-identity-port-vh, 100dvh) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    transform: none !important;
+    clip-path: none !important;
+    contain: none !important;
+  }
+
+  html.st-hypnoos-identity-port .mes,
+  html.st-hypnoos-identity-port .mes_block,
+  html.st-hypnoos-identity-port .mes_text {
+    max-width: none !important;
+    max-height: none !important;
+    overflow: visible !important;
+    contain: none !important;
+    transform: none !important;
+  }
+
   .identity-root {
     --desk-ink: #33291f;
     --paper: #f7f1e5;
@@ -670,6 +726,40 @@
 
   const coverImage = assetUrl("identity/student-id-cover.png");
   const rootEl = document.getElementById("identityRoot");
+  const htmlEl = document.documentElement;
+
+  function readIdentityViewportSize() {
+    const visual = window.visualViewport;
+    const width = Math.max(1, Math.round(visual?.width || window.innerWidth || htmlEl.clientWidth || 1));
+    const height = Math.max(360, Math.round(visual?.height || window.innerHeight || htmlEl.clientHeight || 640));
+    return { width, height };
+  }
+
+  function ensureIdentityPortRuntimeStyle() {
+    htmlEl.classList.add("st-hypnoos-identity-port");
+    let style = document.getElementById("st-hypnoos-identity-port-runtime-lock-style");
+    if (!style) {
+      style = document.createElement("style");
+      style.id = "st-hypnoos-identity-port-runtime-lock-style";
+      document.head.appendChild(style);
+    } else if (style.parentElement !== document.head) {
+      document.head.appendChild(style);
+    }
+    style.textContent = [
+      "html.st-hypnoos-identity-port{--st-identity-port-vh:100dvh;--st-identity-port-width:100vw;}",
+      "html.st-hypnoos-identity-port,html.st-hypnoos-identity-port body{width:100%!important;min-width:0!important;max-width:100%!important;height:var(--st-identity-port-vh,100dvh)!important;min-height:0!important;max-height:var(--st-identity-port-vh,100dvh)!important;margin:0!important;padding:0!important;overflow:hidden!important;background:#3f2619!important;}",
+      "html.st-hypnoos-identity-port body{position:relative!important;touch-action:manipulation!important;overscroll-behavior:none!important;-webkit-text-size-adjust:100%;text-size-adjust:100%;}",
+      "html.st-hypnoos-identity-port #st-hypnoos-identity-frontend-host,html.st-hypnoos-identity-port #identityRoot{position:fixed!important;inset:0!important;z-index:2147483000!important;display:block!important;width:100vw!important;max-width:100vw!important;height:var(--st-identity-port-vh,100dvh)!important;min-height:0!important;max-height:var(--st-identity-port-vh,100dvh)!important;margin:0!important;padding:0!important;overflow:hidden!important;transform:none!important;clip-path:none!important;contain:none!important;}",
+      "html.st-hypnoos-identity-port .mes,html.st-hypnoos-identity-port .mes_block,html.st-hypnoos-identity-port .mes_text{max-width:none!important;max-height:none!important;overflow:visible!important;contain:none!important;transform:none!important;}"
+    ].join("\n");
+  }
+
+  function syncIdentityPortViewport() {
+    const size = readIdentityViewportSize();
+    htmlEl.style.setProperty("--st-identity-port-vh", size.height + "px");
+    htmlEl.style.setProperty("--st-identity-port-width", size.width + "px");
+  }
+
   function styleIdentityHost(host) {
     if (!host || !host.style) return host;
     const important = "important";
@@ -677,11 +767,12 @@
     host.style.setProperty("inset", "0", important);
     host.style.setProperty("z-index", "2147483000", important);
     host.style.setProperty("width", "100vw", important);
-    host.style.setProperty("height", "100vh", important);
-    host.style.setProperty("height", "100dvh", important);
-    host.style.setProperty("min-height", "100vh", important);
-    host.style.setProperty("min-height", "100dvh", important);
-    host.style.setProperty("max-height", "100dvh", important);
+    host.style.setProperty("max-width", "100vw", important);
+    host.style.setProperty("height", "var(--st-identity-port-vh, 100dvh)", important);
+    host.style.setProperty("min-height", "0", important);
+    host.style.setProperty("max-height", "var(--st-identity-port-vh, 100dvh)", important);
+    host.style.setProperty("margin", "0", important);
+    host.style.setProperty("padding", "0", important);
     host.style.setProperty("overflow", "hidden", important);
     host.style.setProperty("display", "block", important);
     host.style.setProperty("transform", "none", important);
@@ -690,8 +781,30 @@
     return host;
   }
 
+  function styleIdentityRoot(root) {
+    if (!root || !root.style) return root;
+    const important = "important";
+    root.style.setProperty("position", "fixed", important);
+    root.style.setProperty("inset", "0", important);
+    root.style.setProperty("z-index", "2147483000", important);
+    root.style.setProperty("width", "100vw", important);
+    root.style.setProperty("max-width", "100vw", important);
+    root.style.setProperty("height", "var(--st-identity-port-vh, 100dvh)", important);
+    root.style.setProperty("min-height", "0", important);
+    root.style.setProperty("max-height", "var(--st-identity-port-vh, 100dvh)", important);
+    root.style.setProperty("margin", "0", important);
+    root.style.setProperty("padding", "0", important);
+    root.style.setProperty("overflow", "hidden", important);
+    root.style.setProperty("transform", "none", important);
+    root.style.setProperty("clip-path", "none", important);
+    root.style.setProperty("contain", "none", important);
+    return root;
+  }
+
   function mountIdentityRoot() {
     if (!rootEl || !document.body) return;
+    ensureIdentityPortRuntimeStyle();
+    syncIdentityPortViewport();
     let host = document.getElementById("st-hypnoos-identity-frontend-host");
     if (!host) {
       host = document.createElement("div");
@@ -702,9 +815,23 @@
     }
     styleIdentityHost(host);
     if (rootEl.parentElement !== host) host.appendChild(rootEl);
+    styleIdentityRoot(rootEl);
   }
 
   mountIdentityRoot();
+  window.addEventListener("resize", mountIdentityRoot);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", mountIdentityRoot);
+    window.visualViewport.addEventListener("scroll", mountIdentityRoot);
+  }
+  try {
+    new MutationObserver(() => {
+      window.requestAnimationFrame(mountIdentityRoot);
+    }).observe(document.body, { childList: true });
+  } catch {}
+  window.setTimeout(mountIdentityRoot, 0);
+  window.setTimeout(mountIdentityRoot, 250);
+  window.setTimeout(mountIdentityRoot, 1000);
   if (rootEl) rootEl.style.setProperty("--identity-cover-image", cssUrl(coverImage));
 
   const defaultCards = () => ([
