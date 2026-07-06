@@ -56,8 +56,11 @@
   }
 
   .identity-desk-screen {
-    display: grid;
-    place-items: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(12px, 2.6vw, 22px);
     padding: clamp(14px, 4vw, 44px);
   }
 
@@ -72,11 +75,24 @@
     pointer-events: none;
   }
 
+  .identity-desk-title {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    color: #fff8ea;
+    font-size: clamp(24px, 4vw, 42px);
+    font-weight: 950;
+    line-height: 1.1;
+    text-align: center;
+    text-shadow: 0 3px 14px rgba(0, 0, 0, 0.46), 0 1px 0 rgba(59, 32, 18, 0.72);
+  }
+
   .identity-books {
     position: relative;
     z-index: 1;
     width: min(100%, 920px);
-    height: min(100%, 680px);
+    height: min(calc(100dvh - 132px), 680px);
+    min-height: 420px;
     display: grid;
     grid-template-columns: repeat(3, minmax(130px, 1fr));
     grid-template-rows: repeat(2, minmax(180px, 1fr));
@@ -452,12 +468,18 @@
     .identity-desk-screen {
       min-height: 100vh;
       min-height: 100dvh;
-      padding: 48px 16px 28px;
+      justify-content: flex-start;
+      padding: 28px 16px 28px;
+    }
+
+    .identity-desk-title {
+      font-size: clamp(24px, 8vw, 34px);
     }
 
     .identity-books {
       width: min(100%, 420px);
       height: auto;
+      min-height: 0;
       grid-template-columns: repeat(2, minmax(126px, 1fr));
       grid-template-rows: repeat(3, minmax(176px, auto));
       gap: 17px 16px;
@@ -565,6 +587,7 @@
 
 <main class="identity-root" id="identityRoot">
   <section class="identity-desk-screen" id="identityDeskScreen" aria-label="学生证桌面">
+    <h1 class="identity-desk-title">请选择你的身份</h1>
     <div class="identity-books" id="identityBooks"></div>
   </section>
 
@@ -626,10 +649,6 @@
   const STORAGE_KEY = "hypnoos.identity.cards.v2";
   const DEFAULT_CLASS = "2年A组";
   const TILTS = ["-4deg", "3deg", "-2deg", "4deg", "-3deg", "2deg"];
-  const BOOTSTRAP_ENTRIES = Array.isArray(window.__ST_HYPNOOS_IDENTITY_BOOTSTRAP_ENTRIES__)
-    ? window.__ST_HYPNOOS_IDENTITY_BOOTSTRAP_ENTRIES__
-    : [];
-
   function defaultAssetBase() {
     try {
       return new URL("assets/", window.location.href).href;
@@ -1054,263 +1073,6 @@
     return true;
   }
 
-  const WORLD_INFO_CACHE = new WeakMap();
-  const SCRIPT_CACHE = new WeakMap();
-  const CHAT_WORLDBOOK_CACHE_KEY = "hypnoos.identity.chatWorldbook.v1";
-
-  async function importWorldInfoModule(win) {
-    if (WORLD_INFO_CACHE.has(win)) return WORLD_INFO_CACHE.get(win);
-    const attempts = [
-      () => win.eval?.("import('/scripts/world-info.js')"),
-      () => win.eval?.("import('./scripts/world-info.js')")
-    ];
-    for (const attempt of attempts) {
-      try {
-        const mod = await attempt();
-        if (mod?.saveWorldInfo) {
-          WORLD_INFO_CACHE.set(win, mod);
-          return mod;
-        }
-      } catch {}
-    }
-    WORLD_INFO_CACHE.set(win, null);
-    return null;
-  }
-
-  async function importScriptModule(win) {
-    if (SCRIPT_CACHE.has(win)) return SCRIPT_CACHE.get(win);
-    const attempts = [
-      () => win.eval?.("import('/script.js')"),
-      () => win.eval?.("import('./script.js')")
-    ];
-    for (const attempt of attempts) {
-      try {
-        const mod = await attempt();
-        if (mod?.saveMetadata || mod?.chat_metadata) {
-          SCRIPT_CACHE.set(win, mod);
-          return mod;
-        }
-      } catch {}
-    }
-    SCRIPT_CACHE.set(win, null);
-    return null;
-  }
-
-  function currentChatId(win, scriptMod) {
-    try {
-      const value = String(scriptMod?.getCurrentChatId?.() || "").trim();
-      if (value) return value;
-    } catch {}
-    const context = readContext(win);
-    return String(
-      context?.chatFile ||
-      context?.chat_file ||
-      context?.chat?.file_name ||
-      context?.chat?.filename ||
-      context?.chatId ||
-      context?.chat_id ||
-      ""
-    ).trim();
-  }
-
-  function safeWorldbookName(value) {
-    return String(value || "首楼当前聊天世界书").trim().replace(/[\\/:*?"<>|]+/g, "-").replace(/\s+/g, " ").slice(0, 80) || "首楼当前聊天世界书";
-  }
-
-  function chatWorldbookName(win, scriptMod) {
-    const chatId = currentChatId(win, scriptMod);
-    if (chatId) return safeWorldbookName("Chat Book " + chatId);
-    const context = readContext(win);
-    const charName = String(context?.name2 || "").trim() || "当前角色卡";
-    const stamp = new Date();
-    const pad = (value) => String(value).padStart(2, "0");
-    return safeWorldbookName("[首楼] " + charName + " - " + stamp.getFullYear() + "-" + pad(stamp.getMonth() + 1) + "-" + pad(stamp.getDate()) + "@" + pad(stamp.getHours()) + "h" + pad(stamp.getMinutes()) + "m");
-  }
-
-  function metadataTargets(win, scriptMod) {
-    const targets = [];
-    const add = (source) => {
-      if (source && typeof source === "object" && !targets.includes(source)) targets.push(source);
-    };
-    const context = readContext(win);
-    add(scriptMod?.chat_metadata);
-    add(win.chat_metadata);
-    add(context?.chatMetadata);
-    add(context?.chat_metadata);
-    add(context?.metadata);
-    add(context?.chat?.metadata);
-    return targets;
-  }
-
-  function cacheKey(win, scriptMod) {
-    return currentChatId(win, scriptMod);
-  }
-
-  function readCachedWorldbook(win, scriptMod) {
-    const key = cacheKey(win, scriptMod);
-    if (!key) return "";
-    try {
-      const map = JSON.parse(localStorage.getItem(CHAT_WORLDBOOK_CACHE_KEY) || "{}");
-      return String(map[key] || "").trim();
-    } catch {
-      return "";
-    }
-  }
-
-  function writeCachedWorldbook(win, scriptMod, name) {
-    const key = cacheKey(win, scriptMod);
-    if (!key || !name) return;
-    try {
-      const map = JSON.parse(localStorage.getItem(CHAT_WORLDBOOK_CACHE_KEY) || "{}");
-      map[key] = name;
-      localStorage.setItem(CHAT_WORLDBOOK_CACHE_KEY, JSON.stringify(map));
-    } catch {}
-  }
-
-  function readMetadataWorldbook(win, scriptMod) {
-    for (const target of metadataTargets(win, scriptMod)) {
-      const value = target?.world_info;
-      if (typeof value === "string" && value.trim()) return value.trim();
-      if (Array.isArray(value) && value[0]) return String(value[0]).trim();
-    }
-    return readCachedWorldbook(win, scriptMod);
-  }
-
-  async function persistMetadata(win, scriptMod) {
-    const context = readContext(win);
-    const calls = [
-      () => scriptMod?.saveMetadata?.(),
-      () => scriptMod?.saveMetadataDebounced?.(),
-      () => scriptMod?.saveChat?.(),
-      () => scriptMod?.saveChatDebounced?.(),
-      () => win.saveMetadata?.(),
-      () => win.saveMetadataDebounced?.(),
-      () => win.saveChat?.(),
-      () => win.saveChatDebounced?.(),
-      () => context?.saveMetadata?.(),
-      () => context?.saveMetadataDebounced?.()
-    ];
-    for (const call of calls) {
-      try {
-        const result = call();
-        if (result && typeof result.then === "function") await result;
-      } catch {}
-    }
-  }
-
-  async function ensureChatWorldbook(win) {
-    const mod = await importWorldInfoModule(win);
-    const scriptMod = await importScriptModule(win);
-    if (!mod?.saveWorldInfo || !scriptMod) return null;
-    try { await mod.updateWorldInfoList?.(); } catch {}
-    const names = Array.isArray(mod.world_names) ? mod.world_names : [];
-    let worldName = readMetadataWorldbook(win, scriptMod);
-    if (!worldName) worldName = chatWorldbookName(win, scriptMod);
-    if (typeof mod.createNewWorldInfo === "function" && names.length && !names.includes(worldName)) {
-      let candidate = worldName;
-      for (let index = 1; index < 20 && names.includes(candidate); index += 1) {
-        candidate = safeWorldbookName(worldName + " " + (index + 1));
-      }
-      worldName = candidate;
-      try { await mod.createNewWorldInfo(worldName, { interactive: false }); } catch {}
-      try { await mod.updateWorldInfoList?.(); } catch {}
-    } else if (typeof mod.createNewWorldInfo === "function" && !names.includes(worldName)) {
-      try { await mod.createNewWorldInfo(worldName, { interactive: false }); } catch {}
-    }
-    let wrote = false;
-    for (const target of metadataTargets(win, scriptMod)) {
-      try {
-        target.world_info = worldName;
-        wrote = true;
-      } catch {}
-    }
-    try {
-      win.chat_metadata = win.chat_metadata || {};
-      win.chat_metadata.world_info = worldName;
-      wrote = true;
-    } catch {}
-    writeCachedWorldbook(win, scriptMod, worldName);
-    if (wrote) await persistMetadata(win, scriptMod);
-    return { mod, worldName };
-  }
-
-  function entryValues(data) {
-    if (Array.isArray(data)) return data;
-    if (!data || typeof data !== "object") return [];
-    const entries = data.entries || data.entry || data.world_info || null;
-    if (Array.isArray(entries)) return entries;
-    if (entries && typeof entries === "object") return Object.values(entries);
-    return Object.values(data).filter((item) => item && typeof item === "object" && (item.content !== undefined || item.comment !== undefined || item.name !== undefined));
-  }
-
-  function nextUid(entries) {
-    const values = Array.isArray(entries) ? entries : Object.values(entries || {});
-    return Math.max(0, ...values.map((entry) => Number(entry?.uid ?? entry?.id) || 0)) + 1;
-  }
-
-  function normalizeWorldbookEntry(entry) {
-    const next = JSON.parse(JSON.stringify(entry || {}));
-    delete next.id;
-    delete next.uid;
-    if (Array.isArray(next.keys) && !Array.isArray(next.key)) next.key = next.keys.slice();
-    if (Array.isArray(next.key) && !Array.isArray(next.keys)) next.keys = next.key.slice();
-    if (Array.isArray(next.secondary_keys) && !Array.isArray(next.keysecondary)) next.keysecondary = next.secondary_keys.slice();
-    if (Array.isArray(next.keysecondary) && !Array.isArray(next.secondary_keys)) next.secondary_keys = next.keysecondary.slice();
-    next.comment = String(next.comment || next.name || "首楼世界书条目");
-    next.name = String(next.name || next.comment);
-    next.enabled = next.enabled !== false && next.disable !== true && next.disabled !== true;
-    next.disable = !next.enabled;
-    next.disabled = !next.enabled;
-    return next;
-  }
-
-  function isDuplicateEntry(entries, entry) {
-    const comment = String(entry?.comment || entry?.name || "").trim();
-    const content = String(entry?.content || "").trim();
-    return entryValues(entries).some((item) => {
-      const itemComment = String(item?.comment || item?.name || "").trim();
-      const itemContent = String(item?.content || "").trim();
-      return Boolean((comment && itemComment === comment) || (content && itemContent === content));
-    });
-  }
-
-  function appendWorldEntry(data, entry) {
-    if (!data || typeof data !== "object") return false;
-    const entries = data.entries || data.entry || data.world_info || (Array.isArray(data) ? data : null);
-    if (Array.isArray(entries)) {
-      if (!isDuplicateEntry(entries, entry)) entries.push({ ...entry, uid: nextUid(entries) });
-      return true;
-    }
-    if (entries && typeof entries === "object") {
-      if (!isDuplicateEntry(entries, entry)) {
-        const uid = nextUid(entries);
-        entries[uid] = { ...entry, uid };
-      }
-      return true;
-    }
-    data.entries = {};
-    data.entries[1] = { ...entry, uid: 1 };
-    return true;
-  }
-
-  async function insertBootstrapEntries() {
-    if (!BOOTSTRAP_ENTRIES.length) return { ok: false, inserted: 0, worldName: "" };
-    for (const win of candidateWindows()) {
-      const bound = await ensureChatWorldbook(win);
-      if (!bound) continue;
-      let data = null;
-      try { data = await bound.mod.loadWorldInfo?.(bound.worldName); } catch {}
-      if (!data || typeof data !== "object") data = { entries: {} };
-      const before = entryValues(data).length;
-      for (const raw of BOOTSTRAP_ENTRIES) appendWorldEntry(data, normalizeWorldbookEntry(raw));
-      const after = entryValues(data).length;
-      if (after !== before) await bound.mod.saveWorldInfo(bound.worldName, data, true);
-      try { await bound.mod.updateWorldInfoList?.(); } catch {}
-      return { ok: true, inserted: Math.max(0, after - before), worldName: bound.worldName };
-    }
-    return { ok: false, inserted: 0, worldName: "" };
-  }
-
   function selectedIdentityPayload() {
     const card = selectedCard();
     return {
@@ -1350,10 +1112,7 @@
     return text || fallback;
   }
 
-  function buildOpeningPrompt(identity, worldbook) {
-    const worldbookLine = worldbook?.ok
-      ? "聊天世界书已绑定：" + identityValue(worldbook.worldName, "当前聊天世界书") + "。"
-      : "聊天世界书写入失败或不可用；若缺少角色人设，请先检查当前聊天世界书绑定。";
+  function buildOpeningPrompt(identity) {
     return [
       "<首楼身份选择完成>",
       "user身份:",
@@ -1362,7 +1121,8 @@
       "- 年龄: " + identityValue(identity["年龄"]),
       "- 班级: " + identityValue(identity["班级"], DEFAULT_CLASS),
       "- 个人信息: " + identityValue(identity["个人信息"]),
-      "- " + worldbookLine,
+      "- 聊天世界书: 使用当前聊天默认绑定内容；首楼前端未导入或补写世界书条目。",
+      "- 催眠APP认知: user第一次拿到催眠APP时就已经完全信任其作用，确信APP的催眠、资源和权限机制真实有效；开场不要描写user怀疑APP是否有用。",
       "</首楼身份选择完成>",
       "",
       "请从固定开场开始正文：当前时间12:30，午休前最后一节课（4限现代文）刚下课，地点为二年A组教室。西园寺爱丽莎、月咏深雪、犬冢夏美都在教室或走廊附近自然出场，并根据上面的user身份形象做出不同第一反应。不要重新展示身份选择界面，不要用/add或add路径新增角色变量，不要重复输出变量初始化。"
@@ -1400,23 +1160,15 @@
     saving = true;
     const button = $("#identitySelect");
     button.disabled = true;
-    setStatus("正在写入身份与聊天世界书...");
+    setStatus("正在写入身份...");
     try {
       const identity = selectedIdentityPayload();
-      const [worldbook, wroteIdentity] = await Promise.all([
-        insertBootstrapEntries(),
-        writeIdentityVariable(identity)
-      ]);
-      if (wroteIdentity && worldbook.ok) {
-        setStatus("身份已写入；聊天世界书已绑定：" + worldbook.worldName + (worldbook.inserted ? "，新增" + worldbook.inserted + "条。" : "。"));
-        finishIdentitySelection(buildOpeningPrompt(identity, worldbook));
-      } else if (wroteIdentity) {
-        setStatus("身份已写入；聊天世界书写入失败，请检查世界书接口。");
-        finishIdentitySelection(buildOpeningPrompt(identity, worldbook));
-      } else if (worldbook.ok) {
-        setStatus("聊天世界书已绑定；MVU变量未写入，请确认变量接口可用。");
+      const wroteIdentity = await writeIdentityVariable(identity);
+      if (wroteIdentity) {
+        setStatus("身份已写入；聊天世界书使用当前默认绑定。");
+        finishIdentitySelection(buildOpeningPrompt(identity));
       } else {
-        setStatus("写入失败：MVU变量和聊天世界书接口都不可用。");
+        setStatus("写入失败：MVU变量接口不可用。");
       }
     } catch (err) {
       console.error("[HypnoOS Identity] select failed", err);
