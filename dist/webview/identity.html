@@ -1,0 +1,1118 @@
+<style>
+  :root {
+    --desk-ink: #1f2933;
+    --paper: #f7f0df;
+    --paper-2: #fffaf0;
+    --line: rgba(48, 38, 26, 0.22);
+    --wood: #6f4a2d;
+    --wood-dark: #3e281c;
+    --felt: #0f5b52;
+    --felt-dark: #073a36;
+    --accent: #246bfe;
+    --gold: #c79a3b;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    overflow: hidden;
+    color: var(--desk-ink);
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background:
+      linear-gradient(115deg, rgba(255, 255, 255, 0.05), transparent 42%),
+      repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 2px, transparent 2px 28px),
+      linear-gradient(135deg, var(--wood-dark), var(--wood) 52%, #8a6140);
+  }
+
+  .identity-desk {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    grid-template-columns: minmax(340px, 1fr) minmax(360px, 460px);
+    gap: clamp(18px, 3vw, 36px);
+    padding: clamp(18px, 4vw, 42px);
+  }
+
+  .identity-mat {
+    position: relative;
+    min-height: 0;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
+    background:
+      linear-gradient(145deg, rgba(255, 255, 255, 0.09), transparent 46%),
+      linear-gradient(160deg, var(--felt), var(--felt-dark));
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 26px 70px rgba(0, 0, 0, 0.28);
+    padding: clamp(16px, 3vw, 28px);
+    overflow: hidden;
+  }
+
+  .identity-mat::after {
+    content: "";
+    position: absolute;
+    inset: 14px;
+    border: 1px solid rgba(236, 224, 188, 0.26);
+    border-radius: 6px;
+    pointer-events: none;
+  }
+
+  .identity-books {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(120px, 1fr));
+    grid-template-rows: repeat(2, minmax(180px, 1fr));
+    gap: clamp(14px, 2.5vw, 28px);
+    align-items: center;
+    justify-items: center;
+  }
+
+  .identity-book {
+    width: min(100%, 176px);
+    aspect-ratio: 0.68;
+    border: 0;
+    border-radius: 6px;
+    padding: 0;
+    cursor: pointer;
+    color: #30261a;
+    background: transparent;
+    transform: rotate(var(--tilt));
+    transition: transform 160ms ease, filter 160ms ease;
+  }
+
+  .identity-book:hover,
+  .identity-book:focus-visible {
+    transform: rotate(var(--tilt)) translateY(-5px);
+    filter: brightness(1.03);
+    outline: none;
+  }
+
+  .identity-book.is-active {
+    transform: rotate(var(--tilt)) translateY(-8px) scale(1.03);
+  }
+
+  .identity-cover {
+    height: 100%;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 12px;
+    border: 1px solid rgba(72, 54, 31, 0.32);
+    border-radius: 6px;
+    background:
+      linear-gradient(90deg, rgba(69, 47, 27, 0.18), transparent 15%),
+      linear-gradient(180deg, var(--paper-2), var(--paper));
+    box-shadow: 0 16px 30px rgba(0, 0, 0, 0.22), inset 12px 0 18px rgba(92, 65, 31, 0.1);
+    padding: 16px 14px 14px;
+    text-align: left;
+  }
+
+  .identity-cover b {
+    display: block;
+    font-family: ui-serif, Georgia, "Times New Roman", serif;
+    font-size: 20px;
+    text-align: center;
+  }
+
+  .identity-cover .cover-name {
+    align-self: center;
+    min-height: 54px;
+    border-block: 1px solid rgba(86, 65, 40, 0.2);
+    display: grid;
+    place-items: center;
+    padding: 10px 0;
+    font-size: 18px;
+    font-weight: 800;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  .identity-cover small {
+    display: grid;
+    gap: 4px;
+    color: rgba(48, 38, 26, 0.66);
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .identity-panel {
+    min-width: 0;
+    min-height: 0;
+    align-self: stretch;
+    border: 1px solid rgba(66, 48, 30, 0.22);
+    border-radius: 8px;
+    background: rgba(255, 250, 240, 0.95);
+    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.22);
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    overflow: hidden;
+  }
+
+  .identity-panel header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid var(--line);
+    padding: 18px 20px;
+  }
+
+  .identity-panel h1 {
+    margin: 0;
+    font-size: 22px;
+    line-height: 1.2;
+    letter-spacing: 0;
+  }
+
+  .identity-badge {
+    flex: 0 0 auto;
+    border: 1px solid rgba(36, 107, 254, 0.24);
+    border-radius: 999px;
+    padding: 6px 10px;
+    color: #12397f;
+    background: rgba(36, 107, 254, 0.08);
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .identity-form {
+    min-height: 0;
+    overflow: auto;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: minmax(150px, 0.78fr) minmax(0, 1.22fr);
+    gap: 18px;
+  }
+
+  .identity-photo {
+    display: grid;
+    grid-template-rows: minmax(180px, 240px) auto;
+    gap: 10px;
+  }
+
+  .identity-photo-preview {
+    border: 1px solid rgba(48, 38, 26, 0.28);
+    border-radius: 6px;
+    background:
+      linear-gradient(135deg, rgba(15, 91, 82, 0.08), rgba(36, 107, 254, 0.08)),
+      var(--paper);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+  }
+
+  .identity-photo-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .identity-photo-preview span {
+    color: rgba(48, 38, 26, 0.48);
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .identity-photo-actions {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+  }
+
+  .identity-fields {
+    display: grid;
+    gap: 12px;
+  }
+
+  .identity-field {
+    display: grid;
+    gap: 5px;
+  }
+
+  .identity-field span {
+    color: rgba(48, 38, 26, 0.62);
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .identity-field input,
+  .identity-field textarea {
+    width: 100%;
+    min-width: 0;
+    border: 1px solid rgba(48, 38, 26, 0.2);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.62);
+    color: var(--desk-ink);
+    font: inherit;
+    font-size: 14px;
+    line-height: 1.45;
+    padding: 10px 11px;
+    outline: none;
+  }
+
+  .identity-field textarea {
+    min-height: 154px;
+    resize: vertical;
+  }
+
+  .identity-field input:focus,
+  .identity-field textarea:focus {
+    border-color: rgba(36, 107, 254, 0.55);
+    box-shadow: 0 0 0 3px rgba(36, 107, 254, 0.12);
+  }
+
+  .identity-actions,
+  .identity-panel footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .identity-panel footer {
+    border-top: 1px solid var(--line);
+    padding: 14px 20px;
+  }
+
+  .identity-status {
+    min-width: 0;
+    color: rgba(48, 38, 26, 0.62);
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .identity-button {
+    min-height: 38px;
+    border: 1px solid rgba(48, 38, 26, 0.22);
+    border-radius: 6px;
+    padding: 9px 13px;
+    color: var(--desk-ink);
+    background: rgba(255, 255, 255, 0.68);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .identity-button.primary {
+    border-color: rgba(36, 107, 254, 0.45);
+    color: white;
+    background: linear-gradient(180deg, #377bff, #1d54d8);
+    box-shadow: 0 10px 20px rgba(36, 107, 254, 0.22);
+  }
+
+  .identity-button:disabled {
+    cursor: progress;
+    opacity: 0.68;
+  }
+
+  .identity-hidden {
+    display: none !important;
+  }
+
+  @media (max-width: 820px) {
+    body {
+      overflow: auto;
+    }
+
+    .identity-desk {
+      position: relative;
+      min-height: 100vh;
+      grid-template-columns: 1fr;
+      padding: 12px;
+    }
+
+    .identity-mat {
+      min-height: 430px;
+      padding: 14px;
+    }
+
+    .identity-books {
+      grid-template-columns: repeat(2, minmax(118px, 1fr));
+      grid-template-rows: repeat(3, 168px);
+      gap: 12px;
+    }
+
+    .identity-book {
+      width: min(100%, 132px);
+    }
+
+    .identity-cover {
+      padding: 13px 11px 11px;
+    }
+
+    .identity-cover b {
+      font-size: 17px;
+    }
+
+    .identity-cover .cover-name {
+      font-size: 15px;
+      min-height: 44px;
+    }
+
+    .identity-panel {
+      overflow: visible;
+    }
+
+    .identity-form {
+      grid-template-columns: 1fr;
+      overflow: visible;
+      padding: 16px;
+    }
+
+    .identity-photo {
+      grid-template-columns: minmax(130px, 180px) 1fr;
+      grid-template-rows: auto;
+      align-items: end;
+    }
+
+    .identity-photo-preview {
+      height: 190px;
+    }
+
+    .identity-photo-actions {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<main class="identity-desk" id="identityDesk">
+  <section class="identity-mat" aria-label="学生证桌面">
+    <div class="identity-books" id="identityBooks"></div>
+  </section>
+
+  <section class="identity-panel" aria-label="身份详情">
+    <header>
+      <h1>学生证</h1>
+      <span class="identity-badge" id="identityDifficulty">简单</span>
+    </header>
+
+    <div class="identity-form">
+      <div class="identity-photo">
+        <div class="identity-photo-preview" id="identityPhotoPreview"><span>照片为空</span></div>
+        <div class="identity-photo-actions">
+          <button class="identity-button" type="button" id="identityUpload">上传照片</button>
+          <button class="identity-button" type="button" id="identityClearPhoto">清空</button>
+          <input class="identity-hidden" id="identityPhotoInput" type="file" accept="image/*">
+        </div>
+      </div>
+
+      <div class="identity-fields">
+        <label class="identity-field">
+          <span>姓名</span>
+          <input id="identityName" autocomplete="off">
+        </label>
+        <label class="identity-field">
+          <span>年龄</span>
+          <input id="identityAge" inputmode="numeric" autocomplete="off">
+        </label>
+        <label class="identity-field">
+          <span>班级</span>
+          <input id="identityClass" autocomplete="off">
+        </label>
+        <label class="identity-field">
+          <span>个人信息</span>
+          <textarea id="identityInfo"></textarea>
+        </label>
+        <div class="identity-actions">
+          <button class="identity-button" type="button" id="identityFillUser">用当前 user 填充</button>
+          <button class="identity-button" type="button" id="identityReset">恢复默认</button>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div class="identity-status" id="identityStatus">未选择身份</div>
+      <button class="identity-button primary" type="button" id="identitySelect">选择此身份</button>
+    </footer>
+  </section>
+</main>
+
+<script>
+(() => {
+  const STORAGE_KEY = "hypnoos.identity.cards.v1";
+  const DEFAULT_CLASS = "2年A组";
+  const TILTS = ["-4deg", "3deg", "-2deg", "4deg", "-3deg", "2deg"];
+  const BOOTSTRAP_ENTRIES = Array.isArray(window.__ST_HYPNOOS_IDENTITY_BOOTSTRAP_ENTRIES__)
+    ? window.__ST_HYPNOOS_IDENTITY_BOOTSTRAP_ENTRIES__
+    : [];
+
+  const defaultCards = () => ([
+    {
+      id: "easy",
+      title: "一",
+      difficulty: "简单",
+      name: "",
+      age: "17",
+      className: DEFAULT_CLASS,
+      photo: "",
+      info: "天生引人注目；五官端正、体态出众，学习、运动和社交都拿手。即使不依赖催眠APP，也容易在班级关系里取得主动。"
+    },
+    {
+      id: "normal",
+      title: "二",
+      difficulty: "普通",
+      name: "",
+      age: "17",
+      className: DEFAULT_CLASS,
+      photo: "",
+      info: "外表普通但气质干净真诚，带着未经雕饰的纯粹感；不抢眼，却容易让人放下戒心。"
+    },
+    {
+      id: "hard",
+      title: "三",
+      difficulty: "困难",
+      name: "",
+      age: "17",
+      className: DEFAULT_CLASS,
+      photo: "",
+      info: "瘦弱矮小，外貌不起眼，举止偶尔显得局促别扭；初始社交评价偏低，需要更谨慎地建立信任。"
+    },
+    {
+      id: "extreme",
+      title: "四",
+      difficulty: "极难",
+      name: "",
+      age: "17",
+      className: DEFAULT_CLASS,
+      photo: "",
+      info: "身形矮胖，仪表管理很差，气味和谈吐容易让同学退避；性格阴沉、防备心重，开局关系阻力极高。"
+    },
+    {
+      id: "outsider",
+      title: "五",
+      difficulty: "你是学生？",
+      name: "",
+      age: "65",
+      className: DEFAULT_CLASS,
+      photo: "",
+      info: "政府边缘群体再适应计划安插进学校的超龄生；长期流浪留下邋遢、肥胖、异味和健康问题，几乎所有人都会质疑其存在合理性，学校也经常收到举报；性格阴沉、防备心重，社交难度极高。"
+    },
+    {
+      id: "custom",
+      title: "六",
+      difficulty: "自定义",
+      name: "",
+      age: "17",
+      className: DEFAULT_CLASS,
+      photo: "",
+      info: "自定义身份。可读取当前 SillyTavern user 名称，其他字段由用户编辑。"
+    }
+  ]);
+
+  const $ = (selector) => document.querySelector(selector);
+  const booksEl = $("#identityBooks");
+  const difficultyEl = $("#identityDifficulty");
+  const statusEl = $("#identityStatus");
+  const photoPreviewEl = $("#identityPhotoPreview");
+  const fields = {
+    name: $("#identityName"),
+    age: $("#identityAge"),
+    className: $("#identityClass"),
+    info: $("#identityInfo")
+  };
+
+  let cards = loadCards();
+  let selectedId = cards[0]?.id || "easy";
+  let saving = false;
+
+  function setStatus(message) {
+    statusEl.textContent = String(message || "");
+  }
+
+  function loadCards() {
+    const defaults = defaultCards();
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      if (!Array.isArray(saved)) return defaults;
+      return defaults.map((card) => {
+        const match = saved.find((item) => item?.id === card.id);
+        return match && typeof match === "object" ? { ...card, ...match, id: card.id, title: card.title, difficulty: card.difficulty } : card;
+      });
+    } catch {
+      return defaults;
+    }
+  }
+
+  function saveCards() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
+    } catch (err) {
+      console.warn("[HypnoOS Identity] localStorage save failed", err);
+      setStatus("身份草稿保存失败：浏览器存储空间不足。");
+    }
+  }
+
+  function selectedCard() {
+    return cards.find((card) => card.id === selectedId) || cards[0];
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;");
+  }
+
+  function renderBooks() {
+    booksEl.innerHTML = cards.map((card, index) => {
+      const displayName = String(card.name || "").trim() || "未命名";
+      const classText = String(card.className || "").trim() || DEFAULT_CLASS;
+      const ageText = String(card.age || "").trim() || "未记录";
+      return '<button type="button" class="identity-book' + (card.id === selectedId ? ' is-active' : '') + '" data-card-id="' + escapeHtml(card.id) + '" style="--tilt:' + TILTS[index % TILTS.length] + '">' +
+        '<span class="identity-cover">' +
+          '<b>学生证</b>' +
+          '<span class="cover-name">' + escapeHtml(displayName) + '</span>' +
+          '<small><span>编号 ' + escapeHtml(card.title) + '</span><span>' + escapeHtml(card.difficulty) + '</span><span>' + escapeHtml(ageText + " · " + classText) + '</span></small>' +
+        '</span>' +
+      '</button>';
+    }).join("");
+    booksEl.querySelectorAll("[data-card-id]").forEach((button) => {
+      button.addEventListener("click", () => {
+        selectedId = button.dataset.cardId || selectedId;
+        render();
+      });
+    });
+  }
+
+  function renderPhoto(card) {
+    const photo = String(card.photo || "");
+    photoPreviewEl.innerHTML = photo
+      ? '<img alt="" src="' + escapeHtml(photo) + '">'
+      : '<span>照片为空</span>';
+  }
+
+  function renderForm() {
+    const card = selectedCard();
+    difficultyEl.textContent = card.difficulty;
+    fields.name.value = card.name || "";
+    fields.age.value = card.age || "";
+    fields.className.value = card.className || DEFAULT_CLASS;
+    fields.info.value = card.info || "";
+    $("#identityFillUser").classList.toggle("identity-hidden", card.id !== "custom");
+    renderPhoto(card);
+  }
+
+  function render() {
+    renderBooks();
+    renderForm();
+  }
+
+  function updateSelectedCard(patch) {
+    cards = cards.map((card) => card.id === selectedId ? { ...card, ...patch } : card);
+    saveCards();
+    renderBooks();
+  }
+
+  for (const [key, input] of Object.entries(fields)) {
+    input.addEventListener("input", () => {
+      updateSelectedCard({ [key]: input.value });
+    });
+  }
+
+  $("#identityUpload").addEventListener("click", () => $("#identityPhotoInput").click());
+  $("#identityClearPhoto").addEventListener("click", () => {
+    updateSelectedCard({ photo: "" });
+    renderPhoto(selectedCard());
+  });
+  $("#identityReset").addEventListener("click", () => {
+    const defaults = defaultCards();
+    const original = defaults.find((card) => card.id === selectedId);
+    if (!original) return;
+    cards = cards.map((card) => card.id === selectedId ? { ...original } : card);
+    saveCards();
+    render();
+    setStatus("已恢复当前学生证默认内容。");
+  });
+  $("#identityFillUser").addEventListener("click", () => {
+    const name = readCurrentUserName();
+    if (!name) {
+      setStatus("未读取到当前 SillyTavern user 名称。");
+      return;
+    }
+    updateSelectedCard({ name });
+    renderForm();
+    setStatus("已读取当前 user 名称。");
+  });
+  $("#identityPhotoInput").addEventListener("change", async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    try {
+      const photo = await resizeImageFile(file);
+      updateSelectedCard({ photo });
+      renderPhoto(selectedCard());
+      setStatus("照片已更新。");
+    } catch (err) {
+      console.warn("[HypnoOS Identity] photo resize failed", err);
+      setStatus("照片处理失败。");
+    }
+  });
+
+  function candidateWindows() {
+    const result = [];
+    for (const candidate of [window, window.parent, window.top]) {
+      try {
+        if (candidate && !result.includes(candidate)) result.push(candidate);
+      } catch {}
+    }
+    return result;
+  }
+
+  function readContext(win) {
+    try {
+      return win.SillyTavern?.getContext?.() || win.getContext?.() || null;
+    } catch {
+      return null;
+    }
+  }
+
+  function readCurrentUserName() {
+    for (const win of candidateWindows()) {
+      const context = readContext(win);
+      const values = [
+        context?.name1,
+        context?.userName,
+        context?.user?.name,
+        context?.persona?.name,
+        win.name1,
+        win.userName
+      ];
+      try { values.push(win.document?.querySelector?.("#your_name")?.value); } catch {}
+      for (const value of values) {
+        const text = String(value || "").trim();
+        if (text) return text;
+      }
+    }
+    return "";
+  }
+
+  function readCurrentMessageOption(win) {
+    try {
+      const id = win.getCurrentMessageId?.();
+      if (id !== undefined && id !== null && id !== "latest") return { type: "message", message_id: id };
+    } catch {}
+    return { type: "message", message_id: "latest" };
+  }
+
+  function variableOptions(win) {
+    const options = [readCurrentMessageOption(win), { type: "message", message_id: "latest" }, { type: "chat" }, undefined];
+    const seen = new Set();
+    return options.filter((option) => {
+      const key = option ? String(option.type || "") + ":" + String(option.message_id ?? "") : "undefined";
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
+  function scoreStatData(value) {
+    const root = value?.stat_data && typeof value.stat_data === "object" ? value.stat_data : value;
+    if (!root || typeof root !== "object" || Array.isArray(root)) return -1;
+    let score = 0;
+    const system = root["系统"];
+    if (system && typeof system === "object" && !Array.isArray(system)) {
+      score += 30;
+      for (const key of ["MC能量", "MC能量上限", "持有零花钱", "当前时间", "当前日期"]) {
+        if (system[key] !== undefined) score += 5;
+      }
+    }
+    if (root["角色"] && typeof root["角色"] === "object") score += 20;
+    return score;
+  }
+
+  function currentMvuData() {
+    const candidates = [];
+    for (const win of candidateWindows()) {
+      for (const option of variableOptions(win)) {
+        try {
+          if (win.Mvu?.getMvuData && win.Mvu?.replaceMvuData) {
+            const mvu = option === undefined ? win.Mvu.getMvuData() : win.Mvu.getMvuData(option);
+            if (mvu && typeof mvu.then !== "function") {
+              const stat = mvu?.stat_data && typeof mvu.stat_data === "object" ? mvu.stat_data : mvu;
+              const score = scoreStatData(stat);
+              if (score >= 0) candidates.push({ mvu, stat, option, replace: (next, opt) => win.Mvu.replaceMvuData(next, opt), score: score + 20 });
+            }
+          }
+        } catch {}
+        try {
+          if (typeof win.getVariables === "function" && typeof win.updateVariablesWith === "function") {
+            const vars = option === undefined ? win.getVariables() : win.getVariables(option);
+            const stat = vars?.stat_data && typeof vars.stat_data === "object" ? vars.stat_data : vars;
+            const score = scoreStatData(stat);
+            if (score >= 0) {
+              candidates.push({
+                mvu: vars,
+                stat,
+                option,
+                replace: () => win.updateVariablesWith((current) => {
+                  if (current?.stat_data && typeof current.stat_data === "object") {
+                    current.stat_data = stat;
+                    return current;
+                  }
+                  return stat;
+                }, option),
+                score
+              });
+            }
+          }
+        } catch {}
+      }
+    }
+    candidates.sort((a, b) => b.score - a.score);
+    return candidates[0] || null;
+  }
+
+  async function replaceMvuData(data) {
+    if (!data?.replace) return false;
+    const result = data.replace(data.mvu, data.option);
+    if (result && typeof result.then === "function") await result;
+    return true;
+  }
+
+  async function writeIdentityVariable(identity) {
+    const data = currentMvuData();
+    if (!data) return false;
+    data.stat["系统"] = data.stat["系统"] && typeof data.stat["系统"] === "object" && !Array.isArray(data.stat["系统"]) ? data.stat["系统"] : {};
+    data.stat["系统"]["user身份"] = identity;
+    await replaceMvuData(data);
+    return true;
+  }
+
+  const WORLD_INFO_CACHE = new WeakMap();
+  const SCRIPT_CACHE = new WeakMap();
+  const CHAT_WORLDBOOK_CACHE_KEY = "hypnoos.identity.chatWorldbook.v1";
+
+  async function importWorldInfoModule(win) {
+    if (WORLD_INFO_CACHE.has(win)) return WORLD_INFO_CACHE.get(win);
+    const attempts = [
+      () => win.eval?.("import('/scripts/world-info.js')"),
+      () => win.eval?.("import('./scripts/world-info.js')")
+    ];
+    for (const attempt of attempts) {
+      try {
+        const mod = await attempt();
+        if (mod?.saveWorldInfo) {
+          WORLD_INFO_CACHE.set(win, mod);
+          return mod;
+        }
+      } catch {}
+    }
+    WORLD_INFO_CACHE.set(win, null);
+    return null;
+  }
+
+  async function importScriptModule(win) {
+    if (SCRIPT_CACHE.has(win)) return SCRIPT_CACHE.get(win);
+    const attempts = [
+      () => win.eval?.("import('/script.js')"),
+      () => win.eval?.("import('./script.js')")
+    ];
+    for (const attempt of attempts) {
+      try {
+        const mod = await attempt();
+        if (mod?.saveMetadata || mod?.chat_metadata) {
+          SCRIPT_CACHE.set(win, mod);
+          return mod;
+        }
+      } catch {}
+    }
+    SCRIPT_CACHE.set(win, null);
+    return null;
+  }
+
+  function currentChatId(win, scriptMod) {
+    try {
+      const value = String(scriptMod?.getCurrentChatId?.() || "").trim();
+      if (value) return value;
+    } catch {}
+    const context = readContext(win);
+    return String(
+      context?.chatFile ||
+      context?.chat_file ||
+      context?.chat?.file_name ||
+      context?.chat?.filename ||
+      context?.chatId ||
+      context?.chat_id ||
+      ""
+    ).trim();
+  }
+
+  function safeWorldbookName(value) {
+    return String(value || "首楼当前聊天世界书").trim().replace(/[\\/:*?"<>|]+/g, "-").replace(/\s+/g, " ").slice(0, 80) || "首楼当前聊天世界书";
+  }
+
+  function chatWorldbookName(win, scriptMod) {
+    const chatId = currentChatId(win, scriptMod);
+    if (chatId) return safeWorldbookName("Chat Book " + chatId);
+    const context = readContext(win);
+    const charName = String(context?.name2 || "").trim() || "当前角色卡";
+    const stamp = new Date();
+    const pad = (value) => String(value).padStart(2, "0");
+    return safeWorldbookName("[首楼] " + charName + " - " + stamp.getFullYear() + "-" + pad(stamp.getMonth() + 1) + "-" + pad(stamp.getDate()) + "@" + pad(stamp.getHours()) + "h" + pad(stamp.getMinutes()) + "m");
+  }
+
+  function metadataTargets(win, scriptMod) {
+    const targets = [];
+    const add = (source) => {
+      if (source && typeof source === "object" && !targets.includes(source)) targets.push(source);
+    };
+    const context = readContext(win);
+    add(scriptMod?.chat_metadata);
+    add(win.chat_metadata);
+    add(context?.chatMetadata);
+    add(context?.chat_metadata);
+    add(context?.metadata);
+    add(context?.chat?.metadata);
+    return targets;
+  }
+
+  function cacheKey(win, scriptMod) {
+    return currentChatId(win, scriptMod);
+  }
+
+  function readCachedWorldbook(win, scriptMod) {
+    const key = cacheKey(win, scriptMod);
+    if (!key) return "";
+    try {
+      const map = JSON.parse(localStorage.getItem(CHAT_WORLDBOOK_CACHE_KEY) || "{}");
+      return String(map[key] || "").trim();
+    } catch {
+      return "";
+    }
+  }
+
+  function writeCachedWorldbook(win, scriptMod, name) {
+    const key = cacheKey(win, scriptMod);
+    if (!key || !name) return;
+    try {
+      const map = JSON.parse(localStorage.getItem(CHAT_WORLDBOOK_CACHE_KEY) || "{}");
+      map[key] = name;
+      localStorage.setItem(CHAT_WORLDBOOK_CACHE_KEY, JSON.stringify(map));
+    } catch {}
+  }
+
+  function readMetadataWorldbook(win, scriptMod) {
+    for (const target of metadataTargets(win, scriptMod)) {
+      const value = target?.world_info;
+      if (typeof value === "string" && value.trim()) return value.trim();
+      if (Array.isArray(value) && value[0]) return String(value[0]).trim();
+    }
+    return readCachedWorldbook(win, scriptMod);
+  }
+
+  async function persistMetadata(win, scriptMod) {
+    const context = readContext(win);
+    const calls = [
+      () => scriptMod?.saveMetadata?.(),
+      () => scriptMod?.saveMetadataDebounced?.(),
+      () => scriptMod?.saveChat?.(),
+      () => scriptMod?.saveChatDebounced?.(),
+      () => win.saveMetadata?.(),
+      () => win.saveMetadataDebounced?.(),
+      () => win.saveChat?.(),
+      () => win.saveChatDebounced?.(),
+      () => context?.saveMetadata?.(),
+      () => context?.saveMetadataDebounced?.()
+    ];
+    for (const call of calls) {
+      try {
+        const result = call();
+        if (result && typeof result.then === "function") await result;
+      } catch {}
+    }
+  }
+
+  async function ensureChatWorldbook(win) {
+    const mod = await importWorldInfoModule(win);
+    const scriptMod = await importScriptModule(win);
+    if (!mod?.saveWorldInfo || !scriptMod) return null;
+    try { await mod.updateWorldInfoList?.(); } catch {}
+    const names = Array.isArray(mod.world_names) ? mod.world_names : [];
+    let worldName = readMetadataWorldbook(win, scriptMod);
+    if (!worldName) worldName = chatWorldbookName(win, scriptMod);
+    if (typeof mod.createNewWorldInfo === "function" && names.length && !names.includes(worldName)) {
+      let candidate = worldName;
+      for (let index = 1; index < 20 && names.includes(candidate); index += 1) {
+        candidate = safeWorldbookName(worldName + " " + (index + 1));
+      }
+      worldName = candidate;
+      try { await mod.createNewWorldInfo(worldName, { interactive: false }); } catch {}
+      try { await mod.updateWorldInfoList?.(); } catch {}
+    } else if (typeof mod.createNewWorldInfo === "function" && !names.includes(worldName)) {
+      try { await mod.createNewWorldInfo(worldName, { interactive: false }); } catch {}
+    }
+    let wrote = false;
+    for (const target of metadataTargets(win, scriptMod)) {
+      try {
+        target.world_info = worldName;
+        wrote = true;
+      } catch {}
+    }
+    try {
+      win.chat_metadata = win.chat_metadata || {};
+      win.chat_metadata.world_info = worldName;
+      wrote = true;
+    } catch {}
+    writeCachedWorldbook(win, scriptMod, worldName);
+    if (wrote) await persistMetadata(win, scriptMod);
+    return { mod, worldName };
+  }
+
+  function entryValues(data) {
+    if (Array.isArray(data)) return data;
+    if (!data || typeof data !== "object") return [];
+    const entries = data.entries || data.entry || data.world_info || null;
+    if (Array.isArray(entries)) return entries;
+    if (entries && typeof entries === "object") return Object.values(entries);
+    return Object.values(data).filter((item) => item && typeof item === "object" && (item.content !== undefined || item.comment !== undefined || item.name !== undefined));
+  }
+
+  function nextUid(entries) {
+    const values = Array.isArray(entries) ? entries : Object.values(entries || {});
+    return Math.max(0, ...values.map((entry) => Number(entry?.uid ?? entry?.id) || 0)) + 1;
+  }
+
+  function normalizeWorldbookEntry(entry) {
+    const next = JSON.parse(JSON.stringify(entry || {}));
+    delete next.id;
+    delete next.uid;
+    if (Array.isArray(next.keys) && !Array.isArray(next.key)) next.key = next.keys.slice();
+    if (Array.isArray(next.key) && !Array.isArray(next.keys)) next.keys = next.key.slice();
+    if (Array.isArray(next.secondary_keys) && !Array.isArray(next.keysecondary)) next.keysecondary = next.secondary_keys.slice();
+    if (Array.isArray(next.keysecondary) && !Array.isArray(next.secondary_keys)) next.secondary_keys = next.keysecondary.slice();
+    next.comment = String(next.comment || next.name || "首楼世界书条目");
+    next.name = String(next.name || next.comment);
+    next.enabled = next.enabled !== false && next.disable !== true && next.disabled !== true;
+    next.disable = !next.enabled;
+    next.disabled = !next.enabled;
+    return next;
+  }
+
+  function isDuplicateEntry(entries, entry) {
+    const comment = String(entry?.comment || entry?.name || "").trim();
+    const content = String(entry?.content || "").trim();
+    return entryValues(entries).some((item) => {
+      const itemComment = String(item?.comment || item?.name || "").trim();
+      const itemContent = String(item?.content || "").trim();
+      return Boolean((comment && itemComment === comment) || (content && itemContent === content));
+    });
+  }
+
+  function appendWorldEntry(data, entry) {
+    if (!data || typeof data !== "object") return false;
+    const entries = data.entries || data.entry || data.world_info || (Array.isArray(data) ? data : null);
+    if (Array.isArray(entries)) {
+      if (!isDuplicateEntry(entries, entry)) entries.push({ ...entry, uid: nextUid(entries) });
+      return true;
+    }
+    if (entries && typeof entries === "object") {
+      if (!isDuplicateEntry(entries, entry)) {
+        const uid = nextUid(entries);
+        entries[uid] = { ...entry, uid };
+      }
+      return true;
+    }
+    data.entries = {};
+    data.entries[1] = { ...entry, uid: 1 };
+    return true;
+  }
+
+  async function insertBootstrapEntries() {
+    if (!BOOTSTRAP_ENTRIES.length) return { ok: false, inserted: 0, worldName: "" };
+    for (const win of candidateWindows()) {
+      const bound = await ensureChatWorldbook(win);
+      if (!bound) continue;
+      let data = null;
+      try { data = await bound.mod.loadWorldInfo?.(bound.worldName); } catch {}
+      if (!data || typeof data !== "object") data = { entries: {} };
+      const before = entryValues(data).length;
+      for (const raw of BOOTSTRAP_ENTRIES) appendWorldEntry(data, normalizeWorldbookEntry(raw));
+      const after = entryValues(data).length;
+      if (after !== before) await bound.mod.saveWorldInfo(bound.worldName, data, true);
+      try { await bound.mod.updateWorldInfoList?.(); } catch {}
+      return { ok: true, inserted: Math.max(0, after - before), worldName: bound.worldName };
+    }
+    return { ok: false, inserted: 0, worldName: "" };
+  }
+
+  function selectedIdentityPayload() {
+    const card = selectedCard();
+    return {
+      "模板ID": card.id,
+      "难度": card.difficulty,
+      "姓名": String(card.name || "").trim(),
+      "年龄": String(card.age || "").trim(),
+      "班级": String(card.className || "").trim() || DEFAULT_CLASS,
+      "个人信息": String(card.info || "").trim(),
+      "照片": String(card.photo || ""),
+      "来源": "首楼学生证",
+      "已选择": true
+    };
+  }
+
+  $("#identitySelect").addEventListener("click", async () => {
+    if (saving) return;
+    saving = true;
+    const button = $("#identitySelect");
+    button.disabled = true;
+    setStatus("正在写入身份与聊天世界书...");
+    try {
+      const [worldbook, wroteIdentity] = await Promise.all([
+        insertBootstrapEntries(),
+        writeIdentityVariable(selectedIdentityPayload())
+      ]);
+      if (wroteIdentity && worldbook.ok) {
+        setStatus("身份已写入；聊天世界书已绑定：" + worldbook.worldName + (worldbook.inserted ? "，新增" + worldbook.inserted + "条。" : "。"));
+      } else if (wroteIdentity) {
+        setStatus("身份已写入；聊天世界书写入失败，请检查世界书接口。");
+      } else if (worldbook.ok) {
+        setStatus("聊天世界书已绑定；MVU变量未写入，请确认变量接口可用。");
+      } else {
+        setStatus("写入失败：MVU变量和聊天世界书接口都不可用。");
+      }
+    } catch (err) {
+      console.error("[HypnoOS Identity] select failed", err);
+      setStatus("写入失败，请查看控制台。");
+    } finally {
+      saving = false;
+      button.disabled = false;
+    }
+  });
+
+  function resizeImageFile(file) {
+    return new Promise((resolve, reject) => {
+      if (!/^image\//i.test(file.type || "")) {
+        reject(new Error("not image"));
+        return;
+      }
+      const reader = new FileReader();
+      reader.onerror = () => reject(reader.error || new Error("read failed"));
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error("image decode failed"));
+        img.onload = () => {
+          const maxSize = 640;
+          const scale = Math.min(1, maxSize / Math.max(img.naturalWidth || 1, img.naturalHeight || 1));
+          const width = Math.max(1, Math.round((img.naturalWidth || 1) * scale));
+          const height = Math.max(1, Math.round((img.naturalHeight || 1) * scale));
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL("image/jpeg", 0.82));
+        };
+        img.src = String(reader.result || "");
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  render();
+})();
+</script>
