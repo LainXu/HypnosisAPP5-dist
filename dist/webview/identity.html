@@ -705,24 +705,6 @@
   const STORAGE_KEY = "hypnoos.identity.cards.v2";
   const DEFAULT_CLASS = "2年A组";
   const TILTS = ["-4deg", "3deg", "-2deg", "4deg", "-3deg", "2deg"];
-  function readBootstrapEntries() {
-    for (const win of [window, window.parent, window.top]) {
-      try {
-        const entries = win?.__ST_HYPNOOS_IDENTITY_BOOTSTRAP_ENTRIES__;
-        if (Array.isArray(entries)) return entries;
-      } catch {}
-    }
-    return [];
-  }
-
-  const BOOTSTRAP_ENTRIES = readBootstrapEntries();
-  const IS_PORTAL_FRAME = (() => {
-    try {
-      return new URLSearchParams(window.location.search).get("identityPortal") === "1";
-    } catch {
-      return false;
-    }
-  })();
 
   function defaultAssetBase() {
     try {
@@ -746,72 +728,6 @@
   const coverImage = assetUrl("identity/student-id-cover.png");
   const rootEl = document.getElementById("identityRoot");
   const htmlEl = document.documentElement;
-
-  function identityPortalUrl() {
-    try {
-      const url = new URL(window.location.href);
-      url.searchParams.set("identityPortal", "1");
-      return url.href;
-    } catch {
-      const joiner = window.location.href.includes("?") ? "&" : "?";
-      return window.location.href + joiner + "identityPortal=1";
-    }
-  }
-
-  function stylePortalFrame(frame) {
-    if (!frame || !frame.style) return frame;
-    const important = "important";
-    frame.style.setProperty("position", "fixed", important);
-    frame.style.setProperty("inset", "0", important);
-    frame.style.setProperty("z-index", "2147483200", important);
-    frame.style.setProperty("display", "block", important);
-    frame.style.setProperty("width", "100vw", important);
-    frame.style.setProperty("height", "100vh", important);
-    frame.style.setProperty("height", "100dvh", important);
-    frame.style.setProperty("min-height", "100vh", important);
-    frame.style.setProperty("min-height", "100dvh", important);
-    frame.style.setProperty("max-height", "100dvh", important);
-    frame.style.setProperty("border", "0", important);
-    frame.style.setProperty("margin", "0", important);
-    frame.style.setProperty("padding", "0", important);
-    frame.style.setProperty("background", "#3f2619", important);
-    frame.style.setProperty("overflow", "hidden", important);
-    return frame;
-  }
-
-  function tryOpenTopPortal() {
-    if (IS_PORTAL_FRAME) return false;
-    let topDoc = null;
-    try {
-      if (!window.top || window.top === window) return false;
-      topDoc = window.top.document;
-      if (!topDoc?.body) return false;
-    } catch {
-      return false;
-    }
-    let frame = topDoc.getElementById("st-hypnoos-identity-portal-frame");
-    if (!frame) {
-      frame = topDoc.createElement("iframe");
-      frame.id = "st-hypnoos-identity-portal-frame";
-      frame.title = "首楼身份选择";
-      frame.setAttribute("data-st-hypnoos-identity-portal", "true");
-      frame.setAttribute("allow", "clipboard-read; clipboard-write");
-      topDoc.body.appendChild(frame);
-    } else if (frame.parentElement !== topDoc.body) {
-      topDoc.body.appendChild(frame);
-    }
-    stylePortalFrame(frame);
-    if (frame.getAttribute("src") !== identityPortalUrl()) frame.setAttribute("src", identityPortalUrl());
-    if (rootEl) rootEl.hidden = true;
-    try {
-      document.body.style.setProperty("min-height", "0", "important");
-      document.body.style.setProperty("height", "0", "important");
-      document.body.style.setProperty("overflow", "hidden", "important");
-    } catch {}
-    return true;
-  }
-
-  if (tryOpenTopPortal()) return;
 
   function readIdentityViewportSize() {
     const visual = window.visualViewport;
@@ -1285,256 +1201,6 @@
     return true;
   }
 
-  const WORLD_INFO_CACHE = new WeakMap();
-  const SCRIPT_CACHE = new WeakMap();
-  const CHAT_WORLDBOOK_CACHE_KEY = "hypnoos.identity.chatWorldbook.v1";
-
-  async function importWorldInfoModule(win) {
-    if (WORLD_INFO_CACHE.has(win)) return WORLD_INFO_CACHE.get(win);
-    const attempts = [
-      () => win.eval?.("import('/scripts/world-info.js')"),
-      () => win.eval?.("import('./scripts/world-info.js')")
-    ];
-    for (const attempt of attempts) {
-      try {
-        const mod = await attempt();
-        if (mod?.saveWorldInfo) {
-          WORLD_INFO_CACHE.set(win, mod);
-          return mod;
-        }
-      } catch {}
-    }
-    WORLD_INFO_CACHE.set(win, null);
-    return null;
-  }
-
-  async function importScriptModule(win) {
-    if (SCRIPT_CACHE.has(win)) return SCRIPT_CACHE.get(win);
-    const attempts = [
-      () => win.eval?.("import('/script.js')"),
-      () => win.eval?.("import('./script.js')")
-    ];
-    for (const attempt of attempts) {
-      try {
-        const mod = await attempt();
-        if (mod?.saveMetadata || mod?.chat_metadata) {
-          SCRIPT_CACHE.set(win, mod);
-          return mod;
-        }
-      } catch {}
-    }
-    SCRIPT_CACHE.set(win, null);
-    return null;
-  }
-
-  function currentChatId(win, scriptMod) {
-    try {
-      const value = String(scriptMod?.getCurrentChatId?.() || "").trim();
-      if (value) return value;
-    } catch {}
-    const context = readContext(win);
-    return String(
-      context?.chatFile ||
-      context?.chat_file ||
-      context?.chat?.file_name ||
-      context?.chat?.filename ||
-      context?.chatId ||
-      context?.chat_id ||
-      ""
-    ).trim();
-  }
-
-  function safeWorldbookName(value) {
-    return String(value || "首楼当前聊天世界书").trim().replace(/[\\/:*?"<>|]+/g, "-").replace(/\s+/g, " ").slice(0, 80) || "首楼当前聊天世界书";
-  }
-
-  function chatWorldbookName(win, scriptMod) {
-    const chatId = currentChatId(win, scriptMod);
-    if (chatId) return safeWorldbookName("Chat Book " + chatId);
-    const context = readContext(win);
-    const charName = String(context?.name2 || "").trim() || "当前角色卡";
-    const stamp = new Date();
-    const pad = (value) => String(value).padStart(2, "0");
-    return safeWorldbookName("[首楼] " + charName + " - " + stamp.getFullYear() + "-" + pad(stamp.getMonth() + 1) + "-" + pad(stamp.getDate()) + "@" + pad(stamp.getHours()) + "h" + pad(stamp.getMinutes()) + "m");
-  }
-
-  function metadataTargets(win, scriptMod) {
-    const targets = [];
-    const add = (source) => {
-      if (source && typeof source === "object" && !targets.includes(source)) targets.push(source);
-    };
-    const context = readContext(win);
-    add(scriptMod?.chat_metadata);
-    add(win.chat_metadata);
-    add(context?.chatMetadata);
-    add(context?.chat_metadata);
-    add(context?.metadata);
-    add(context?.chat?.metadata);
-    return targets;
-  }
-
-  function cacheKey(win, scriptMod) {
-    return currentChatId(win, scriptMod);
-  }
-
-  function readCachedWorldbook(win, scriptMod) {
-    const key = cacheKey(win, scriptMod);
-    if (!key) return "";
-    try {
-      const map = JSON.parse(localStorage.getItem(CHAT_WORLDBOOK_CACHE_KEY) || "{}");
-      return String(map[key] || "").trim();
-    } catch {
-      return "";
-    }
-  }
-
-  function writeCachedWorldbook(win, scriptMod, name) {
-    const key = cacheKey(win, scriptMod);
-    if (!key || !name) return;
-    try {
-      const map = JSON.parse(localStorage.getItem(CHAT_WORLDBOOK_CACHE_KEY) || "{}");
-      map[key] = name;
-      localStorage.setItem(CHAT_WORLDBOOK_CACHE_KEY, JSON.stringify(map));
-    } catch {}
-  }
-
-  function readMetadataWorldbook(win, scriptMod) {
-    for (const target of metadataTargets(win, scriptMod)) {
-      const value = target?.world_info;
-      if (typeof value === "string" && value.trim()) return value.trim();
-      if (Array.isArray(value) && value[0]) return String(value[0]).trim();
-    }
-    return readCachedWorldbook(win, scriptMod);
-  }
-
-  async function persistMetadata(win, scriptMod) {
-    const context = readContext(win);
-    const calls = [
-      () => scriptMod?.saveMetadata?.(),
-      () => scriptMod?.saveMetadataDebounced?.(),
-      () => scriptMod?.saveChat?.(),
-      () => scriptMod?.saveChatDebounced?.(),
-      () => win.saveMetadata?.(),
-      () => win.saveMetadataDebounced?.(),
-      () => win.saveChat?.(),
-      () => win.saveChatDebounced?.(),
-      () => context?.saveMetadata?.(),
-      () => context?.saveMetadataDebounced?.()
-    ];
-    for (const call of calls) {
-      try {
-        const result = call();
-        if (result && typeof result.then === "function") await result;
-      } catch {}
-    }
-  }
-
-  async function ensureChatWorldbook(win) {
-    const mod = await importWorldInfoModule(win);
-    const scriptMod = await importScriptModule(win);
-    if (!mod?.saveWorldInfo || !scriptMod) return null;
-    try { await mod.updateWorldInfoList?.(); } catch {}
-    const names = Array.isArray(mod.world_names) ? mod.world_names : [];
-    let worldName = readMetadataWorldbook(win, scriptMod);
-    if (!worldName) worldName = chatWorldbookName(win, scriptMod);
-    if (typeof mod.createNewWorldInfo === "function" && !names.includes(worldName)) {
-      try { await mod.createNewWorldInfo(worldName, { interactive: false }); } catch {}
-      try { await mod.updateWorldInfoList?.(); } catch {}
-    }
-    let wrote = false;
-    for (const target of metadataTargets(win, scriptMod)) {
-      try {
-        target.world_info = worldName;
-        wrote = true;
-      } catch {}
-    }
-    try {
-      win.chat_metadata = win.chat_metadata || {};
-      win.chat_metadata.world_info = worldName;
-      wrote = true;
-    } catch {}
-    writeCachedWorldbook(win, scriptMod, worldName);
-    if (wrote) await persistMetadata(win, scriptMod);
-    return { mod, worldName };
-  }
-
-  function entryValues(data) {
-    if (Array.isArray(data)) return data;
-    if (!data || typeof data !== "object") return [];
-    const entries = data.entries || data.entry || data.world_info || null;
-    if (Array.isArray(entries)) return entries;
-    if (entries && typeof entries === "object") return Object.values(entries);
-    return Object.values(data).filter((item) => item && typeof item === "object" && (item.content !== undefined || item.comment !== undefined || item.name !== undefined));
-  }
-
-  function nextUid(entries) {
-    const values = Array.isArray(entries) ? entries : Object.values(entries || {});
-    return Math.max(0, ...values.map((entry) => Number(entry?.uid ?? entry?.id) || 0)) + 1;
-  }
-
-  function normalizeWorldbookEntry(entry) {
-    const next = JSON.parse(JSON.stringify(entry || {}));
-    delete next.id;
-    delete next.uid;
-    if (Array.isArray(next.keys) && !Array.isArray(next.key)) next.key = next.keys.slice();
-    if (Array.isArray(next.key) && !Array.isArray(next.keys)) next.keys = next.key.slice();
-    if (Array.isArray(next.secondary_keys) && !Array.isArray(next.keysecondary)) next.keysecondary = next.secondary_keys.slice();
-    if (Array.isArray(next.keysecondary) && !Array.isArray(next.secondary_keys)) next.secondary_keys = next.keysecondary.slice();
-    next.comment = String(next.comment || next.name || "首楼世界书条目");
-    next.name = String(next.name || next.comment);
-    next.enabled = next.enabled !== false && next.disable !== true && next.disabled !== true;
-    next.disable = !next.enabled;
-    next.disabled = !next.enabled;
-    return next;
-  }
-
-  function isDuplicateEntry(entries, entry) {
-    const comment = String(entry?.comment || entry?.name || "").trim();
-    const content = String(entry?.content || "").trim();
-    return entryValues(entries).some((item) => {
-      const itemComment = String(item?.comment || item?.name || "").trim();
-      const itemContent = String(item?.content || "").trim();
-      return Boolean((comment && itemComment === comment) || (content && itemContent === content));
-    });
-  }
-
-  function appendWorldEntry(data, entry) {
-    if (!data || typeof data !== "object") return false;
-    const entries = data.entries || data.entry || data.world_info || (Array.isArray(data) ? data : null);
-    if (Array.isArray(entries)) {
-      if (!isDuplicateEntry(entries, entry)) entries.push({ ...entry, uid: nextUid(entries) });
-      return true;
-    }
-    if (entries && typeof entries === "object") {
-      if (!isDuplicateEntry(entries, entry)) {
-        const uid = nextUid(entries);
-        entries[uid] = { ...entry, uid };
-      }
-      return true;
-    }
-    data.entries = {};
-    data.entries[1] = { ...entry, uid: 1 };
-    return true;
-  }
-
-  async function insertBootstrapEntries() {
-    if (!BOOTSTRAP_ENTRIES.length) return { ok: false, inserted: 0, worldName: "" };
-    for (const win of candidateWindows()) {
-      const bound = await ensureChatWorldbook(win);
-      if (!bound) continue;
-      let data = null;
-      try { data = await bound.mod.loadWorldInfo?.(bound.worldName); } catch {}
-      if (!data || typeof data !== "object") data = { entries: {} };
-      const before = entryValues(data).length;
-      for (const raw of BOOTSTRAP_ENTRIES) appendWorldEntry(data, normalizeWorldbookEntry(raw));
-      const after = entryValues(data).length;
-      if (after !== before) await bound.mod.saveWorldInfo(bound.worldName, data, true);
-      try { await bound.mod.updateWorldInfoList?.(); } catch {}
-      return { ok: true, inserted: Math.max(0, after - before), worldName: bound.worldName };
-    }
-    return { ok: false, inserted: 0, worldName: "" };
-  }
-
   function selectedIdentityPayload() {
     const card = selectedCard();
     return {
@@ -1574,10 +1240,7 @@
     return text || fallback;
   }
 
-  function buildOpeningPrompt(identity, worldbook) {
-    const worldbookLine = worldbook?.ok
-      ? "聊天世界书已创建/绑定：" + identityValue(worldbook.worldName, "当前聊天世界书") + (worldbook.inserted ? "，本次新增" + worldbook.inserted + "条。" : "，本次未新增重复条目。")
-      : "聊天世界书创建或写入失败；若角色人设缺失，请检查世界书接口。";
+  function buildOpeningPrompt(identity) {
     return [
       "<首楼身份选择完成>",
       "user身份:",
@@ -1586,7 +1249,7 @@
       "- 年龄: " + identityValue(identity["年龄"]),
       "- 班级: " + identityValue(identity["班级"], DEFAULT_CLASS),
       "- 个人信息: " + identityValue(identity["个人信息"]),
-      "- " + worldbookLine,
+      "- 固定角色来源: 西园寺爱丽莎、月咏深雪、犬冢夏美、阿宅的变量和人设读取角色卡世界书；首楼不创建聊天世界书。",
       "- 催眠APP认知: user第一次拿到催眠APP时就已经完全信任其作用，确信APP的催眠、资源和权限机制真实有效；开场不要描写user怀疑APP是否有用。",
       "</首楼身份选择完成>",
       "",
@@ -1643,23 +1306,12 @@
     return true;
   }
 
-  function closeTopPortal() {
-    try {
-      const frame = window.top?.document?.getElementById("st-hypnoos-identity-portal-frame");
-      frame?.remove?.();
-    } catch {}
-  }
-
   function finishIdentitySelection(prompt) {
     queueOpeningPrompt(prompt);
     const wrotePrompt = writePromptToInput(prompt);
     if (wrotePrompt) markIdentityCompleted();
     if (rootEl) {
       rootEl.innerHTML = '<section class="identity-desk-screen" style="display:grid;place-items:center;padding:24px;text-align:center"><div style="max-width:520px;border:1px solid rgba(255,248,234,.42);border-radius:10px;background:rgba(40,24,14,.86);box-shadow:0 18px 45px rgba(0,0,0,.34);padding:18px 20px;color:#fff8ea;font:800 15px/1.6 -apple-system,BlinkMacSystemFont,Segoe UI,Noto Sans SC,sans-serif"><div style="font-size:20px;margin-bottom:6px">身份已写入</div><div style="opacity:.86">正在返回聊天界面，并把开场提示词放入输入框。</div></div></section>';
-    }
-    if (IS_PORTAL_FRAME && wrotePrompt) {
-      window.setTimeout(closeTopPortal, 520);
-      return;
     }
     window.setTimeout(() => {
       try {
@@ -1673,22 +1325,15 @@
     saving = true;
     const button = $("#identitySelect");
     button.disabled = true;
-    setStatus("正在写入身份与聊天世界书...");
+    setStatus("正在写入身份...");
     try {
       const identity = selectedIdentityPayload();
-      const [worldbook, wroteIdentity] = await Promise.all([
-        insertBootstrapEntries(),
-        writeIdentityVariable(identity)
-      ]);
+      const wroteIdentity = await writeIdentityVariable(identity);
       if (wroteIdentity) {
-        if (worldbook.ok) {
-          setStatus("身份已写入；聊天世界书已绑定：" + worldbook.worldName + (worldbook.inserted ? "，新增" + worldbook.inserted + "条。" : "。"));
-        } else {
-          setStatus("身份已写入；聊天世界书创建/写入失败，请检查世界书接口。");
-        }
-        finishIdentitySelection(buildOpeningPrompt(identity, worldbook));
+        setStatus("身份已写入。");
+        finishIdentitySelection(buildOpeningPrompt(identity));
       } else {
-        setStatus(worldbook.ok ? "聊天世界书已绑定；MVU变量未写入，请确认变量接口可用。" : "写入失败：MVU变量和聊天世界书接口都不可用。");
+        setStatus("写入失败：MVU变量接口不可用。");
       }
     } catch (err) {
       console.error("[HypnoOS Identity] select failed", err);
