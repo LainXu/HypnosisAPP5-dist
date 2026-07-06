@@ -651,6 +651,41 @@
 
   const coverImage = assetUrl("identity/student-id-cover.png");
   const rootEl = document.getElementById("identityRoot");
+  function styleIdentityHost(host) {
+    if (!host || !host.style) return host;
+    const important = "important";
+    host.style.setProperty("position", "fixed", important);
+    host.style.setProperty("inset", "0", important);
+    host.style.setProperty("z-index", "2147483000", important);
+    host.style.setProperty("width", "100vw", important);
+    host.style.setProperty("height", "100vh", important);
+    host.style.setProperty("height", "100dvh", important);
+    host.style.setProperty("min-height", "100vh", important);
+    host.style.setProperty("min-height", "100dvh", important);
+    host.style.setProperty("max-height", "100dvh", important);
+    host.style.setProperty("overflow", "hidden", important);
+    host.style.setProperty("display", "block", important);
+    host.style.setProperty("transform", "none", important);
+    host.style.setProperty("clip-path", "none", important);
+    host.style.setProperty("contain", "none", important);
+    return host;
+  }
+
+  function mountIdentityRoot() {
+    if (!rootEl || !document.body) return;
+    let host = document.getElementById("st-hypnoos-identity-frontend-host");
+    if (!host) {
+      host = document.createElement("div");
+      host.id = "st-hypnoos-identity-frontend-host";
+      document.body.appendChild(host);
+    } else if (host.parentElement !== document.body) {
+      document.body.appendChild(host);
+    }
+    styleIdentityHost(host);
+    if (rootEl.parentElement !== host) host.appendChild(rootEl);
+  }
+
+  mountIdentityRoot();
   if (rootEl) rootEl.style.setProperty("--identity-cover-image", cssUrl(coverImage));
 
   const defaultCards = () => ([
