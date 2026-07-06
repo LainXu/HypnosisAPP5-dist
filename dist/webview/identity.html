@@ -116,7 +116,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: clamp(12px, 2.6vw, 22px);
+    gap: clamp(18px, 3.2vw, 34px);
     padding: clamp(14px, 4vw, 44px);
   }
 
@@ -146,15 +146,15 @@
   .identity-books {
     position: relative;
     z-index: 1;
-    width: min(100%, 920px);
-    height: min(calc(100dvh - 132px), 680px);
-    min-height: 420px;
+    width: min(100%, 1040px);
+    height: min(calc(100dvh - 142px), 760px);
+    min-height: 500px;
     display: grid;
-    grid-template-columns: repeat(3, minmax(130px, 1fr));
-    grid-template-rows: repeat(2, minmax(180px, 1fr));
+    grid-template-columns: repeat(3, minmax(150px, 1fr));
+    grid-template-rows: repeat(2, minmax(218px, 1fr));
     align-items: center;
     justify-items: center;
-    gap: clamp(14px, 2.6vw, 30px);
+    gap: clamp(24px, 4vw, 52px);
   }
 
   .identity-book {
@@ -533,16 +533,16 @@
     }
 
     .identity-books {
-      width: min(100%, 420px);
+      width: min(100%, 440px);
       height: auto;
       min-height: 0;
       grid-template-columns: repeat(2, minmax(126px, 1fr));
-      grid-template-rows: repeat(3, minmax(176px, auto));
-      gap: 17px 16px;
+      grid-template-rows: repeat(3, minmax(188px, auto));
+      gap: 22px 20px;
     }
 
     .identity-book {
-      width: min(100%, 145px);
+      width: min(100%, 148px);
     }
 
     .identity-book-cover {
@@ -1221,11 +1221,26 @@
     for (const win of candidateWindows()) {
       try {
         const context = readContext(win);
-        values.push(context?.chatId, context?.chat_id, context?.chatFile, context?.chat_file, context?.chat?.id, context?.chat?.file_name, context?.characterId, context?.groupId);
+        values.push(
+          win?.getCurrentMessageId?.(),
+          context?.messageId,
+          context?.message_id,
+          context?.currentMessageId,
+          context?.current_message_id,
+          context?.chatId,
+          context?.chat_id,
+          context?.chatFile,
+          context?.chat_file,
+          context?.chat?.id,
+          context?.chat?.file_name,
+          context?.characterId,
+          context?.groupId
+        );
       } catch {}
     }
     for (const value of values) {
       const text = String(value ?? "").trim();
+      if (!text || text === "latest") continue;
       if (text) return text.replace(/[^\w\-.:@]/g, "_").slice(0, 120);
     }
     return "global";
@@ -1234,6 +1249,8 @@
   function identityStorageKey(prefix) {
     return prefix + identityStorageScope();
   }
+
+  try { localStorage.removeItem("hypnoos.identity.completed.v1:global"); } catch {}
 
   function identityValue(value, fallback = "未填写") {
     const text = String(value ?? "").trim();
