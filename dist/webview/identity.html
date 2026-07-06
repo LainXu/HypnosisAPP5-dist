@@ -1271,6 +1271,12 @@
     return false;
   }
 
+  function clearQueuedOpeningPrompt() {
+    for (const key of [identityStorageKey("hypnoos.identity.pendingPrompt.v1:"), "hypnoos.identity.pendingPrompt.v1:global"]) {
+      try { localStorage.removeItem(key); } catch {}
+    }
+  }
+
   function markIdentityCompleted() {
     try { localStorage.setItem(identityStorageKey("hypnoos.identity.completed.v1:"), "1"); } catch {}
   }
@@ -1295,23 +1301,82 @@
     return null;
   }
 
+  function findSendButton(input) {
+    const docs = [];
+    try {
+      if (input?.ownerDocument) docs.push(input.ownerDocument);
+    } catch {}
+    for (const win of candidateWindows()) {
+      try {
+        const doc = win?.document;
+        if (doc && !docs.includes(doc)) docs.push(doc);
+      } catch {}
+    }
+    const selectors = [
+      "#send_but",
+      "button#send_but",
+      "[data-testid='send-button']",
+      "button[data-testid='send-button']",
+      "button[aria-label='Send']",
+      "button[title='Send']",
+      ".send_but"
+    ];
+    for (const doc of docs) {
+      for (const selector of selectors) {
+        try {
+          const button = doc.querySelector(selector);
+          if (button) return button;
+        } catch {}
+      }
+    }
+    return null;
+  }
+
   function writePromptToInput(prompt) {
     const input = findSendInput();
-    if (!input) return false;
+    if (!input) return null;
     if ("value" in input) input.value = prompt;
     else input.textContent = prompt;
     try { input.dispatchEvent(new Event("input", { bubbles: true })); } catch {}
     try { input.dispatchEvent(new Event("change", { bubbles: true })); } catch {}
     try { input.focus(); } catch {}
-    return true;
+    return input;
+  }
+
+  function clearPromptInput(input, prompt) {
+    if (!input) return;
+    const current = "value" in input ? input.value : input.textContent;
+    if (String(current || "") !== String(prompt || "")) return;
+    if ("value" in input) input.value = "";
+    else input.textContent = "";
+    try { input.dispatchEvent(new Event("input", { bubbles: true })); } catch {}
+    try { input.dispatchEvent(new Event("change", { bubbles: true })); } catch {}
+  }
+
+  function submitPrompt(prompt) {
+    const input = writePromptToInput(prompt);
+    if (!input) return false;
+    const button = findSendButton(input);
+    if (button && !button.disabled && button.getAttribute("aria-disabled") !== "true") {
+      try {
+        button.click();
+        return true;
+      } catch {}
+    }
+    clearPromptInput(input, prompt);
+    return false;
   }
 
   function finishIdentitySelection(prompt) {
-    queueOpeningPrompt(prompt);
-    const wrotePrompt = writePromptToInput(prompt);
-    if (wrotePrompt) markIdentityCompleted();
+    const sentPrompt = submitPrompt(prompt);
+    if (sentPrompt) {
+      clearQueuedOpeningPrompt();
+      markIdentityCompleted();
+    } else {
+      queueOpeningPrompt(prompt);
+    }
     if (rootEl) {
-      rootEl.innerHTML = '<section class="identity-desk-screen" style="display:grid;place-items:center;padding:24px;text-align:center"><div style="max-width:520px;border:1px solid rgba(255,248,234,.42);border-radius:10px;background:rgba(40,24,14,.86);box-shadow:0 18px 45px rgba(0,0,0,.34);padding:18px 20px;color:#fff8ea;font:800 15px/1.6 -apple-system,BlinkMacSystemFont,Segoe UI,Noto Sans SC,sans-serif"><div style="font-size:20px;margin-bottom:6px">身份已写入</div><div style="opacity:.86">正在返回聊天界面，并把开场提示词放入输入框。</div></div></section>';
+      rootEl.innerHTML = '<section class="identity-desk-screen" style="display:grid;place-items:center;padding:24px;text-align:center"><div style="max-width:520px;border:1px solid rgba(255,248,234,.42);border-radius:10px;background:rgba(40,24,14,.86);box-shadow:0 18px 45px rgba(0,0,0,.34);padding:18px 20px;color:#fff8ea;font:800 15px/1.6 -apple-system,BlinkMacSystemFont,Segoe UI,Noto Sans SC,sans-serif"><div style="font-size:20px;margin-bottom:6px">身份已写入</div><div style="opacity:.86">' + (sentPrompt ? '正在发送开场提示词。' : '正在等待外层聊天界面发送开场提示词。') + '</div></div></section>';
     }
     window.setTimeout(() => {
       try {
