@@ -1326,6 +1326,75 @@
     };
   }
 
+  function identityStorageScope() {
+    const values = [];
+    for (const win of candidateWindows()) {
+      try {
+        const context = readContext(win);
+        values.push(context?.chatId, context?.chat_id, context?.chatFile, context?.chat_file, context?.chat?.id, context?.chat?.file_name, context?.characterId, context?.groupId);
+      } catch {}
+    }
+    for (const value of values) {
+      const text = String(value ?? "").trim();
+      if (text) return text.replace(/[^\w\-.:@]/g, "_").slice(0, 120);
+    }
+    return "global";
+  }
+
+  function identityStorageKey(prefix) {
+    return prefix + identityStorageScope();
+  }
+
+  function identityValue(value, fallback = "未填写") {
+    const text = String(value ?? "").trim();
+    return text || fallback;
+  }
+
+  function buildOpeningPrompt(identity, worldbook) {
+    const worldbookLine = worldbook?.ok
+      ? "聊天世界书已绑定：" + identityValue(worldbook.worldName, "当前聊天世界书") + "。"
+      : "聊天世界书写入失败或不可用；若缺少角色人设，请先检查当前聊天世界书绑定。";
+    return [
+      "<首楼身份选择完成>",
+      "user身份:",
+      "- 难度: " + identityValue(identity["难度"]),
+      "- 姓名: " + identityValue(identity["姓名"]),
+      "- 年龄: " + identityValue(identity["年龄"]),
+      "- 班级: " + identityValue(identity["班级"], DEFAULT_CLASS),
+      "- 个人信息: " + identityValue(identity["个人信息"]),
+      "- " + worldbookLine,
+      "</首楼身份选择完成>",
+      "",
+      "请从固定开场开始正文：当前时间12:30，午休前最后一节课（4限现代文）刚下课，地点为二年A组教室。西园寺爱丽莎、月咏深雪、犬冢夏美都在教室或走廊附近自然出场，并根据上面的user身份形象做出不同第一反应。不要重新展示身份选择界面，不要用/add或add路径新增角色变量，不要重复输出变量初始化。"
+    ].join("\n");
+  }
+
+  function queueOpeningPrompt(prompt) {
+    const payload = JSON.stringify({ prompt: String(prompt || ""), createdAt: Date.now() });
+    try {
+      localStorage.setItem(identityStorageKey("hypnoos.identity.pendingPrompt.v1:"), payload);
+      return true;
+    } catch {
+      try {
+        localStorage.setItem("hypnoos.identity.pendingPrompt.v1:global", payload);
+        return true;
+      } catch {}
+    }
+    return false;
+  }
+
+  function finishIdentitySelection(prompt) {
+    queueOpeningPrompt(prompt);
+    if (rootEl) {
+      rootEl.innerHTML = '<section class="identity-desk-screen" style="display:grid;place-items:center;padding:24px;text-align:center"><div style="max-width:520px;border:1px solid rgba(255,248,234,.42);border-radius:10px;background:rgba(40,24,14,.86);box-shadow:0 18px 45px rgba(0,0,0,.34);padding:18px 20px;color:#fff8ea;font:800 15px/1.6 -apple-system,BlinkMacSystemFont,Segoe UI,Noto Sans SC,sans-serif"><div style="font-size:20px;margin-bottom:6px">身份已写入</div><div style="opacity:.86">正在返回聊天界面，并把开场提示词放入输入框。</div></div></section>';
+    }
+    window.setTimeout(() => {
+      try {
+        window.location.reload();
+      } catch {}
+    }, 520);
+  }
+
   $("#identitySelect").addEventListener("click", async () => {
     if (saving) return;
     saving = true;
@@ -1333,14 +1402,17 @@
     button.disabled = true;
     setStatus("正在写入身份与聊天世界书...");
     try {
+      const identity = selectedIdentityPayload();
       const [worldbook, wroteIdentity] = await Promise.all([
         insertBootstrapEntries(),
-        writeIdentityVariable(selectedIdentityPayload())
+        writeIdentityVariable(identity)
       ]);
       if (wroteIdentity && worldbook.ok) {
         setStatus("身份已写入；聊天世界书已绑定：" + worldbook.worldName + (worldbook.inserted ? "，新增" + worldbook.inserted + "条。" : "。"));
+        finishIdentitySelection(buildOpeningPrompt(identity, worldbook));
       } else if (wroteIdentity) {
         setStatus("身份已写入；聊天世界书写入失败，请检查世界书接口。");
+        finishIdentitySelection(buildOpeningPrompt(identity, worldbook));
       } else if (worldbook.ok) {
         setStatus("聊天世界书已绑定；MVU变量未写入，请确认变量接口可用。");
       } else {
