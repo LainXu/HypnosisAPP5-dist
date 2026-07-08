@@ -143,6 +143,93 @@
     text-shadow: 0 3px 14px rgba(0, 0, 0, 0.46), 0 1px 0 rgba(59, 32, 18, 0.72);
   }
 
+  .identity-notice-toggle {
+    position: absolute;
+    z-index: 8;
+    right: clamp(12px, 3vw, 28px);
+    top: clamp(12px, 3vw, 26px);
+    min-height: 32px;
+    max-width: min(56vw, 250px);
+    border: 1px solid rgba(255, 236, 176, 0.34);
+    border-radius: 999px;
+    background: rgba(247, 241, 229, 0.22);
+    color: #fff8ed;
+    padding: 0 12px;
+    font-size: 12px;
+    font-weight: 950;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-shadow: 0 8px 20px rgba(24, 14, 9, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(3px);
+  }
+
+  .identity-notice-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: grid;
+    place-items: center;
+    padding: clamp(16px, 4vw, 38px);
+    background: rgba(33, 20, 14, 0.56);
+    backdrop-filter: blur(3px);
+  }
+
+  .identity-notice-card {
+    width: min(100%, 520px);
+    max-height: min(82dvh, 640px);
+    overflow: auto;
+    border: 1px solid rgba(255, 236, 176, 0.34);
+    border-radius: 10px;
+    background:
+      linear-gradient(180deg, rgba(255, 248, 234, 0.96), rgba(247, 241, 229, 0.96));
+    color: #33291f;
+    padding: 16px;
+    box-shadow: 0 22px 50px rgba(24, 14, 9, 0.48), inset 0 0 0 2px rgba(255, 255, 255, 0.42);
+    display: grid;
+    gap: 10px;
+    font-family: "Songti SC", "STSong", "Noto Serif SC", serif;
+  }
+
+  .identity-notice-card h2 {
+    margin: 0;
+    color: #403126;
+    font-size: 20px;
+    line-height: 1.2;
+    font-weight: 950;
+  }
+
+  .identity-notice-card p {
+    margin: 0;
+    color: rgba(68, 54, 42, 0.78);
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.55;
+    white-space: pre-wrap;
+  }
+
+  .identity-notice-card strong {
+    color: #803727;
+    font-weight: 950;
+  }
+
+  .identity-notice-card ul {
+    margin: 0;
+    padding-left: 18px;
+    display: grid;
+    gap: 4px;
+    color: rgba(68, 54, 42, 0.78);
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.45;
+  }
+
+  .identity-notice-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 4px;
+  }
+
   .identity-books {
     position: relative;
     z-index: 1;
@@ -541,6 +628,26 @@
       font-size: clamp(24px, 8vw, 34px);
     }
 
+    .identity-notice-toggle {
+      max-width: 45vw;
+      min-height: 28px;
+      padding: 0 9px;
+      font-size: 10px;
+    }
+
+    .identity-notice-card {
+      padding: 13px;
+    }
+
+    .identity-notice-card h2 {
+      font-size: 17px;
+    }
+
+    .identity-notice-card p,
+    .identity-notice-card ul {
+      font-size: 12px;
+    }
+
     .identity-books {
       width: min(100%, 440px);
       height: auto;
@@ -658,6 +765,29 @@
 </style>
 
 <main class="identity-root" id="identityRoot">
+  <button class="identity-notice-toggle" type="button" id="identityNoticeToggle" title="本卡完全免费且为社区大家共同努力的结果">须知 · 本卡完全免费</button>
+  <section class="identity-notice-layer" id="identityNoticeLayer" aria-label="须知" hidden>
+    <article class="identity-notice-card" role="dialog" aria-modal="true" aria-labelledby="identityNoticeTitle">
+      <h2 id="identityNoticeTitle">本卡完全免费且为社区大家共同努力的结果</h2>
+      <p><strong>原作者：</strong>Ramiel；本版本为个人二改与前端重构版。
+<strong>本卡作者：</strong>louisHM</p>
+      <p>后续 @SDZ_aser 的数据库版本大家也可以期待</p>
+      <p><strong>使用到的各位大佬的世界书</strong></p>
+      <ul>
+        <li>@orjenrn大佬</li>
+        <li>@WangFeng 大佬</li>
+        <li>@Akashi Maho 大佬</li>
+        <li>@SDZ_aser 大佬</li>
+        <li>@白楷 大佬</li>
+      </ul>
+      <p>也感谢 @白楷  @eric @qyqy等大佬们的世界书意见
+感谢 @weiaolantei @黑白 @豆腐仙贝 等大佬们的帮忙测试</p>
+      <div class="identity-notice-actions">
+        <button class="identity-button primary" type="button" id="identityNoticeClose">知道了</button>
+      </div>
+    </article>
+  </section>
+
   <section class="identity-desk-screen" id="identityDeskScreen" aria-label="学生证桌面">
     <h1 class="identity-desk-title">请选择你的身份</h1>
     <div class="identity-books" id="identityBooks"></div>
@@ -918,6 +1048,7 @@
   const deskScreenEl = $("#identityDeskScreen");
   const detailScreenEl = $("#identityDetailScreen");
   const booksEl = $("#identityBooks");
+  const noticeLayerEl = $("#identityNoticeLayer");
   const difficultyEl = $("#identityDifficulty");
   const statusEl = $("#identityStatus");
   const photoPreviewEl = $("#identityPhotoPreview");
@@ -937,6 +1068,14 @@
 
   function setStatus(message) {
     statusEl.textContent = String(message || "");
+  }
+
+  function openIdentityNotice() {
+    if (noticeLayerEl) noticeLayerEl.hidden = false;
+  }
+
+  function closeIdentityNotice() {
+    if (noticeLayerEl) noticeLayerEl.hidden = true;
   }
 
   function loadCards() {
@@ -1047,6 +1186,14 @@
     });
   }
 
+  $("#identityNoticeToggle")?.addEventListener("click", openIdentityNotice);
+  $("#identityNoticeClose")?.addEventListener("click", closeIdentityNotice);
+  noticeLayerEl?.addEventListener("click", (event) => {
+    if (event.target === noticeLayerEl) closeIdentityNotice();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && noticeLayerEl && !noticeLayerEl.hidden) closeIdentityNotice();
+  });
   $("#identityBack").addEventListener("click", showDesk);
   $("#identityUpload").addEventListener("click", () => $("#identityPhotoInput").click());
   $("#identityClearPhoto").addEventListener("click", () => {
