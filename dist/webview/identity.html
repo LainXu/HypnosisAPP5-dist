@@ -506,6 +506,57 @@
     gap: 10px;
   }
 
+  .identity-perks {
+    display: grid;
+    gap: 6px;
+    border: 1px solid rgba(112, 84, 58, 0.2);
+    border-radius: 8px;
+    background: rgba(255, 248, 234, 0.52);
+    padding: 8px;
+  }
+
+  .identity-perks-title {
+    color: rgba(62, 45, 32, 0.68);
+    font-size: 11px;
+    font-weight: 900;
+    line-height: 1.2;
+  }
+
+  .identity-perk {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 7px;
+    align-items: start;
+    border: 1px solid rgba(112, 84, 58, 0.12);
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.44);
+    padding: 6px 7px;
+  }
+
+  .identity-perk input {
+    width: 16px;
+    height: 16px;
+    margin: 2px 0 0;
+    accent-color: #8f4d2b;
+  }
+
+  .identity-perk strong {
+    display: block;
+    color: #3e2d20;
+    font-size: 12px;
+    font-weight: 950;
+    line-height: 1.25;
+  }
+
+  .identity-perk small {
+    display: block;
+    color: rgba(62, 45, 32, 0.58);
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.35;
+    margin-top: 1px;
+  }
+
   .identity-field {
     display: grid;
     grid-template-columns: 70px minmax(0, 1fr);
@@ -835,6 +886,21 @@
             <textarea id="identityInfo"></textarea>
           </label>
         </div>
+        <section class="identity-perks" aria-label="开场选项">
+          <div class="identity-perks-title">开场选项</div>
+          <label class="identity-perk">
+            <input type="checkbox" data-opening-perk="scholarship">
+            <span><strong>助学金</strong><small>开场持有零花钱变为 50,000 日元。</small></span>
+          </label>
+          <label class="identity-perk">
+            <input type="checkbox" data-opening-perk="lucky-user">
+            <span><strong>幸运用户</strong><small>开场星光点变为 6。</small></span>
+          </label>
+          <label class="identity-perk">
+            <input type="checkbox" data-opening-perk="yamane-huge">
+            <span><strong>山根巨大</strong><small>开场 MC能量上限变为 100。</small></span>
+          </label>
+        </section>
         <div class="identity-actions">
           <button class="identity-button" type="button" id="identityFillUser">用当前 user 填充</button>
           <button class="identity-button" type="button" id="identityReset">恢复默认</button>
@@ -1062,6 +1128,11 @@
     className: $("#identityClass"),
     info: $("#identityInfo")
   };
+  const OPENING_PERKS = [
+    { id: "scholarship", label: "助学金", key: "持有零花钱", value: 50000 },
+    { id: "lucky-user", label: "幸运用户", key: "星光点", value: 6 },
+    { id: "yamane-huge", label: "山根巨大", key: "MC能量上限", value: 100 }
+  ];
 
   let cards = loadCards();
   let selectedId = cards[0]?.id || "easy";
@@ -1154,6 +1225,7 @@
     fields.info.value = card.info || "";
     $("#identityFillUser").classList.toggle("identity-hidden", card.id !== "custom");
     renderPhoto(card);
+    renderOpeningPerks();
   }
 
   function render() {
@@ -1368,6 +1440,7 @@
 
   function selectedIdentityPayload() {
     const card = selectedCard();
+    const perks = activeOpeningPerks();
     return {
       "模板ID": card.id,
       "难度": card.difficulty,
@@ -1377,7 +1450,11 @@
       "个人信息": String(card.info || "").trim(),
       "照片": String(card.photo || ""),
       "来源": "首楼学生证",
-      "已选择": true
+      "已选择": true,
+      ...(perks.length ? {
+        "开场选项": perks.map((perk) => perk.label).join("、"),
+        "开场选项说明": "已由首楼前端直接写入变量，AI不得二次发放或回退。"
+      } : {})
     };
   }
 
@@ -1417,6 +1494,93 @@
 
   try { localStorage.removeItem("hypnoos.identity.completed.v1:global"); } catch {}
 
+  function openingPerkStateKey() {
+    return identityStorageKey("hypnoos.identity.openingPerks.v1:");
+  }
+
+  function openingPerkOriginalKey() {
+    return identityStorageKey("hypnoos.identity.openingPerkOriginals.v1:");
+  }
+
+  function readOpeningPerkIds() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(openingPerkStateKey()) || "[]");
+      return Array.isArray(parsed) ? parsed.map((id) => String(id || "")).filter(Boolean) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function writeOpeningPerkIds(ids) {
+    try {
+      localStorage.setItem(openingPerkStateKey(), JSON.stringify(Array.from(new Set(ids)).filter(Boolean)));
+    } catch {}
+  }
+
+  function readOpeningPerkOriginals() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(openingPerkOriginalKey()) || "{}");
+      return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+    } catch {
+      return {};
+    }
+  }
+
+  function writeOpeningPerkOriginals(originals) {
+    try {
+      localStorage.setItem(openingPerkOriginalKey(), JSON.stringify(originals && typeof originals === "object" ? originals : {}));
+    } catch {}
+  }
+
+  function openingPerkById(id) {
+    return OPENING_PERKS.find((perk) => perk.id === id) || null;
+  }
+
+  function activeOpeningPerks() {
+    const ids = new Set(readOpeningPerkIds());
+    return OPENING_PERKS.filter((perk) => ids.has(perk.id));
+  }
+
+  function renderOpeningPerks() {
+    const ids = new Set(readOpeningPerkIds());
+    document.querySelectorAll("[data-opening-perk]").forEach((input) => {
+      input.checked = ids.has(String(input.dataset.openingPerk || ""));
+    });
+  }
+
+  async function applyOpeningPerk(perk, checked) {
+    const data = currentMvuData();
+    if (!data) return false;
+    data.stat["系统"] = data.stat["系统"] && typeof data.stat["系统"] === "object" && !Array.isArray(data.stat["系统"]) ? data.stat["系统"] : {};
+    const system = data.stat["系统"];
+    const originals = readOpeningPerkOriginals();
+    if (checked) {
+      if (!originals[perk.id]) {
+        originals[perk.id] = {
+          key: perk.key,
+          exists: Object.prototype.hasOwnProperty.call(system, perk.key),
+          value: system[perk.key]
+        };
+      }
+      system[perk.key] = perk.value;
+    } else {
+      const original = originals[perk.id];
+      if (original) {
+        if (original.exists) system[perk.key] = original.value;
+        else delete system[perk.key];
+        delete originals[perk.id];
+      }
+    }
+    await replaceMvuData(data);
+    writeOpeningPerkOriginals(originals);
+    const ids = new Set(readOpeningPerkIds());
+    if (checked) ids.add(perk.id);
+    else ids.delete(perk.id);
+    writeOpeningPerkIds(Array.from(ids));
+    renderOpeningPerks();
+    return true;
+  }
+
   function identityValue(value, fallback = "未填写") {
     const text = String(value ?? "").trim();
     return text || fallback;
@@ -1431,6 +1595,7 @@
       "- 年龄: " + identityValue(identity["年龄"]),
       "- 班级: " + identityValue(identity["班级"], DEFAULT_CLASS),
       "- 个人信息: " + identityValue(identity["个人信息"]),
+      identity["开场选项"] ? "- 开场选项: " + identityValue(identity["开场选项"]) + "（已由首楼前端直接写入变量，AI不得二次发放或回退）" : "",
       "- 固定角色来源: 西园寺爱丽莎、月咏深雪、犬冢夏美、阿宅的变量和人设读取角色卡世界书；首楼不创建聊天世界书。",
       "- 催眠APP认知: user第一次拿到催眠APP时就已经完全信任其作用，确信APP的催眠、资源和权限机制真实有效；开场不要描写user怀疑APP是否有用。",
       "</首楼身份选择完成>",
@@ -1589,6 +1754,29 @@
       saving = false;
       button.disabled = false;
     }
+  });
+
+  document.querySelectorAll("[data-opening-perk]").forEach((input) => {
+    input.addEventListener("change", async () => {
+      const perk = openingPerkById(input.dataset.openingPerk || "");
+      if (!perk) return;
+      input.disabled = true;
+      try {
+        const ok = await applyOpeningPerk(perk, input.checked);
+        if (ok) {
+          setStatus((input.checked ? "已应用开场选项：" : "已取消开场选项：") + perk.label);
+        } else {
+          input.checked = !input.checked;
+          setStatus("写入失败：MVU变量接口不可用。");
+        }
+      } catch (err) {
+        console.error("[HypnoOS Identity] opening perk failed", err);
+        input.checked = !input.checked;
+        setStatus("开场选项写入失败，请查看控制台。");
+      } finally {
+        input.disabled = false;
+      }
+    });
   });
 
   function resizeImageFile(file) {
