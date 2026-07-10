@@ -1459,33 +1459,31 @@
   }
 
   function identityStorageScope() {
-    const values = [];
+    const chatScopes = [];
     for (const win of candidateWindows()) {
       try {
+        const providedScope = String(win?.__ST_HYPNOOS_CHAT_STORAGE_SCOPE__?.() || "").trim();
+        if (providedScope && providedScope !== "global" && providedScope !== "session") chatScopes.push(providedScope);
         const context = readContext(win);
-        values.push(
-          win?.getCurrentMessageId?.(),
-          context?.messageId,
-          context?.message_id,
-          context?.currentMessageId,
-          context?.current_message_id,
+        chatScopes.push(
+          win?.getCurrentChatId?.(),
+          win?.chatId,
           context?.chatId,
           context?.chat_id,
           context?.chatFile,
           context?.chat_file,
           context?.chat?.id,
-          context?.chat?.file_name,
-          context?.characterId,
-          context?.groupId
+          context?.chat?.file_name
         );
       } catch {}
     }
-    for (const value of values) {
+    for (const value of chatScopes) {
       const text = String(value ?? "").trim();
       if (!text || text === "latest") continue;
-      if (text) return text.replace(/[^\w\-.:@]/g, "_").slice(0, 120);
+      return text.replace(/[^\w\-.:@]/g, "_").slice(0, 120);
     }
-    return "global";
+    const transient = String(window.__ST_HYPNOOS_IDENTITY_TRANSIENT_SCOPE__ || "").trim();
+    return transient || ("identity-transient:" + Date.now().toString(36) + ":" + Math.random().toString(36).slice(2));
   }
 
   function identityStorageKey(prefix) {
