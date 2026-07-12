@@ -4,7 +4,7 @@
   "aliases": "",
   "intro": "identity_positioning: affiliation: 跳级的天才博士 / 特聘物理与化学教师 / 全校最年轻研究员。 social_role: 表面是智商碾压凡人的傲慢小鬼，实则是生活不能自理、极度缺乏安全感且怕黑的孩子。 appearance: normal_state: 娇小如洋娃娃（身高142cm），银粉色双马尾因疏于打理略显凌乱，眼神常带三分不屑七分困倦。习惯“萌袖”，手缩在袖子里只露指尖。 attire_normal: 校园内常穿松松垮垮的白大褂，内搭卡通T恤、短裤和兔子拖鞋。私下在家是…",
   "encounterPrompt": "",
-  "variables": "  神乐坂艾米莉亚:\n    {{format_message_variable::stat_data.角色.神乐坂艾米莉亚}}\n",
+  "variables": "<%_ {\nvar groupNames = [\"衣着\",\"信息\",\"状态\",\"事件\",\"敏感\",\"效果\",\"劣迹\"];\nvar groupPaths = [\"stat_data.角色.神乐坂艾米莉亚.衣着\",\"stat_data.角色.神乐坂艾米莉亚.信息\",\"stat_data.角色.神乐坂艾米莉亚.状态\",\"stat_data.角色.神乐坂艾米莉亚.事件\",\"stat_data.角色.神乐坂艾米莉亚.敏感\",\"stat_data.角色.神乐坂艾米莉亚.效果\",\"stat_data.角色.神乐坂艾米莉亚.劣迹\"];\nvar groups = [];\nfor (var groupIndex = 0; groupIndex < groupPaths.length; groupIndex += 1) groups.push(getvar(groupPaths[groupIndex]) || {});\nfunction valueText(value) {\n  if (value && typeof value === 'object') return JSON.stringify(value);\n  return value === undefined || value === null ? '' : String(value);\n}\nprint('  ' + \"神乐坂艾米莉亚\" + ':' + String.fromCharCode(10));\nfor (var index = 0; index < groupNames.length; index += 1) {\n  var source = groups[index] && typeof groups[index] === 'object' && !Array.isArray(groups[index]) ? groups[index] : {};\n  print('    ' + groupNames[index] + ':' + String.fromCharCode(10));\n  for (var key in source) {\n    if (!Object.prototype.hasOwnProperty.call(source, key)) continue;\n    print('      ' + key + ': ' + valueText(source[key]) + String.fromCharCode(10));\n  }\n}\n} _%>",
   "variableEntry": {
     "key": [
       "神乐坂艾米莉亚"
@@ -15,7 +15,7 @@
     "keysecondary": [],
     "secondary_keys": [],
     "comment": "[mvu_update]神乐坂艾米莉亚变量",
-    "content": "  神乐坂艾米莉亚:\n    {{format_message_variable::stat_data.角色.神乐坂艾米莉亚}}\n",
+    "content": "<%_ {\nvar groupNames = [\"衣着\",\"信息\",\"状态\",\"事件\",\"敏感\",\"效果\",\"劣迹\"];\nvar groupPaths = [\"stat_data.角色.神乐坂艾米莉亚.衣着\",\"stat_data.角色.神乐坂艾米莉亚.信息\",\"stat_data.角色.神乐坂艾米莉亚.状态\",\"stat_data.角色.神乐坂艾米莉亚.事件\",\"stat_data.角色.神乐坂艾米莉亚.敏感\",\"stat_data.角色.神乐坂艾米莉亚.效果\",\"stat_data.角色.神乐坂艾米莉亚.劣迹\"];\nvar groups = [];\nfor (var groupIndex = 0; groupIndex < groupPaths.length; groupIndex += 1) groups.push(getvar(groupPaths[groupIndex]) || {});\nfunction valueText(value) {\n  if (value && typeof value === 'object') return JSON.stringify(value);\n  return value === undefined || value === null ? '' : String(value);\n}\nprint('  ' + \"神乐坂艾米莉亚\" + ':' + String.fromCharCode(10));\nfor (var index = 0; index < groupNames.length; index += 1) {\n  var source = groups[index] && typeof groups[index] === 'object' && !Array.isArray(groups[index]) ? groups[index] : {};\n  print('    ' + groupNames[index] + ':' + String.fromCharCode(10));\n  for (var key in source) {\n    if (!Object.prototype.hasOwnProperty.call(source, key)) continue;\n    print('      ' + key + ': ' + valueText(source[key]) + String.fromCharCode(10));\n  }\n}\n} _%>",
     "constant": false,
     "vectorized": false,
     "selective": true,

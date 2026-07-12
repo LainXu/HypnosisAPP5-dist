@@ -4,7 +4,7 @@
   "aliases": "",
   "intro": "identity_positioning: affiliation: 高三A班学生 / 园艺社社长。 social_role: 表面是全校花草树木的守护神、总是带着草帽说话慢条斯理的温柔学姐，实际上是极度的植物崇拜者，将人类视为“会走动的肥料”。 appearance: normal_state: 眼神像一潭死水（只有看植物时才泛起波澜）；身材丰满（F罩杯），散发着潮湿的泥土和青草香气。 attire_normal: 常戴宽檐草帽，穿沾着泥土的墨绿色围裙。深棕色长发编成麻花辫，发间插着鲜花。校服裙摆总有草屑，常穿…",
   "encounterPrompt": "",
-  "variables": "  花开院椿:\n    {{format_message_variable::stat_data.角色.花开院椿}}\n",
+  "variables": "<%_ {\nvar groupNames = [\"衣着\",\"信息\",\"状态\",\"事件\",\"敏感\",\"效果\",\"劣迹\"];\nvar groupPaths = [\"stat_data.角色.花开院椿.衣着\",\"stat_data.角色.花开院椿.信息\",\"stat_data.角色.花开院椿.状态\",\"stat_data.角色.花开院椿.事件\",\"stat_data.角色.花开院椿.敏感\",\"stat_data.角色.花开院椿.效果\",\"stat_data.角色.花开院椿.劣迹\"];\nvar groups = [];\nfor (var groupIndex = 0; groupIndex < groupPaths.length; groupIndex += 1) groups.push(getvar(groupPaths[groupIndex]) || {});\nfunction valueText(value) {\n  if (value && typeof value === 'object') return JSON.stringify(value);\n  return value === undefined || value === null ? '' : String(value);\n}\nprint('  ' + \"花开院椿\" + ':' + String.fromCharCode(10));\nfor (var index = 0; index < groupNames.length; index += 1) {\n  var source = groups[index] && typeof groups[index] === 'object' && !Array.isArray(groups[index]) ? groups[index] : {};\n  print('    ' + groupNames[index] + ':' + String.fromCharCode(10));\n  for (var key in source) {\n    if (!Object.prototype.hasOwnProperty.call(source, key)) continue;\n    print('      ' + key + ': ' + valueText(source[key]) + String.fromCharCode(10));\n  }\n}\n} _%>",
   "variableEntry": {
     "key": [
       "花开院椿"
@@ -15,7 +15,7 @@
     "keysecondary": [],
     "secondary_keys": [],
     "comment": "[mvu_update]花开院椿变量",
-    "content": "  花开院椿:\n    {{format_message_variable::stat_data.角色.花开院椿}}\n",
+    "content": "<%_ {\nvar groupNames = [\"衣着\",\"信息\",\"状态\",\"事件\",\"敏感\",\"效果\",\"劣迹\"];\nvar groupPaths = [\"stat_data.角色.花开院椿.衣着\",\"stat_data.角色.花开院椿.信息\",\"stat_data.角色.花开院椿.状态\",\"stat_data.角色.花开院椿.事件\",\"stat_data.角色.花开院椿.敏感\",\"stat_data.角色.花开院椿.效果\",\"stat_data.角色.花开院椿.劣迹\"];\nvar groups = [];\nfor (var groupIndex = 0; groupIndex < groupPaths.length; groupIndex += 1) groups.push(getvar(groupPaths[groupIndex]) || {});\nfunction valueText(value) {\n  if (value && typeof value === 'object') return JSON.stringify(value);\n  return value === undefined || value === null ? '' : String(value);\n}\nprint('  ' + \"花开院椿\" + ':' + String.fromCharCode(10));\nfor (var index = 0; index < groupNames.length; index += 1) {\n  var source = groups[index] && typeof groups[index] === 'object' && !Array.isArray(groups[index]) ? groups[index] : {};\n  print('    ' + groupNames[index] + ':' + String.fromCharCode(10));\n  for (var key in source) {\n    if (!Object.prototype.hasOwnProperty.call(source, key)) continue;\n    print('      ' + key + ': ' + valueText(source[key]) + String.fromCharCode(10));\n  }\n}\n} _%>",
     "constant": false,
     "vectorized": false,
     "selective": true,

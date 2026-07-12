@@ -4,7 +4,7 @@
   "aliases": "",
   "intro": "identity_positioning: affiliation: 高二A班 / 学园风纪委员长。 social_role: 出身古老武道名门，是校规的钢铁守护者。表面严谨冷峻，实则为极度单纯、缺乏现代常识的“单细胞”少女。 name: 武道威严与风纪统治 appearance: normal_state: 黑色长发扎成高马尾，眼神锐利且清澈。常年修习武道，身材匀称有力，双腿修长充满爆发力。 attire_normal: 标准校服扣子扣到最顶端，裙摆长度精准无误，左臂佩戴鲜红的“风纪”袖标。 personali…",
   "encounterPrompt": "",
-  "variables": "  神代琉璃:\n    {{format_message_variable::stat_data.角色.神代琉璃}}\n",
+  "variables": "<%_ {\nvar groupNames = [\"衣着\",\"信息\",\"状态\",\"事件\",\"敏感\",\"效果\",\"劣迹\"];\nvar groupPaths = [\"stat_data.角色.神代琉璃.衣着\",\"stat_data.角色.神代琉璃.信息\",\"stat_data.角色.神代琉璃.状态\",\"stat_data.角色.神代琉璃.事件\",\"stat_data.角色.神代琉璃.敏感\",\"stat_data.角色.神代琉璃.效果\",\"stat_data.角色.神代琉璃.劣迹\"];\nvar groups = [];\nfor (var groupIndex = 0; groupIndex < groupPaths.length; groupIndex += 1) groups.push(getvar(groupPaths[groupIndex]) || {});\nfunction valueText(value) {\n  if (value && typeof value === 'object') return JSON.stringify(value);\n  return value === undefined || value === null ? '' : String(value);\n}\nprint('  ' + \"神代琉璃\" + ':' + String.fromCharCode(10));\nfor (var index = 0; index < groupNames.length; index += 1) {\n  var source = groups[index] && typeof groups[index] === 'object' && !Array.isArray(groups[index]) ? groups[index] : {};\n  print('    ' + groupNames[index] + ':' + String.fromCharCode(10));\n  for (var key in source) {\n    if (!Object.prototype.hasOwnProperty.call(source, key)) continue;\n    print('      ' + key + ': ' + valueText(source[key]) + String.fromCharCode(10));\n  }\n}\n} _%>",
   "variableEntry": {
     "key": [
       "神代琉璃"
@@ -15,7 +15,7 @@
     "keysecondary": [],
     "secondary_keys": [],
     "comment": "[mvu_update]神代琉璃变量",
-    "content": "  神代琉璃:\n    {{format_message_variable::stat_data.角色.神代琉璃}}\n",
+    "content": "<%_ {\nvar groupNames = [\"衣着\",\"信息\",\"状态\",\"事件\",\"敏感\",\"效果\",\"劣迹\"];\nvar groupPaths = [\"stat_data.角色.神代琉璃.衣着\",\"stat_data.角色.神代琉璃.信息\",\"stat_data.角色.神代琉璃.状态\",\"stat_data.角色.神代琉璃.事件\",\"stat_data.角色.神代琉璃.敏感\",\"stat_data.角色.神代琉璃.效果\",\"stat_data.角色.神代琉璃.劣迹\"];\nvar groups = [];\nfor (var groupIndex = 0; groupIndex < groupPaths.length; groupIndex += 1) groups.push(getvar(groupPaths[groupIndex]) || {});\nfunction valueText(value) {\n  if (value && typeof value === 'object') return JSON.stringify(value);\n  return value === undefined || value === null ? '' : String(value);\n}\nprint('  ' + \"神代琉璃\" + ':' + String.fromCharCode(10));\nfor (var index = 0; index < groupNames.length; index += 1) {\n  var source = groups[index] && typeof groups[index] === 'object' && !Array.isArray(groups[index]) ? groups[index] : {};\n  print('    ' + groupNames[index] + ':' + String.fromCharCode(10));\n  for (var key in source) {\n    if (!Object.prototype.hasOwnProperty.call(source, key)) continue;\n    print('      ' + key + ': ' + valueText(source[key]) + String.fromCharCode(10));\n  }\n}\n} _%>",
     "constant": false,
     "vectorized": false,
     "selective": true,

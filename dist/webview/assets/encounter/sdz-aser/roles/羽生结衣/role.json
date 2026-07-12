@@ -4,7 +4,7 @@
   "aliases": "",
   "intro": "identity_positioning: affiliation: 高三A班学生 / 文学社副社长。 social_role: 表面是校园内知性温柔的“才女”，隐藏身份为畅销轻小说作家“阿克夏”，将现实视为素材库并操纵人际冲突的幕后黑手。 appearance: normal_state: 柔顺的黑色直长发垂至腰间，带着淡淡的墨水香气。五官精致冷淡，皮肤透着长期室内创作的苍白，戴着一副细黑框眼镜。 attire_normal: 校服穿得极其严谨，扣子扣到最上一颗，裙摆精准符合校规，搭配深蓝高筒袜，整洁得有些压抑…",
   "encounterPrompt": "",
-  "variables": "  羽生结衣:\n    {{format_message_variable::stat_data.角色.羽生结衣}}\n",
+  "variables": "<%_ {\nvar groupNames = [\"衣着\",\"信息\",\"状态\",\"事件\",\"敏感\",\"效果\",\"劣迹\"];\nvar groupPaths = [\"stat_data.角色.羽生结衣.衣着\",\"stat_data.角色.羽生结衣.信息\",\"stat_data.角色.羽生结衣.状态\",\"stat_data.角色.羽生结衣.事件\",\"stat_data.角色.羽生结衣.敏感\",\"stat_data.角色.羽生结衣.效果\",\"stat_data.角色.羽生结衣.劣迹\"];\nvar groups = [];\nfor (var groupIndex = 0; groupIndex < groupPaths.length; groupIndex += 1) groups.push(getvar(groupPaths[groupIndex]) || {});\nfunction valueText(value) {\n  if (value && typeof value === 'object') return JSON.stringify(value);\n  return value === undefined || value === null ? '' : String(value);\n}\nprint('  ' + \"羽生结衣\" + ':' + String.fromCharCode(10));\nfor (var index = 0; index < groupNames.length; index += 1) {\n  var source = groups[index] && typeof groups[index] === 'object' && !Array.isArray(groups[index]) ? groups[index] : {};\n  print('    ' + groupNames[index] + ':' + String.fromCharCode(10));\n  for (var key in source) {\n    if (!Object.prototype.hasOwnProperty.call(source, key)) continue;\n    print('      ' + key + ': ' + valueText(source[key]) + String.fromCharCode(10));\n  }\n}\n} _%>",
   "variableEntry": {
     "key": [
       "羽生结衣"
@@ -15,7 +15,7 @@
     "keysecondary": [],
     "secondary_keys": [],
     "comment": "[mvu_update]羽生结衣变量",
-    "content": "  羽生结衣:\n    {{format_message_variable::stat_data.角色.羽生结衣}}\n",
+    "content": "<%_ {\nvar groupNames = [\"衣着\",\"信息\",\"状态\",\"事件\",\"敏感\",\"效果\",\"劣迹\"];\nvar groupPaths = [\"stat_data.角色.羽生结衣.衣着\",\"stat_data.角色.羽生结衣.信息\",\"stat_data.角色.羽生结衣.状态\",\"stat_data.角色.羽生结衣.事件\",\"stat_data.角色.羽生结衣.敏感\",\"stat_data.角色.羽生结衣.效果\",\"stat_data.角色.羽生结衣.劣迹\"];\nvar groups = [];\nfor (var groupIndex = 0; groupIndex < groupPaths.length; groupIndex += 1) groups.push(getvar(groupPaths[groupIndex]) || {});\nfunction valueText(value) {\n  if (value && typeof value === 'object') return JSON.stringify(value);\n  return value === undefined || value === null ? '' : String(value);\n}\nprint('  ' + \"羽生结衣\" + ':' + String.fromCharCode(10));\nfor (var index = 0; index < groupNames.length; index += 1) {\n  var source = groups[index] && typeof groups[index] === 'object' && !Array.isArray(groups[index]) ? groups[index] : {};\n  print('    ' + groupNames[index] + ':' + String.fromCharCode(10));\n  for (var key in source) {\n    if (!Object.prototype.hasOwnProperty.call(source, key)) continue;\n    print('      ' + key + ': ' + valueText(source[key]) + String.fromCharCode(10));\n  }\n}\n} _%>",
     "constant": false,
     "vectorized": false,
     "selective": true,
