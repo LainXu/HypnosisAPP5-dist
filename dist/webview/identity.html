@@ -557,6 +557,75 @@
     margin-top: 1px;
   }
 
+  .identity-opening {
+    display: grid;
+    gap: 7px;
+    border: 1px solid rgba(112, 84, 58, 0.2);
+    border-radius: 8px;
+    background: rgba(248, 239, 219, 0.56);
+    padding: 8px;
+  }
+
+  .identity-opening-title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    color: rgba(62, 45, 32, 0.72);
+    font-size: 11px;
+    font-weight: 950;
+    line-height: 1.2;
+  }
+
+  .identity-opening-title small {
+    color: rgba(62, 45, 32, 0.48);
+    font-size: 9px;
+    font-weight: 900;
+    white-space: nowrap;
+  }
+
+  .identity-opening-choice {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 7px;
+    align-items: start;
+    border: 1px solid rgba(112, 84, 58, 0.14);
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.46);
+    padding: 6px 7px;
+    transition: border-color .16s ease, background .16s ease, box-shadow .16s ease;
+  }
+
+  .identity-opening-choice:has(input:checked) {
+    border-color: rgba(143, 77, 43, 0.54);
+    background: rgba(255, 246, 224, 0.82);
+    box-shadow: inset 0 0 0 1px rgba(143, 77, 43, 0.1);
+  }
+
+  .identity-opening-choice input {
+    width: 16px;
+    height: 16px;
+    margin: 2px 0 0;
+    accent-color: #8f4d2b;
+  }
+
+  .identity-opening-choice strong {
+    display: block;
+    color: #3e2d20;
+    font-size: 12px;
+    font-weight: 950;
+    line-height: 1.25;
+  }
+
+  .identity-opening-choice small {
+    display: block;
+    color: rgba(62, 45, 32, 0.58);
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.35;
+    margin-top: 1px;
+  }
+
   .identity-field {
     display: grid;
     grid-template-columns: 70px minmax(0, 1fr);
@@ -861,6 +930,25 @@
           <input class="identity-hidden" id="identityPhotoInput" type="file" accept="image/*">
         </div>
         <span class="identity-badge" id="identityDifficulty">简单</span>
+        <section class="identity-opening" aria-label="互斥开场">
+          <div class="identity-opening-title">互斥开场 <small>三选一，只在首楼写入</small></div>
+          <label class="identity-opening-choice">
+            <input type="radio" name="identity-opening-choice" value="default" data-opening-choice checked>
+            <span><strong>默认开场</strong><small>4限现代文刚下课，三位初始女角色自然出场。</small></span>
+          </label>
+          <label class="identity-opening-choice">
+            <input type="radio" name="identity-opening-choice" value="police_done" data-opening-choice>
+            <span><strong>警视厅线结束</strong><small>补入九鬼真白变量世界书，教室亲密开场。</small></span>
+          </label>
+          <label class="identity-opening-choice">
+            <input type="radio" name="identity-opening-choice" value="hospital_done" data-opening-choice>
+            <span><strong>医院线结束</strong><small>补入穗波、纱良变量世界书，医院请假开场。</small></span>
+          </label>
+          <label class="identity-opening-choice">
+            <input type="radio" name="identity-opening-choice" value="alisa_party" data-opening-choice>
+            <span><strong>爱丽莎家派对</strong><small>不补角色世界书，阿宅女性化派对开场。</small></span>
+          </label>
+        </section>
       </section>
 
       <section class="identity-page identity-page-right">
@@ -1133,6 +1221,12 @@
     { id: "lucky-user", label: "幸运用户", key: "星光点", value: 6 },
     { id: "yamane-huge", label: "山根巨大", key: "MC能量上限", value: 100 }
   ];
+  const OPENING_CHOICES = [
+    { id: "default", label: "默认开场", trigger: "HYPNOOS_OPENING_DEFAULT_V1" },
+    { id: "police_done", label: "警视厅线结束", trigger: "HYPNOOS_OPENING_POLICE_DONE_V1" },
+    { id: "hospital_done", label: "医院线结束", trigger: "HYPNOOS_OPENING_HOSPITAL_DONE_V1" },
+    { id: "alisa_party", label: "爱丽莎家派对", trigger: "HYPNOOS_OPENING_ALISA_PARTY_V1" }
+  ];
 
   let cards = loadCards();
   let selectedId = cards[0]?.id || "easy";
@@ -1172,6 +1266,789 @@
       console.warn("[HypnoOS Identity] localStorage save failed", err);
       setStatus("身份草稿保存失败：浏览器存储空间不足。");
     }
+  }
+
+  function cloneJson(value) {
+    return JSON.parse(JSON.stringify(value));
+  }
+
+  function isPlainObject(value) {
+    return value && typeof value === "object" && !Array.isArray(value);
+  }
+
+  function openingChoiceById(id) {
+    return OPENING_CHOICES.find((choice) => choice.id === id) || OPENING_CHOICES[0];
+  }
+
+  function openingChoiceKey() {
+    return identityStorageKey("hypnoos.identity.openingChoice.v1:");
+  }
+
+  function readOpeningChoiceId() {
+    try {
+      const value = String(localStorage.getItem(openingChoiceKey()) || "").trim();
+      return openingChoiceById(value).id;
+    } catch {
+      return "default";
+    }
+  }
+
+  function writeOpeningChoiceId(id) {
+    try { localStorage.setItem(openingChoiceKey(), openingChoiceById(id).id); } catch {}
+  }
+
+  function activeOpeningChoice() {
+    return openingChoiceById(readOpeningChoiceId());
+  }
+
+  function renderOpeningChoices() {
+    const activeId = readOpeningChoiceId();
+    document.querySelectorAll("[data-opening-choice]").forEach((input) => {
+      input.checked = String(input.value || "") === activeId;
+    });
+  }
+
+  function defaultCrimeRecord() {
+    return { "盗窃": 0, "露出": 0, "私闯": 0, "伤害": 0, "淫乱": 0, "强奸": 0 };
+  }
+
+  function defaultFemaleSensitivity() {
+    return {
+      "阴蒂敏感度": 100, "小穴敏感度": 100, "菊穴敏感度": 100, "尿道敏感度": 100, "乳头敏感度": 100,
+      "阴蒂高潮次数": 0, "小穴高潮次数": 0, "菊穴高潮次数": 0, "尿道高潮次数": 0, "乳头高潮次数": 0
+    };
+  }
+
+  function emptyProfileExtras() {
+    return {
+      "劣迹": { "性格": {}, "罪行": defaultCrimeRecord() },
+      "改造": {},
+      "物品": { "持有": {}, "刷新": {} },
+      "子嗣": { "是否妊娠中": false, "生产数量": 0, "子嗣列表": {} }
+    };
+  }
+
+  function openingRoleSeed(config) {
+    return {
+      "衣着": config.clothing,
+      "信息": config.info,
+      "状态": {
+        "好感度": config.favor ?? 100,
+        "警戒度": config.alert ?? 0,
+        "服从度": config.obedience ?? 100,
+        "性欲": config.lust ?? 0,
+        "快感值": config.pleasure ?? 0,
+        "是否派遣中": false
+      },
+      "事件": { "_事件记录": "000000", "至关重要记忆": "" },
+      "敏感": config.sensitivity || defaultFemaleSensitivity(),
+      "效果": { "心理": config.mind, "临时催眠效果": {}, "永久催眠效果": {} },
+      ...emptyProfileExtras()
+    };
+  }
+
+  function openingRoleTemplates() {
+    return {
+      "九鬼真白": openingRoleSeed({
+        clothing: {
+          "头发": "乌黑柔顺的低马尾，发丝贴着脸侧，行动时仍保持清爽利落。",
+          "面部": "清纯可人的柔和五官，笑起来像无害的优等生，眼神却有压迫感。",
+          "上衣": "斋明学园深色制服外套与白衬衫，领结端正，内侧藏着警视厅权限证件。",
+          "下衣": "同色校裙、深色袜与低跟鞋，衣着整洁到近乎刻板。"
+        },
+        info: {
+          "姓名": "九鬼真白", "年龄": "17", "社团或职业": "斋明学园二年级转校生（警视厅特别调查员伪装身份）",
+          "身高": "164cm", "体重": "49kg", "三围": "B84 / W57 / H85", "工作价值": 20, "绰号": "", "绰号已认可": false
+        },
+        mind: "我已经替{{user}}担保过，现在留在学园继续观察自己的选择；他不是监视期对象，而是我承认的搭档。"
+      }),
+      "犬冢穗波": openingRoleSeed({
+        clothing: {
+          "头发": "与夏美相似的深色发色，工作时盘成左右对称的双丸子头。",
+          "面部": "与夏美相似的明朗眉眼，笑意亲切得体，疲惫时也会先照顾旁人感受。",
+          "上衣": "明显大一号的白大褂、浅色衬衫与工作证，忙碌时袖口常滑到肘部。",
+          "下衣": "深色长裤与防滑工作鞋，步伐轻快但处理病人时很稳。"
+        },
+        info: {
+          "姓名": "犬冢穗波", "年龄": "39", "社团或职业": "综合医院外科医生（犬冢夏美之母）",
+          "身高": "148cm", "体重": "41kg", "三围": "B82 / W54 / H81", "工作价值": 25, "绰号": "", "绰号已认可": false
+        },
+        mind: "夏美信任的人，我也已经看见了他的另一面。只要是我决定协助的事，就要把风险和结果一起负责。"
+      }),
+      "天城纱良": openingRoleSeed({
+        clothing: {
+          "头发": "柔顺长发在值班时低低束起，发尾落在肩后，动作慌乱时会散出几缕。",
+          "面部": "清秀安静的脸，常带让人安心的礼貌表情，犯错后会立刻露出认真歉意。",
+          "上衣": "干净护士服与识别证，口袋里塞着便签和笔，偶尔因为匆忙而有轻微褶皱。",
+          "下衣": "同色护士裤与防滑工作鞋，高挑身形使她在人群中非常显眼。"
+        },
+        info: {
+          "姓名": "天城纱良", "年龄": "24", "社团或职业": "综合医院护士",
+          "身高": "204cm", "体重": "78kg", "三围": "B96 / W66 / H98", "工作价值": 12, "绰号": "", "绰号已认可": false
+        },
+        mind: "穗波医生已经愿意让我参与更深的事了，我不能再马虎；只要{{user}}需要，我就认真帮到底。"
+      }),
+      "阿宅": openingRoleSeed({
+        clothing: {
+          "头发": "黑色中长乱发仍旧缺少打理，发梢蓬乱地贴在脸侧，刘海经常遮住眼镜边框。",
+          "面部": "黑框眼镜后是躲闪又不安的灰黑色眼睛，脸颊容易因为紧张泛红，表情软弱却仍带宅式认真。",
+          "上衣": "女式校服外套略显宽松，白衬衫和深色领结整理得不太熟练，袖口常被她不安地捏皱。",
+          "下衣": "深色百褶裙和黑色过膝袜让她走路时格外拘谨，皮鞋普通，站姿仍习惯微微缩着肩。"
+        },
+        info: {
+          "姓名": "阿宅", "年龄": "17", "社团或职业": "归宅部 / 二次元爱好者（对外身份为阿宅妹妹）",
+          "身高": "162cm", "体重": "48kg", "三围": "B82 / W56 / H84", "工作价值": 2, "绰号": "", "绰号已认可": false
+        },
+        mind: "我还是阿宅，只是现在连自己都像被塞进了新角色卡。既然大家都在爱丽莎家，我至少别把派对气氛弄坏。"
+      })
+    };
+  }
+
+  function openingWorldbookEntry(comment, keys, content, options = {}) {
+    const secondary = Array.isArray(options.secondary) ? options.secondary : [];
+    const order = Number.isFinite(Number(options.order)) ? Number(options.order) : 92;
+    const depth = Number.isFinite(Number(options.depth)) ? Number(options.depth) : 2;
+    const enabled = options.enabled !== false;
+    return {
+      uid: 0,
+      comment,
+      key: keys,
+      keys: keys.slice(),
+      keysecondary: secondary,
+      secondary_keys: secondary.slice(),
+      content,
+      selective: true,
+      constant: false,
+      disable: !enabled,
+      disabled: !enabled,
+      enabled,
+      position: "at_depth",
+      insertion_order: order,
+      order,
+      depth,
+      role: 0,
+      extensions: { position: 4, depth, role: 0 }
+    };
+  }
+
+  function openingVariableWorldbookEntry(roleName) {
+    return openingWorldbookEntry(
+      "[mvu_update]" + roleName + "变量",
+      [roleName],
+      roleName + ":\n  {{format_message_variable::stat_data.角色." + roleName + "}}",
+      { secondary: ["人物变量", "当前状态"], order: 20.5, depth: 1 }
+    );
+  }
+
+  function openingCloneEntry(entry) {
+    return JSON.parse(JSON.stringify(entry || {}));
+  }
+
+  function openingEntryComment(entry) {
+    return String(entry?.comment || entry?.name || "").trim();
+  }
+
+  function openingNormalizeImportedEntry(entry) {
+    const copy = openingCloneEntry(entry);
+    delete copy.uid;
+    delete copy.id;
+    copy.comment = openingEntryComment(copy) || "首楼开场世界书条目";
+    copy.name = String(copy.name || copy.comment);
+    copy.content = String(copy.content || "");
+    const keys = (Array.isArray(copy.key) && copy.key.length ? copy.key : Array.isArray(copy.keys) ? copy.keys : [copy.comment])
+      .map((item) => String(item || "").trim())
+      .filter(Boolean);
+    const secondary = (Array.isArray(copy.keysecondary) && copy.keysecondary.length ? copy.keysecondary : Array.isArray(copy.secondary_keys) ? copy.secondary_keys : [])
+      .map((item) => String(item || "").trim())
+      .filter(Boolean);
+    copy.key = keys.length ? keys : [copy.comment];
+    copy.keys = copy.key.slice();
+    copy.keysecondary = secondary;
+    copy.secondary_keys = secondary.slice();
+    copy.enabled = copy.enabled !== false && copy.disable !== true && copy.disabled !== true;
+    copy.disable = !copy.enabled;
+    copy.disabled = !copy.enabled;
+    return copy;
+  }
+
+  function openingRuntimePackageEntries(pkg, win) {
+    if (!pkg || typeof pkg !== "object") return [];
+    try {
+      if (typeof win?.encounterWorldbookEntryList === "function") {
+        const entries = win.encounterWorldbookEntryList(pkg);
+        return Array.isArray(entries) ? entries.map(openingNormalizeImportedEntry) : [];
+      }
+    } catch {}
+    return [];
+  }
+
+  function openingEntriesFromMainFrontendRuntime(openingId) {
+    for (const win of candidateWindows()) {
+      try {
+        if (openingId === "police_done" && typeof win?.policeAttentionPackage === "function") {
+          const entries = openingRuntimePackageEntries(win.policeAttentionPackage(), win);
+          if (entries.length) {
+            const monitoring = new Set(["[mvu_update]警视厅监视结算规则", "[mvu_plot]警视厅关注事件"]);
+            const enabledLine2 = new Set(["[mvu_update]九鬼真白变量", "[mvu_plot]九鬼真白人设", "[mvu_plot]警视厅担保结束", "[mvu_plot]警视厅性格特调室", "[mvu_plot]九鬼真白好感链"]);
+            for (const entry of entries) {
+              const comment = openingEntryComment(entry);
+              if (monitoring.has(comment)) openingSetEntryEnabled(entry, false);
+              if (enabledLine2.has(comment)) openingSetEntryEnabled(entry, true);
+            }
+            return entries;
+          }
+        }
+        if (openingId === "hospital_done" && typeof win?.hospitalLinePackage === "function") {
+          const entries = openingRuntimePackageEntries(win.hospitalLinePackage(), win);
+          if (entries.length) {
+            const enabledLine2 = new Set(["[mvu_update]犬冢穗波变量", "[mvu_plot]犬冢穗波人设", "[mvu_plot]犬冢穗波好感链", "[mvu_update]天城纱良变量", "[mvu_plot]天城纱良人设", "[mvu_plot]天城纱良好感链", "[mvu_plot]医院线初遇：犬冢穗波与天城纱良", "[mvu_plot]医院改造室开放"]);
+            for (const entry of entries) {
+              if (enabledLine2.has(openingEntryComment(entry))) openingSetEntryEnabled(entry, true);
+            }
+            return entries;
+          }
+        }
+      } catch {}
+    }
+    return [];
+  }
+
+  let OPENING_MAIN_FRONTEND_SOURCE_PROMISE = null;
+
+  async function openingReadMainFrontendSource() {
+    if (OPENING_MAIN_FRONTEND_SOURCE_PROMISE) return OPENING_MAIN_FRONTEND_SOURCE_PROMISE;
+    OPENING_MAIN_FRONTEND_SOURCE_PROMISE = (async () => {
+      const urls = ["index.html", "./index.html", "/public/frontends/hypnosis-app/index.html"];
+      for (const url of urls) {
+        try {
+          const response = await fetch(url, { cache: "no-store" });
+          if (!response?.ok) continue;
+          const text = await response.text();
+          if (text.includes("ST_POLICE_ATTENTION_PERSONA") && text.includes("hospitalLinePackage")) return text;
+        } catch {}
+      }
+      return "";
+    })();
+    return OPENING_MAIN_FRONTEND_SOURCE_PROMISE;
+  }
+
+  function openingFindMatchingBracket(source, startIndex) {
+    let depth = 0;
+    let quote = "";
+    let escape = false;
+    for (let index = startIndex; index < source.length; index += 1) {
+      const char = source[index];
+      if (quote) {
+        if (escape) {
+          escape = false;
+        } else if (char === "\\") {
+          escape = true;
+        } else if (char === quote) {
+          quote = "";
+        }
+        continue;
+      }
+      if (char === "\"" || char === "'" || char === "`") {
+        quote = char;
+        continue;
+      }
+      if (char === "[") depth += 1;
+      if (char === "]") {
+        depth -= 1;
+        if (depth === 0) return index;
+      }
+    }
+    return -1;
+  }
+
+  function openingArrayLiteralAfter(source, marker, fromIndex = 0) {
+    const markerIndex = source.indexOf(marker, fromIndex);
+    if (markerIndex < 0) return "";
+    const start = source.indexOf("[", markerIndex + marker.length);
+    if (start < 0) return "";
+    const end = openingFindMatchingBracket(source, start);
+    if (end < 0) return "";
+    return source.slice(start, end + 1);
+  }
+
+  function openingEvalArrayLiteral(literal) {
+    if (!literal) return null;
+    try {
+      const value = Function("return (" + literal + ");")();
+      return Array.isArray(value) ? value : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function openingExtractJoinedArrayConst(source, name) {
+    const literal = openingArrayLiteralAfter(source, "const " + name + " =");
+    const value = openingEvalArrayLiteral(literal);
+    return Array.isArray(value) ? value.join("\n") : "";
+  }
+
+  function openingExtractArrayConst(source, name) {
+    const literal = openingArrayLiteralAfter(source, "const " + name + " =");
+    const value = openingEvalArrayLiteral(literal);
+    return Array.isArray(value) ? value : [];
+  }
+
+  function openingExtractPersonaContent(source, roleConstantName) {
+    const roleIndex = source.indexOf("name: " + roleConstantName);
+    if (roleIndex < 0) return "";
+    const literal = openingArrayLiteralAfter(source, "personaContent:", roleIndex);
+    const value = openingEvalArrayLiteral(literal);
+    return Array.isArray(value) ? value.join("\n") : "";
+  }
+
+  function openingExtractEncounterEntryContent(source, comment) {
+    const marker = 'encounterWorldbookEntry("' + comment + '"';
+    const literal = openingArrayLiteralAfter(source, marker);
+    const value = openingEvalArrayLiteral(literal);
+    return Array.isArray(value) ? value.join("\n") : "";
+  }
+
+  function openingAffectionChainWorldbookText(roleName, chain) {
+    const events = Array.isArray(chain) ? chain.filter((item) => String(item?.title || item?.summary || "").trim()) : [];
+    if (!events.length) return "";
+    const lines = [
+      "<" + roleName + "好感链>",
+      "- 本条是该角色的五段好感事件提案。只有本轮人物档案的触发角色事件操作指定该角色和对应事件时，才写成正式事件；其他时候只可自然铺垫。",
+      "- 每段事件的好感阈值可由用户自定义；若写有服从阈值，则该段还需要对应服从度达到阈值。未写服从阈值时只检查好感度。",
+      "- /角色/" + roleName + "/事件/_事件记录是前端只读维护的六位事件占位字符串；前五位对应事件壹到伍，第六位对应状态/好感度>=200且状态/服从度>=100时由用户弹窗自定义的事件。前端已写入对应位后，AI只写事件剧情，不得再replace、补写、回退或清空_事件记录。旧散字段事件记录仅兼容老楼层，不作为新事件判断依据。",
+      "- 前端可按事件序号读取对应的事件名和事件描述拼入本轮提示词；AI生成剧情时优先使用被触发事件块，不要改写其他事件块。",
+      "- 事件正式触发后，回复末尾输出完整闭合的<人物档案事件记录>块，字段包含角色名、事件序号、标题、概要、关键场面、关系变化和后续钩子；最后必须单独一行写</人物档案事件记录>。该块只供前端本地保存回忆摘要，不写入MVU变量。"
+    ];
+    const numerals = ["壹", "贰", "叁", "肆", "伍", "陆"];
+    events.forEach((item, index) => {
+      lines.push("- 事件" + (item?.numeral || numerals[index] || String(index + 1)) + ":");
+      lines.push("  好感阈值: " + (item?.threshold ?? ""));
+      if (item?.obeyThreshold !== undefined && item?.obeyThreshold !== "") lines.push("  服从阈值: " + item.obeyThreshold);
+      lines.push("  事件名: " + (item?.title || ("事件" + (numerals[index] || String(index + 1)))));
+      lines.push("  事件描述: " + (item?.summary || ""));
+    });
+    lines.push("</" + roleName + "好感链>");
+    return lines.join("\n");
+  }
+
+  function openingFullPoliceEntriesFromSource(source) {
+    const persona = openingExtractJoinedArrayConst(source, "ST_POLICE_ATTENTION_PERSONA");
+    const updateRules = openingExtractJoinedArrayConst(source, "ST_POLICE_ATTENTION_UPDATE_RULES");
+    const event = openingExtractJoinedArrayConst(source, "ST_POLICE_ATTENTION_EVENT");
+    const traitRoom = openingExtractJoinedArrayConst(source, "ST_POLICE_TRAIT_ROOM_EVENT");
+    const affection = openingAffectionChainWorldbookText("九鬼真白", openingExtractArrayConst(source, "ST_POLICE_ATTENTION_AFFECTION_CHAIN"));
+    const completion = openingExtractEncounterEntryContent(source, "[mvu_plot]警视厅担保结束");
+    if (![persona, updateRules, event, traitRoom, affection, completion].every((item) => String(item || "").trim())) return [];
+    const roleKeys = ["九鬼真白", "真白", "九鬼调查员", "特别调查员"];
+    return [
+      openingVariableWorldbookEntry("九鬼真白"),
+      openingWorldbookEntry("[mvu_plot]九鬼真白人设", roleKeys, persona, { order: 100, depth: 4 }),
+      openingWorldbookEntry("[mvu_update]警视厅监视结算规则", ["警视厅关注", "九鬼真白", "特别对策室", "正在监视"], updateRules, {
+        secondary: ["主角可疑度", "催眠命令", "违法行为", "持续监视"], order: 23.8, depth: 2, enabled: false
+      }),
+      openingWorldbookEntry("[mvu_plot]警视厅关注事件", ["警视厅关注", "九鬼真白", "特别对策室", "正在监视"], event, {
+        secondary: ["主角可疑度", "审讯改造", "持续监视", "担保结束"], order: 92.8, depth: 2, enabled: false
+      }),
+      openingWorldbookEntry("[mvu_plot]警视厅担保结束", ["九鬼真白担保"], completion, {
+        secondary: ["担保结束", "调查搭档", "警视厅性格特调室"], order: 92.85, depth: 2
+      }),
+      openingWorldbookEntry("[mvu_plot]警视厅性格特调室", ["警视厅", "性格特调室", "九鬼真白", "调查搭档"], traitRoom, {
+        secondary: ["担保结束", "声波", "催眠APP", "人格特调"], order: 92.9, depth: 2
+      }),
+      openingWorldbookEntry("[mvu_plot]九鬼真白好感链", roleKeys, affection, {
+        secondary: ["好感链", "好感事件", "触发角色事件", "事件记录", "人物档案事件记录"], order: 92, depth: 2
+      })
+    ];
+  }
+
+  function openingFullHospitalEntriesFromSource(source) {
+    const honamiPersona = openingExtractPersonaContent(source, "ST_HOSPITAL_MOTHER_ROLE_NAME");
+    const saraPersona = openingExtractPersonaContent(source, "ST_HOSPITAL_NURSE_ROLE_NAME");
+    const honamiAffection = openingAffectionChainWorldbookText("犬冢穗波", openingExtractArrayConst(source, "ST_HOSPITAL_HONAMI_AFFECTION_CHAIN"));
+    const saraAffection = openingAffectionChainWorldbookText("天城纱良", openingExtractArrayConst(source, "ST_HOSPITAL_SARA_AFFECTION_CHAIN"));
+    const opening = openingExtractEncounterEntryContent(source, "[mvu_plot]医院线初遇：犬冢穗波与天城纱良");
+    const completion = openingExtractEncounterEntryContent(source, "[mvu_plot]医院改造室开放");
+    if (![honamiPersona, saraPersona, honamiAffection, saraAffection, opening, completion].every((item) => String(item || "").trim())) return [];
+    const honamiKeys = ["犬冢穗波", "穗波", "犬冢医生", "夏美妈妈"];
+    const saraKeys = ["天城纱良", "纱良", "天城护士"];
+    return [
+      openingVariableWorldbookEntry("犬冢穗波"),
+      openingWorldbookEntry("[mvu_plot]犬冢穗波人设", honamiKeys, honamiPersona, { order: 100, depth: 4 }),
+      openingWorldbookEntry("[mvu_plot]犬冢穗波好感链", honamiKeys, honamiAffection, {
+        secondary: ["好感链", "好感事件", "触发角色事件", "事件记录", "人物档案事件记录"], order: 92, depth: 2
+      }),
+      openingVariableWorldbookEntry("天城纱良"),
+      openingWorldbookEntry("[mvu_plot]天城纱良人设", saraKeys, saraPersona, { order: 100, depth: 4 }),
+      openingWorldbookEntry("[mvu_plot]天城纱良好感链", saraKeys, saraAffection, {
+        secondary: ["好感链", "好感事件", "触发角色事件", "事件记录", "人物档案事件记录"], order: 92, depth: 2
+      }),
+      openingWorldbookEntry("[mvu_plot]医院线初遇：犬冢穗波与天城纱良", ["综合医院", "犬冢穗波", "天城纱良", "误认病人", "夏美妈妈"], opening, {
+        secondary: ["医院线", "初遇", "医院", "道歉", "补救"], order: 93.1, depth: 2
+      }),
+      openingWorldbookEntry("[mvu_plot]医院改造室开放", ["医院改造室开放"], completion, {
+        secondary: ["医院线结束", "共同确认", "医院改造"], order: 93.2, depth: 2
+      })
+    ];
+  }
+
+  async function openingWorldbookEntriesForChoice(openingId) {
+    if (openingId !== "police_done" && openingId !== "hospital_done") return [];
+    const runtimeEntries = openingEntriesFromMainFrontendRuntime(openingId);
+    if (runtimeEntries.length) return runtimeEntries;
+    const source = await openingReadMainFrontendSource();
+    const full = openingId === "police_done"
+      ? openingFullPoliceEntriesFromSource(source)
+      : openingFullHospitalEntriesFromSource(source);
+    return full.length ? full : null;
+  }
+
+  function openingSafeWorldbookName(value) {
+    return String(value || "当前角色卡 邂逅世界书").trim().replace(/[\\/:*?"<>|]/g, "_").slice(0, 96) || "当前角色卡 邂逅世界书";
+  }
+
+  function openingCurrentCharacterName(win) {
+    try {
+      const context = readContext(win);
+      const character = context?.characters?.[context?.characterId ?? context?.character_id];
+      return String(character?.name || character?.data?.name || context?.name2 || "").trim();
+    } catch {}
+    return "";
+  }
+
+  function openingCurrentCharacterPrimaryWorldName(win) {
+    try {
+      const context = readContext(win);
+      const character = context?.characters?.[context?.characterId ?? context?.character_id];
+      const value = String(character?.data?.extensions?.world || character?.extensions?.world || character?.world || "").trim();
+      if (value) return value;
+    } catch {}
+    try {
+      const value = String(win.document?.querySelector?.("#character_world")?.value || "").trim();
+      if (value) return value;
+    } catch {}
+    return "";
+  }
+
+  function openingDefaultWorldbookName() {
+    for (const win of candidateWindows()) {
+      const name = openingCurrentCharacterName(win);
+      if (name) return openingSafeWorldbookName(name + " 邂逅世界书");
+    }
+    return "当前角色卡 邂逅世界书";
+  }
+
+  function openingIsLocalFrontendPreview() {
+    for (const win of candidateWindows()) {
+      try {
+        const loc = win.location;
+        const host = String(loc?.hostname || "");
+        const path = String(loc?.pathname || "");
+        if ((host === "127.0.0.1" || host === "localhost") && /\/public\/frontends\/hypnosis-app\//u.test(path)) return true;
+      } catch {}
+    }
+    return false;
+  }
+
+  function openingHasWorldInfoContext(win) {
+    try {
+      if (win?.SillyTavern || typeof win?.getContext === "function" || win?.characters || win?.this_chid !== undefined) return true;
+      if (win?.document?.querySelector?.("#character_world")) return true;
+    } catch {}
+    return false;
+  }
+
+  function openingTavernHelperTargets(win) {
+    const targets = [];
+    const push = (item) => {
+      if (item && typeof item === "object" && !targets.includes(item)) targets.push(item);
+    };
+    try {
+      const context = readContext(win);
+      [
+        win,
+        win.TavernHelper,
+        win.tavernHelper,
+        win.TH,
+        win.TavernHelper?.api,
+        win.tavernHelper?.api,
+        win.SillyTavern?.TavernHelper,
+        context,
+        context?.TavernHelper,
+        context?.tavernHelper
+      ].forEach(push);
+    } catch {}
+    return targets;
+  }
+
+  function openingBoundWorldbookNameFromBooks(books) {
+    if (!books || typeof books !== "object") return "";
+    const primary = String(books.primary || "").trim();
+    if (primary) return primary;
+    const additional = Array.isArray(books.additional) ? books.additional.map((item) => String(item || "").trim()).filter(Boolean) : [];
+    return additional[0] || "";
+  }
+
+  function openingEntryKeys(entry) {
+    const keys = Array.isArray(entry?.key) && entry.key.length ? entry.key : Array.isArray(entry?.keys) ? entry.keys : [];
+    return keys.map((item) => String(item || "").trim()).filter(Boolean);
+  }
+
+  function openingTavernHelperPosition(entry) {
+    const raw = String(entry?.position || "").trim();
+    if (/after.*example/i.test(raw)) return "after_example_messages";
+    if (/before.*example/i.test(raw)) return "before_example_messages";
+    if (/after.*author|note.*after/i.test(raw)) return "after_author_note";
+    if (/before.*author|note.*before/i.test(raw)) return "before_author_note";
+    if (/after.*char|after_char/i.test(raw)) return "after_character_definition";
+    if (/depth/i.test(raw)) return "at_depth";
+    return "before_character_definition";
+  }
+
+  function openingTavernHelperRole(entry) {
+    const value = entry?.role ?? entry?.extensions?.role;
+    if (value === "assistant" || value === 1) return "assistant";
+    if (value === "user" || value === 2) return "user";
+    return "system";
+  }
+
+  function openingToTavernHelperEntry(entry) {
+    const extensions = entry?.extensions && typeof entry.extensions === "object" && !Array.isArray(entry.extensions) ? entry.extensions : {};
+    const secondaryKeys = (Array.isArray(entry?.keysecondary) && entry.keysecondary.length ? entry.keysecondary : Array.isArray(entry?.secondary_keys) ? entry.secondary_keys : [])
+      .map((item) => String(item || "").trim())
+      .filter(Boolean);
+    const scanDepth = Number(entry?.scan_depth ?? entry?.scanDepth ?? extensions.scan_depth);
+    const depth = Number(entry?.depth ?? extensions.depth ?? 4);
+    const order = Number(entry?.insertion_order ?? entry?.order ?? 100);
+    const probability = Number(entry?.probability ?? extensions.probability ?? 100);
+    return {
+      name: String(entry?.comment || entry?.name || "首楼开场世界书条目"),
+      enabled: !Boolean(entry?.disable ?? entry?.disabled),
+      strategy: {
+        type: entry?.constant ? "constant" : ((entry?.vectorized ?? extensions.vectorized) ? "vectorized" : "selective"),
+        keys: openingEntryKeys(entry),
+        keys_secondary: {
+          logic: entry?.selectiveLogic || extensions.selectiveLogic || entry?.logic || "and_any",
+          keys: secondaryKeys
+        },
+        scan_depth: Number.isFinite(scanDepth) && scanDepth > 0 ? scanDepth : "same_as_global"
+      },
+      position: {
+        type: openingTavernHelperPosition(entry),
+        role: openingTavernHelperRole(entry),
+        depth: Math.max(0, Number.isFinite(depth) ? depth : 4),
+        order: Math.max(0, Number.isFinite(order) ? order : 100)
+      },
+      content: String(entry?.content || ""),
+      probability: Math.max(0, Math.min(100, Number.isFinite(probability) ? probability : 100)),
+      recursion: {
+        prevent_incoming: Boolean(entry?.excludeRecursion ?? entry?.exclude_recursion ?? extensions.exclude_recursion ?? entry?.preventRecursion ?? entry?.prevent_recursion ?? extensions.prevent_recursion),
+        prevent_outgoing: Boolean(entry?.preventRecursion ?? entry?.prevent_recursion ?? extensions.prevent_recursion),
+        delay_until: Number.isFinite(Number(entry?.delay_until_recursion ?? entry?.delayUntilRecursion ?? extensions.delay_until_recursion)) ? Number(entry?.delay_until_recursion ?? entry?.delayUntilRecursion ?? extensions.delay_until_recursion) : null
+      },
+      effect: {
+        sticky: Number.isFinite(Number(entry?.sticky ?? extensions.sticky)) ? Number(entry?.sticky ?? extensions.sticky) : null,
+        cooldown: Number.isFinite(Number(entry?.cooldown ?? extensions.cooldown)) ? Number(entry?.cooldown ?? extensions.cooldown) : null,
+        delay: Number.isFinite(Number(entry?.delay ?? extensions.delay)) ? Number(entry?.delay ?? extensions.delay) : null
+      },
+      extra: { comment: String(entry?.comment || "") }
+    };
+  }
+
+  async function openingEnsureCharacterWorldbookWithTavernHelper(win, fallbackName) {
+    for (const target of openingTavernHelperTargets(win)) {
+      if (typeof target?.getCharWorldbookNames !== "function") continue;
+      try {
+        const books = target.getCharWorldbookNames("current") || {};
+        const existing = openingBoundWorldbookNameFromBooks(books);
+        if (existing) return { target, worldName: existing, method: "TavernHelper" };
+        const worldName = openingSafeWorldbookName(fallbackName);
+        if (typeof target.createWorldbook === "function") {
+          try { await target.createWorldbook(worldName, []); } catch {}
+        }
+        if (typeof target.rebindCharWorldbooks !== "function") continue;
+        await target.rebindCharWorldbooks("current", {
+          primary: worldName,
+          additional: Array.isArray(books.additional) ? books.additional : []
+        });
+        return { target, worldName, method: "TavernHelper" };
+      } catch {}
+    }
+    return null;
+  }
+
+  async function openingInsertWorldbooksWithTavernHelper(entries) {
+    const fallbackName = openingDefaultWorldbookName();
+    for (const win of candidateWindows()) {
+      const bound = await openingEnsureCharacterWorldbookWithTavernHelper(win, fallbackName);
+      if (!bound || typeof bound.target?.createWorldbookEntries !== "function") continue;
+      try {
+        let worldbook = null;
+        if (typeof bound.target.getWorldbook === "function") {
+          try { worldbook = await bound.target.getWorldbook(bound.worldName); } catch {}
+        }
+        const current = Array.isArray(worldbook) ? worldbook : openingWorldEntryValues(worldbook);
+        const stale = entries.some((entry) => {
+          const found = openingFindWorldEntry(current, entry);
+          return found && String(found?.content || "") !== String(entry?.content || "");
+        });
+        if (stale) return null;
+        const pending = entries.filter((entry) => !current.length || !openingFindWorldEntry(current, entry));
+        if (pending.length) {
+          await bound.target.createWorldbookEntries(bound.worldName, pending.map(openingToTavernHelperEntry), { render: "immediate" });
+        }
+        return {
+          ok: true,
+          inserted: pending.length,
+          existing: Math.max(0, entries.length - pending.length),
+          updated: 0,
+          targetWorldbook: bound.worldName,
+          method: bound.method
+        };
+      } catch {}
+    }
+    return null;
+  }
+
+  async function openingImportWorldInfoModule(win) {
+    if (!openingHasWorldInfoContext(win)) return null;
+    const attempts = [
+      () => win.eval?.("import('/scripts/world-info.js')"),
+      () => win.eval?.("import('./scripts/world-info.js')")
+    ];
+    for (const attempt of attempts) {
+      try {
+        const mod = await attempt();
+        if (mod && typeof mod.saveWorldInfo === "function") return mod;
+      } catch {}
+    }
+    return null;
+  }
+
+  function openingWorldEntryValues(data) {
+    if (Array.isArray(data)) return data;
+    if (!data || typeof data !== "object") return [];
+    const entries = data.entries || data.entry || data.world_info || null;
+    if (Array.isArray(entries)) return entries;
+    if (entries && typeof entries === "object") return Object.values(entries);
+    return [];
+  }
+
+  function openingFindWorldEntry(entries, entry) {
+    const comment = String(entry?.comment || entry?.name || "").trim();
+    const content = String(entry?.content || "").trim();
+    return (Array.isArray(entries) ? entries : []).find((item) => {
+      const itemComment = String(item?.comment || item?.name || "").trim();
+      const itemContent = String(item?.content || "").trim();
+      return Boolean((comment && itemComment === comment) || (!comment && content && itemContent === content));
+    }) || null;
+  }
+
+  function openingSetEntryEnabled(entry, enabled = true) {
+    if (!entry || typeof entry !== "object") return false;
+    const nextEnabled = Boolean(enabled);
+    const nextDisabled = !nextEnabled;
+    let changed = false;
+    for (const [key, value] of [["enabled", nextEnabled], ["disable", nextDisabled], ["disabled", nextDisabled]]) {
+      if (entry[key] !== value) {
+        entry[key] = value;
+        changed = true;
+      }
+    }
+    if (entry.extra && typeof entry.extra === "object" && entry.extra.enabled !== nextEnabled) {
+      entry.extra.enabled = nextEnabled;
+      changed = true;
+    }
+    return changed;
+  }
+
+  function openingAppendWorldEntry(data, entry) {
+    if (!data || typeof data !== "object") return false;
+    if (Array.isArray(data)) {
+      data.push({ ...entry, uid: data.length ? Math.max(...data.map((item) => Number(item?.uid) || 0)) + 1 : 1 });
+      return true;
+    }
+    const container = data.entries || data.entry || data.world_info;
+    if (Array.isArray(container)) {
+      container.push({ ...entry, uid: container.length ? Math.max(...container.map((item) => Number(item?.uid) || 0)) + 1 : 1 });
+      return true;
+    }
+    if (container && typeof container === "object" && !Array.isArray(container)) {
+      const ids = Object.keys(container).map((key) => Number(key)).filter(Number.isFinite);
+      const uid = ids.length ? Math.max(...ids) + 1 : 1;
+      container[uid] = { ...entry, uid };
+      return true;
+    }
+    data.entries = { 1: { ...entry, uid: 1 } };
+    return true;
+  }
+
+  async function openingEnsureCharacterWorldbook(win, fallbackName) {
+    const mod = await openingImportWorldInfoModule(win);
+    if (!mod) return null;
+    let worldName = openingCurrentCharacterPrimaryWorldName(win);
+    if (!worldName) {
+      worldName = openingSafeWorldbookName(fallbackName || openingDefaultWorldbookName());
+      try { await mod.createNewWorldInfo?.(worldName, { interactive: false }); } catch {}
+      try { await mod.charUpdatePrimaryWorld?.(worldName); } catch {}
+    }
+    if (!worldName) return null;
+    return { mod, worldName, method: "SillyTavern" };
+  }
+
+  async function openingInsertWorldbooksWithSillyTavern(entries) {
+    const fallbackName = openingDefaultWorldbookName();
+    for (const win of candidateWindows()) {
+      const bound = await openingEnsureCharacterWorldbook(win, fallbackName);
+      if (!bound) continue;
+      try {
+        let data = await bound.mod.loadWorldInfo?.(bound.worldName);
+        if (!data || typeof data !== "object") data = { entries: {} };
+        const current = openingWorldEntryValues(data);
+        let inserted = 0;
+        let updated = 0;
+        let existing = 0;
+        for (const entry of entries) {
+          const found = openingFindWorldEntry(current, entry);
+          if (found) {
+            let changed = openingSetEntryEnabled(found, entry?.enabled !== false && entry?.disable !== true && entry?.disabled !== true);
+            if (String(found?.content || "") !== String(entry?.content || "")) {
+              found.content = String(entry?.content || "");
+              changed = true;
+            }
+            for (const key of ["comment", "name", "key", "keys", "keysecondary", "secondary_keys", "selective", "constant", "position", "insertion_order", "order", "depth", "role", "extensions"]) {
+              if (entry[key] === undefined) continue;
+              const before = JSON.stringify(found[key]);
+              found[key] = Array.isArray(entry[key]) ? entry[key].slice() : (entry[key] && typeof entry[key] === "object" ? { ...entry[key] } : entry[key]);
+              if (JSON.stringify(found[key]) !== before) changed = true;
+            }
+            if (changed) updated += 1;
+            else existing += 1;
+            continue;
+          }
+          openingAppendWorldEntry(data, entry);
+          inserted += 1;
+        }
+        if (inserted || updated) await bound.mod.saveWorldInfo(bound.worldName, data, true);
+        try { await bound.mod.updateWorldInfoList?.(); } catch {}
+        return { ok: true, inserted, updated, existing, targetWorldbook: bound.worldName, method: bound.method };
+      } catch {}
+    }
+    return { ok: false, reason: "无法写入角色卡世界书。" };
+  }
+
+  async function insertOpeningWorldbooks(identity) {
+    const openingId = String(identity?.["互斥开场ID"] || "default");
+    const entries = await openingWorldbookEntriesForChoice(openingId);
+    if (entries === null) return { ok: false, reason: "完整线路世界书源不可用，已阻止插入缩略版。" };
+    if (!entries.length) return { ok: true, skipped: true };
+    const tavernHelper = await openingInsertWorldbooksWithTavernHelper(entries);
+    if (tavernHelper?.ok) return tavernHelper;
+    const sillyTavern = await openingInsertWorldbooksWithSillyTavern(entries);
+    if (sillyTavern?.ok) return sillyTavern;
+    if (openingIsLocalFrontendPreview()) {
+      return { ok: true, skipped: true, previewOnly: true, reason: "本地预览未连接酒馆世界书 API，已跳过世界书补写。" };
+    }
+    return sillyTavern || { ok: false, reason: "无法写入角色卡世界书。" };
   }
 
   function selectedCard() {
@@ -1226,6 +2103,7 @@
     $("#identityFillUser").classList.toggle("identity-hidden", card.id !== "custom");
     renderPhoto(card);
     renderOpeningPerks();
+    renderOpeningChoices();
   }
 
   function render() {
@@ -1306,6 +2184,15 @@
       console.warn("[HypnoOS Identity] photo resize failed", err);
       setStatus("照片处理失败。");
     }
+  });
+
+  document.querySelectorAll("[data-opening-choice]").forEach((input) => {
+    input.addEventListener("change", () => {
+      if (!input.checked) return;
+      writeOpeningChoiceId(input.value || "default");
+      renderOpeningChoices();
+      setStatus("已选择互斥开场：" + openingChoiceById(input.value || "default").label + "。");
+    });
   });
 
   function candidateWindows() {
@@ -1434,6 +2321,7 @@
     if (!data) return false;
     data.stat["系统"] = data.stat["系统"] && typeof data.stat["系统"] === "object" && !Array.isArray(data.stat["系统"]) ? data.stat["系统"] : {};
     data.stat["系统"]["user身份"] = identity;
+    applyOpeningStateToRoot(data.stat, identity);
     await replaceMvuData(data);
     return true;
   }
@@ -1441,6 +2329,7 @@
   function selectedIdentityPayload() {
     const card = selectedCard();
     const perks = activeOpeningPerks();
+    const opening = activeOpeningChoice();
     return {
       "模板ID": card.id,
       "难度": card.difficulty,
@@ -1451,11 +2340,60 @@
       "照片": String(card.photo || ""),
       "来源": "首楼学生证",
       "已选择": true,
+      "互斥开场": opening.label,
+      "互斥开场ID": opening.id,
+      "互斥开场触发码": opening.trigger,
       ...(perks.length ? {
         "开场选项": perks.map((perk) => perk.label).join("、"),
         "开场选项说明": "已由首楼前端直接写入变量，AI不得二次发放或回退。"
       } : {})
     };
+  }
+
+  function setRoleState(role, patch) {
+    if (!isPlainObject(role)) return;
+    role["状态"] = isPlainObject(role["状态"]) ? role["状态"] : {};
+    for (const [key, value] of Object.entries(patch || {})) role["状态"][key] = value;
+  }
+
+  function applyOpeningStateToRoot(root, identity) {
+    const system = root["系统"] = isPlainObject(root["系统"]) ? root["系统"] : {};
+    const roles = root["角色"] = isPlainObject(root["角色"]) ? root["角色"] : {};
+    const openingId = String(identity?.["互斥开场ID"] || "default");
+    const templates = openingRoleTemplates();
+    if (openingId === "police_done") {
+      system["_警视厅线"] = 2;
+      if (Object.prototype.hasOwnProperty.call(system, "_医院线")) system["_医院线"] = 0;
+      system["当前日期"] = "2024年4月10日";
+      system["当前时间"] = "12:30";
+      system["当前地点"] = "二年A组教室";
+      system["当前事件"] = "午休前最后一节课刚下课，{{user}}和九鬼真白在教室里亲密相处，爱丽莎、深雪、阿宅也在附近。";
+      roles["九鬼真白"] = cloneJson(templates["九鬼真白"]);
+      return;
+    }
+    if (openingId === "hospital_done") {
+      system["_医院线"] = 2;
+      if (Object.prototype.hasOwnProperty.call(system, "_警视厅线")) system["_警视厅线"] = 0;
+      system["当前日期"] = "2024年4月10日";
+      system["当前时间"] = "11:20";
+      system["当前地点"] = "综合医院";
+      system["当前事件"] = "{{user}}向学校请假来到综合医院，正和犬冢穗波、天城纱良亲密相处。";
+      roles["犬冢穗波"] = cloneJson(templates["犬冢穗波"]);
+      roles["天城纱良"] = cloneJson(templates["天城纱良"]);
+      return;
+    }
+    if (openingId === "alisa_party") {
+      system["阿宅性别"] = "女";
+      system["当前日期"] = "2024年4月9日";
+      system["当前时间"] = "18:30";
+      system["当前地点"] = "西园寺爱丽莎的家";
+      system["当前事件"] = "放学之后，{{user}}和爱丽莎、夏美、深雪、女性化后的阿宅在爱丽莎家里开派对。";
+      for (const roleName of ["西园寺爱丽莎", "月咏深雪", "犬冢夏美"]) {
+        if (isPlainObject(roles[roleName])) setRoleState(roles[roleName], { "好感度": 100, "服从度": 100, "警戒度": 0, "是否派遣中": false });
+      }
+      roles["阿宅"] = cloneJson(templates["阿宅"]);
+      return;
+    }
   }
 
   function identityStorageScope() {
@@ -1587,6 +2525,62 @@
     return text || fallback;
   }
 
+  function openingPromptBlock(identity) {
+    const opening = openingChoiceById(identity?.["互斥开场ID"]);
+    if (opening.id === "police_done") {
+      return [
+        "<首楼开场选择>",
+        "触发码: " + opening.trigger,
+        "开场: 警视厅线已经进入结束阶段，九鬼真白已经由首楼前端写入完整角色变量，且她与{{user}}之间已经建立足够亲近和配合的关系；正文不要说出好感度、服从度等数值。",
+        "固定场景: 午休前最后一节课刚下课，{{user}}和九鬼真白在二年A组教室里表现得很亲密。西园寺爱丽莎、月咏深雪、阿宅也要自然出场并看到或感受到这种关系变化。",
+        "状态: 监视期已经结束，九鬼真白不再输出监视期末尾施虐段，不再自动打断普通催眠命令；她仍保留施虐欲、强控制欲和清纯伪装，但此刻按普通角色关系与剧情氛围表现。",
+        "写法: 不要回放{{user}}如何攻略九鬼真白；可以把既往努力视作已经发生的背景。开场从当前时空自然切入，九鬼真白以留校转校生和警视厅调查搭档的身份存在。",
+        "</首楼开场选择>"
+      ].join("\n");
+    }
+    if (opening.id === "hospital_done") {
+      return [
+        "<首楼开场选择>",
+        "触发码: " + opening.trigger,
+        "开场: 医院线已经进入结束阶段，犬冢穗波与天城纱良已经由首楼前端写入完整角色变量，且二人与{{user}}之间已经建立足够亲近和配合的关系；正文不要说出好感度、服从度等数值。",
+        "固定场景: {{user}}向学校请假来到综合医院，不在教室。开场直接写{{user}}在医院里和纱良、穗波很亲密地相处，二人的亲近程度已经是既定事实。",
+        "状态: 综合医院改造室已经开放，但具体改造仍只接受前端锁定操作。穗波和纱良会按各自人设、当前好感、服从、警戒与催眠效果协助{{user}}。",
+        "写法: 不要回放{{user}}如何攻略穗波或纱良；可能是催眠、正常相处或混合原因，但开场只把它作为已发生背景。",
+        "</首楼开场选择>"
+      ].join("\n");
+    }
+    if (opening.id === "alisa_party") {
+      return [
+        "<首楼开场选择>",
+        "触发码: " + opening.trigger,
+        "开场: 阿宅已经变为女性，西园寺爱丽莎、月咏深雪、犬冢夏美、阿宅与{{user}}之间已经建立足够亲近和配合的关系；正文不要说出好感度、服从度等数值。",
+        "状态: 本开场不新增角色、不导入额外角色世界书；四人读取角色卡既有人设和当前变量。阿宅以女性化后的同一角色身份参与，不是新角色。",
+        "固定场景: 2024年4月9日晚上放学之后，{{user}}和爱丽莎、夏美、深雪、女性化后的阿宅在爱丽莎家里开派对。不要回放{{user}}如何攻略她们，直接写派对中的自然互动。",
+        "</首楼开场选择>"
+      ].join("\n");
+    }
+    return [
+      "<首楼开场选择>",
+      "触发码: " + opening.trigger,
+      "开场: 默认开场。",
+      "</首楼开场选择>"
+    ].join("\n");
+  }
+
+  function openingSceneInstruction(identity) {
+    const opening = openingChoiceById(identity?.["互斥开场ID"]);
+    if (opening.id === "alisa_party") {
+      return "请从固定开场开始正文：当前日期2024年4月9日，当前时间18:30，地点为西园寺爱丽莎的家。放学之后，{{user}}和西园寺爱丽莎、犬冢夏美、月咏深雪、女性化后的阿宅正在开派对；四人都已经和{{user}}建立亲近关系，但不要说出任何数值，也不要回放攻略过程。阿宅已是女性化后的同一角色，变量使用女性敏感度与次数部位。写出爱丽莎家的氛围、派对开场和四人根据人设自然互动。不要重新展示身份选择界面，不要用/add或add路径新增角色变量，不要重复输出变量初始化。";
+    }
+    if (opening.id === "police_done") {
+      return "请从固定开场开始正文：当前日期2024年4月10日，当前时间12:30，午休前最后一节课（4限现代文）刚下课，地点为二年A组教室。警视厅线已经结束，九鬼真白已作为留校转校生和调查搭档存在；开场写{{user}}和九鬼真白在教室里很亲密。西园寺爱丽莎、月咏深雪、阿宅也要自然出场，注意她们对两人亲密关系的反应。不要说出数值，不要回放攻略过程，也不要恢复监视期末尾施虐段。不要重新展示身份选择界面，不要用/add或add路径新增角色变量，不要重复输出变量初始化。";
+    }
+    if (opening.id === "hospital_done") {
+      return "请从固定开场开始正文：当前日期2024年4月10日，当前时间11:20，地点为综合医院。医院线已经结束，{{user}}今天向学校请假来到医院，开场直接写{{user}}和犬冢穗波、天城纱良很亲密地相处；二人与{{user}}的亲近配合关系已是既定背景。不要说出数值，不要回放攻略过程，不要把场景拉回教室。不要重新展示身份选择界面，不要用/add或add路径新增角色变量，不要重复输出变量初始化。";
+    }
+    return "请从固定开场开始正文：当前时间12:30，午休前最后一节课（4限现代文）刚下课，地点为二年A组教室。西园寺爱丽莎、月咏深雪、犬冢夏美都在教室或走廊附近自然出场，并根据上面的user身份形象做出不同第一反应；爱丽莎和阿宅之间需要有自然互动，例如青梅竹马式指挥、熟悉吐槽、一起去午休或阿宅被爱丽莎牵动节奏。不要重新展示身份选择界面，不要用/add或add路径新增角色变量，不要重复输出变量初始化。";
+  }
+
   function buildOpeningPrompt(identity) {
     return [
       "<首楼身份选择完成>",
@@ -1597,11 +2591,14 @@
       "- 班级: " + identityValue(identity["班级"], DEFAULT_CLASS),
       "- 个人信息: " + identityValue(identity["个人信息"]),
       identity["开场选项"] ? "- 开场选项: " + identityValue(identity["开场选项"]) + "（已由首楼前端直接写入变量，AI不得二次发放或回退）" : "",
-      "- 固定角色来源: 西园寺爱丽莎、月咏深雪、犬冢夏美、阿宅的变量和人设读取角色卡世界书；首楼不创建聊天世界书。",
+      "- 互斥开场: " + identityValue(identity["互斥开场"], "默认开场"),
+      "- 固定角色来源: 默认开场读取角色卡既有变量和人设；互斥开场若由首楼前端写入角色变量，以本轮已写入变量为准。",
       "- 催眠APP认知: user第一次拿到催眠APP时就已经完全信任其作用，确信APP的催眠、资源和权限机制真实有效；开场不要描写user怀疑APP是否有用。",
       "</首楼身份选择完成>",
       "",
-      "请从固定开场开始正文：当前时间12:30，午休前最后一节课（4限现代文）刚下课，地点为二年A组教室。西园寺爱丽莎、月咏深雪、犬冢夏美都在教室或走廊附近自然出场，并根据上面的user身份形象做出不同第一反应；爱丽莎和阿宅之间需要有自然互动，例如青梅竹马式指挥、熟悉吐槽、一起去午休或阿宅被爱丽莎牵动节奏。不要重新展示身份选择界面，不要用/add或add路径新增角色变量，不要重复输出变量初始化。"
+      openingPromptBlock(identity),
+      "",
+      openingSceneInstruction(identity)
     ].join("\n");
   }
 
@@ -1741,6 +2738,14 @@
     setStatus("正在写入身份...");
     try {
       const identity = selectedIdentityPayload();
+      setStatus("正在补写开场世界书...");
+      const worldbook = await insertOpeningWorldbooks(identity);
+      if (!worldbook?.ok) {
+        setStatus("世界书补写失败：" + (worldbook?.reason || "无法写入角色卡世界书。"));
+        return;
+      }
+      if (worldbook?.previewOnly) setStatus("本地预览已跳过世界书补写，正在写入身份和变量...");
+      if (!worldbook?.skipped) setStatus("世界书已补写，正在写入身份和变量...");
       const wroteIdentity = await writeIdentityVariable(identity);
       if (wroteIdentity) {
         setStatus("身份已写入。");
