@@ -106,6 +106,8 @@
     var selectionMode = "follow";
     var loadedForWritableId = "";
     var dragState = null;
+    var launcherDragState = null;
+    var suppressLauncherClick = false;
     var stageSubscribers = new Set();
     var shellOpen = false;
     var storageKey = "hypnoos.floatingPhone.ui.v1";
@@ -434,7 +436,9 @@
           mode: selectionMode,
           selectedId: selectedId,
           x: current.x,
-          y: current.y
+          y: current.y,
+          launcherX: current.launcherX,
+          launcherY: current.launcherY
         }));
       } catch (_) {}
     }
@@ -446,14 +450,45 @@
           mode: selectionMode,
           selectedId: selectedId,
           x: Math.round(x),
-          y: Math.round(y)
+          y: Math.round(y),
+          launcherX: current.launcherX,
+          launcherY: current.launcherY
         }));
       } catch (_) {}
+    }
+
+    function saveLauncherPosition(x, y) {
+      try {
+        var current = readUiState();
+        host.localStorage.setItem(storageKey, JSON.stringify({
+          mode: selectionMode,
+          selectedId: selectedId,
+          x: current.x,
+          y: current.y,
+          launcherX: Math.round(x),
+          launcherY: Math.round(y)
+        }));
+      } catch (_) {}
+    }
+
+    function panelSidecarReserve(width) {
+      var available = Math.max(0, host.innerWidth - Number(width || 0) - 24);
+      return Math.min(286, available);
     }
 
     function clampPosition(x, y) {
       var width = panel ? panel.offsetWidth : Math.min(760, host.innerWidth - 24);
       var height = panel ? panel.offsetHeight : Math.min(900, host.innerHeight - 24);
+      var sidecar = panelSidecarReserve(width);
+      return {
+        x: Math.max(8, Math.min(Number(x) || 8, Math.max(8, host.innerWidth - width - sidecar - 8))),
+        y: Math.max(8, Math.min(Number(y) || 8, Math.max(8, host.innerHeight - height - 8)))
+      };
+    }
+
+    function clampLauncherPosition(x, y) {
+      var width = launcher ? launcher.offsetWidth : 58;
+      var height = launcher ? launcher.offsetHeight : 58;
       return {
         x: Math.max(8, Math.min(Number(x) || 8, Math.max(8, host.innerWidth - width - 8))),
         y: Math.max(8, Math.min(Number(y) || 8, Math.max(8, host.innerHeight - height - 8)))
@@ -463,32 +498,48 @@
     function applySavedPosition() {
       if (!panel) return;
       var saved = readUiState();
-      var fallbackX = Math.max(8, host.innerWidth - panel.offsetWidth - 28);
+      var fallbackX = Math.max(8, host.innerWidth - panel.offsetWidth - panelSidecarReserve(panel.offsetWidth) - 28);
       var fallbackY = Math.max(8, Math.min(88, host.innerHeight - panel.offsetHeight - 8));
       var next = clampPosition(saved.x === undefined ? fallbackX : saved.x, saved.y === undefined ? fallbackY : saved.y);
       panel.style.left = next.x + "px";
       panel.style.top = next.y + "px";
     }
 
+    function applySavedLauncherPosition() {
+      if (!launcher) return;
+      var saved = readUiState();
+      var fallbackX = Math.max(8, host.innerWidth - launcher.offsetWidth - 22);
+      var fallbackY = Math.max(8, host.innerHeight - launcher.offsetHeight - 90);
+      var next = clampLauncherPosition(
+        saved.launcherX === undefined ? fallbackX : saved.launcherX,
+        saved.launcherY === undefined ? fallbackY : saved.launcherY
+      );
+      launcher.style.left = next.x + "px";
+      launcher.style.top = next.y + "px";
+      launcher.style.right = "auto";
+      launcher.style.bottom = "auto";
+    }
+
     function shellCss() {
       return [
         "*{box-sizing:border-box}",
-        ".launcher{pointer-events:auto;position:fixed;right:22px;bottom:90px;width:58px;height:58px;border:1px solid rgba(196,116,255,.7);border-radius:22px;background:linear-gradient(145deg,#58115d,#19142d 62%,#0b1022);box-shadow:0 16px 44px rgba(20,0,35,.48),inset 0 1px rgba(255,255,255,.18);color:#fff;display:grid;place-items:center;cursor:pointer;z-index:3;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}",
+        ".launcher{pointer-events:auto;position:fixed;right:22px;bottom:90px;width:58px;height:58px;border:1px solid rgba(196,116,255,.7);border-radius:22px;background:linear-gradient(145deg,#58115d,#19142d 62%,#0b1022);box-shadow:0 16px 44px rgba(20,0,35,.48),inset 0 1px rgba(255,255,255,.18);color:#fff;display:grid;place-items:center;cursor:grab;touch-action:none;user-select:none;z-index:3;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}",
         ".launcher:hover,.launcher.active{transform:translateY(-3px);border-color:rgba(244,186,255,.9);box-shadow:0 20px 52px rgba(74,18,91,.56),0 0 0 3px rgba(217,70,239,.12)}",
+        ".launcher.dragging{cursor:grabbing;transition:none;transform:none}",
         ".launcher svg{width:28px;height:28px}.launcher i{position:absolute;right:-4px;top:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#f25aa6;color:white;font:800 11px/20px system-ui;text-align:center}",
-        ".panel{pointer-events:auto;position:fixed;width:min(430px,calc(100vw - 16px));height:min(812px,calc(100vh - 16px));border:1px solid rgba(221,184,255,.42);border-radius:38px;background:#05070f;box-shadow:0 32px 110px rgba(0,0,0,.72),0 0 0 6px rgba(17,12,30,.72);overflow:hidden;z-index:2;display:none;isolation:isolate}",
-        ".panel.open{display:block}.panel:after{content:'';position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09);pointer-events:none;z-index:8}",
-        ".phone-wrap{position:absolute;inset:0;background:#05070f}.phone{display:block;width:100%;height:100%;border:0;background:transparent}",
-        ".readonly{position:absolute;right:12px;top:58px;z-index:7;padding:7px 10px;border-radius:999px;background:rgba(39,25,12,.92);border:1px solid rgba(251,191,36,.38);color:#fde68a;font:800 10px system-ui;pointer-events:none;display:none}.phone-wrap.history .readonly{display:block}",
+        ".panel{pointer-events:auto;position:fixed;width:min(430px,calc(100vw - 16px));height:min(812px,calc(100vh - 16px));border:0;border-radius:38px;background:transparent;box-shadow:none;overflow:visible;z-index:2;display:none;isolation:isolate;--floor-sidecar-width:270px}",
+        ".panel.open{display:block}",
+        ".phone-wrap{position:absolute;inset:0;border:1px solid rgba(221,184,255,.42);border-radius:inherit;background:#05070f;box-shadow:0 32px 110px rgba(0,0,0,.72),0 0 0 6px rgba(17,12,30,.72);overflow:hidden;isolation:isolate}.phone-wrap:after{content:'';position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09);pointer-events:none;z-index:8}.phone{display:block;width:100%;height:100%;border:0;background:transparent}",
+        ".readonly{position:absolute;left:calc(100% + 14px);top:58px;z-index:13;width:var(--floor-sidecar-width);padding:8px 10px;border-radius:13px;background:rgba(39,25,12,.72);border:1px solid rgba(251,191,36,.38);color:#fde68a;font:800 10px/1.35 system-ui;pointer-events:none;display:none;backdrop-filter:blur(10px)}.panel.history>.readonly{display:block}",
         ".drag-edge{position:absolute;z-index:9;touch-action:none;user-select:none}.drag-edge.top{left:22px;right:22px;top:0;height:10px;cursor:grab}.drag-edge.bottom{left:22px;right:22px;bottom:0;height:10px;cursor:grab}.drag-edge.left{left:0;top:22px;bottom:22px;width:10px;cursor:grab}.drag-edge.right{right:0;top:22px;bottom:22px;width:10px;cursor:grab}.drag-edge:active,.drag-grip:active{cursor:grabbing}",
         ".drag-grip{position:absolute;z-index:10;left:50%;top:4px;width:72px;height:12px;transform:translateX(-50%);border-radius:999px;cursor:grab;touch-action:none;user-select:none}.drag-grip:after{content:'';position:absolute;left:18px;right:18px;top:4px;height:3px;border-radius:999px;background:rgba(235,216,248,.38);box-shadow:0 1px 6px rgba(0,0,0,.45)}",
-        ".floor-toggle{position:absolute;z-index:11;right:11px;top:12px;height:31px;padding:0 10px;border:1px solid rgba(224,188,255,.28);border-radius:999px;background:rgba(11,8,26,.76);backdrop-filter:blur(12px);color:#f7eafe;font:800 10px system-ui;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.24)}",
-        ".floor-drawer{position:absolute;z-index:12;left:12px;right:12px;top:49px;display:none;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:10px;border:1px solid rgba(220,184,255,.3);border-radius:17px;background:linear-gradient(135deg,rgba(20,13,38,.94),rgba(8,12,28,.94));backdrop-filter:blur(18px);box-shadow:0 18px 42px rgba(0,0,0,.42);color:#f8efff}",
+        ".floor-toggle{position:absolute;z-index:14;left:calc(100% + 14px);top:12px;height:36px;padding:0 13px;border:1px solid rgba(224,188,255,.38);border-radius:999px;background:rgba(11,8,26,.38);backdrop-filter:blur(12px);color:#f7eafe;font:800 11px system-ui;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.18)}",
+        ".floor-drawer{position:absolute;z-index:12;left:calc(100% + 14px);right:auto;top:102px;width:var(--floor-sidecar-width);display:none;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:0;border:0;border-radius:17px;background:transparent;backdrop-filter:none;box-shadow:none;color:#f8efff}",
         ".floor-drawer.open{display:grid}.floor-title{grid-column:1/2;align-self:center;overflow:hidden;color:#d9cbe4;font:750 11px/1.2 system-ui;text-overflow:ellipsis;white-space:nowrap}",
-        ".select{grid-column:1/-1;width:100%;height:35px;border:1px solid rgba(201,155,232,.3);border-radius:11px;background:#18152b;color:#f7effc;padding:0 31px 0 10px;font:700 11px system-ui}",
-        ".mode{height:30px;padding:0 9px;border:1px solid rgba(201,155,232,.3);border-radius:10px;background:rgba(255,255,255,.06);color:#efe4f8;font:750 10px system-ui;cursor:pointer}",
-        ".badge{grid-column:1/-1;min-height:25px;padding:5px 8px;border-radius:9px;display:flex;align-items:center;background:rgba(51,211,153,.12);border:1px solid rgba(51,211,153,.32);color:#a7f3d0;font:800 10px/1.25 system-ui}.badge.history{background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.3);color:#fde68a}",
-        "@media(max-width:500px){.panel{width:calc(100vw - 8px);height:calc(100vh - 8px);border-radius:27px;box-shadow:0 24px 80px rgba(0,0,0,.7),0 0 0 3px rgba(17,12,30,.72)}.launcher{right:14px;bottom:78px}.floor-toggle{right:8px;top:9px}.floor-drawer{left:8px;right:8px;top:44px}}"
+        ".select{grid-column:1/-1;width:100%;height:38px;border:1px solid rgba(201,155,232,.34);border-radius:11px;background:rgba(24,21,43,.72);backdrop-filter:blur(10px);color:#f7effc;padding:0 31px 0 10px;font:700 11px system-ui}",
+        ".mode{height:32px;padding:0 10px;border:1px solid rgba(201,155,232,.34);border-radius:10px;background:rgba(24,21,43,.5);backdrop-filter:blur(10px);color:#efe4f8;font:750 10px system-ui;cursor:pointer}",
+        ".badge{grid-column:1/-1;min-height:28px;padding:6px 9px;border-radius:9px;display:flex;align-items:center;background:rgba(19,78,59,.32);backdrop-filter:blur(10px);border:1px solid rgba(51,211,153,.32);color:#a7f3d0;font:800 10px/1.25 system-ui}.badge.history{background:rgba(76,48,13,.34);border-color:rgba(251,191,36,.3);color:#fde68a}",
+        "@media(max-width:760px){.panel{--floor-sidecar-width:220px}.floor-toggle,.readonly,.floor-drawer{left:calc(100% + 10px)}}"
       ].join("");
     }
 
@@ -497,6 +548,7 @@
       return "<script>(function(){var r=parent.__ST_HYPNOOS_FLOATING_SINGLETON__;window.__ST_HYPNOOS_FLOATING_PHONE__=true;window.__ST_HYPNOOS_FLOATING_REGISTRY__=r;window.__ST_HYPNOOS_ASSET_BASE__=" + asset + ";" +
         "function option(o){return r.normalizeMessageOption(o)}function writeOption(o){return r.normalizeWriteMessageOption(o)}" +
         "globalThis.getCurrentMessageId=function(){return r.getSelectedId()};" +
+        "globalThis.__ST_HYPNOOS_REQUIRE_WRITABLE_FLOOR__=function(){if(r.isWritable())return true;r.notifyReadOnly();return false};" +
         "globalThis.getVariables=function(o){return r.readApi('getVariables',[option(o)])};" +
         "globalThis.updateVariablesWith=function(fn,o){return r.guardedApi('updateVariablesWith',[fn,writeOption(o)])};" +
         "globalThis.getChatMessages=function(){return r.callApi('getChatMessages',Array.prototype.slice.call(arguments))||[]};" +
@@ -505,7 +557,7 @@
         "globalThis.SillyTavern={getContext:function(){return r.getContext()},getCurrentChatId:function(){return r.getCurrentChatId()}};" +
         "var sourceMvu=r.getMvu();globalThis.Mvu={events:sourceMvu&&sourceMvu.events||{},getMvuData:function(o){return r.readMvu('getMvuData',[option(o)])},replaceMvuData:function(m,o){return r.guardedMvu('replaceMvuData',[m,writeOption(o)])},setMvuVariable:function(){return r.guardedMvu('setMvuVariable',Array.prototype.slice.call(arguments))}};" +
         "['eventOn','getCharWorldbookNames','getWorldbook'].forEach(function(n){globalThis[n]=function(){return r.callApi(n,Array.prototype.slice.call(arguments))}});" +
-        "['createWorldbook','createWorldbookEntries','createWorldInfoEntry'].forEach(function(n){globalThis[n]=function(){return r.guardedApi(n,Array.prototype.slice.call(arguments))}});" +
+        "['createWorldbook','createWorldbookEntries','createWorldInfoEntry','replaceWorldbook','updateWorldbookWith'].forEach(function(n){globalThis[n]=function(){return r.guardedApi(n,Array.prototype.slice.call(arguments))}});" +
         "})();</scr" + "ipt>";
     }
 
@@ -551,7 +603,7 @@
       shadow = shell.attachShadow({ mode: "open" });
       shadow.innerHTML = "<style>" + shellCss() + "</style>" +
         "<button class='launcher' type='button' aria-label='打开悬浮手机'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8'><rect x='6' y='2.5' width='12' height='19' rx='3'/><path d='M10 5h4M11 18.5h2'/></svg><i>0</i></button>" +
-        "<section class='panel' aria-label='HypnoOS 悬浮手机'><div class='phone-wrap'><span class='readonly'>历史楼层 · 只读</span><iframe class='phone' title='HypnoOS 手机前端'></iframe></div><span class='drag-edge top' data-phone-drag></span><span class='drag-edge right' data-phone-drag></span><span class='drag-edge bottom' data-phone-drag></span><span class='drag-edge left' data-phone-drag></span><span class='drag-grip' data-phone-drag aria-label='拖动手机'></span><button class='floor-toggle' type='button' aria-expanded='false'>楼层</button><section class='floor-drawer'><span class='floor-title'></span><button class='mode' type='button'>跟随视口</button><select class='select' aria-label='选择变量楼层'></select><span class='badge'></span></section></section>";
+        "<section class='panel' aria-label='HypnoOS 悬浮手机'><div class='phone-wrap'><iframe class='phone' title='HypnoOS 手机前端'></iframe></div><span class='readonly'>历史楼层 · 只读；切回当前楼后才能操作</span><span class='drag-edge top' data-phone-drag></span><span class='drag-edge right' data-phone-drag></span><span class='drag-edge bottom' data-phone-drag></span><span class='drag-edge left' data-phone-drag></span><span class='drag-grip' data-phone-drag aria-label='拖动手机'></span><button class='floor-toggle' type='button' aria-expanded='false'>楼层</button><section class='floor-drawer'><span class='floor-title'></span><button class='mode' type='button'>跟随视口</button><select class='select' aria-label='选择变量楼层'></select><span class='badge'></span></section></section>";
       hostDocument.body.appendChild(shell);
       launcher = shadow.querySelector(".launcher");
       panel = shadow.querySelector(".panel");
@@ -563,8 +615,16 @@
       launcher.addEventListener("click", function (event) {
         event.preventDefault();
         event.stopPropagation();
+        if (suppressLauncherClick) {
+          suppressLauncherClick = false;
+          return;
+        }
         toggleShell(!shellOpen);
       });
+      launcher.addEventListener("pointerdown", beginLauncherDrag);
+      launcher.addEventListener("pointermove", moveLauncherDrag);
+      launcher.addEventListener("pointerup", endLauncherDrag);
+      launcher.addEventListener("pointercancel", cancelLauncherDrag);
       var floorToggle = shadow.querySelector(".floor-toggle");
       var floorDrawer = shadow.querySelector(".floor-drawer");
       floorToggle.addEventListener("click", function (event) {
@@ -592,8 +652,68 @@
         host.setTimeout(function () { notifyStages(); }, 0);
         host.setTimeout(function () { notifyStages(); }, 350);
       });
+      applySavedLauncherPosition();
       applySavedPosition();
       updateChrome();
+    }
+
+    function beginLauncherDrag(event) {
+      if (!launcher || (event.pointerType === "mouse" && event.button !== 0)) return;
+      var rect = launcher.getBoundingClientRect();
+      launcherDragState = {
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        startY: event.clientY,
+        startLeft: rect.left,
+        startTop: rect.top,
+        moved: false
+      };
+      suppressLauncherClick = false;
+      launcher.classList.add("dragging");
+      try { launcher.setPointerCapture(event.pointerId); } catch (_) {}
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    function moveLauncherDrag(event) {
+      if (!launcherDragState || event.pointerId !== launcherDragState.pointerId) return;
+      var dx = event.clientX - launcherDragState.startX;
+      var dy = event.clientY - launcherDragState.startY;
+      if (!launcherDragState.moved && Math.hypot(dx, dy) >= 5) launcherDragState.moved = true;
+      if (launcherDragState.moved) {
+        var next = clampLauncherPosition(launcherDragState.startLeft + dx, launcherDragState.startTop + dy);
+        launcher.style.left = next.x + "px";
+        launcher.style.top = next.y + "px";
+        launcher.style.right = "auto";
+        launcher.style.bottom = "auto";
+      }
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    function endLauncherDrag(event) {
+      if (!launcherDragState || event.pointerId !== launcherDragState.pointerId) return;
+      var ended = launcherDragState;
+      launcherDragState = null;
+      launcher.classList.remove("dragging");
+      try {
+        if (launcher.hasPointerCapture && launcher.hasPointerCapture(ended.pointerId)) launcher.releasePointerCapture(ended.pointerId);
+      } catch (_) {}
+      if (ended.moved) {
+        var rect = launcher.getBoundingClientRect();
+        saveLauncherPosition(rect.left, rect.top);
+        suppressLauncherClick = true;
+      }
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    function cancelLauncherDrag(event) {
+      if (!launcherDragState || event.pointerId !== launcherDragState.pointerId) return;
+      launcherDragState = null;
+      launcher.classList.remove("dragging");
+      event.preventDefault();
+      event.stopPropagation();
     }
 
     function beginDrag(event) {
@@ -703,7 +823,7 @@
       var writable = isWritable();
       stateBadge.textContent = writable ? "当前楼 · 可操作" : "历史楼 · 只读";
       stateBadge.classList.toggle("history", !writable);
-      shadow.querySelector(".phone-wrap").classList.toggle("history", !writable);
+      panel.classList.toggle("history", !writable);
       titleFloor.textContent = selectedId ? "楼层 " + selectedId : "等待楼层";
       var count = phoneApi("__ST_GET_PENDING_OPERATION_VIEW__", [], true);
       var note = phoneApi("__ST_GET_PENDING_OPERATION_NOTE__", [], true);
@@ -725,7 +845,7 @@
       if (!panel || !shadow) return;
       var badge = shadow.querySelector(".readonly");
       if (!badge) return;
-      badge.textContent = "历史楼层只读；切回当前楼后才能操作";
+      badge.textContent = "历史楼层 · 只读；切回当前楼后才能操作";
       badge.animate([{ transform: "translateY(-3px)", opacity: .65 }, { transform: "translateY(0)", opacity: 1 }], { duration: 220 });
     }
 
@@ -793,7 +913,10 @@
       event.stopPropagation();
       openProfileRole(roleName);
     };
-    hostResizeHandler = function () { if (panel) applySavedPosition(); };
+    hostResizeHandler = function () {
+      if (launcher) applySavedLauncherPosition();
+      if (panel) applySavedPosition();
+    };
     hostDocument.addEventListener("click", hostClickHandler, true);
     host.addEventListener("resize", hostResizeHandler, { passive: true });
 
@@ -813,6 +936,7 @@
       callMvu: callMvu,
       readMvu: readMvu,
       guardedMvu: guardedMvu,
+      notifyReadOnly: notifyReadOnly,
       getMvu: findMvu,
       getContext: context,
       getCurrentChatId: function () {
