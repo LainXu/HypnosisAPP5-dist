@@ -471,7 +471,25 @@
     }
 
     function shellCss() {
-      return "*{box-sizing:border-box}.launcher{position:fixed;right:22px;bottom:90px;width:58px;height:58px;border:1px solid rgba(196,116,255,.7);border-radius:22px;background:linear-gradient(145deg,#58115d,#19142d 62%,#0b1022);box-shadow:0 16px 44px rgba(20,0,35,.48),inset 0 1px rgba(255,255,255,.18);color:#fff;display:grid;place-items:center;cursor:pointer;z-index:2147482000;transition:transform .18s ease,box-shadow .18s ease}.launcher:hover{transform:translateY(-3px);box-shadow:0 20px 52px rgba(74,18,91,.56)}.launcher svg{width:28px;height:28px}.launcher i{position:absolute;right:-4px;top:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#f25aa6;color:white;font:800 11px/20px system-ui;text-align:center}.panel{position:fixed;width:min(780px,calc(100vw - 18px));height:min(900px,calc(100vh - 18px));border:1px solid rgba(213,154,255,.45);border-radius:30px;background:#0d1020;box-shadow:0 30px 100px rgba(0,0,0,.68);overflow:hidden;z-index:2147481999;display:none}.panel.open{display:flex;flex-direction:column}.bar{height:58px;flex:none;display:flex;align-items:center;gap:9px;padding:8px 10px 8px 15px;background:linear-gradient(90deg,#32103b,#17142b 58%,#10172d);border-bottom:1px solid rgba(231,184,255,.2);color:#f8efff;user-select:none;touch-action:none;cursor:grab}.bar:active{cursor:grabbing}.brand{font:900 14px/1 system-ui;letter-spacing:.08em;white-space:nowrap}.floor-title{font:600 12px/1.2 system-ui;color:#d2c5df;white-space:nowrap}.spacer{flex:1}.mode,.close{height:34px;border:1px solid rgba(201,155,232,.3);border-radius:12px;background:rgba(255,255,255,.06);color:#efe4f8;font:700 12px system-ui;cursor:pointer}.mode{padding:0 10px}.close{width:36px;font-size:20px}.select{min-width:180px;max-width:270px;height:34px;border:1px solid rgba(201,155,232,.3);border-radius:12px;background:#18152b;color:#f7effc;padding:0 32px 0 10px;font:650 12px system-ui}.badge{height:28px;padding:0 9px;border-radius:999px;display:flex;align-items:center;background:rgba(51,211,153,.12);border:1px solid rgba(51,211,153,.32);color:#a7f3d0;font:800 11px system-ui;white-space:nowrap}.badge.history{background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.3);color:#fde68a}.phone-wrap{position:relative;flex:1;min-height:0;background:radial-gradient(circle at 50% 0,rgba(111,38,132,.22),transparent 40%),#080b16}.phone{width:100%;height:100%;border:0;background:transparent}.readonly{position:absolute;right:14px;top:12px;z-index:3;padding:7px 11px;border-radius:999px;background:rgba(39,25,12,.92);border:1px solid rgba(251,191,36,.38);color:#fde68a;font:800 11px system-ui;pointer-events:none;display:none}.phone-wrap.history .readonly{display:block}@media(max-width:720px){.panel{width:calc(100vw - 8px);height:calc(100vh - 8px);border-radius:23px}.bar{height:auto;min-height:58px;flex-wrap:wrap}.select{order:5;width:100%;max-width:none}.launcher{right:14px;bottom:78px}.floor-title{display:none}}";
+      return [
+        "*{box-sizing:border-box}",
+        ".launcher{pointer-events:auto;position:fixed;right:22px;bottom:90px;width:58px;height:58px;border:1px solid rgba(196,116,255,.7);border-radius:22px;background:linear-gradient(145deg,#58115d,#19142d 62%,#0b1022);box-shadow:0 16px 44px rgba(20,0,35,.48),inset 0 1px rgba(255,255,255,.18);color:#fff;display:grid;place-items:center;cursor:pointer;z-index:3;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}",
+        ".launcher:hover,.launcher.active{transform:translateY(-3px);border-color:rgba(244,186,255,.9);box-shadow:0 20px 52px rgba(74,18,91,.56),0 0 0 3px rgba(217,70,239,.12)}",
+        ".launcher svg{width:28px;height:28px}.launcher i{position:absolute;right:-4px;top:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#f25aa6;color:white;font:800 11px/20px system-ui;text-align:center}",
+        ".panel{pointer-events:auto;position:fixed;width:min(430px,calc(100vw - 16px));height:min(812px,calc(100vh - 16px));border:1px solid rgba(221,184,255,.42);border-radius:38px;background:#05070f;box-shadow:0 32px 110px rgba(0,0,0,.72),0 0 0 6px rgba(17,12,30,.72);overflow:hidden;z-index:2;display:none;isolation:isolate}",
+        ".panel.open{display:block}.panel:after{content:'';position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09);pointer-events:none;z-index:8}",
+        ".phone-wrap{position:absolute;inset:0;background:#05070f}.phone{display:block;width:100%;height:100%;border:0;background:transparent}",
+        ".readonly{position:absolute;right:12px;top:58px;z-index:7;padding:7px 10px;border-radius:999px;background:rgba(39,25,12,.92);border:1px solid rgba(251,191,36,.38);color:#fde68a;font:800 10px system-ui;pointer-events:none;display:none}.phone-wrap.history .readonly{display:block}",
+        ".drag-edge{position:absolute;z-index:9;touch-action:none;user-select:none}.drag-edge.top{left:22px;right:22px;top:0;height:10px;cursor:grab}.drag-edge.bottom{left:22px;right:22px;bottom:0;height:10px;cursor:grab}.drag-edge.left{left:0;top:22px;bottom:22px;width:10px;cursor:grab}.drag-edge.right{right:0;top:22px;bottom:22px;width:10px;cursor:grab}.drag-edge:active,.drag-grip:active{cursor:grabbing}",
+        ".drag-grip{position:absolute;z-index:10;left:50%;top:4px;width:72px;height:12px;transform:translateX(-50%);border-radius:999px;cursor:grab;touch-action:none;user-select:none}.drag-grip:after{content:'';position:absolute;left:18px;right:18px;top:4px;height:3px;border-radius:999px;background:rgba(235,216,248,.38);box-shadow:0 1px 6px rgba(0,0,0,.45)}",
+        ".floor-toggle{position:absolute;z-index:11;right:11px;top:12px;height:31px;padding:0 10px;border:1px solid rgba(224,188,255,.28);border-radius:999px;background:rgba(11,8,26,.76);backdrop-filter:blur(12px);color:#f7eafe;font:800 10px system-ui;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.24)}",
+        ".floor-drawer{position:absolute;z-index:12;left:12px;right:12px;top:49px;display:none;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:10px;border:1px solid rgba(220,184,255,.3);border-radius:17px;background:linear-gradient(135deg,rgba(20,13,38,.94),rgba(8,12,28,.94));backdrop-filter:blur(18px);box-shadow:0 18px 42px rgba(0,0,0,.42);color:#f8efff}",
+        ".floor-drawer.open{display:grid}.floor-title{grid-column:1/2;align-self:center;overflow:hidden;color:#d9cbe4;font:750 11px/1.2 system-ui;text-overflow:ellipsis;white-space:nowrap}",
+        ".select{grid-column:1/-1;width:100%;height:35px;border:1px solid rgba(201,155,232,.3);border-radius:11px;background:#18152b;color:#f7effc;padding:0 31px 0 10px;font:700 11px system-ui}",
+        ".mode{height:30px;padding:0 9px;border:1px solid rgba(201,155,232,.3);border-radius:10px;background:rgba(255,255,255,.06);color:#efe4f8;font:750 10px system-ui;cursor:pointer}",
+        ".badge{grid-column:1/-1;min-height:25px;padding:5px 8px;border-radius:9px;display:flex;align-items:center;background:rgba(51,211,153,.12);border:1px solid rgba(51,211,153,.32);color:#a7f3d0;font:800 10px/1.25 system-ui}.badge.history{background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.3);color:#fde68a}",
+        "@media(max-width:500px){.panel{width:calc(100vw - 8px);height:calc(100vh - 8px);border-radius:27px;box-shadow:0 24px 80px rgba(0,0,0,.7),0 0 0 3px rgba(17,12,30,.72)}.launcher{right:14px;bottom:78px}.floor-toggle{right:8px;top:9px}.floor-drawer{left:8px;right:8px;top:44px}}"
+      ].join("");
     }
 
     function bridgePrelude() {
@@ -529,10 +547,11 @@
       loadUiState();
       shell = hostDocument.createElement("div");
       shell.id = "hypnoos-floating-phone-host";
+      shell.style.cssText = "position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:2147481900;";
       shadow = shell.attachShadow({ mode: "open" });
       shadow.innerHTML = "<style>" + shellCss() + "</style>" +
         "<button class='launcher' type='button' aria-label='打开悬浮手机'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8'><rect x='6' y='2.5' width='12' height='19' rx='3'/><path d='M10 5h4M11 18.5h2'/></svg><i>0</i></button>" +
-        "<section class='panel' aria-label='HypnoOS 悬浮手机'><header class='bar'><span class='brand'>HYPNO OS</span><span class='floor-title'></span><span class='spacer'></span><button class='mode' type='button'>跟随视口</button><select class='select' aria-label='选择变量楼层'></select><span class='badge'></span><button class='close' type='button' aria-label='关闭'>×</button></header><div class='phone-wrap'><span class='readonly'>历史楼层 · 只读</span><iframe class='phone' title='HypnoOS 手机前端'></iframe></div></section>";
+        "<section class='panel' aria-label='HypnoOS 悬浮手机'><div class='phone-wrap'><span class='readonly'>历史楼层 · 只读</span><iframe class='phone' title='HypnoOS 手机前端'></iframe></div><span class='drag-edge top' data-phone-drag></span><span class='drag-edge right' data-phone-drag></span><span class='drag-edge bottom' data-phone-drag></span><span class='drag-edge left' data-phone-drag></span><span class='drag-grip' data-phone-drag aria-label='拖动手机'></span><button class='floor-toggle' type='button' aria-expanded='false'>楼层</button><section class='floor-drawer'><span class='floor-title'></span><button class='mode' type='button'>跟随视口</button><select class='select' aria-label='选择变量楼层'></select><span class='badge'></span></section></section>";
       hostDocument.body.appendChild(shell);
       launcher = shadow.querySelector(".launcher");
       panel = shadow.querySelector(".panel");
@@ -541,8 +560,20 @@
       modeButton = shadow.querySelector(".mode");
       stateBadge = shadow.querySelector(".badge");
       titleFloor = shadow.querySelector(".floor-title");
-      launcher.addEventListener("click", function () { toggleShell(true); });
-      shadow.querySelector(".close").addEventListener("click", function () { toggleShell(false); });
+      launcher.addEventListener("click", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleShell(!shellOpen);
+      });
+      var floorToggle = shadow.querySelector(".floor-toggle");
+      var floorDrawer = shadow.querySelector(".floor-drawer");
+      floorToggle.addEventListener("click", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        var nextOpen = !floorDrawer.classList.contains("open");
+        floorDrawer.classList.toggle("open", nextOpen);
+        floorToggle.setAttribute("aria-expanded", nextOpen ? "true" : "false");
+      });
       modeButton.addEventListener("click", function () {
         if (selectionMode === "follow") {
           selectionMode = "manual";
@@ -553,7 +584,9 @@
         }
       });
       floorSelect.addEventListener("change", function () { selectFloor(floorSelect.value, "manual"); });
-      shadow.querySelector(".bar").addEventListener("pointerdown", beginDrag);
+      shadow.querySelectorAll("[data-phone-drag]").forEach(function (handle) {
+        handle.addEventListener("pointerdown", beginDrag);
+      });
       frame.addEventListener("load", function () {
         consumePendingProfileRole();
         host.setTimeout(function () { notifyStages(); }, 0);
@@ -564,25 +597,41 @@
     }
 
     function beginDrag(event) {
-      if (!panel || event.button !== 0 || event.target.closest("button,select")) return;
+      if (!panel || (event.pointerType === "mouse" && event.button !== 0) || event.target.closest("button,select")) return;
+      event.preventDefault();
+      event.stopPropagation();
       var rect = panel.getBoundingClientRect();
-      dragState = { pointerId: event.pointerId, dx: event.clientX - rect.left, dy: event.clientY - rect.top };
-      event.currentTarget.setPointerCapture(event.pointerId);
-      event.currentTarget.addEventListener("pointermove", moveDrag);
-      event.currentTarget.addEventListener("pointerup", endDrag, { once: true });
-      event.currentTarget.addEventListener("pointercancel", endDrag, { once: true });
+      dragState = {
+        pointerId: event.pointerId,
+        handle: event.currentTarget,
+        dx: event.clientX - rect.left,
+        dy: event.clientY - rect.top
+      };
+      try { event.currentTarget.setPointerCapture(event.pointerId); } catch (_) {}
+      host.addEventListener("pointermove", moveDrag, true);
+      host.addEventListener("pointerup", endDrag, true);
+      host.addEventListener("pointercancel", endDrag, true);
     }
 
     function moveDrag(event) {
       if (!dragState || event.pointerId !== dragState.pointerId) return;
+      event.preventDefault();
       var next = clampPosition(event.clientX - dragState.dx, event.clientY - dragState.dy);
       panel.style.left = next.x + "px";
       panel.style.top = next.y + "px";
     }
 
     function endDrag(event) {
-      if (!dragState) return;
-      event.currentTarget.removeEventListener("pointermove", moveDrag);
+      if (!dragState || (event && event.pointerId !== dragState.pointerId)) return;
+      var ended = dragState;
+      host.removeEventListener("pointermove", moveDrag, true);
+      host.removeEventListener("pointerup", endDrag, true);
+      host.removeEventListener("pointercancel", endDrag, true);
+      try {
+        if (ended.handle && ended.handle.hasPointerCapture && ended.handle.hasPointerCapture(ended.pointerId)) {
+          ended.handle.releasePointerCapture(ended.pointerId);
+        }
+      } catch (_) {}
       var rect = panel.getBoundingClientRect();
       savePosition(rect.left, rect.top);
       dragState = null;
@@ -593,11 +642,18 @@
       shellOpen = Boolean(open);
       panel.classList.toggle("open", shellOpen);
       launcher.setAttribute("aria-expanded", shellOpen ? "true" : "false");
+      launcher.setAttribute("aria-label", shellOpen ? "关闭悬浮手机" : "打开悬浮手机");
+      launcher.classList.toggle("active", shellOpen);
       if (shellOpen) {
         if (selectionMode === "follow") followVisibleFloor();
         else updateChrome();
         applySavedPosition();
         mountPhone(false);
+      } else {
+        var drawer = shadow.querySelector(".floor-drawer");
+        var toggle = shadow.querySelector(".floor-toggle");
+        if (drawer) drawer.classList.remove("open");
+        if (toggle) toggle.setAttribute("aria-expanded", "false");
       }
     }
 
@@ -784,6 +840,9 @@
         fetchController = null;
         try { hostDocument.removeEventListener("click", hostClickHandler, true); } catch (_) {}
         try { host.removeEventListener("resize", hostResizeHandler); } catch (_) {}
+        try { host.removeEventListener("pointermove", moveDrag, true); } catch (_) {}
+        try { host.removeEventListener("pointerup", endDrag, true); } catch (_) {}
+        try { host.removeEventListener("pointercancel", endDrag, true); } catch (_) {}
         try { shell?.remove?.(); } catch (_) {}
         stageSubscribers.clear();
         owners.clear();
