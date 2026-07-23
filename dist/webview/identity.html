@@ -1229,6 +1229,7 @@
     { id: "hospital_done", label: "医院线结束", trigger: "HYPNOOS_OPENING_HOSPITAL_DONE_V1" },
     { id: "alisa_party", label: "爱丽莎家派对", trigger: "HYPNOOS_OPENING_ALISA_PARTY_V1" }
   ];
+  const INITIAL_ROLE_NAMES = ["西园寺爱丽莎", "月咏深雪", "犬冢夏美", "阿宅"];
 
   let cards = loadCards();
   let selectedId = cards[0]?.id || "easy";
@@ -2244,7 +2245,7 @@
   }
 
   function variableOptions(win) {
-    const options = [readCurrentMessageOption(win), { type: "message", message_id: "latest" }, { type: "chat" }, undefined];
+    const options = [readCurrentMessageOption(win), { type: "message", message_id: "latest" }];
     const seen = new Set();
     return options.filter((option) => {
       const key = option ? String(option.type || "") + ":" + String(option.message_id ?? "") : "undefined";
@@ -2265,7 +2266,11 @@
         if (system[key] !== undefined) score += 5;
       }
     }
-    if (root["角色"] && typeof root["角色"] === "object") score += 20;
+    const roles = root["角色"];
+    if (!roles || typeof roles !== "object" || Array.isArray(roles)) return -1;
+    const roleNames = Object.keys(roles).filter((name) => roles[name] && typeof roles[name] === "object" && !Array.isArray(roles[name]));
+    if (!INITIAL_ROLE_NAMES.every((name) => roleNames.includes(name))) return -1;
+    score += 20 + Math.min(roleNames.length, 8) * 5;
     return score;
   }
 
@@ -2321,6 +2326,10 @@
   async function writeIdentityVariable(identity) {
     const data = currentMvuData();
     if (!data) return false;
+    const roles = data.stat?.["角色"];
+    if (!roles || typeof roles !== "object" || Array.isArray(roles) || !INITIAL_ROLE_NAMES.every((name) => roles[name] && typeof roles[name] === "object")) {
+      return false;
+    }
     data.stat["系统"] = data.stat["系统"] && typeof data.stat["系统"] === "object" && !Array.isArray(data.stat["系统"]) ? data.stat["系统"] : {};
     data.stat["系统"]["user身份"] = identity;
     applyOpeningStateToRoot(data.stat, identity);
