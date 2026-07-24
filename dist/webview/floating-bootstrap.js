@@ -280,6 +280,20 @@
       }
     }
 
+    async function syncGalgameRuntimeEnabled(enabled) {
+      var views = candidateWindows();
+      for (var i = 0; i < views.length; i += 1) {
+        try {
+          var runtime = views[i].__ST_HYPNOOS_GALGAME_INJECTION_RUNTIME__;
+          if (runtime && typeof runtime.setEnabled === "function") {
+            await Promise.resolve(runtime.setEnabled(Boolean(enabled)));
+            return true;
+          }
+        } catch (_) {}
+      }
+      return false;
+    }
+
     async function setGalgameEnabled(nextEnabled) {
       if (galgameBusy) return;
       galgameBusy = true;
@@ -297,6 +311,7 @@
         if (!findFunction("replaceScriptTrees")) throw new Error("酒馆助手脚本写入 API 不可用");
         var replaced = callApi("replaceScriptTrees", [trees, { type: "character" }]);
         await Promise.resolve(replaced);
+        await syncGalgameRuntimeEnabled(Boolean(nextEnabled));
         galgameBusy = false;
         var actual = await syncGalgameState();
         if (actual !== Boolean(nextEnabled)) throw new Error("脚本状态没有成功更新");
