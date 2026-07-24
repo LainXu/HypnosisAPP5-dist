@@ -106,6 +106,7 @@
     var stateBadge = null;
     var titleFloor = null;
     var galgameToggle = null;
+    var galgameDialog = null;
     var galgameBusy = false;
     var selectedId = "";
     var selectionMode = "follow";
@@ -262,6 +263,24 @@
         : "未找到酒馆助手脚本管理 API 或目标脚本");
     }
 
+    function showGalgameDialog(options) {
+      if (!galgameDialog) return;
+      var source = options && typeof options === "object" ? options : {};
+      var title = galgameDialog.querySelector("[data-galgame-dialog-title]");
+      var body = galgameDialog.querySelector("[data-galgame-dialog-body]");
+      if (title) title.textContent = String(source.title || "Galgame人物演出");
+      if (body) body.textContent = String(source.message || "");
+      galgameDialog.classList.toggle("is-error", source.error === true);
+      galgameDialog.classList.add("open");
+      galgameDialog.setAttribute("aria-hidden", "false");
+    }
+
+    function closeGalgameDialog() {
+      if (!galgameDialog) return;
+      galgameDialog.classList.remove("open", "is-error");
+      galgameDialog.setAttribute("aria-hidden", "true");
+    }
+
     async function readGalgameState() {
       var trees = await Promise.resolve(callApi("getScriptTrees", [{ type: "character" }]));
       if (!Array.isArray(trees)) return { enabled: null, trees: null };
@@ -311,14 +330,26 @@
         if (!findFunction("replaceScriptTrees")) throw new Error("酒馆助手脚本写入 API 不可用");
         var replaced = callApi("replaceScriptTrees", [trees, { type: "character" }]);
         await Promise.resolve(replaced);
-        await syncGalgameRuntimeEnabled(Boolean(nextEnabled));
+        var runtimeSynced = await syncGalgameRuntimeEnabled(Boolean(nextEnabled));
         galgameBusy = false;
         var actual = await syncGalgameState();
         if (actual !== Boolean(nextEnabled)) throw new Error("脚本状态没有成功更新");
+        showGalgameDialog({
+          title: nextEnabled ? "Galgame人物演出已开启" : "Galgame人物演出已关闭",
+          message: (nextEnabled
+            ? "后续回复将要求输出人物演出。若在回复生成途中切换，当前轮可能因上下文已经组装而无法立即生效；从下一轮开始更可靠。"
+            : "后续回复不再要求输出人物演出。若当前回复已经开始生成，本轮仍可能保留人物演出；从下一轮开始更可靠。")
+            + (runtimeSynced ? "" : " 当前运行时未确认即时切换，但脚本开关已经保存。")
+        });
       } catch (error) {
         galgameBusy = false;
         await syncGalgameState();
         if (galgameToggle) galgameToggle.title = "切换失败：" + String(error && error.message || error);
+        showGalgameDialog({
+          title: "Galgame切换失败",
+          message: String(error && error.message || error || "没有成功更新脚本状态。"),
+          error: true
+        });
         console.warn("[HypnoOS] Galgame 脚本切换失败", error);
       }
     }
@@ -632,6 +663,7 @@
         ".floor-toggle,.galgame-toggle{position:static;z-index:14;width:128px;min-width:128px;height:36px;padding:0 12px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;pointer-events:auto;backdrop-filter:blur(12px);font:800 11px/1 system-ui;white-space:nowrap;word-break:keep-all;overflow-wrap:normal;writing-mode:horizontal-tb;text-align:center;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.18)}",
         ".floor-toggle{border:1px solid rgba(224,188,255,.38);background:rgba(11,8,26,.38);color:#f7eafe}",
         ".galgame-toggle{border:1px solid rgba(148,163,184,.34);background:rgba(11,8,26,.38);color:#cbd5e1}.galgame-toggle.enabled{border-color:rgba(52,211,153,.5);background:rgba(6,78,59,.34);color:#a7f3d0}.galgame-toggle.disabled{border-color:rgba(251,113,133,.36);background:rgba(76,5,25,.3);color:#fecdd3}.galgame-toggle.busy,.galgame-toggle:disabled{cursor:wait;opacity:.72}",
+        ".galgame-dialog{position:absolute;z-index:30;inset:0;display:none;place-items:center;padding:22px;background:rgba(2,3,10,.64);backdrop-filter:blur(8px);pointer-events:auto}.galgame-dialog.open{display:grid}.galgame-dialog__card{width:min(340px,calc(100% - 20px));padding:20px;border:1px solid rgba(110,231,183,.36);border-radius:22px;background:linear-gradient(145deg,rgba(6,78,59,.96),rgba(10,14,31,.98) 68%);box-shadow:0 24px 70px rgba(0,0,0,.58);color:#ecfdf5;font-family:system-ui}.galgame-dialog.is-error .galgame-dialog__card{border-color:rgba(251,113,133,.46);background:linear-gradient(145deg,rgba(76,5,25,.96),rgba(10,14,31,.98) 68%)}.galgame-dialog__card strong{display:block;font:850 18px/1.3 system-ui}.galgame-dialog__card p{margin:12px 0 18px;color:rgba(236,253,245,.82);font:650 13px/1.65 system-ui;white-space:pre-wrap}.galgame-dialog__card button{width:100%;height:40px;border:1px solid rgba(167,243,208,.38);border-radius:13px;background:rgba(255,255,255,.1);color:#fff;font:800 13px system-ui;cursor:pointer}",
         ".floor-drawer{position:static;z-index:12;width:100%;display:none;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:0;border:0;border-radius:17px;background:transparent;backdrop-filter:none;box-shadow:none;color:#f8efff;pointer-events:auto}",
         ".floor-drawer.open{display:grid}.floor-title{grid-column:1/2;align-self:center;overflow:hidden;color:#d9cbe4;font:750 11px/1.2 system-ui;text-overflow:ellipsis;white-space:nowrap}",
         ".select{grid-column:1/-1;width:100%;height:38px;border:1px solid rgba(201,155,232,.34);border-radius:11px;background:rgba(24,21,43,.72);backdrop-filter:blur(10px);color:#f7effc;padding:0 31px 0 10px;font:700 11px system-ui}",
@@ -701,7 +733,7 @@
       shadow = shell.attachShadow({ mode: "open" });
       shadow.innerHTML = "<style>" + shellCss() + "</style>" +
         "<button class='launcher' type='button' aria-label='打开悬浮手机'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8'><rect x='6' y='2.5' width='12' height='19' rx='3'/><path d='M10 5h4M11 18.5h2'/></svg><i>0</i></button>" +
-        "<section class='panel' aria-label='HypnoOS 悬浮手机'><div class='phone-wrap'><iframe class='phone' title='HypnoOS 手机前端'></iframe></div><span class='drag-edge top' data-phone-drag></span><span class='drag-edge right' data-phone-drag></span><span class='drag-edge bottom' data-phone-drag></span><span class='drag-edge left' data-phone-drag></span><span class='drag-grip' data-phone-drag aria-label='拖动手机'></span><aside class='sidecar'><button class='floor-toggle' type='button' aria-expanded='false'>楼层</button><button class='galgame-toggle' type='button' aria-pressed='false' disabled>Galgame --</button><span class='readonly'>历史楼层 · 只读；切回当前楼后才能操作</span><section class='floor-drawer'><span class='floor-title'></span><button class='mode' type='button'>跟随视口</button><select class='select' aria-label='选择变量楼层'></select><span class='badge'></span></section></aside></section>";
+        "<section class='panel' aria-label='HypnoOS 悬浮手机'><div class='phone-wrap'><iframe class='phone' title='HypnoOS 手机前端'></iframe><div class='galgame-dialog' role='dialog' aria-modal='true' aria-hidden='true' aria-labelledby='hypnoos-galgame-dialog-title'><section class='galgame-dialog__card'><strong id='hypnoos-galgame-dialog-title' data-galgame-dialog-title>Galgame人物演出</strong><p data-galgame-dialog-body></p><button type='button' data-galgame-dialog-close>知道了</button></section></div></div><span class='drag-edge top' data-phone-drag></span><span class='drag-edge right' data-phone-drag></span><span class='drag-edge bottom' data-phone-drag></span><span class='drag-edge left' data-phone-drag></span><span class='drag-grip' data-phone-drag aria-label='拖动手机'></span><aside class='sidecar'><button class='floor-toggle' type='button' aria-expanded='false'>楼层</button><button class='galgame-toggle' type='button' aria-pressed='false' disabled>Galgame --</button><span class='readonly'>历史楼层 · 只读；切回当前楼后才能操作</span><section class='floor-drawer'><span class='floor-title'></span><button class='mode' type='button'>跟随视口</button><select class='select' aria-label='选择变量楼层'></select><span class='badge'></span></section></aside></section>";
       hostDocument.body.appendChild(shell);
       launcher = shadow.querySelector(".launcher");
       panel = shadow.querySelector(".panel");
@@ -711,6 +743,8 @@
       stateBadge = shadow.querySelector(".badge");
       titleFloor = shadow.querySelector(".floor-title");
       galgameToggle = shadow.querySelector(".galgame-toggle");
+      galgameDialog = shadow.querySelector(".galgame-dialog");
+      galgameDialog?.querySelector("[data-galgame-dialog-close]")?.addEventListener("click", closeGalgameDialog);
       launcher.addEventListener("click", function (event) {
         event.preventDefault();
         event.stopPropagation();
