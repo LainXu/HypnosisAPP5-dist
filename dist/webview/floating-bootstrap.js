@@ -989,13 +989,21 @@
       var path = [];
       try { path = typeof event.composedPath === "function" ? event.composedPath() : []; } catch (_) {}
       var portrait = path.find(function (node) {
-        return node && node.nodeType === 1 && node.classList && node.classList.contains("st-galgame-card__portrait");
+        return node && node.nodeType === 1 && node.classList
+          && (node.classList.contains("kg-g-portrait") || node.classList.contains("st-galgame-card__portrait"));
       });
       if (!portrait) {
-        try { portrait = event.target && event.target.closest ? event.target.closest(".st-galgame-card__portrait") : null; } catch (_) {}
+        try { portrait = event.target && event.target.closest ? event.target.closest(".kg-g-portrait,.st-galgame-card__portrait") : null; } catch (_) {}
       }
-      var card = portrait && portrait.closest ? portrait.closest(".st-galgame-card[data-galgame-role]") : null;
-      var roleName = card && card.dataset.galgameUser !== "true" ? textId(card.dataset.galgameRole) : "";
+      var card = portrait && portrait.closest
+        ? portrait.closest('.kg-g[data-hypnoos-galgame][data-galgame-role],.st-galgame-card[data-galgame-role]')
+        : null;
+      var roleName = card
+        && card.dataset.galgameUser !== "true"
+        && card.dataset.galgameUser !== "玩家"
+        && card.dataset.hypnoosHydrated !== "invalid-role"
+        ? textId(card.dataset.galgameRole)
+        : "";
       var id = mesIdFromElement(event.target);
       if (selectionMode === "follow" && id && floorItems().map(function (item) { return item.id; }).indexOf(id) >= 0) {
         selectFloor(id, "follow");
