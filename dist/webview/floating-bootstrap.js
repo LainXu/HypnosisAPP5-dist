@@ -107,6 +107,7 @@
     var titleFloor = null;
     var galgameToggle = null;
     var galgameDialog = null;
+    var encounterDetailHost = null;
     var galgameBusy = false;
     var selectedId = "";
     var selectionMode = "follow";
@@ -123,6 +124,265 @@
     var fetchController = null;
     var hostClickHandler = null;
     var hostResizeHandler = null;
+    var galgameObserver = null;
+    var galgameRenderFrame = 0;
+    var galgameHydrator = null;
+    var galgameHydratorToken = "";
+    var GALGAME_STYLE_ID = "st-galgame-narrative-bootstrap-style-v1";
+    var GALGAME_RUNTIME_KEY = "__ST_HYPNOOS_GALGAME_HOST_RUNTIME__";
+    var GALGAME_MARKER_RE = /⟪人物演出总块⟫([\s\S]*?)⟪\/人物演出总块⟫/;
+    var GALGAME_SEGMENT_RE = /〔(动作|台词|思考)〕([\s\S]*?)(?=〔(?:动作|台词|思考)〕|$)/g;
+
+    function ensureGalgameStyle() {
+      if (!hostDocument.head || hostDocument.getElementById(GALGAME_STYLE_ID)) return;
+      var style = hostDocument.createElement("style");
+      style.id = GALGAME_STYLE_ID;
+      style.textContent = [
+        ".mes_text .st-galgame-card{--gg-hue:206;--gg-accent:hsl(var(--gg-hue) 88% 72%);position:relative;display:block;width:100%;box-sizing:border-box;margin:16px 0 14px;overflow:hidden;border:1px solid hsl(var(--gg-hue) 72% 68%/.34);border-radius:16px;background:linear-gradient(136deg,hsl(var(--gg-hue) 43% 10%/.98),hsl(calc(var(--gg-hue) + 22) 38% 15%/.97) 58%,hsl(var(--gg-hue) 42% 8%/.99));box-shadow:0 15px 34px rgba(0,0,0,.3),inset 0 1px rgba(255,255,255,.07);color:hsl(var(--gg-hue) 70% 94%);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans SC',sans-serif}",
+        ".mes_text .st-galgame-card.is-joined-prev{margin-top:-10px;border-top-left-radius:6px;border-top-right-radius:6px}.mes_text .st-galgame-card.is-joined-next{margin-bottom:4px;border-bottom-left-radius:6px;border-bottom-right-radius:6px}",
+        ".mes_text .st-galgame-card>summary{position:relative;display:grid;grid-template-columns:66px minmax(0,1fr) auto;align-items:center;gap:12px;min-height:76px;padding:10px 13px;cursor:pointer;list-style:none;background:linear-gradient(90deg,hsl(var(--gg-hue) 75% 54%/.18),transparent);user-select:none}.mes_text .st-galgame-card.is-side-right>summary{grid-template-columns:auto minmax(0,1fr) 66px;background:linear-gradient(270deg,hsl(var(--gg-hue) 75% 54%/.18),transparent)}.mes_text .st-galgame-card>summary::marker{display:none}.mes_text .st-galgame-card>summary::-webkit-details-marker{display:none}",
+        ".mes_text .st-galgame-card__portrait{position:relative;width:62px;height:62px;overflow:hidden;border:1px solid hsl(var(--gg-hue) 86% 78%/.52);border-radius:14px;background:linear-gradient(145deg,hsl(var(--gg-hue) 62% 31%/.68),rgba(15,23,42,.92));padding:0;color:inherit;font:inherit}.mes_text button.st-galgame-card__portrait{cursor:pointer}.mes_text .st-galgame-card.is-side-right .st-galgame-card__portrait{grid-column:3}.mes_text .st-galgame-card.is-side-right .st-galgame-card__identity{grid-column:2;grid-row:1;text-align:right}.mes_text .st-galgame-card.is-side-right .st-galgame-card__toggle{grid-column:1;grid-row:1}",
+        ".mes_text .st-galgame-card__portrait img{display:block;width:100%;height:100%;object-fit:cover;object-position:center top;opacity:0}.mes_text .st-galgame-card__portrait.is-loaded img{opacity:1}.mes_text .st-galgame-card__portrait-fallback{display:grid;width:100%;height:100%;place-items:center;color:var(--gg-accent);font:900 22px/1 ui-serif,Georgia,'Noto Serif SC',serif}.mes_text .st-galgame-card__portrait.is-loaded .st-galgame-card__portrait-fallback{display:none}",
+        ".mes_text .st-galgame-card__identity{display:grid;gap:5px;min-width:0}.mes_text .st-galgame-card__name-row{display:flex;align-items:center;gap:9px;min-width:0}.mes_text .st-galgame-card.is-side-right .st-galgame-card__name-row{justify-content:flex-end}.mes_text .st-galgame-card__name{display:inline-flex;align-items:baseline;gap:8px;min-width:0;overflow:hidden;color:var(--gg-accent);font-size:18px;font-weight:950;letter-spacing:.045em;text-overflow:ellipsis;white-space:nowrap}.mes_text .st-galgame-card__name-original{text-decoration:line-through;opacity:.52;font-size:.76em}.mes_text .st-galgame-card__name-nickname{color:var(--gg-accent);font-family:'HanziPen SC','Kaiti SC','STKaiti',cursive}.mes_text .st-galgame-card__name-nickname.is-private{color:#ffb4a2}.mes_text .st-galgame-card__name-nickname.is-recognized{color:#86efcf}",
+        ".mes_text .st-galgame-card__expression{flex:0 0 auto;border:1px solid hsl(var(--gg-hue) 76% 71%/.28);border-radius:999px;background:hsl(var(--gg-hue) 67% 44%/.16);padding:4px 8px;color:hsl(var(--gg-hue) 88% 82%);font:850 12px/1 ui-monospace,monospace}.mes_text .st-galgame-card__toggle{display:grid;place-items:center;width:26px;height:26px;border:1px solid hsl(var(--gg-hue) 80% 76%/.25);border-radius:50%;color:var(--gg-accent)}.mes_text .st-galgame-card[open] .st-galgame-card__toggle{transform:rotate(180deg)}",
+        ".mes_text .st-galgame-card__body{position:relative;display:grid;gap:5px;padding:10px 16px 14px 91px;border-top:1px solid hsl(var(--gg-hue) 76% 67%/.17)}.mes_text .st-galgame-card.is-side-right .st-galgame-card__body{padding:10px 91px 14px 16px;text-align:right}.mes_text .st-galgame-card__segment{display:block;min-width:0;white-space:pre-wrap;overflow-wrap:anywhere}.mes_text .st-galgame-card__segment--action{padding:3px 0;color:hsl(var(--gg-hue) 44% 83%/.72);font-family:ui-serif,Georgia,serif;font-size:12px;font-style:italic;line-height:1.58}.mes_text .st-galgame-card__segment--action::before{content:'＊';margin-right:6px;color:var(--gg-accent)}.mes_text .st-galgame-card__segment--speech{padding:5px 0;color:hsl(var(--gg-hue) 82% 92%);font-size:14px;font-weight:740;line-height:1.72}.mes_text .st-galgame-card__segment--speech::before{content:'“';color:var(--gg-accent)}.mes_text .st-galgame-card__segment--speech::after{content:'”';color:var(--gg-accent)}.mes_text .st-galgame-card__segment--thought{padding:5px 0;color:hsl(var(--gg-hue) 46% 88%/.76);font-family:ui-serif,Georgia,serif;font-size:13px;font-style:italic;line-height:1.72}",
+        ".mes_text .st-galgame-card.is-user{--gg-hue:42!important;width:92%;border-color:rgba(253,230,138,.48)}.mes_text .st-galgame-card.is-user .st-galgame-card__portrait{border-radius:50%}.mes_text .st-galgame-card.is-user .st-galgame-card__portrait img{display:none}.mes_text .st-galgame-card.is-user .st-galgame-card__name{color:#fde68a}",
+        "@media(max-width:520px){.mes_text .st-galgame-card>summary{grid-template-columns:54px minmax(0,1fr) auto;gap:9px;min-height:66px;padding:8px 9px}.mes_text .st-galgame-card.is-side-right>summary{grid-template-columns:auto minmax(0,1fr) 54px}.mes_text .st-galgame-card__portrait{width:50px;height:50px}.mes_text .st-galgame-card__name{font-size:15px}.mes_text .st-galgame-card__body{padding:9px 10px 11px 72px}.mes_text .st-galgame-card.is-side-right .st-galgame-card__body{padding:9px 72px 11px 10px}}"
+      ].join("");
+      hostDocument.head.appendChild(style);
+    }
+
+    function galgameUserName() {
+      try {
+        var data = context();
+        return textId(data && (data.name1 || data.userName)) || "user";
+      } catch (_) { return "user"; }
+    }
+
+    function isGalgameUserRole(roleName) {
+      var role = textId(roleName);
+      if (role.toLowerCase() === "user" || role.toLowerCase() === "{{user}}") return true;
+      var current = galgameUserName();
+      return current !== "user" && role === current;
+    }
+
+    function parseGalgameSegments(content) {
+      var source = String(content || "").trim();
+      var segments = [];
+      GALGAME_SEGMENT_RE.lastIndex = 0;
+      var match;
+      while ((match = GALGAME_SEGMENT_RE.exec(source))) {
+        var value = String(match[2] || "").trim();
+        if (value) segments.push({ kind: String(match[1] || "台词"), text: value });
+      }
+      if (!segments.length && source) segments.push({ kind: "动作", text: source });
+      return segments;
+    }
+
+    function parseGalgameEntries(content) {
+      var source = String(content || "").replace(/\r\n?/g, "\n").trim();
+      if (!source) return [];
+      var entries = [];
+      var roles = new Set();
+      var cursor = 0;
+      var entryPattern = /^\s*【([^<>\n【】]+?)】\s*([^<>\n【】\s][^<>\n【】]*?)\s*【交互】([^<>]+?)(?=\s*【[^<>\n【】]+?】\s*[^<>\n【】\s][^<>\n【】]*?\s*【交互】|\s*$)/;
+      while (cursor < source.length) {
+        var match = source.slice(cursor).match(entryPattern);
+        if (!match) return null;
+        var role = textId(match[1]);
+        var expression = textId(match[2]);
+        var interaction = textId(match[3]);
+        if (!role || !interaction || roles.has(role)) return null;
+        roles.add(role);
+        entries.push([role, expression, interaction]);
+        cursor += match[0].length;
+      }
+      return cursor === source.length ? entries : null;
+    }
+
+    function hydrateGalgameCard(card) {
+      if (!card || card.dataset.galgameUser === "true" || !galgameHydrator) return;
+      try {
+        galgameHydrator.hydrateCard(card, textId(card.dataset.galgameRole));
+      } catch (_) {}
+    }
+
+    function createGalgameCard(fields) {
+      var protocolRole = textId(fields && fields[0]);
+      var isUser = isGalgameUserRole(protocolRole);
+      var roleName = isUser ? galgameUserName() : protocolRole;
+      var expression = textId(fields && fields[1]);
+      var card = hostDocument.createElement("details");
+      card.className = "st-galgame-card";
+      if (isUser) card.classList.add("is-user");
+      card.open = true;
+      card.dataset.galgameRole = isUser ? "user" : roleName;
+      card.dataset.galgameUser = isUser ? "true" : "false";
+      var summary = hostDocument.createElement("summary");
+      var portrait = hostDocument.createElement(isUser ? "span" : "button");
+      portrait.className = "st-galgame-card__portrait";
+      if (!isUser) {
+        portrait.type = "button";
+        portrait.title = "打开" + roleName + "的人物档案";
+        portrait.setAttribute("aria-label", portrait.title);
+      }
+      var image = hostDocument.createElement("img");
+      image.alt = roleName;
+      image.loading = "eager";
+      image.decoding = "async";
+      var fallback = hostDocument.createElement("span");
+      fallback.className = "st-galgame-card__portrait-fallback";
+      fallback.textContent = isUser ? "YOU" : roleName.slice(0, 1) || "人";
+      portrait.append(image, fallback);
+      var identity = hostDocument.createElement("span");
+      identity.className = "st-galgame-card__identity";
+      var nameRow = hostDocument.createElement("span");
+      nameRow.className = "st-galgame-card__name-row";
+      var name = hostDocument.createElement("strong");
+      name.className = "st-galgame-card__name";
+      name.textContent = roleName;
+      nameRow.appendChild(name);
+      if (expression) {
+        var badge = hostDocument.createElement("span");
+        badge.className = "st-galgame-card__expression";
+        badge.textContent = expression;
+        nameRow.appendChild(badge);
+      }
+      identity.appendChild(nameRow);
+      var toggle = hostDocument.createElement("span");
+      toggle.className = "st-galgame-card__toggle";
+      toggle.textContent = "⌃";
+      summary.append(portrait, identity, toggle);
+      var body = hostDocument.createElement("span");
+      body.className = "st-galgame-card__body";
+      parseGalgameSegments(fields && fields[2]).forEach(function (segment) {
+        var line = hostDocument.createElement("span");
+        var type = segment.kind === "动作" ? "action" : segment.kind === "思考" ? "thought" : "speech";
+        line.className = "st-galgame-card__segment st-galgame-card__segment--" + type;
+        line.textContent = segment.text;
+        body.appendChild(line);
+      });
+      card.append(summary, body);
+      hydrateGalgameCard(card);
+      return card;
+    }
+
+    function decorateGalgameCards(container) {
+      var cards = Array.prototype.slice.call(container.querySelectorAll(".st-galgame-card"));
+      cards.forEach(function (card, index) {
+        card.classList.remove("is-side-left", "is-side-right", "is-joined-prev", "is-joined-next");
+        card.classList.add(index % 2 === 0 ? "is-side-left" : "is-side-right");
+        card.dataset.galgameSequence = String(index + 1);
+        card.style.setProperty("--gg-hue", String((206 + index * 137.508) % 360));
+      });
+      for (var index = 1; index < cards.length; index += 1) {
+        if (cards[index].dataset.galgameJoinPrev !== "true") continue;
+        cards[index - 1].classList.add("is-joined-next");
+        cards[index].classList.add("is-joined-prev");
+      }
+    }
+
+    function renderGalgameMarkers() {
+      if (!hostDocument.body) return;
+      Array.prototype.forEach.call(hostDocument.querySelectorAll(".mes_text"), function (container) {
+        var rendered = false;
+        for (var pass = 0; pass < 8 && String(container.textContent || "").includes("⟪人物演出总块⟫"); pass += 1) {
+          var walker = hostDocument.createTreeWalker(container, host.NodeFilter ? host.NodeFilter.SHOW_TEXT : 4);
+          var textNodes = [];
+          var source = "";
+          while (walker.nextNode()) {
+            var node = walker.currentNode;
+            if (node.parentElement && node.parentElement.closest(".st-galgame-card,script,style")) continue;
+            var value = String(node.nodeValue || "");
+            if (!value) continue;
+            textNodes.push({ node: node, start: source.length, end: source.length + value.length });
+            source += value;
+          }
+          var match = source.match(GALGAME_MARKER_RE);
+          if (!match || match.index == null) break;
+          var entries = parseGalgameEntries(match[1]);
+          if (!entries || !entries.length) break;
+          var startIndex = match.index;
+          var endIndex = startIndex + match[0].length;
+          var start = textNodes.find(function (item) { return startIndex >= item.start && startIndex <= item.end; });
+          var end = textNodes.slice().reverse().find(function (item) { return endIndex >= item.start && endIndex <= item.end; });
+          if (!start || !end) break;
+          var range = hostDocument.createRange();
+          range.setStart(start.node, Math.max(0, startIndex - start.start));
+          range.setEnd(end.node, Math.max(0, endIndex - end.start));
+          var fragment = hostDocument.createDocumentFragment();
+          entries.forEach(function (entry, index) {
+            var card = createGalgameCard(entry);
+            if (index > 0) card.dataset.galgameJoinPrev = "true";
+            fragment.appendChild(card);
+          });
+          range.deleteContents();
+          range.insertNode(fragment);
+          rendered = true;
+        }
+        if (rendered || container.querySelector(".st-galgame-card")) decorateGalgameCards(container);
+      });
+    }
+
+    function scheduleGalgameRender() {
+      if (galgameRenderFrame || !hostDocument.body) return;
+      var requestFrame = host.requestAnimationFrame || function (callback) { return host.setTimeout(callback, 0); };
+      galgameRenderFrame = requestFrame.call(host, function () {
+        galgameRenderFrame = 0;
+        renderGalgameMarkers();
+      });
+    }
+
+    function ensureGalgameRenderer() {
+      ensureGalgameStyle();
+      var previous = hostDocument[GALGAME_RUNTIME_KEY];
+      if (previous && previous.registry !== null && previous.registry !== undefined && previous.registry !== registryApi) {
+        try { previous.observer && previous.observer.disconnect(); } catch (_) {}
+      }
+      if (!galgameObserver) {
+        var MutationObserverCtor = host.MutationObserver;
+        if (MutationObserverCtor) {
+          galgameObserver = new MutationObserverCtor(function (records) {
+            for (var index = 0; index < records.length; index += 1) {
+              var record = records[index];
+              var target = record.type === "characterData" ? record.target.parentElement : record.target;
+              var message = target && target.closest ? target.closest(".mes_text") : null;
+              if (message && String(message.textContent || "").includes("⟪人物演出总块⟫")) {
+                scheduleGalgameRender();
+                return;
+              }
+              var added = Array.prototype.slice.call(record.addedNodes || []);
+              if (added.some(function (node) {
+                return String(node && node.textContent || "").includes("⟪人物演出总块⟫");
+              })) {
+                scheduleGalgameRender();
+                return;
+              }
+            }
+          });
+          galgameObserver.observe(hostDocument.body, { childList: true, characterData: true, subtree: true });
+        }
+      }
+      hostDocument[GALGAME_RUNTIME_KEY] = { version: 1, observer: galgameObserver, registry: registryApi };
+      scheduleGalgameRender();
+    }
+
+    function registerGalgameHydrator(provider, providerToken) {
+      if (!provider || typeof provider.hydrateCard !== "function") return false;
+      galgameHydrator = provider;
+      galgameHydratorToken = textId(providerToken) || String(Date.now());
+      Array.prototype.forEach.call(hostDocument.querySelectorAll(".st-galgame-card[data-galgame-role]"), hydrateGalgameCard);
+      return true;
+    }
+
+    function refreshGalgameRole(roleName) {
+      var name = textId(roleName);
+      Array.prototype.forEach.call(hostDocument.querySelectorAll(".st-galgame-card[data-galgame-role]"), function (card) {
+        if (!name || textId(card.dataset.galgameRole) === name) hydrateGalgameCard(card);
+      });
+    }
+
+    var registryApi = null;
 
     function ownerAlive(owner) {
       try {
@@ -656,6 +916,7 @@
         ".panel{pointer-events:auto;position:fixed;width:min(430px,calc(100vw - 16px));height:min(812px,calc(100vh - 16px));border:0;border-radius:38px;background:transparent;box-shadow:none;overflow:visible;z-index:2;display:none;isolation:isolate;--floor-sidecar-width:270px}",
         ".panel.open{display:block}",
         ".phone-wrap{position:absolute;inset:0;border:1px solid rgba(221,184,255,.42);border-radius:inherit;background:#05070f;box-shadow:0 32px 110px rgba(0,0,0,.72),0 0 0 6px rgba(17,12,30,.72);overflow:hidden;isolation:isolate}.phone-wrap:after{content:'';position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09);pointer-events:none;z-index:8}.phone{display:block;width:100%;height:100%;border:0;background:transparent}",
+        ".encounter-detail-host{--ed-red:#ef1b2d;position:absolute;z-index:18;right:calc(100% + 16px);top:20px;width:500px;max-height:calc(100% - 40px);display:none;overflow:auto;pointer-events:auto;color:#fff;font-family:Impact,'Arial Black','Noto Sans SC',system-ui;filter:drop-shadow(0 28px 45px rgba(0,0,0,.5));scrollbar-width:thin;scrollbar-color:#ef1b2d #080808}.encounter-detail-host.open{display:block}.encounter-detail-host__frame{position:relative;min-height:620px;overflow:hidden;border:5px solid #080808;background:#f3eee4;clip-path:polygon(3% 0,100% 3%,97% 94%,86% 91%,79% 100%,4% 96%,0 12%);isolation:isolate}.encounter-detail-host__frame:before{content:'';position:absolute;inset:-20%;z-index:-3;background:repeating-linear-gradient(113deg,transparent 0 22px,rgba(0,0,0,.08) 23px 25px),radial-gradient(circle at 18% 22%,#ef1b2d 0 3%,transparent 3.3%),linear-gradient(145deg,#eee7dc 0 38%,#d9d1c6 38% 45%,#f7f3ea 45% 100%)}.encounter-detail-host__frame:after{content:'';position:absolute;z-index:-2;left:-18%;right:16%;bottom:-22%;height:66%;background:#080808;transform:rotate(-8deg);clip-path:polygon(0 12%,100% 0,86% 100%,8% 84%)}.encounter-detail-host__close{position:absolute;z-index:8;right:18px;top:18px;width:46px;height:42px;border:4px solid #080808;background:#ef1b2d;color:#fff;font:950 24px/1 Impact,'Arial Black',sans-serif;transform:rotate(3deg);cursor:pointer;box-shadow:6px 6px 0 #080808}.encounter-detail-host__kicker{display:inline-block;margin:28px 0 0 26px;padding:5px 18px;background:#080808;color:#fff;font:950 14px/1 Impact,'Arial Black','Noto Sans SC',sans-serif;letter-spacing:.12em;transform:rotate(-3deg);clip-path:polygon(4% 0,100% 8%,94% 100%,0 84%)}.encounter-detail-host__name{position:relative;z-index:2;margin:10px 58px 0 24px;color:#080808;font:950 clamp(30px,4vw,54px)/.92 Impact,'Arial Black','Noto Sans SC',sans-serif;letter-spacing:.02em;text-transform:uppercase;transform:rotate(-2deg);text-shadow:3px 3px 0 #fff,6px 6px 0 #ef1b2d;overflow-wrap:anywhere}.encounter-detail-host__alias{display:inline-block;margin:10px 0 0 32px;padding:5px 13px;background:#ef1b2d;color:#fff;font:900 13px/1.2 system-ui;transform:rotate(1deg)}.encounter-detail-host__visual{position:relative;height:285px;margin:8px 18px 0;overflow:hidden;clip-path:polygon(3% 8%,94% 0,100% 88%,8% 100%,0 55%);background:#080808}.encounter-detail-host__visual img{width:100%;height:100%;display:block;object-fit:cover;object-position:center 18%;filter:saturate(.8) contrast(1.14)}.encounter-detail-host__visual:after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,rgba(239,27,45,.45),transparent 34%,transparent 70%,rgba(0,0,0,.5)),repeating-linear-gradient(0deg,transparent 0 4px,rgba(255,255,255,.07) 5px);mix-blend-mode:screen;pointer-events:none}.encounter-detail-host__source{position:absolute;z-index:4;right:16px;bottom:18px;max-width:70%;padding:7px 13px;background:#fff;color:#080808;border:3px solid #080808;font:950 12px/1.2 system-ui;transform:rotate(-2deg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.encounter-detail-host__body{position:relative;z-index:3;margin:-18px 26px 30px;padding:22px 18px 18px;background:#ef1b2d;color:#fff;clip-path:polygon(0 7%,100% 0,96% 100%,5% 94%);transform:rotate(.5deg)}.encounter-detail-host__intro{margin:0 0 13px;font:750 13px/1.65 system-ui;white-space:pre-wrap}.encounter-detail-host__facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.encounter-detail-host__fact{min-width:0;padding:8px 9px;background:#080808;color:#fff;transform:skew(-4deg)}.encounter-detail-host__fact span{display:block;color:#ff9aa4;font:850 9px/1.2 system-ui;letter-spacing:.08em}.encounter-detail-host__fact strong{display:block;margin-top:3px;font:850 12px/1.3 system-ui;overflow-wrap:anywhere}.encounter-detail-host__thumbs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin:0 27px 28px}.encounter-detail-host__thumbs img{width:100%;aspect-ratio:1/1;object-fit:cover;border:3px solid #080808;background:#ddd;transform:rotate(var(--thumb-tilt,0deg))}.encounter-detail-host__empty{display:grid;height:100%;place-items:center;color:#fff;font:950 54px/1 Impact,sans-serif;background:repeating-linear-gradient(135deg,#080808 0 18px,#ef1b2d 19px 34px)}",
         ".sidecar{position:absolute;z-index:12;left:calc(100% + 14px);top:12px;width:var(--floor-sidecar-width);display:grid;grid-template-columns:minmax(0,1fr);justify-items:start;gap:8px;pointer-events:none}",
         ".readonly{position:static;z-index:13;width:100%;padding:8px 10px;border-radius:13px;background:rgba(39,25,12,.72);border:1px solid rgba(251,191,36,.38);color:#fde68a;font:800 10px/1.35 system-ui;pointer-events:none;display:none;backdrop-filter:blur(10px)}.panel.history .readonly{display:block}",
         ".drag-edge{position:absolute;z-index:9;touch-action:none;user-select:none}.drag-edge.top{left:22px;right:22px;top:0;height:10px;cursor:grab}.drag-edge.bottom{left:22px;right:22px;bottom:0;height:10px;cursor:grab}.drag-edge.left{left:0;top:22px;bottom:22px;width:10px;cursor:grab}.drag-edge.right{right:0;top:22px;bottom:22px;width:10px;cursor:grab}.drag-edge:active,.drag-grip:active{cursor:grabbing}",
@@ -669,8 +930,67 @@
         ".select{grid-column:1/-1;width:100%;height:38px;border:1px solid rgba(201,155,232,.34);border-radius:11px;background:rgba(24,21,43,.72);backdrop-filter:blur(10px);color:#f7effc;padding:0 31px 0 10px;font:700 11px system-ui}",
         ".mode{height:32px;padding:0 10px;border:1px solid rgba(201,155,232,.34);border-radius:10px;background:rgba(24,21,43,.5);backdrop-filter:blur(10px);color:#efe4f8;font:750 10px system-ui;cursor:pointer}",
         ".badge{grid-column:1/-1;min-height:28px;padding:6px 9px;border-radius:9px;display:flex;align-items:center;background:rgba(19,78,59,.32);backdrop-filter:blur(10px);border:1px solid rgba(51,211,153,.32);color:#a7f3d0;font:800 10px/1.25 system-ui}.badge.history{background:rgba(76,48,13,.34);border-color:rgba(251,191,36,.3);color:#fde68a}",
-        "@media(max-width:760px){.panel{--floor-sidecar-width:clamp(104px,28vw,220px);width:min(430px,calc(100vw - var(--floor-sidecar-width) - 30px))}.sidecar{left:calc(100% + 10px)}.floor-toggle,.galgame-toggle{width:min(128px,100%);min-width:0;padding-inline:8px}.floor-drawer{grid-template-columns:minmax(0,1fr)}.floor-title,.mode,.select,.badge{grid-column:1/-1;width:100%}}"
+        "@media(max-width:980px){.encounter-detail-host{position:fixed;left:8px;right:auto;top:8px;width:min(440px,calc(100vw - 16px));max-height:calc(100vh - 16px)}}",
+        "@media(max-width:760px){.panel{--floor-sidecar-width:clamp(104px,28vw,220px);width:min(430px,calc(100vw - var(--floor-sidecar-width) - 30px))}.sidecar{left:calc(100% + 10px)}.floor-toggle,.galgame-toggle{width:min(128px,100%);min-width:0;padding-inline:8px}.floor-drawer{grid-template-columns:minmax(0,1fr)}.floor-title,.mode,.select,.badge{grid-column:1/-1;width:100%}.encounter-detail-host__frame{min-height:560px}}"
       ].join("");
+    }
+
+    function hideEncounterDetail() {
+      if (!encounterDetailHost) return;
+      encounterDetailHost.classList.remove("open");
+      encounterDetailHost.setAttribute("aria-hidden", "true");
+      encounterDetailHost.innerHTML = "";
+    }
+
+    function showEncounterDetail(payload) {
+      ensureShell();
+      if (!encounterDetailHost) return false;
+      var data = payload && typeof payload === "object" ? payload : {};
+      var name = textId(data.name) || "未命名角色";
+      var alias = textId(data.alias);
+      var source = textId(data.source) || "角色库";
+      var intro = textId(data.intro) || "暂无角色介绍。";
+      var images = Array.isArray(data.images) ? data.images.map(textId).filter(Boolean).slice(0, 4) : [];
+      var facts = Array.isArray(data.facts) ? data.facts.filter(function (item) {
+        return item && typeof item === "object" && textId(item.value);
+      }).slice(0, 10) : [];
+      var hero = images[0]
+        ? "<img src='" + escapeHtml(images[0]) + "' alt='" + escapeHtml(name) + "'>"
+        : "<span class='encounter-detail-host__empty'>" + escapeHtml(name.slice(0, 1)) + "</span>";
+      var factHtml = facts.map(function (item) {
+        return "<div class='encounter-detail-host__fact'><span>" + escapeHtml(textId(item.label) || "资料") + "</span><strong>" + escapeHtml(textId(item.value)) + "</strong></div>";
+      }).join("");
+      var thumbs = images.length > 1
+        ? "<div class='encounter-detail-host__thumbs'>" + images.map(function (image, index) {
+            return "<img src='" + escapeHtml(image) + "' alt='" + escapeHtml(name + " 图片" + (index + 1)) + "' style='--thumb-tilt:" + (index % 2 ? "2deg" : "-2deg") + "'>";
+          }).join("") + "</div>"
+        : "";
+      encounterDetailHost.innerHTML =
+        "<section class='encounter-detail-host__frame' role='dialog' aria-modal='false' aria-label='" + escapeHtml(name + " 详情") + "'>" +
+          "<button class='encounter-detail-host__close' type='button' aria-label='关闭角色详情'>×</button>" +
+          "<span class='encounter-detail-host__kicker'>PERSONA FILE</span>" +
+          "<h2 class='encounter-detail-host__name'>" + escapeHtml(name) + "</h2>" +
+          (alias ? "<span class='encounter-detail-host__alias'>" + escapeHtml(alias) + "</span>" : "") +
+          "<div class='encounter-detail-host__visual'>" + hero + "<span class='encounter-detail-host__source'>" + escapeHtml(source) + "</span></div>" +
+          "<div class='encounter-detail-host__body'><p class='encounter-detail-host__intro'>" + escapeHtml(intro) + "</p><div class='encounter-detail-host__facts'>" + factHtml + "</div></div>" +
+          thumbs +
+        "</section>";
+      encounterDetailHost.querySelector(".encounter-detail-host__close")?.addEventListener("click", hideEncounterDetail);
+      encounterDetailHost.classList.add("open");
+      encounterDetailHost.setAttribute("aria-hidden", "false");
+      if (panel && host.innerWidth > 980) {
+        var desiredWidth = Math.max(320, Math.min(520, host.innerWidth - panel.offsetWidth - panelSidecarReserve(panel.offsetWidth) - 44));
+        encounterDetailHost.style.width = desiredWidth + "px";
+        var rect = panel.getBoundingClientRect();
+        if (rect.left < desiredWidth + 24) {
+          var next = clampPosition(desiredWidth + 24, rect.top);
+          panel.style.left = next.x + "px";
+          panel.style.top = next.y + "px";
+        }
+      } else {
+        encounterDetailHost.style.removeProperty("width");
+      }
+      return true;
     }
 
     function bridgePrelude() {
@@ -733,7 +1053,7 @@
       shadow = shell.attachShadow({ mode: "open" });
       shadow.innerHTML = "<style>" + shellCss() + "</style>" +
         "<button class='launcher' type='button' aria-label='打开悬浮手机'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8'><rect x='6' y='2.5' width='12' height='19' rx='3'/><path d='M10 5h4M11 18.5h2'/></svg><i>0</i></button>" +
-        "<section class='panel' aria-label='HypnoOS 悬浮手机'><div class='phone-wrap'><iframe class='phone' title='HypnoOS 手机前端'></iframe><div class='galgame-dialog' role='dialog' aria-modal='true' aria-hidden='true' aria-labelledby='hypnoos-galgame-dialog-title'><section class='galgame-dialog__card'><strong id='hypnoos-galgame-dialog-title' data-galgame-dialog-title>Galgame人物演出</strong><p data-galgame-dialog-body></p><button type='button' data-galgame-dialog-close>知道了</button></section></div></div><span class='drag-edge top' data-phone-drag></span><span class='drag-edge right' data-phone-drag></span><span class='drag-edge bottom' data-phone-drag></span><span class='drag-edge left' data-phone-drag></span><span class='drag-grip' data-phone-drag aria-label='拖动手机'></span><aside class='sidecar'><button class='floor-toggle' type='button' aria-expanded='false'>楼层</button><button class='galgame-toggle' type='button' aria-pressed='false' disabled>Galgame --</button><span class='readonly'>历史楼层 · 只读；切回当前楼后才能操作</span><section class='floor-drawer'><span class='floor-title'></span><button class='mode' type='button'>跟随视口</button><select class='select' aria-label='选择变量楼层'></select><span class='badge'></span></section></aside></section>";
+        "<section class='panel' aria-label='HypnoOS 悬浮手机'><aside class='encounter-detail-host' aria-hidden='true'></aside><div class='phone-wrap'><iframe class='phone' title='HypnoOS 手机前端'></iframe><div class='galgame-dialog' role='dialog' aria-modal='true' aria-hidden='true' aria-labelledby='hypnoos-galgame-dialog-title'><section class='galgame-dialog__card'><strong id='hypnoos-galgame-dialog-title' data-galgame-dialog-title>Galgame人物演出</strong><p data-galgame-dialog-body></p><button type='button' data-galgame-dialog-close>知道了</button></section></div></div><span class='drag-edge top' data-phone-drag></span><span class='drag-edge right' data-phone-drag></span><span class='drag-edge bottom' data-phone-drag></span><span class='drag-edge left' data-phone-drag></span><span class='drag-grip' data-phone-drag aria-label='拖动手机'></span><aside class='sidecar'><button class='floor-toggle' type='button' aria-expanded='false'>楼层</button><button class='galgame-toggle' type='button' aria-pressed='false' disabled>Galgame --</button><span class='readonly'>历史楼层 · 只读；切回当前楼后才能操作</span><section class='floor-drawer'><span class='floor-title'></span><button class='mode' type='button'>跟随视口</button><select class='select' aria-label='选择变量楼层'></select><span class='badge'></span></section></aside></section>";
       hostDocument.body.appendChild(shell);
       launcher = shadow.querySelector(".launcher");
       panel = shadow.querySelector(".panel");
@@ -744,6 +1064,7 @@
       titleFloor = shadow.querySelector(".floor-title");
       galgameToggle = shadow.querySelector(".galgame-toggle");
       galgameDialog = shadow.querySelector(".galgame-dialog");
+      encounterDetailHost = shadow.querySelector(".encounter-detail-host");
       galgameDialog?.querySelector("[data-galgame-dialog-close]")?.addEventListener("click", closeGalgameDialog);
       launcher.addEventListener("click", function (event) {
         event.preventDefault();
@@ -911,6 +1232,7 @@
         mountPhone(false);
         syncGalgameState();
       } else {
+        hideEncounterDetail();
         var drawer = shadow.querySelector(".floor-drawer");
         var toggle = shadow.querySelector(".floor-toggle");
         if (drawer) drawer.classList.remove("open");
@@ -1022,6 +1344,10 @@
       else scheduleMount(false);
       updateChrome();
       notifyStages();
+      // StatusPlaceHolder 的 stage iframe 只会在本楼最终正则 DOM 已经落地后注册。
+      // 以这里作为确定性的正文最终化钩子，避免较早的 mutation/rAF 渲染
+      // 又被酒馆随后一次 markdown/regex 整块重建覆盖。
+      scheduleGalgameRender();
     }
 
     function unregister(id, ownerToken) {
@@ -1067,9 +1393,10 @@
     hostDocument.addEventListener("click", hostClickHandler, true);
     host.addEventListener("resize", hostResizeHandler, { passive: true });
 
-    return {
+    registryApi = {
       revision: config.revision,
       start: function () {
+        ensureGalgameRenderer();
         ensureShell();
         if (!selectedId || selectionMode === "follow") selectedId = writableId();
         scheduleMount(false);
@@ -1104,9 +1431,14 @@
       },
       phoneApi: phoneApi,
       notifyStages: notifyStages,
+      registerGalgameHydrator: registerGalgameHydrator,
+      refreshGalgameRole: refreshGalgameRole,
+      renderGalgameMarkers: scheduleGalgameRender,
       subscribeStage: function (fn) { stageSubscribers.add(fn); return function () { stageSubscribers.delete(fn); }; },
       openPhone: function () { toggleShell(true); },
       openProfileRole: openProfileRole,
+      showEncounterDetail: showEncounterDetail,
+      hideEncounterDetail: hideEncounterDetail,
       updateChrome: updateChrome,
       destroy: function () {
         if (mountTimer) host.clearTimeout(mountTimer);
@@ -1116,6 +1448,24 @@
         pendingProfileRole = "";
         try { fetchController?.abort?.(); } catch (_) {}
         fetchController = null;
+        try { galgameObserver && galgameObserver.disconnect(); } catch (_) {}
+        galgameObserver = null;
+        if (galgameRenderFrame) {
+          try {
+            if (host.cancelAnimationFrame) host.cancelAnimationFrame(galgameRenderFrame);
+            else host.clearTimeout(galgameRenderFrame);
+          } catch (_) {}
+        }
+        galgameRenderFrame = 0;
+        galgameHydrator = null;
+        galgameHydratorToken = "";
+        hideEncounterDetail();
+        encounterDetailHost = null;
+        try {
+          if (hostDocument[GALGAME_RUNTIME_KEY] && hostDocument[GALGAME_RUNTIME_KEY].registry === registryApi) {
+            delete hostDocument[GALGAME_RUNTIME_KEY];
+          }
+        } catch (_) {}
         try { hostDocument.removeEventListener("click", hostClickHandler, true); } catch (_) {}
         try { host.removeEventListener("resize", hostResizeHandler); } catch (_) {}
         try { host.removeEventListener("pointermove", moveDrag, true); } catch (_) {}
@@ -1127,6 +1477,7 @@
         ownerOrder = [];
       }
     };
+    return registryApi;
   }
 
   function ensureRegistry(host) {
