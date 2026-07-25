@@ -2331,7 +2331,7 @@
       return false;
     }
     data.stat["系统"] = data.stat["系统"] && typeof data.stat["系统"] === "object" && !Array.isArray(data.stat["系统"]) ? data.stat["系统"] : {};
-    data.stat["系统"]["user身份"] = identity;
+    data.stat["系统"]["$user身份"] = identity;
     applyOpeningStateToRoot(data.stat, identity);
     await replaceMvuData(data);
     return true;
@@ -2589,13 +2589,13 @@
     if (opening.id === "hospital_done") {
       return "请从固定开场开始正文：当前日期2024年4月10日，当前时间11:20，地点为综合医院。医院线已经结束，{{user}}今天向学校请假来到医院，开场直接写{{user}}和犬冢穗波、天城纱良很亲密地相处；二人与{{user}}的亲近配合关系已是既定背景。不要说出数值，不要回放攻略过程，不要把场景拉回教室。不要重新展示身份选择界面，不要用/add或add路径新增角色变量，不要重复输出变量初始化。";
     }
-    return "请从固定开场开始正文：当前时间12:30，午休前最后一节课（4限现代文）刚下课，地点为二年A组教室。西园寺爱丽莎、月咏深雪、犬冢夏美都在教室或走廊附近自然出场，并根据上面的user身份形象做出不同第一反应；爱丽莎和阿宅之间需要有自然互动，例如青梅竹马式指挥、熟悉吐槽、一起去午休或阿宅被爱丽莎牵动节奏。不要重新展示身份选择界面，不要用/add或add路径新增角色变量，不要重复输出变量初始化。";
+    return "请从固定开场开始正文：当前时间12:30，午休前最后一节课（4限现代文）刚下课，地点为二年A组教室。西园寺爱丽莎、月咏深雪、犬冢夏美都在教室或走廊附近自然出场，并根据上面的$user身份形象做出不同第一反应；爱丽莎和阿宅之间需要有自然互动，例如青梅竹马式指挥、熟悉吐槽、一起去午休或阿宅被爱丽莎牵动节奏。不要重新展示身份选择界面，不要用/add或add路径新增角色变量，不要重复输出变量初始化。";
   }
 
   function buildOpeningPrompt(identity) {
     return [
       "<首楼身份选择完成>",
-      "user身份:",
+      "$user身份:",
       "- 难度: " + identityValue(identity["难度"]),
       "- 姓名: " + identityValue(identity["姓名"]),
       "- 年龄: " + identityValue(identity["年龄"]),

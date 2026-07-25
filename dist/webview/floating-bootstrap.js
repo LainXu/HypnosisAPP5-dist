@@ -128,10 +128,16 @@
     var galgameRenderFrame = 0;
     var galgameHydrator = null;
     var galgameHydratorToken = "";
+    var actionFoldObserver = null;
+    var actionFoldRenderFrame = 0;
+    var actionFoldObservedFrames = new WeakSet();
     var GALGAME_STYLE_ID = "st-galgame-narrative-bootstrap-style-v1";
     var GALGAME_RUNTIME_KEY = "__ST_HYPNOOS_GALGAME_HOST_RUNTIME__";
     var GALGAME_MARKER_RE = /⟪人物演出总块⟫([\s\S]*?)⟪\/人物演出总块⟫/;
     var GALGAME_SEGMENT_RE = /〔(动作|台词|思考)〕([\s\S]*?)(?=〔(?:动作|台词|思考)〕|$)/g;
+    var ACTION_FOLD_OPEN = "⟪HYPNOOS_ACTION_FOLD_V3⟫";
+    var ACTION_FOLD_CLOSE = "⟪/HYPNOOS_ACTION_FOLD_V3⟫";
+    var ACTION_FOLD_MARKER_RE = /⟪HYPNOOS_ACTION_FOLD_V3⟫([\s\S]*?)⟪\/HYPNOOS_ACTION_FOLD_V3⟫/;
 
     function ensureGalgameStyle() {
       if (!hostDocument.head || hostDocument.getElementById(GALGAME_STYLE_ID)) return;
@@ -365,6 +371,223 @@
       }
       hostDocument[GALGAME_RUNTIME_KEY] = { version: 1, observer: galgameObserver, registry: registryApi };
       scheduleGalgameRender();
+    }
+
+    function actionFoldText(value) {
+      return String(value || "")
+        .replace(/<!--[\s\S]*?-->/g, "")
+        .replace(/<[^>]*>/g, "\n")
+        .replace(/[ \t]+\n/g, "\n")
+        .replace(/\n[ \t]*\n[ \t]*\n+/g, "\n\n")
+        .trim();
+    }
+
+    function actionFoldPlain(targetDocument, value) {
+      var block = targetDocument.createElement("div");
+      block.style.cssText = "margin:7px 0;color:#dbeafe;white-space:pre-wrap;line-height:1.65;overflow-wrap:anywhere";
+      block.textContent = actionFoldText(value);
+      return block;
+    }
+
+    function actionFoldNotice(targetDocument, value) {
+      var notice = targetDocument.createElement("aside");
+      notice.setAttribute("data-hypnoos-action-notice", "v3");
+      notice.style.cssText = "display:flex;align-items:flex-start;gap:9px;margin:10px 0;padding:9px 11px;border:1px solid rgba(250,204,21,.42);border-left:4px solid #fbbf24;border-radius:10px;background:linear-gradient(100deg,rgba(120,53,15,.38),rgba(67,20,7,.22));color:#fef3c7";
+      var label = targetDocument.createElement("strong");
+      label.style.cssText = "flex:0 0 auto;color:#fde68a;font:800 11px/1.4 ui-monospace,monospace";
+      label.textContent = "✦ AI 提醒";
+      var body = targetDocument.createElement("span");
+      body.style.cssText = "min-width:0;white-space:pre-wrap;line-height:1.55";
+      body.textContent = actionFoldText(value);
+      notice.append(label, body);
+      return notice;
+    }
+
+    function actionFoldPermission(targetDocument, value) {
+      var card = targetDocument.createElement("aside");
+      card.setAttribute("data-hypnoos-action-permission", "v3");
+      card.style.cssText = "margin:9px 0;padding:9px 11px;border:1px solid rgba(96,165,250,.32);border-left:4px solid #60a5fa;border-radius:10px;background:rgba(30,64,175,.14);color:#dbeafe;white-space:pre-wrap;line-height:1.62";
+      card.textContent = "变量权限\n" + actionFoldText(value);
+      return card;
+    }
+
+    function actionFoldNested(targetDocument, kind, titleText, bodyText) {
+      var details = targetDocument.createElement("details");
+      details.setAttribute(kind === "item" ? "data-hypnoos-action-item" : "data-hypnoos-action-section", "v3");
+      details.style.cssText = kind === "item"
+        ? "display:block;margin:7px 0;border:1px solid rgba(165,180,252,.28);border-radius:9px;overflow:hidden;background:rgba(15,23,42,.32);color:#e2e8f0"
+        : "display:block;margin:9px 0;border:1px solid rgba(129,140,248,.34);border-radius:12px;overflow:hidden;background:linear-gradient(120deg,rgba(49,46,129,.30),rgba(15,23,42,.28));color:#e2e8f0";
+      var summary = targetDocument.createElement("summary");
+      summary.style.cssText = "display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:pointer;list-style:none;font-weight:800;line-height:1.4";
+      summary.textContent = (kind === "item" ? "◆ " : "◈ ") + (actionFoldText(titleText) || (kind === "item" ? "操作项" : "来源"));
+      var body = targetDocument.createElement("div");
+      body.style.cssText = "padding:9px 11px 11px;border-top:1px solid rgba(165,180,252,.22);color:#dbeafe;white-space:pre-wrap;line-height:1.62";
+      if (kind === "section") appendActionFoldContent(targetDocument, body, bodyText);
+      else body.textContent = actionFoldText(bodyText);
+      details.append(summary, body);
+      return details;
+    }
+
+    function nextActionFoldUnit(source, fromIndex) {
+      var definitions = [
+        { kind: "permission", regex: /<\s*变量权限\s*>\s*([\s\S]*?)\s*<\s*\/\s*变量权限\s*>/gi },
+        { kind: "notice", regex: /<\s*AI提醒\s*>\s*([\s\S]*?)\s*<\s*\/\s*AI提醒\s*>/gi },
+        { kind: "item", regex: /<\s*操作项\s*>\s*<\s*操作名\s*>\s*([\s\S]*?)\s*<\s*\/\s*操作名\s*>\s*<\s*操作内容\s*>\s*([\s\S]*?)\s*<\s*\/\s*操作内容\s*>\s*<\s*\/\s*操作项\s*>/gi },
+        { kind: "section", regex: /<\s*(相关变量|时钟|地图|学校|学校地图|催眠APP|催眠命令|催眠资源|催眠道具|成就和任务|成就|任务|校规|初始校规|打工|监控|邂逅|人物档案|库存|物品|子嗣|派遣|警视厅|综合医院|医院|旧校舍|灵异|性格特调|改造|附身|课程表|日历|系统|设置|场景|事件|地点|APP)\s*>\s*([\s\S]*?)\s*<\s*\/\s*\1\s*>/gi }
+      ];
+      var selected = null;
+      definitions.forEach(function (definition) {
+        definition.regex.lastIndex = fromIndex;
+        var match = definition.regex.exec(source);
+        if (!match || (selected && match.index >= selected.start)) return;
+        selected = {
+          kind: definition.kind,
+          start: match.index,
+          end: match.index + match[0].length,
+          title: definition.kind === "section" || definition.kind === "item" ? match[1] : "",
+          body: definition.kind === "section" || definition.kind === "item" ? match[2] : match[1]
+        };
+      });
+      return selected;
+    }
+
+    function appendActionFoldContent(targetDocument, parent, value) {
+      var source = String(value || "");
+      var cursor = 0;
+      var unit;
+      while ((unit = nextActionFoldUnit(source, cursor))) {
+        if (unit.start > cursor) {
+          var plain = actionFoldPlain(targetDocument, source.slice(cursor, unit.start));
+          if (plain.textContent) parent.appendChild(plain);
+        }
+        if (unit.kind === "notice") parent.appendChild(actionFoldNotice(targetDocument, unit.body));
+        else if (unit.kind === "permission") parent.appendChild(actionFoldPermission(targetDocument, unit.body));
+        else parent.appendChild(actionFoldNested(targetDocument, unit.kind, unit.title, unit.body));
+        cursor = unit.end;
+      }
+      if (cursor < source.length) {
+        var tail = actionFoldPlain(targetDocument, source.slice(cursor));
+        if (tail.textContent) parent.appendChild(tail);
+      }
+    }
+
+    function createActionFoldCard(targetDocument, value) {
+      var details = targetDocument.createElement("details");
+      details.setAttribute("data-hypnoos-action-fold", "v3");
+      details.style.cssText = "display:block;margin:12px 0;border:1px solid rgba(129,140,248,.48);border-left:3px solid #818cf8;border-radius:14px;overflow:hidden;background:linear-gradient(135deg,rgba(30,27,75,.88),rgba(15,23,42,.92));box-shadow:0 9px 22px rgba(0,0,0,.2);color:#e2e8f0;font-family:ui-sans-serif,system-ui,sans-serif";
+      var summary = targetDocument.createElement("summary");
+      summary.style.cssText = "cursor:pointer;display:flex;align-items:center;gap:10px;padding:11px 14px;color:#eef2ff;letter-spacing:.04em;list-style:none";
+      var label = targetDocument.createElement("span");
+      label.style.cssText = "font-size:11px;font-weight:800;color:#a5b4fc;letter-spacing:.16em";
+      label.textContent = "前端操作";
+      var title = targetDocument.createElement("strong");
+      title.style.cssText = "font-size:14px;font-weight:650";
+      title.textContent = "本轮操作";
+      var hint = targetDocument.createElement("span");
+      hint.style.cssText = "margin-left:auto;color:rgba(199,210,254,.78);font-size:12px";
+      hint.textContent = "点击展开";
+      summary.append(label, title, hint);
+      var body = targetDocument.createElement("div");
+      body.setAttribute("data-hypnoos-action-body", "v3");
+      body.style.cssText = "padding:13px 17px 15px;border-top:1px solid rgba(129,140,248,.28);line-height:1.82;color:#dbeafe;overflow-wrap:anywhere";
+      appendActionFoldContent(targetDocument, body, value);
+      if (!body.childNodes.length) body.textContent = "本轮没有可展开的前端操作。";
+      details.append(summary, body);
+      return details;
+    }
+
+    function renderActionFoldRoot(targetDocument, root) {
+      if (!root || !String(root.textContent || "").includes(ACTION_FOLD_OPEN)) return false;
+      var walker = targetDocument.createTreeWalker(root, targetDocument.defaultView && targetDocument.defaultView.NodeFilter ? targetDocument.defaultView.NodeFilter.SHOW_TEXT : 4);
+      var nodes = [];
+      var source = "";
+      while (walker.nextNode()) {
+        var node = walker.currentNode;
+        if (node.parentElement && node.parentElement.closest("[data-hypnoos-action-fold],script,style,textarea,template")) continue;
+        var text = String(node.nodeValue || "");
+        if (!text) continue;
+        nodes.push({ node: node, start: source.length, end: source.length + text.length });
+        source += text;
+      }
+      var rendered = false;
+      for (var pass = 0; pass < 8; pass += 1) {
+        var match = source.match(ACTION_FOLD_MARKER_RE);
+        if (!match || match.index == null) break;
+        var startIndex = match.index;
+        var endIndex = startIndex + match[0].length;
+        var start = nodes.find(function (item) { return startIndex >= item.start && startIndex <= item.end; });
+        var end = nodes.slice().reverse().find(function (item) { return endIndex >= item.start && endIndex <= item.end; });
+        if (!start || !end) break;
+        var range = targetDocument.createRange();
+        range.setStart(start.node, Math.max(0, startIndex - start.start));
+        range.setEnd(end.node, Math.max(0, endIndex - end.start));
+        range.deleteContents();
+        range.insertNode(createActionFoldCard(targetDocument, match[1]));
+        rendered = true;
+        return renderActionFoldRoot(targetDocument, root) || rendered;
+      }
+      return rendered;
+    }
+
+    function actionFoldDocuments() {
+      var documents = [hostDocument];
+      Array.prototype.forEach.call(hostDocument.querySelectorAll("iframe"), function (iframe) {
+        if (!actionFoldObservedFrames.has(iframe)) {
+          actionFoldObservedFrames.add(iframe);
+          try { iframe.addEventListener("load", scheduleActionFoldRender); } catch (_) {}
+        }
+        try {
+          if (iframe.contentDocument && iframe.contentDocument.body && documents.indexOf(iframe.contentDocument) < 0) {
+            documents.push(iframe.contentDocument);
+          }
+        } catch (_) {}
+      });
+      return documents;
+    }
+
+    function renderActionFoldMarkers() {
+      actionFoldDocuments().forEach(function (targetDocument) {
+        var roots = Array.prototype.slice.call(targetDocument.querySelectorAll(".mes_text,#userInputContent"));
+        if (!roots.length && targetDocument.body) roots.push(targetDocument.body);
+        roots.forEach(function (root) { renderActionFoldRoot(targetDocument, root); });
+      });
+    }
+
+    function scheduleActionFoldRender() {
+      if (actionFoldRenderFrame || !hostDocument.body) return;
+      var requestFrame = host.requestAnimationFrame || function (callback) { return host.setTimeout(callback, 0); };
+      actionFoldRenderFrame = requestFrame.call(host, function () {
+        actionFoldRenderFrame = 0;
+        renderActionFoldMarkers();
+      });
+    }
+
+    function ensureActionFoldRenderer() {
+      if (!actionFoldObserver && host.MutationObserver) {
+        actionFoldObserver = new host.MutationObserver(function (records) {
+          var shouldRender = records.some(function (record) {
+            var targetText = record.type === "characterData" ? record.target.nodeValue : record.target && record.target.textContent;
+            if (String(targetText || "").includes(ACTION_FOLD_OPEN)) return true;
+            return Array.prototype.some.call(record.addedNodes || [], function (node) {
+              if (String(node && node.tagName || "").toLowerCase() === "iframe" && !actionFoldObservedFrames.has(node)) {
+                actionFoldObservedFrames.add(node);
+                try { node.addEventListener("load", scheduleActionFoldRender); } catch (_) {}
+              }
+              try {
+                Array.prototype.forEach.call(node && node.querySelectorAll ? node.querySelectorAll("iframe") : [], function (iframe) {
+                  if (actionFoldObservedFrames.has(iframe)) return;
+                  actionFoldObservedFrames.add(iframe);
+                  try { iframe.addEventListener("load", scheduleActionFoldRender); } catch (_) {}
+                });
+              } catch (_) {}
+              return String(node && node.textContent || "").includes(ACTION_FOLD_OPEN);
+            });
+          });
+          if (shouldRender) scheduleActionFoldRender();
+        });
+        actionFoldObserver.observe(hostDocument.body, { childList: true, characterData: true, subtree: true });
+      }
+      scheduleActionFoldRender();
     }
 
     function registerGalgameHydrator(provider, providerToken) {
@@ -917,6 +1140,7 @@
         ".panel.open{display:block}",
         ".phone-wrap{position:absolute;inset:0;border:1px solid rgba(221,184,255,.42);border-radius:inherit;background:#05070f;box-shadow:0 32px 110px rgba(0,0,0,.72),0 0 0 6px rgba(17,12,30,.72);overflow:hidden;isolation:isolate}.phone-wrap:after{content:'';position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09);pointer-events:none;z-index:8}.phone{display:block;width:100%;height:100%;border:0;background:transparent}",
         ".encounter-detail-host{--ed-red:#ef1b2d;position:absolute;z-index:18;right:calc(100% + 16px);top:20px;width:500px;max-height:calc(100% - 40px);display:none;overflow:auto;pointer-events:auto;color:#fff;font-family:Impact,'Arial Black','Noto Sans SC',system-ui;filter:drop-shadow(0 28px 45px rgba(0,0,0,.5));scrollbar-width:thin;scrollbar-color:#ef1b2d #080808}.encounter-detail-host.open{display:block}.encounter-detail-host__frame{position:relative;min-height:620px;overflow:hidden;border:5px solid #080808;background:#f3eee4;clip-path:polygon(3% 0,100% 3%,97% 94%,86% 91%,79% 100%,4% 96%,0 12%);isolation:isolate}.encounter-detail-host__frame:before{content:'';position:absolute;inset:-20%;z-index:-3;background:repeating-linear-gradient(113deg,transparent 0 22px,rgba(0,0,0,.08) 23px 25px),radial-gradient(circle at 18% 22%,#ef1b2d 0 3%,transparent 3.3%),linear-gradient(145deg,#eee7dc 0 38%,#d9d1c6 38% 45%,#f7f3ea 45% 100%)}.encounter-detail-host__frame:after{content:'';position:absolute;z-index:-2;left:-18%;right:16%;bottom:-22%;height:66%;background:#080808;transform:rotate(-8deg);clip-path:polygon(0 12%,100% 0,86% 100%,8% 84%)}.encounter-detail-host__close{position:absolute;z-index:8;right:18px;top:18px;width:46px;height:42px;border:4px solid #080808;background:#ef1b2d;color:#fff;font:950 24px/1 Impact,'Arial Black',sans-serif;transform:rotate(3deg);cursor:pointer;box-shadow:6px 6px 0 #080808}.encounter-detail-host__kicker{display:inline-block;margin:28px 0 0 26px;padding:5px 18px;background:#080808;color:#fff;font:950 14px/1 Impact,'Arial Black','Noto Sans SC',sans-serif;letter-spacing:.12em;transform:rotate(-3deg);clip-path:polygon(4% 0,100% 8%,94% 100%,0 84%)}.encounter-detail-host__name{position:relative;z-index:2;margin:10px 58px 0 24px;color:#080808;font:950 clamp(30px,4vw,54px)/.92 Impact,'Arial Black','Noto Sans SC',sans-serif;letter-spacing:.02em;text-transform:uppercase;transform:rotate(-2deg);text-shadow:3px 3px 0 #fff,6px 6px 0 #ef1b2d;overflow-wrap:anywhere}.encounter-detail-host__alias{display:inline-block;margin:10px 0 0 32px;padding:5px 13px;background:#ef1b2d;color:#fff;font:900 13px/1.2 system-ui;transform:rotate(1deg)}.encounter-detail-host__visual{position:relative;height:285px;margin:8px 18px 0;overflow:hidden;clip-path:polygon(3% 8%,94% 0,100% 88%,8% 100%,0 55%);background:#080808}.encounter-detail-host__visual img{width:100%;height:100%;display:block;object-fit:cover;object-position:center 18%;filter:saturate(.8) contrast(1.14)}.encounter-detail-host__visual:after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,rgba(239,27,45,.45),transparent 34%,transparent 70%,rgba(0,0,0,.5)),repeating-linear-gradient(0deg,transparent 0 4px,rgba(255,255,255,.07) 5px);mix-blend-mode:screen;pointer-events:none}.encounter-detail-host__source{position:absolute;z-index:4;right:16px;bottom:18px;max-width:70%;padding:7px 13px;background:#fff;color:#080808;border:3px solid #080808;font:950 12px/1.2 system-ui;transform:rotate(-2deg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.encounter-detail-host__body{position:relative;z-index:3;margin:-18px 26px 30px;padding:22px 18px 18px;background:#ef1b2d;color:#fff;clip-path:polygon(0 7%,100% 0,96% 100%,5% 94%);transform:rotate(.5deg)}.encounter-detail-host__intro{margin:0 0 13px;font:750 13px/1.65 system-ui;white-space:pre-wrap}.encounter-detail-host__facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.encounter-detail-host__fact{min-width:0;padding:8px 9px;background:#080808;color:#fff;transform:skew(-4deg)}.encounter-detail-host__fact span{display:block;color:#ff9aa4;font:850 9px/1.2 system-ui;letter-spacing:.08em}.encounter-detail-host__fact strong{display:block;margin-top:3px;font:850 12px/1.3 system-ui;overflow-wrap:anywhere}.encounter-detail-host__thumbs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin:0 27px 28px}.encounter-detail-host__thumbs img{width:100%;aspect-ratio:1/1;object-fit:cover;border:3px solid #080808;background:#ddd;transform:rotate(var(--thumb-tilt,0deg))}.encounter-detail-host__empty{display:grid;height:100%;place-items:center;color:#fff;font:950 54px/1 Impact,sans-serif;background:repeating-linear-gradient(135deg,#080808 0 18px,#ef1b2d 19px 34px)}",
+        ".encounter-detail-host{padding:6px 0 16px;overscroll-behavior:contain}.encounter-detail-host__frame{clip-path:polygon(1% 0,100% 1%,99% 98%,87% 97%,82% 100%,1% 99%,0 4%);padding-bottom:30px}.encounter-detail-host__body{margin:-10px 24px 22px;padding:34px 20px 30px;clip-path:polygon(0 2%,100% 0,98% 100%,2% 98%);transform:none}.encounter-detail-host__thumbs{margin-bottom:8px;padding-bottom:8px}",
         ".sidecar{position:absolute;z-index:12;left:calc(100% + 14px);top:12px;width:var(--floor-sidecar-width);display:grid;grid-template-columns:minmax(0,1fr);justify-items:start;gap:8px;pointer-events:none}",
         ".readonly{position:static;z-index:13;width:100%;padding:8px 10px;border-radius:13px;background:rgba(39,25,12,.72);border:1px solid rgba(251,191,36,.38);color:#fde68a;font:800 10px/1.35 system-ui;pointer-events:none;display:none;backdrop-filter:blur(10px)}.panel.history .readonly{display:block}",
         ".drag-edge{position:absolute;z-index:9;touch-action:none;user-select:none}.drag-edge.top{left:22px;right:22px;top:0;height:10px;cursor:grab}.drag-edge.bottom{left:22px;right:22px;bottom:0;height:10px;cursor:grab}.drag-edge.left{left:0;top:22px;bottom:22px;width:10px;cursor:grab}.drag-edge.right{right:0;top:22px;bottom:22px;width:10px;cursor:grab}.drag-edge:active,.drag-grip:active{cursor:grabbing}",
@@ -975,6 +1199,7 @@
           "<div class='encounter-detail-host__body'><p class='encounter-detail-host__intro'>" + escapeHtml(intro) + "</p><div class='encounter-detail-host__facts'>" + factHtml + "</div></div>" +
           thumbs +
         "</section>";
+      encounterDetailHost.scrollTop = 0;
       encounterDetailHost.querySelector(".encounter-detail-host__close")?.addEventListener("click", hideEncounterDetail);
       encounterDetailHost.classList.add("open");
       encounterDetailHost.setAttribute("aria-hidden", "false");
@@ -1348,6 +1573,7 @@
       // 以这里作为确定性的正文最终化钩子，避免较早的 mutation/rAF 渲染
       // 又被酒馆随后一次 markdown/regex 整块重建覆盖。
       scheduleGalgameRender();
+      scheduleActionFoldRender();
     }
 
     function unregister(id, ownerToken) {
@@ -1397,6 +1623,7 @@
       revision: config.revision,
       start: function () {
         ensureGalgameRenderer();
+        ensureActionFoldRenderer();
         ensureShell();
         if (!selectedId || selectionMode === "follow") selectedId = writableId();
         scheduleMount(false);
@@ -1434,6 +1661,7 @@
       registerGalgameHydrator: registerGalgameHydrator,
       refreshGalgameRole: refreshGalgameRole,
       renderGalgameMarkers: scheduleGalgameRender,
+      renderActionFoldMarkers: scheduleActionFoldRender,
       subscribeStage: function (fn) { stageSubscribers.add(fn); return function () { stageSubscribers.delete(fn); }; },
       openPhone: function () { toggleShell(true); },
       openProfileRole: openProfileRole,
@@ -1450,6 +1678,8 @@
         fetchController = null;
         try { galgameObserver && galgameObserver.disconnect(); } catch (_) {}
         galgameObserver = null;
+        try { actionFoldObserver && actionFoldObserver.disconnect(); } catch (_) {}
+        actionFoldObserver = null;
         if (galgameRenderFrame) {
           try {
             if (host.cancelAnimationFrame) host.cancelAnimationFrame(galgameRenderFrame);
@@ -1457,6 +1687,13 @@
           } catch (_) {}
         }
         galgameRenderFrame = 0;
+        if (actionFoldRenderFrame) {
+          try {
+            if (host.cancelAnimationFrame) host.cancelAnimationFrame(actionFoldRenderFrame);
+            else host.clearTimeout(actionFoldRenderFrame);
+          } catch (_) {}
+        }
+        actionFoldRenderFrame = 0;
         galgameHydrator = null;
         galgameHydratorToken = "";
         hideEncounterDetail();
