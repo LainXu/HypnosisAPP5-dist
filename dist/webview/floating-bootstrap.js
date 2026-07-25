@@ -107,6 +107,7 @@
     var titleFloor = null;
     var galgameToggle = null;
     var galgameDialog = null;
+    var resourcePanel = null;
     var encounterDetailHost = null;
     var galgameBusy = false;
     var selectedId = "";
@@ -131,6 +132,9 @@
     var actionFoldObserver = null;
     var actionFoldRenderFrame = 0;
     var actionFoldObservedFrames = new WeakSet();
+    var resourceRefreshToken = 0;
+    var resourceEventStops = [];
+    var resourceEventsSubscribed = false;
     var GALGAME_STYLE_ID = "st-galgame-narrative-bootstrap-style-v1";
     var GALGAME_RUNTIME_KEY = "__ST_HYPNOOS_GALGAME_HOST_RUNTIME__";
     var GALGAME_MARKER_RE = /⟪人物演出总块⟫([\s\S]*?)⟪\/人物演出总块⟫/;
@@ -946,6 +950,78 @@
         ((root["系统"] && typeof root["系统"] === "object") || (root["角色"] && typeof root["角色"] === "object")));
     }
 
+    function formatResourceValue(value) {
+      if (value === undefined || value === null || value === "") return "--";
+      var number = Number(value);
+      if (Number.isFinite(number)) return new Intl.NumberFormat("zh-CN", { maximumFractionDigits: 2 }).format(number);
+      return String(value);
+    }
+
+    function paintSidecarResources(system, loading) {
+      if (!resourcePanel) return;
+      resourcePanel.classList.toggle("loading", Boolean(loading));
+      var values = {
+        money: system && system["持有零花钱"],
+        starlight: system && system["星光点"],
+        energy: system && system["MC能量"]
+      };
+      Object.keys(values).forEach(function (key) {
+        var target = resourcePanel.querySelector("[data-resource-" + key + "]");
+        if (target) target.textContent = formatResourceValue(values[key]);
+      });
+    }
+
+    async function refreshSidecarResources() {
+      if (!resourcePanel) return;
+      var token = ++resourceRefreshToken;
+      var id = textId(selectedId || writableId());
+      if (!id) {
+        paintSidecarResources(null, false);
+        return;
+      }
+      paintSidecarResources(null, true);
+      var option = { type: "message", message_id: id };
+      var snapshot = null;
+      try { snapshot = await Promise.resolve(callMvu("getMvuData", [option])); } catch (_) {}
+      if (!usableSnapshot(snapshot)) {
+        try { snapshot = await Promise.resolve(callApi("getVariables", [option])); } catch (_) {}
+      }
+      if (token !== resourceRefreshToken || id !== textId(selectedId || writableId())) return;
+      var root = usableSnapshot(snapshot) ? unwrapStat(snapshot) : null;
+      paintSidecarResources(root && root["系统"], false);
+    }
+
+    function subscribeSidecarResourceEvents() {
+      if (resourceEventsSubscribed) return;
+      resourceEventsSubscribed = true;
+      var found = findFunction("eventOn");
+      if (!found) return;
+      var events = [];
+      var mvu = findMvu();
+      try {
+        events.push(mvu?.events?.VARIABLE_INITIALIZED, mvu?.events?.VARIABLE_UPDATE_ENDED);
+      } catch (_) {}
+      sourceWindows().forEach(function (view) {
+        try {
+          events.push(
+            view.tavern_events?.CHAT_CHANGED,
+            view.tavern_events?.MESSAGE_SWIPED,
+            view.tavern_events?.CHARACTER_MESSAGE_RENDERED
+          );
+        } catch (_) {}
+      });
+      Array.from(new Set(events.filter(Boolean))).forEach(function (eventName) {
+        var handler = function () { refreshSidecarResources(); };
+        try {
+          resourceEventStops.push({
+            eventName: eventName,
+            handler: handler,
+            handle: found.fn.call(found.view, eventName, handler)
+          });
+        } catch (_) {}
+      });
+    }
+
     function snapshotExists(id, message) {
       var option = { type: "message", message_id: id };
       try {
@@ -985,7 +1061,7 @@
           if (ownerAlive(owner)) result.push({ id: id, floor: index, swipe: 1, snapshot: snapshotExists(id, null) });
         });
       }
-      return result;
+      return result.slice(-4);
     }
 
     function mesIdFromElement(element) {
@@ -1148,6 +1224,7 @@
         ".floor-toggle,.galgame-toggle{position:static;z-index:14;width:128px;min-width:128px;height:36px;padding:0 12px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;pointer-events:auto;backdrop-filter:blur(12px);font:800 11px/1 system-ui;white-space:nowrap;word-break:keep-all;overflow-wrap:normal;writing-mode:horizontal-tb;text-align:center;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.18)}",
         ".floor-toggle{border:1px solid rgba(224,188,255,.38);background:rgba(11,8,26,.38);color:#f7eafe}",
         ".galgame-toggle{border:1px solid rgba(148,163,184,.34);background:rgba(11,8,26,.38);color:#cbd5e1}.galgame-toggle.enabled{border-color:rgba(52,211,153,.5);background:rgba(6,78,59,.34);color:#a7f3d0}.galgame-toggle.disabled{border-color:rgba(251,113,133,.36);background:rgba(76,5,25,.3);color:#fecdd3}.galgame-toggle.busy,.galgame-toggle:disabled{cursor:wait;opacity:.72}",
+        ".resource-panel{width:128px;display:grid;gap:5px;pointer-events:none}.resource-row{min-width:0;height:28px;padding:0 9px;border:1px solid rgba(148,163,184,.27);border-radius:10px;background:rgba(11,8,26,.42);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:space-between;gap:6px;color:#dbeafe;font:750 9px/1 system-ui;box-shadow:0 6px 18px rgba(0,0,0,.14)}.resource-row span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.resource-row strong{flex:0 0 auto;color:#fff;font:900 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace}.resource-row.money{border-color:rgba(251,191,36,.32);color:#fde68a}.resource-row.starlight{border-color:rgba(244,114,182,.32);color:#fbcfe8}.resource-row.energy{border-color:rgba(56,189,248,.32);color:#bae6fd}.resource-panel.loading .resource-row strong{opacity:.55}",
         ".galgame-dialog{position:absolute;z-index:30;inset:0;display:none;place-items:center;padding:22px;background:rgba(2,3,10,.64);backdrop-filter:blur(8px);pointer-events:auto}.galgame-dialog.open{display:grid}.galgame-dialog__card{width:min(340px,calc(100% - 20px));padding:20px;border:1px solid rgba(110,231,183,.36);border-radius:22px;background:linear-gradient(145deg,rgba(6,78,59,.96),rgba(10,14,31,.98) 68%);box-shadow:0 24px 70px rgba(0,0,0,.58);color:#ecfdf5;font-family:system-ui}.galgame-dialog.is-error .galgame-dialog__card{border-color:rgba(251,113,133,.46);background:linear-gradient(145deg,rgba(76,5,25,.96),rgba(10,14,31,.98) 68%)}.galgame-dialog__card strong{display:block;font:850 18px/1.3 system-ui}.galgame-dialog__card p{margin:12px 0 18px;color:rgba(236,253,245,.82);font:650 13px/1.65 system-ui;white-space:pre-wrap}.galgame-dialog__card button{width:100%;height:40px;border:1px solid rgba(167,243,208,.38);border-radius:13px;background:rgba(255,255,255,.1);color:#fff;font:800 13px system-ui;cursor:pointer}",
         ".floor-drawer{position:static;z-index:12;width:100%;display:none;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:0;border:0;border-radius:17px;background:transparent;backdrop-filter:none;box-shadow:none;color:#f8efff;pointer-events:auto}",
         ".floor-drawer.open{display:grid}.floor-title{grid-column:1/2;align-self:center;overflow:hidden;color:#d9cbe4;font:750 11px/1.2 system-ui;text-overflow:ellipsis;white-space:nowrap}",
@@ -1155,7 +1232,7 @@
         ".mode{height:32px;padding:0 10px;border:1px solid rgba(201,155,232,.34);border-radius:10px;background:rgba(24,21,43,.5);backdrop-filter:blur(10px);color:#efe4f8;font:750 10px system-ui;cursor:pointer}",
         ".badge{grid-column:1/-1;min-height:28px;padding:6px 9px;border-radius:9px;display:flex;align-items:center;background:rgba(19,78,59,.32);backdrop-filter:blur(10px);border:1px solid rgba(51,211,153,.32);color:#a7f3d0;font:800 10px/1.25 system-ui}.badge.history{background:rgba(76,48,13,.34);border-color:rgba(251,191,36,.3);color:#fde68a}",
         "@media(max-width:980px){.encounter-detail-host{position:fixed;left:8px;right:auto;top:8px;width:min(440px,calc(100vw - 16px));max-height:calc(100vh - 16px)}}",
-        "@media(max-width:760px){.panel{--floor-sidecar-width:clamp(104px,28vw,220px);width:min(430px,calc(100vw - var(--floor-sidecar-width) - 30px))}.sidecar{left:calc(100% + 10px)}.floor-toggle,.galgame-toggle{width:min(128px,100%);min-width:0;padding-inline:8px}.floor-drawer{grid-template-columns:minmax(0,1fr)}.floor-title,.mode,.select,.badge{grid-column:1/-1;width:100%}.encounter-detail-host__frame{min-height:560px}}"
+        "@media(max-width:760px){.panel{--floor-sidecar-width:clamp(104px,28vw,220px);width:min(430px,calc(100vw - var(--floor-sidecar-width) - 30px))}.sidecar{left:calc(100% + 10px)}.floor-toggle,.galgame-toggle,.resource-panel{width:min(128px,100%);min-width:0}.floor-toggle,.galgame-toggle{padding-inline:8px}.floor-drawer{grid-template-columns:minmax(0,1fr)}.floor-title,.mode,.select,.badge{grid-column:1/-1;width:100%}.encounter-detail-host__frame{min-height:560px}}"
       ].join("");
     }
 
@@ -1278,7 +1355,7 @@
       shadow = shell.attachShadow({ mode: "open" });
       shadow.innerHTML = "<style>" + shellCss() + "</style>" +
         "<button class='launcher' type='button' aria-label='打开悬浮手机'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8'><rect x='6' y='2.5' width='12' height='19' rx='3'/><path d='M10 5h4M11 18.5h2'/></svg><i>0</i></button>" +
-        "<section class='panel' aria-label='HypnoOS 悬浮手机'><aside class='encounter-detail-host' aria-hidden='true'></aside><div class='phone-wrap'><iframe class='phone' title='HypnoOS 手机前端'></iframe><div class='galgame-dialog' role='dialog' aria-modal='true' aria-hidden='true' aria-labelledby='hypnoos-galgame-dialog-title'><section class='galgame-dialog__card'><strong id='hypnoos-galgame-dialog-title' data-galgame-dialog-title>Galgame人物演出</strong><p data-galgame-dialog-body></p><button type='button' data-galgame-dialog-close>知道了</button></section></div></div><span class='drag-edge top' data-phone-drag></span><span class='drag-edge right' data-phone-drag></span><span class='drag-edge bottom' data-phone-drag></span><span class='drag-edge left' data-phone-drag></span><span class='drag-grip' data-phone-drag aria-label='拖动手机'></span><aside class='sidecar'><button class='floor-toggle' type='button' aria-expanded='false'>楼层</button><button class='galgame-toggle' type='button' aria-pressed='false' disabled>Galgame --</button><span class='readonly'>历史楼层 · 只读；切回当前楼后才能操作</span><section class='floor-drawer'><span class='floor-title'></span><button class='mode' type='button'>跟随视口</button><select class='select' aria-label='选择变量楼层'></select><span class='badge'></span></section></aside></section>";
+        "<section class='panel' aria-label='HypnoOS 悬浮手机'><aside class='encounter-detail-host' aria-hidden='true'></aside><div class='phone-wrap'><iframe class='phone' title='HypnoOS 手机前端'></iframe><div class='galgame-dialog' role='dialog' aria-modal='true' aria-hidden='true' aria-labelledby='hypnoos-galgame-dialog-title'><section class='galgame-dialog__card'><strong id='hypnoos-galgame-dialog-title' data-galgame-dialog-title>Galgame人物演出</strong><p data-galgame-dialog-body></p><button type='button' data-galgame-dialog-close>知道了</button></section></div></div><span class='drag-edge top' data-phone-drag></span><span class='drag-edge right' data-phone-drag></span><span class='drag-edge bottom' data-phone-drag></span><span class='drag-edge left' data-phone-drag></span><span class='drag-grip' data-phone-drag aria-label='拖动手机'></span><aside class='sidecar'><button class='galgame-toggle' type='button' aria-pressed='false' disabled>Galgame --</button><section class='resource-panel loading' aria-label='当前楼层资源'><div class='resource-row money'><span>零花钱</span><strong data-resource-money>--</strong></div><div class='resource-row starlight'><span>星光点</span><strong data-resource-starlight>--</strong></div><div class='resource-row energy'><span>MC能量</span><strong data-resource-energy>--</strong></div></section><span class='readonly'>历史楼层 · 只读；切回当前楼后才能操作</span><section class='floor-drawer'><span class='floor-title'></span><button class='mode' type='button'>跟随视口</button><select class='select' aria-label='选择变量楼层'></select><span class='badge'></span></section><button class='floor-toggle' type='button' aria-expanded='false'>楼层</button></aside></section>";
       hostDocument.body.appendChild(shell);
       launcher = shadow.querySelector(".launcher");
       panel = shadow.querySelector(".panel");
@@ -1289,6 +1366,7 @@
       titleFloor = shadow.querySelector(".floor-title");
       galgameToggle = shadow.querySelector(".galgame-toggle");
       galgameDialog = shadow.querySelector(".galgame-dialog");
+      resourcePanel = shadow.querySelector(".resource-panel");
       encounterDetailHost = shadow.querySelector(".encounter-detail-host");
       galgameDialog?.querySelector("[data-galgame-dialog-close]")?.addEventListener("click", closeGalgameDialog);
       launcher.addEventListener("click", function (event) {
@@ -1518,6 +1596,7 @@
       var total = (Array.isArray(count) ? count.length : 0) + (String(note || "").trim() ? 1 : 0);
       var launcherBadge = shadow.querySelector(".launcher i");
       if (launcherBadge) launcherBadge.textContent = String(total);
+      refreshSidecarResources();
     }
 
     function refreshPhone() {
@@ -1625,6 +1704,7 @@
         ensureGalgameRenderer();
         ensureActionFoldRenderer();
         ensureShell();
+        subscribeSidecarResourceEvents();
         if (!selectedId || selectionMode === "follow") selectedId = writableId();
         scheduleMount(false);
         updateChrome();
@@ -1674,6 +1754,16 @@
         if (profileOpenTimer) host.clearTimeout(profileOpenTimer);
         profileOpenTimer = 0;
         pendingProfileRole = "";
+        resourceRefreshToken += 1;
+        resourceEventStops.splice(0).forEach(function (item) {
+          try {
+            if (typeof item.handle === "function") item.handle();
+            else item.handle?.stop?.() || item.handle?.unsubscribe?.() || item.handle?.off?.();
+            var off = findFunction("eventOff");
+            if (off) off.fn.call(off.view, item.eventName, item.handler);
+          } catch (_) {}
+        });
+        resourceEventsSubscribed = false;
         try { fetchController?.abort?.(); } catch (_) {}
         fetchController = null;
         try { galgameObserver && galgameObserver.disconnect(); } catch (_) {}
@@ -1698,6 +1788,7 @@
         galgameHydratorToken = "";
         hideEncounterDetail();
         encounterDetailHost = null;
+        resourcePanel = null;
         try {
           if (hostDocument[GALGAME_RUNTIME_KEY] && hostDocument[GALGAME_RUNTIME_KEY].registry === registryApi) {
             delete hostDocument[GALGAME_RUNTIME_KEY];
