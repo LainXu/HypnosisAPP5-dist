@@ -2372,10 +2372,11 @@
     const roles = root["角色"] = isPlainObject(root["角色"]) ? root["角色"] : {};
     const openingId = String(identity?.["互斥开场ID"] || "default");
     const templates = openingRoleTemplates();
+    system["当前年份"] = 2024;
     if (openingId === "police_done") {
       system["_警视厅线"] = 2;
       if (Object.prototype.hasOwnProperty.call(system, "_医院线")) system["_医院线"] = 0;
-      system["当前日期"] = "2024年4月10日";
+      system["当前日期"] = "4月10日";
       system["当前时间"] = "12:30";
       system["当前地点"] = "二年A组教室";
       system["当前事件"] = "午休前最后一节课刚下课，{{user}}和九鬼真白在教室里亲密相处，爱丽莎、深雪、阿宅也在附近。";
@@ -2385,7 +2386,7 @@
     if (openingId === "hospital_done") {
       system["_医院线"] = 2;
       if (Object.prototype.hasOwnProperty.call(system, "_警视厅线")) system["_警视厅线"] = 0;
-      system["当前日期"] = "2024年4月10日";
+      system["当前日期"] = "4月10日";
       system["当前时间"] = "11:20";
       system["当前地点"] = "综合医院";
       system["当前事件"] = "{{user}}向学校请假来到综合医院，正和犬冢穗波、天城纱良亲密相处。";
@@ -2395,7 +2396,7 @@
     }
     if (openingId === "alisa_party") {
       system["阿宅性别"] = "女";
-      system["当前日期"] = "2024年4月9日";
+      system["当前日期"] = "4月9日";
       system["当前时间"] = "18:30";
       system["当前地点"] = "西园寺爱丽莎的家";
       system["当前事件"] = "放学之后，{{user}}和爱丽莎、夏美、深雪、女性化后的阿宅在爱丽莎家里开派对。";
