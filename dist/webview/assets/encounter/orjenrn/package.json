@@ -4619,7 +4619,6 @@
         "ignoreBudget": false,
         "key": [
           "真白阿丽亚",
-          "真白",
           "阿丽亚"
         ],
         "keysecondary": [],
@@ -4646,7 +4645,6 @@
         "vectorized": false,
         "keys": [
           "真白阿丽亚",
-          "真白",
           "阿丽亚"
         ],
         "secondary_keys": [],
