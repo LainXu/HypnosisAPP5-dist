@@ -933,7 +933,7 @@
         </div>
         <span class="identity-badge" id="identityDifficulty">简单</span>
         <section class="identity-opening" aria-label="互斥开场">
-          <div class="identity-opening-title">互斥开场 <small>三选一，只在首楼写入</small></div>
+          <div class="identity-opening-title">互斥开场 <small>选择一个，只在首楼写入</small></div>
           <label class="identity-opening-choice">
             <input type="radio" name="identity-opening-choice" value="default" data-opening-choice checked>
             <span><strong>默认开场</strong><small>4限现代文刚下课，三位初始女角色自然出场。</small></span>
@@ -949,6 +949,10 @@
           <label class="identity-opening-choice">
             <input type="radio" name="identity-opening-choice" value="alisa_party" data-opening-choice>
             <span><strong>爱丽莎家派对</strong><small>不补角色世界书，阿宅女性化派对开场。</small></span>
+          </label>
+          <label class="identity-opening-choice">
+            <input type="radio" name="identity-opening-choice" value="pool_safe" data-opening-choice>
+            <span><strong>泳池</strong><small>警视厅与医院线均结束，七人在爱丽莎家的泳池活动。</small></span>
           </label>
         </section>
       </section>
@@ -1227,7 +1231,8 @@
     { id: "default", label: "默认开场", trigger: "HYPNOOS_OPENING_DEFAULT_V1" },
     { id: "police_done", label: "警视厅线结束", trigger: "HYPNOOS_OPENING_POLICE_DONE_V1" },
     { id: "hospital_done", label: "医院线结束", trigger: "HYPNOOS_OPENING_HOSPITAL_DONE_V1" },
-    { id: "alisa_party", label: "爱丽莎家派对", trigger: "HYPNOOS_OPENING_ALISA_PARTY_V1" }
+    { id: "alisa_party", label: "爱丽莎家派对", trigger: "HYPNOOS_OPENING_ALISA_PARTY_V1" },
+    { id: "pool_safe", label: "泳池", trigger: "HYPNOOS_OPENING_POOL_SAFE_V1" }
   ];
   const INITIAL_ROLE_NAMES = ["西园寺爱丽莎", "月咏深雪", "犬冢夏美", "阿宅"];
 
@@ -1360,7 +1365,7 @@
           "下衣": "同色校裙、深色袜与低跟鞋，衣着整洁到近乎刻板。"
         },
         info: {
-          "姓名": "九鬼真白", "年龄": "17", "社团或职业": "斋明学园二年级转校生（警视厅特别调查员伪装身份）",
+          "姓名": "九鬼真白", "_年龄": "17", "社团或职业": "斋明学园二年级转校生（警视厅特别调查员伪装身份）",
           "身高": "164cm", "体重": "49kg", "三围": "B84 / W57 / H85", "工作价值": 20, "绰号": "", "绰号已认可": false
         },
         mind: "我已经替{{user}}担保过，现在留在学园继续观察自己的选择；他不是监视期对象，而是我承认的搭档。"
@@ -1373,7 +1378,7 @@
           "下衣": "深色长裤与防滑工作鞋，步伐轻快但处理病人时很稳。"
         },
         info: {
-          "姓名": "犬冢穗波", "年龄": "39", "社团或职业": "综合医院外科医生（犬冢夏美之母）",
+          "姓名": "犬冢穗波", "_年龄": "39", "社团或职业": "综合医院外科医生（犬冢夏美之母）",
           "身高": "148cm", "体重": "41kg", "三围": "B82 / W54 / H81", "工作价值": 25, "绰号": "", "绰号已认可": false
         },
         mind: "夏美信任的人，我也已经看见了他的另一面。只要是我决定协助的事，就要把风险和结果一起负责。"
@@ -1386,7 +1391,7 @@
           "下衣": "同色护士裤与防滑工作鞋，高挑身形使她在人群中非常显眼。"
         },
         info: {
-          "姓名": "天城纱良", "年龄": "24", "社团或职业": "综合医院护士",
+          "姓名": "天城纱良", "_年龄": "24", "社团或职业": "综合医院护士",
           "身高": "204cm", "体重": "78kg", "三围": "B96 / W66 / H98", "工作价值": 12, "绰号": "", "绰号已认可": false
         },
         mind: "穗波医生已经愿意让我参与更深的事了，我不能再马虎；只要{{user}}需要，我就认真帮到底。"
@@ -1399,10 +1404,10 @@
           "下衣": "深色百褶裙和黑色过膝袜让她走路时格外拘谨，皮鞋普通，站姿仍习惯微微缩着肩。"
         },
         info: {
-          "姓名": "阿宅", "年龄": "17", "社团或职业": "归宅部 / 二次元爱好者（对外身份为阿宅妹妹）",
+          "姓名": "阿宅", "_年龄": "17", "社团或职业": "归宅部 / 二次元爱好者（对外身份为阿宅妹妹）",
           "身高": "162cm", "体重": "48kg", "三围": "B82 / W56 / H84", "工作价值": 2, "绰号": "", "绰号已认可": false
         },
-        mind: "我还是阿宅，只是现在连自己都像被塞进了新角色卡。既然大家都在爱丽莎家，我至少别把派对气氛弄坏。"
+        mind: "未记录"
       })
     };
   }
@@ -1695,6 +1700,14 @@
   }
 
   async function openingWorldbookEntriesForChoice(openingId) {
+    if (openingId === "pool_safe") {
+      const police = await openingWorldbookEntriesForChoice("police_done");
+      const hospital = await openingWorldbookEntriesForChoice("hospital_done");
+      if (police === null || hospital === null) return null;
+      const merged = new Map();
+      [...police, ...hospital].forEach((entry) => merged.set(openingEntryComment(entry), entry));
+      return Array.from(merged.values());
+    }
     if (openingId !== "police_done" && openingId !== "hospital_done") return [];
     const runtimeEntries = openingEntriesFromMainFrontendRuntime(openingId);
     if (runtimeEntries.length) return runtimeEntries;
@@ -2367,6 +2380,13 @@
     for (const [key, value] of Object.entries(patch || {})) role["状态"][key] = value;
   }
 
+  function setPoolRoleAppearance(role) {
+    if (!isPlainObject(role)) return;
+    role["衣着"] = isPlainObject(role["衣着"]) ? role["衣着"] : {};
+    role["衣着"]["上衣"] = "适合游泳活动的功能性泳装上身，离开水面时会披上防晒衣或浴巾。";
+    role["衣着"]["下衣"] = "与上衣配套的功能性泳装下身，池边穿防滑拖鞋。";
+  }
+
   function applyOpeningStateToRoot(root, identity) {
     const system = root["系统"] = isPlainObject(root["系统"]) ? root["系统"] : {};
     const roles = root["角色"] = isPlainObject(root["角色"]) ? root["角色"] : {};
@@ -2404,6 +2424,33 @@
         if (isPlainObject(roles[roleName])) setRoleState(roles[roleName], { "好感度": 100, "服从度": 100, "警戒度": 0, "是否派遣中": false });
       }
       roles["阿宅"] = cloneJson(templates["阿宅"]);
+      return;
+    }
+    if (openingId === "pool_safe") {
+      system["_警视厅线"] = 2;
+      system["_医院线"] = 2;
+      system["阿宅性别"] = "女";
+      system["当前日期"] = "4月10日";
+      system["当前时间"] = "15:30";
+      system["当前地点"] = "西园寺爱丽莎家的泳池";
+      system["当前事件"] = "{{user}}和爱丽莎、深雪、夏美、阿宅、九鬼真白、犬冢穗波、天城纱良在泳池进行游泳与休闲活动。";
+      roles["九鬼真白"] = cloneJson(templates["九鬼真白"]);
+      roles["犬冢穗波"] = cloneJson(templates["犬冢穗波"]);
+      roles["天城纱良"] = cloneJson(templates["天城纱良"]);
+      roles["阿宅"] = cloneJson(templates["阿宅"]);
+      for (const roleName of ["西园寺爱丽莎", "月咏深雪", "犬冢夏美", "阿宅", "九鬼真白", "犬冢穗波", "天城纱良"]) {
+        const role = roles[roleName];
+        if (!isPlainObject(role)) continue;
+        setRoleState(role, {
+          "好感度": 150,
+          "服从度": 150,
+          "警戒度": 0,
+          "性欲": 0,
+          "快感值": 0,
+          "是否派遣中": false
+        });
+        setPoolRoleAppearance(role);
+      }
       return;
     }
   }
@@ -2571,6 +2618,17 @@
         "</首楼开场选择>"
       ].join("\n");
     }
+    if (opening.id === "pool_safe") {
+      return [
+        "<首楼开场选择>",
+        "触发码: " + opening.trigger,
+        "开场: 警视厅线与医院线都已结束；阿宅已经变为女性，九鬼真白、犬冢穗波、天城纱良已由首楼前端写入完整角色变量与世界书。",
+        "关系: 西园寺爱丽莎、月咏深雪、犬冢夏美、阿宅、九鬼真白、犬冢穗波、天城纱良都已经与{{user}}建立稳定亲近和配合关系；正文不要说出好感度、服从度等数值。",
+        "固定场景: 2024年4月10日15:30，{{user}}和七人在西园寺爱丽莎家的泳池进行游泳与休闲活动。所有人穿适合活动的功能性泳装，按各自人设自然互动。",
+        "写法: 不要回放线路攻略过程，不要把活动情色化，也不要描写裸体、透视或身体暴露；直接从泳池活动切入。",
+        "</首楼开场选择>"
+      ].join("\n");
+    }
     return [
       "<首楼开场选择>",
       "触发码: " + opening.trigger,
@@ -2589,6 +2647,9 @@
     }
     if (opening.id === "hospital_done") {
       return "请从固定开场开始正文：当前日期2024年4月10日，当前时间11:20，地点为综合医院。医院线已经结束，{{user}}今天向学校请假来到医院，开场直接写{{user}}和犬冢穗波、天城纱良很亲密地相处；二人与{{user}}的亲近配合关系已是既定背景。不要说出数值，不要回放攻略过程，不要把场景拉回教室。不要重新展示身份选择界面，不要用/add或add路径新增角色变量，不要重复输出变量初始化。";
+    }
+    if (opening.id === "pool_safe") {
+      return "请从固定开场开始正文：当前日期2024年4月10日，当前时间15:30，地点为西园寺爱丽莎家的泳池。警视厅线和医院线都已结束，阿宅已经变为女性；{{user}}与西园寺爱丽莎、月咏深雪、犬冢夏美、阿宅、九鬼真白、犬冢穗波、天城纱良正在进行游泳与休闲活动。七人都穿适合活动的功能性泳装，并已与{{user}}建立稳定亲近和配合关系。不要说出数值，不要回放攻略过程，不要情色化场景，不要描写裸体、透视或身体暴露。不要重新展示身份选择界面，不要用/add或add路径新增角色变量，不要重复输出变量初始化。";
     }
     return "请从固定开场开始正文：当前时间12:30，午休前最后一节课（4限现代文）刚下课，地点为二年A组教室。西园寺爱丽莎、月咏深雪、犬冢夏美都在教室或走廊附近自然出场，并根据上面的$user身份形象做出不同第一反应；爱丽莎和阿宅之间需要有自然互动，例如青梅竹马式指挥、熟悉吐槽、一起去午休或阿宅被爱丽莎牵动节奏。不要重新展示身份选择界面，不要用/add或add路径新增角色变量，不要重复输出变量初始化。";
   }
