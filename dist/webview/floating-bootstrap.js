@@ -109,6 +109,7 @@
     var galgameDialog = null;
     var resourcePanel = null;
     var encounterDetailHost = null;
+    var profileNeighborHost = null;
     var galgameBusy = false;
     var selectedId = "";
     var selectionMode = "follow";
@@ -1158,15 +1159,17 @@
 
     function panelSidecarReserve(width) {
       var available = Math.max(0, host.innerWidth - Number(width || 0) - 24);
-      return Math.min(286, available);
+      return Math.min(panel?.classList?.contains("profile-neighbors") ? 354 : 286, available);
     }
 
     function clampPosition(x, y) {
       var width = panel ? panel.offsetWidth : Math.min(760, host.innerWidth - 24);
       var height = panel ? panel.offsetHeight : Math.min(900, host.innerHeight - 24);
       var sidecar = panelSidecarReserve(width);
+      var upperX = Math.max(8, host.innerWidth - width - sidecar - 8);
+      var lowerX = panel?.classList?.contains("profile-neighbors") && upperX >= 82 ? 82 : 8;
       return {
-        x: Math.max(8, Math.min(Number(x) || 8, Math.max(8, host.innerWidth - width - sidecar - 8))),
+        x: Math.max(lowerX, Math.min(Number(x) || lowerX, upperX)),
         y: Math.max(8, Math.min(Number(y) || 8, Math.max(8, host.innerHeight - height - 8)))
       };
     }
@@ -1214,7 +1217,8 @@
         ".launcher svg{width:28px;height:28px}.launcher i{position:absolute;right:-4px;top:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#f25aa6;color:white;font:800 11px/20px system-ui;text-align:center}",
         ".panel{pointer-events:auto;position:fixed;width:min(430px,calc(100vw - 16px));height:min(812px,calc(100vh - 16px));border:0;border-radius:38px;background:transparent;box-shadow:none;overflow:visible;z-index:2;display:none;isolation:isolate;--floor-sidecar-width:270px}",
         ".panel.open{display:block}",
-        ".phone-wrap{position:absolute;inset:0;border:1px solid rgba(221,184,255,.42);border-radius:inherit;background:#05070f;box-shadow:0 32px 110px rgba(0,0,0,.72),0 0 0 6px rgba(17,12,30,.72);overflow:hidden;isolation:isolate}.phone-wrap:after{content:'';position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09);pointer-events:none;z-index:8}.phone{display:block;width:100%;height:100%;border:0;background:transparent}",
+        ".phone-wrap{position:absolute;z-index:4;inset:0;border:1px solid rgba(221,184,255,.42);border-radius:inherit;background:#05070f;box-shadow:0 32px 110px rgba(0,0,0,.72),0 0 0 6px rgba(17,12,30,.72);overflow:hidden;isolation:isolate}.phone-wrap:after{content:'';position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09);pointer-events:none;z-index:8}.phone{display:block;width:100%;height:100%;border:0;background:transparent}",
+        ".profile-neighbor-host{position:absolute;z-index:2;inset:0;pointer-events:none}.profile-neighbor-rail{--rail-red:#ed1831;position:absolute;top:25%;width:114px;height:48%;min-height:270px;padding:0;border:3px solid #080808;background:#f4efe6;color:#080808;box-shadow:7px 8px 0 var(--rail-red),0 20px 34px rgba(0,0,0,.5);overflow:hidden;cursor:pointer;pointer-events:auto;display:none;isolation:isolate;touch-action:manipulation;transition:transform .28s cubic-bezier(.2,.85,.25,1),filter .2s ease}.panel.profile-neighbors .profile-neighbor-rail{display:block}.profile-neighbor-rail.prev{right:calc(100% - 42px);transform:perspective(420px) rotateY(18deg) rotate(-2deg);clip-path:polygon(0 4%,100% 0,95% 100%,6% 95%)}.profile-neighbor-rail.next{left:calc(100% - 42px);transform:perspective(420px) rotateY(-18deg) rotate(2deg);clip-path:polygon(5% 0,100% 4%,94% 95%,0 100%)}.profile-neighbor-rail:before{content:attr(data-kicker);position:absolute;z-index:3;top:10px;padding:5px 9px;background:#080808;color:#fff;font:950 10px/1 Impact,'Arial Black',sans-serif;letter-spacing:.12em}.profile-neighbor-rail.prev:before{left:8px}.profile-neighbor-rail.next:before{right:8px}.profile-neighbor-rail img,.profile-neighbor-rail__empty{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover;object-position:center 18%;background:#d7d1c8;filter:saturate(.72) contrast(1.08)}.profile-neighbor-rail__empty{display:grid;place-items:center;font:950 38px/1 Impact,sans-serif}.profile-neighbor-rail strong{position:absolute;z-index:3;left:7px;right:7px;bottom:12px;padding:6px 5px;background:#080808;color:#fff;font:950 11px/1.2 'Arial Black','Noto Sans SC',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:3px 3px 0 var(--rail-red)}.profile-neighbor-rail:hover{filter:brightness(1.06)}.profile-neighbor-rail.prev:hover{transform:translateX(-8px) perspective(420px) rotateY(10deg) rotate(-1deg)}.profile-neighbor-rail.next:hover{transform:translateX(8px) perspective(420px) rotateY(-10deg) rotate(1deg)}.panel.profile-neighbors .sidecar{left:calc(100% + 88px)}.panel.profile-turning .profile-neighbor-rail.prev{transform:translateX(26px) scale(1.08) perspective(420px) rotateY(-4deg) rotate(3deg)}.panel.profile-turning .profile-neighbor-rail.next{transform:translateX(-26px) scale(1.08) perspective(420px) rotateY(4deg) rotate(-3deg)}",
         ".encounter-detail-host{--ed-red:#ef1b2d;position:absolute;z-index:18;right:calc(100% + 16px);top:20px;width:500px;max-height:calc(100% - 40px);display:none;overflow:auto;pointer-events:auto;color:#fff;font-family:Impact,'Arial Black','Noto Sans SC',system-ui;filter:drop-shadow(0 28px 45px rgba(0,0,0,.5));scrollbar-width:thin;scrollbar-color:#ef1b2d #080808}.encounter-detail-host.open{display:block}.encounter-detail-host__frame{position:relative;min-height:620px;overflow:hidden;border:5px solid #080808;background:#f3eee4;clip-path:polygon(3% 0,100% 3%,97% 94%,86% 91%,79% 100%,4% 96%,0 12%);isolation:isolate}.encounter-detail-host__frame:before{content:'';position:absolute;inset:-20%;z-index:-3;background:repeating-linear-gradient(113deg,transparent 0 22px,rgba(0,0,0,.08) 23px 25px),radial-gradient(circle at 18% 22%,#ef1b2d 0 3%,transparent 3.3%),linear-gradient(145deg,#eee7dc 0 38%,#d9d1c6 38% 45%,#f7f3ea 45% 100%)}.encounter-detail-host__frame:after{content:'';position:absolute;z-index:-2;left:-18%;right:16%;bottom:-22%;height:66%;background:#080808;transform:rotate(-8deg);clip-path:polygon(0 12%,100% 0,86% 100%,8% 84%)}.encounter-detail-host__close{position:absolute;z-index:8;right:18px;top:18px;width:46px;height:42px;border:4px solid #080808;background:#ef1b2d;color:#fff;font:950 24px/1 Impact,'Arial Black',sans-serif;transform:rotate(3deg);cursor:pointer;box-shadow:6px 6px 0 #080808}.encounter-detail-host__kicker{display:inline-block;margin:28px 0 0 26px;padding:5px 18px;background:#080808;color:#fff;font:950 14px/1 Impact,'Arial Black','Noto Sans SC',sans-serif;letter-spacing:.12em;transform:rotate(-3deg);clip-path:polygon(4% 0,100% 8%,94% 100%,0 84%)}.encounter-detail-host__name{position:relative;z-index:2;margin:10px 58px 0 24px;color:#080808;font:950 clamp(30px,4vw,54px)/.92 Impact,'Arial Black','Noto Sans SC',sans-serif;letter-spacing:.02em;text-transform:uppercase;transform:rotate(-2deg);text-shadow:3px 3px 0 #fff,6px 6px 0 #ef1b2d;overflow-wrap:anywhere}.encounter-detail-host__alias{display:inline-block;margin:10px 0 0 32px;padding:5px 13px;background:#ef1b2d;color:#fff;font:900 13px/1.2 system-ui;transform:rotate(1deg)}.encounter-detail-host__visual{position:relative;height:285px;margin:8px 18px 0;overflow:hidden;clip-path:polygon(3% 8%,94% 0,100% 88%,8% 100%,0 55%);background:#080808}.encounter-detail-host__visual img{width:100%;height:100%;display:block;object-fit:cover;object-position:center 18%;filter:saturate(.8) contrast(1.14)}.encounter-detail-host__visual:after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,rgba(239,27,45,.45),transparent 34%,transparent 70%,rgba(0,0,0,.5)),repeating-linear-gradient(0deg,transparent 0 4px,rgba(255,255,255,.07) 5px);mix-blend-mode:screen;pointer-events:none}.encounter-detail-host__source{position:absolute;z-index:4;right:16px;bottom:18px;max-width:70%;padding:7px 13px;background:#fff;color:#080808;border:3px solid #080808;font:950 12px/1.2 system-ui;transform:rotate(-2deg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.encounter-detail-host__body{position:relative;z-index:3;margin:-18px 26px 30px;padding:22px 18px 18px;background:#ef1b2d;color:#fff;clip-path:polygon(0 7%,100% 0,96% 100%,5% 94%);transform:rotate(.5deg)}.encounter-detail-host__intro{margin:0 0 13px;font:750 13px/1.65 system-ui;white-space:pre-wrap}.encounter-detail-host__facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.encounter-detail-host__fact{min-width:0;padding:8px 9px;background:#080808;color:#fff;transform:skew(-4deg)}.encounter-detail-host__fact span{display:block;color:#ff9aa4;font:850 9px/1.2 system-ui;letter-spacing:.08em}.encounter-detail-host__fact strong{display:block;margin-top:3px;font:850 12px/1.3 system-ui;overflow-wrap:anywhere}.encounter-detail-host__thumbs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin:0 27px 28px}.encounter-detail-host__thumbs img{width:100%;aspect-ratio:1/1;object-fit:cover;border:3px solid #080808;background:#ddd;transform:rotate(var(--thumb-tilt,0deg))}.encounter-detail-host__empty{display:grid;height:100%;place-items:center;color:#fff;font:950 54px/1 Impact,sans-serif;background:repeating-linear-gradient(135deg,#080808 0 18px,#ef1b2d 19px 34px)}",
         ".encounter-detail-host{padding:6px 0 16px;overscroll-behavior:contain}.encounter-detail-host__frame{clip-path:polygon(1% 0,100% 1%,99% 98%,87% 97%,82% 100%,1% 99%,0 4%);padding-bottom:30px}.encounter-detail-host__body{margin:-10px 24px 22px;padding:34px 20px 30px;clip-path:polygon(0 2%,100% 0,98% 100%,2% 98%);transform:none}.encounter-detail-host__thumbs{margin-bottom:8px;padding-bottom:8px}",
         ".sidecar{position:absolute;z-index:12;left:calc(100% + 14px);top:12px;width:var(--floor-sidecar-width);display:grid;grid-template-columns:minmax(0,1fr);justify-items:start;gap:8px;pointer-events:none}",
@@ -1232,7 +1236,7 @@
         ".mode{height:32px;padding:0 10px;border:1px solid rgba(201,155,232,.34);border-radius:10px;background:rgba(24,21,43,.5);backdrop-filter:blur(10px);color:#efe4f8;font:750 10px system-ui;cursor:pointer}",
         ".badge{grid-column:1/-1;min-height:28px;padding:6px 9px;border-radius:9px;display:flex;align-items:center;background:rgba(19,78,59,.32);backdrop-filter:blur(10px);border:1px solid rgba(51,211,153,.32);color:#a7f3d0;font:800 10px/1.25 system-ui}.badge.history{background:rgba(76,48,13,.34);border-color:rgba(251,191,36,.3);color:#fde68a}",
         "@media(max-width:980px){.encounter-detail-host{position:fixed;left:8px;right:auto;top:8px;width:min(440px,calc(100vw - 16px));max-height:calc(100vh - 16px)}}",
-        "@media(max-width:760px){.panel{--floor-sidecar-width:clamp(104px,28vw,220px);width:min(430px,calc(100vw - var(--floor-sidecar-width) - 30px))}.sidecar{left:calc(100% + 10px)}.floor-toggle,.galgame-toggle,.resource-panel{width:min(128px,100%);min-width:0}.floor-toggle,.galgame-toggle{padding-inline:8px}.floor-drawer{grid-template-columns:minmax(0,1fr)}.floor-title,.mode,.select,.badge{grid-column:1/-1;width:100%}.encounter-detail-host__frame{min-height:560px}}"
+        "@media(max-width:760px){.panel{--floor-sidecar-width:clamp(104px,28vw,220px);width:min(430px,calc(100vw - var(--floor-sidecar-width) - 30px))}.profile-neighbor-rail{width:84px;min-height:220px}.profile-neighbor-rail.prev{right:calc(100% - 34px)}.profile-neighbor-rail.next{left:calc(100% - 34px)}.panel.profile-neighbors .sidecar{left:calc(100% + 58px)}.sidecar{left:calc(100% + 10px)}.floor-toggle,.galgame-toggle,.resource-panel{width:min(128px,100%);min-width:0}.floor-toggle,.galgame-toggle{padding-inline:8px}.floor-drawer{grid-template-columns:minmax(0,1fr)}.floor-title,.mode,.select,.badge{grid-column:1/-1;width:100%}.encounter-detail-host__frame{min-height:560px}}"
       ].join("");
     }
 
@@ -1241,6 +1245,31 @@
       encounterDetailHost.classList.remove("open");
       encounterDetailHost.setAttribute("aria-hidden", "true");
       encounterDetailHost.innerHTML = "";
+    }
+
+    function updateProfileNeighbors(payload) {
+      ensureShell();
+      if (!panel || !profileNeighborHost) return false;
+      var data = payload && typeof payload === "object" ? payload : null;
+      var visible = Boolean(data && data.visible && data.prev && data.next);
+      panel.classList.toggle("profile-neighbors", visible);
+      ["prev", "next"].forEach(function (direction) {
+        var button = profileNeighborHost.querySelector("[data-profile-neighbor='" + direction + "']");
+        if (!button) return;
+        var item = visible && data[direction] && typeof data[direction] === "object" ? data[direction] : {};
+        var name = textId(item.name);
+        var photo = textId(item.photo);
+        var signature = name + "\u0001" + photo;
+        button.setAttribute("aria-label", (direction === "prev" ? "上一个角色：" : "下一个角色：") + (name || "未命名角色"));
+        if (button.dataset.signature === signature) return;
+        button.dataset.signature = signature;
+        button.innerHTML = (photo
+          ? "<img alt='' decoding='async' src='" + escapeHtml(photo) + "'>"
+          : "<span class='profile-neighbor-rail__empty' aria-hidden='true'>" + escapeHtml((name || "?").slice(0, 1)) + "</span>") +
+          "<strong>" + escapeHtml(name || "未命名角色") + "</strong>";
+      });
+      if (visible) applySavedPosition();
+      return visible;
     }
 
     function showEncounterDetail(payload) {
@@ -1306,6 +1335,7 @@
         "globalThis.getChatMessages=function(){return r.callApi('getChatMessages',Array.prototype.slice.call(arguments))||[]};" +
         "globalThis.setChatMessages=function(){return r.guardedApi('setChatMessages',Array.prototype.slice.call(arguments))};" +
         "globalThis.getContext=function(){return r.getContext()};" +
+        "globalThis.__ST_HYPNOOS_UPDATE_PROFILE_NEIGHBORS__=function(p){return r.updateProfileNeighbors(p)};" +
         "globalThis.SillyTavern={getContext:function(){return r.getContext()},getCurrentChatId:function(){return r.getCurrentChatId()}};" +
         "var sourceMvu=r.getMvu();globalThis.Mvu={events:sourceMvu&&sourceMvu.events||{},getMvuData:function(o){return r.readMvu('getMvuData',[option(o)])},replaceMvuData:function(m,o){return r.guardedMvu('replaceMvuData',[m,writeOption(o)])},setMvuVariable:function(){return r.guardedMvu('setMvuVariable',Array.prototype.slice.call(arguments))}};" +
         "['eventOn','getCharWorldbookNames','getWorldbook'].forEach(function(n){globalThis[n]=function(){return r.callApi(n,Array.prototype.slice.call(arguments))}});" +
@@ -1318,6 +1348,7 @@
       var currentWritable = writableId();
       if (!frame || (!force && frame.dataset.loadedFor === currentWritable)) return;
       if (!config.frontendUrl) return;
+      updateProfileNeighbors(null);
       frame.dataset.loadedFor = currentWritable;
       loadedForWritableId = currentWritable;
       try { fetchController?.abort?.(); } catch (_) {}
@@ -1355,7 +1386,7 @@
       shadow = shell.attachShadow({ mode: "open" });
       shadow.innerHTML = "<style>" + shellCss() + "</style>" +
         "<button class='launcher' type='button' aria-label='打开悬浮手机'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8'><rect x='6' y='2.5' width='12' height='19' rx='3'/><path d='M10 5h4M11 18.5h2'/></svg><i>0</i></button>" +
-        "<section class='panel' aria-label='HypnoOS 悬浮手机'><aside class='encounter-detail-host' aria-hidden='true'></aside><div class='phone-wrap'><iframe class='phone' title='HypnoOS 手机前端'></iframe><div class='galgame-dialog' role='dialog' aria-modal='true' aria-hidden='true' aria-labelledby='hypnoos-galgame-dialog-title'><section class='galgame-dialog__card'><strong id='hypnoos-galgame-dialog-title' data-galgame-dialog-title>Galgame人物演出</strong><p data-galgame-dialog-body></p><button type='button' data-galgame-dialog-close>知道了</button></section></div></div><span class='drag-edge top' data-phone-drag></span><span class='drag-edge right' data-phone-drag></span><span class='drag-edge bottom' data-phone-drag></span><span class='drag-edge left' data-phone-drag></span><span class='drag-grip' data-phone-drag aria-label='拖动手机'></span><aside class='sidecar'><button class='galgame-toggle' type='button' aria-pressed='false' disabled>Galgame --</button><section class='resource-panel loading' aria-label='当前楼层资源'><div class='resource-row money'><span>零花钱</span><strong data-resource-money>--</strong></div><div class='resource-row starlight'><span>星光点</span><strong data-resource-starlight>--</strong></div><div class='resource-row energy'><span>MC能量</span><strong data-resource-energy>--</strong></div></section><span class='readonly'>历史楼层 · 只读；切回当前楼后才能操作</span><button class='floor-toggle' type='button' aria-expanded='false'>楼层</button><section class='floor-drawer'><span class='floor-title'></span><button class='mode' type='button'>跟随视口</button><select class='select' aria-label='选择变量楼层'></select><span class='badge'></span></section></aside></section>";
+        "<section class='panel' aria-label='HypnoOS 悬浮手机'><aside class='encounter-detail-host' aria-hidden='true'></aside><aside class='profile-neighbor-host' aria-label='相邻人物档案'><button class='profile-neighbor-rail prev' type='button' data-kicker='PREV' data-profile-neighbor='prev'></button><button class='profile-neighbor-rail next' type='button' data-kicker='NEXT' data-profile-neighbor='next'></button></aside><div class='phone-wrap'><iframe class='phone' title='HypnoOS 手机前端'></iframe><div class='galgame-dialog' role='dialog' aria-modal='true' aria-hidden='true' aria-labelledby='hypnoos-galgame-dialog-title'><section class='galgame-dialog__card'><strong id='hypnoos-galgame-dialog-title' data-galgame-dialog-title>Galgame人物演出</strong><p data-galgame-dialog-body></p><button type='button' data-galgame-dialog-close>知道了</button></section></div></div><span class='drag-edge top' data-phone-drag></span><span class='drag-edge right' data-phone-drag></span><span class='drag-edge bottom' data-phone-drag></span><span class='drag-edge left' data-phone-drag></span><span class='drag-grip' data-phone-drag aria-label='拖动手机'></span><aside class='sidecar'><button class='galgame-toggle' type='button' aria-pressed='false' disabled>Galgame --</button><section class='resource-panel loading' aria-label='当前楼层资源'><div class='resource-row money'><span>零花钱</span><strong data-resource-money>--</strong></div><div class='resource-row starlight'><span>星光点</span><strong data-resource-starlight>--</strong></div><div class='resource-row energy'><span>MC能量</span><strong data-resource-energy>--</strong></div></section><span class='readonly'>历史楼层 · 只读；切回当前楼后才能操作</span><button class='floor-toggle' type='button' aria-expanded='false'>楼层</button><section class='floor-drawer'><span class='floor-title'></span><button class='mode' type='button'>跟随视口</button><select class='select' aria-label='选择变量楼层'></select><span class='badge'></span></section></aside></section>";
       hostDocument.body.appendChild(shell);
       launcher = shadow.querySelector(".launcher");
       panel = shadow.querySelector(".panel");
@@ -1368,6 +1399,16 @@
       galgameDialog = shadow.querySelector(".galgame-dialog");
       resourcePanel = shadow.querySelector(".resource-panel");
       encounterDetailHost = shadow.querySelector(".encounter-detail-host");
+      profileNeighborHost = shadow.querySelector(".profile-neighbor-host");
+      profileNeighborHost?.querySelectorAll("[data-profile-neighbor]")?.forEach(function (button) {
+        button.addEventListener("click", function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          panel.classList.add("profile-turning");
+          phoneApi("__ST_HYPNOOS_PROFILE_NAV__", [button.getAttribute("data-profile-neighbor")], false);
+          host.setTimeout(function () { panel?.classList?.remove("profile-turning"); }, 430);
+        });
+      });
       galgameDialog?.querySelector("[data-galgame-dialog-close]")?.addEventListener("click", closeGalgameDialog);
       launcher.addEventListener("click", function (event) {
         event.preventDefault();
@@ -1536,6 +1577,7 @@
         syncGalgameState();
       } else {
         hideEncounterDetail();
+        updateProfileNeighbors(null);
         var drawer = shadow.querySelector(".floor-drawer");
         var toggle = shadow.querySelector(".floor-toggle");
         if (drawer) drawer.classList.remove("open");
@@ -1749,6 +1791,7 @@
       openProfileRole: openProfileRole,
       showEncounterDetail: showEncounterDetail,
       hideEncounterDetail: hideEncounterDetail,
+      updateProfileNeighbors: updateProfileNeighbors,
       updateChrome: updateChrome,
       destroy: function () {
         if (mountTimer) host.clearTimeout(mountTimer);
@@ -1789,7 +1832,9 @@
         galgameHydrator = null;
         galgameHydratorToken = "";
         hideEncounterDetail();
+        updateProfileNeighbors(null);
         encounterDetailHost = null;
+        profileNeighborHost = null;
         resourcePanel = null;
         try {
           if (hostDocument[GALGAME_RUNTIME_KEY] && hostDocument[GALGAME_RUNTIME_KEY].registry === registryApi) {
