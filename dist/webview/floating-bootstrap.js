@@ -1551,7 +1551,9 @@
         var openProfile = phoneWindow && phoneWindow.__ST_OPEN_PROFILE_APP__;
         if (typeof openProfile !== "function") return false;
         pendingProfileRole = "";
-        openProfile("clothing", name);
+        // Galgame 头像只指定角色，不覆盖人物档案最近记住的常规/深层
+        // 分组与具体页面。首次使用仍由人物档案自身回退到“衣着”。
+        openProfile("", name);
         return true;
       } catch (_) { return false; }
     }
