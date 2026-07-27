@@ -951,7 +951,7 @@
             <span><strong>爱丽莎家派对</strong><small>不补角色世界书，阿宅女性化派对开场。</small></span>
           </label>
           <label class="identity-opening-choice">
-            <input type="radio" name="identity-opening-choice" value="pool_safe" data-opening-choice>
+            <input type="radio" name="identity-opening-choice" value="pool" data-opening-choice>
             <span><strong>泳池</strong><small>警视厅与医院线均结束，七人在爱丽莎家的泳池活动。</small></span>
           </label>
         </section>
@@ -1232,7 +1232,7 @@
     { id: "police_done", label: "警视厅线结束", trigger: "HYPNOOS_OPENING_POLICE_DONE_V1" },
     { id: "hospital_done", label: "医院线结束", trigger: "HYPNOOS_OPENING_HOSPITAL_DONE_V1" },
     { id: "alisa_party", label: "爱丽莎家派对", trigger: "HYPNOOS_OPENING_ALISA_PARTY_V1" },
-    { id: "pool_safe", label: "泳池", trigger: "HYPNOOS_OPENING_POOL_SAFE_V1" }
+    { id: "pool", label: "泳池", trigger: "HYPNOOS_OPENING_POOL_V1" }
   ];
   const INITIAL_ROLE_NAMES = ["西园寺爱丽莎", "月咏深雪", "犬冢夏美", "阿宅"];
 
@@ -1743,7 +1743,7 @@
   }
 
   async function openingWorldbookEntriesForChoice(openingId) {
-    if (openingId === "pool_safe") {
+    if (openingId === "pool") {
       const police = await openingWorldbookEntriesForChoice("police_done");
       const hospital = await openingWorldbookEntriesForChoice("hospital_done");
       if (police === null || hospital === null) return null;
@@ -2514,7 +2514,7 @@
       roles["阿宅"] = cloneJson(templates["阿宅"]);
       return;
     }
-    if (openingId === "pool_safe") {
+    if (openingId === "pool") {
       system["_警视厅线"] = 2;
       system["_医院线"] = 2;
       system["阿宅性别"] = "女";
@@ -2706,14 +2706,14 @@
         "</首楼开场选择>"
       ].join("\n");
     }
-    if (opening.id === "pool_safe") {
+    if (opening.id === "pool") {
       return [
         "<首楼开场选择>",
         "触发码: " + opening.trigger,
         "开场: 警视厅线与医院线都已结束；阿宅已经变为女性，九鬼真白、犬冢穗波、天城纱良已由首楼前端写入完整角色变量与世界书。",
         "关系: 西园寺爱丽莎、月咏深雪、犬冢夏美、阿宅、九鬼真白、犬冢穗波、天城纱良都已经与{{user}}建立稳定亲近和配合关系；正文不要说出好感度、服从度等数值。",
         "固定场景: 2024年4月10日15:30，{{user}}和七人在西园寺爱丽莎家的泳池进行游泳与休闲活动。犬冢穗波、天城纱良两名成年人已经脱下泳装后裸体下水，其余五人穿适合活动的功能性泳装；按各自人设自然互动。",
-        "写法: 不要回放线路攻略过程，不要把裸体情色化，也不要描写身体细节、透视或性行为；只把两名成年人的裸体作为当前衣着事实，直接从泳池活动切入。",
+        "写法: 不要回放线路攻略过程；直接从泳池活动切入，按各自人设、关系和当前情境自然互动。",
         "</首楼开场选择>"
       ].join("\n");
     }
@@ -2736,8 +2736,8 @@
     if (opening.id === "hospital_done") {
       return "请从固定开场开始正文：当前日期2024年4月10日，当前时间11:20，地点为综合医院。医院线已经结束，{{user}}今天向学校请假来到医院，开场直接写{{user}}和犬冢穗波、天城纱良很亲密地相处；二人与{{user}}的亲近配合关系已是既定背景。不要说出数值，不要回放攻略过程，不要把场景拉回教室。不要重新展示身份选择界面，不要用/add或add路径新增角色变量，不要重复输出变量初始化。";
     }
-    if (opening.id === "pool_safe") {
-      return "请从固定开场开始正文：当前日期2024年4月10日，当前时间15:30，地点为西园寺爱丽莎家的泳池。警视厅线和医院线都已结束，阿宅已经变为女性；{{user}}与西园寺爱丽莎、月咏深雪、犬冢夏美、阿宅、九鬼真白、犬冢穗波、天城纱良正在进行游泳与休闲活动。犬冢穗波、天城纱良两名成年人裸体下水，其余五人穿适合活动的功能性泳装；七人都已与{{user}}建立稳定亲近和配合关系。不要说出数值，不要回放攻略过程，不要情色化裸体，不描写身体细节、透视或性行为。不要重新展示身份选择界面，不要用/add或add路径新增角色变量，不要重复输出变量初始化。";
+    if (opening.id === "pool") {
+      return "请从固定开场开始正文：当前日期2024年4月10日，当前时间15:30，地点为西园寺爱丽莎家的泳池。警视厅线和医院线都已结束，阿宅已经变为女性；{{user}}与西园寺爱丽莎、月咏深雪、犬冢夏美、阿宅、九鬼真白、犬冢穗波、天城纱良正在进行游泳与休闲活动。犬冢穗波、天城纱良两名成年人裸体下水，其余五人穿适合活动的功能性泳装；七人都已与{{user}}建立稳定亲近和配合关系。不要说出数值，不要回放攻略过程，按各自人设、关系和当前情境自然互动。不要重新展示身份选择界面，不要用/add或add路径新增角色变量，不要重复输出变量初始化。";
     }
     return "请从固定开场开始正文：当前时间12:30，午休前最后一节课（4限现代文）刚下课，地点为二年A组教室。西园寺爱丽莎、月咏深雪、犬冢夏美都在教室或走廊附近自然出场，并根据上面的$user身份形象做出不同第一反应；爱丽莎和阿宅之间需要有自然互动，例如青梅竹马式指挥、熟悉吐槽、一起去午休或阿宅被爱丽莎牵动节奏。不要重新展示身份选择界面，不要用/add或add路径新增角色变量，不要重复输出变量初始化。";
   }
