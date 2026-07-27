@@ -754,6 +754,63 @@
       return mvu[name].apply(mvu, Array.isArray(args) ? args : []);
     }
 
+    async function ensureOpeningWorldbooks(entries, fallbackName) {
+      var requested = Array.isArray(entries) ? entries.filter(function (entry) {
+        return entry && typeof entry === "object" && String(entry.name || entry.comment || "").trim();
+      }) : [];
+      if (!requested.length) return { ok: true, skipped: true, inserted: 0, existing: 0 };
+      try {
+        var books = await Promise.resolve(callApi("getCharWorldbookNames", ["current"])) || {};
+        var worldName = textId(books.primary || books.primary_world || books.world || books.name);
+        if (!worldName) {
+          worldName = textId(fallbackName) || "当前角色卡 邂逅世界书";
+          var createWorldbook = findFunction("createWorldbook");
+          var rebindWorldbooks = findFunction("rebindCharWorldbooks");
+          if (!createWorldbook || !rebindWorldbooks) {
+            return { ok: false, reason: "角色卡尚未绑定世界书，且宿主缺少绑定接口。" };
+          }
+          try {
+            await Promise.resolve(createWorldbook.fn.call(createWorldbook.view, worldName, []));
+          } catch (_) {}
+          await Promise.resolve(rebindWorldbooks.fn.call(rebindWorldbooks.view, "current", {
+            primary: worldName,
+            additional: Array.isArray(books.additional) ? books.additional : []
+          }));
+        }
+        var current = await Promise.resolve(callApi("getWorldbook", [worldName]));
+        var currentEntries = Array.isArray(current)
+          ? current
+          : (current && typeof current === "object"
+            ? (Array.isArray(current.entries) ? current.entries : Object.values(current.entries || current.entry || current.world_info || {}))
+            : []);
+        var existing = 0;
+        var pending = [];
+        for (var i = 0; i < requested.length; i += 1) {
+          var entry = requested[i];
+          var comment = textId(entry.name || entry.comment || entry.extra && entry.extra.comment);
+          var found = currentEntries.find(function (item) {
+            return textId(item && (item.comment || item.name || item.extra && item.extra.comment)) === comment;
+          });
+          if (!found) {
+            pending.push(entry);
+            continue;
+          }
+          if (String(found.content || "") !== String(entry.content || "")) {
+            return { ok: false, reason: "角色卡世界书已有同名但内容不同的条目：" + comment };
+          }
+          existing += 1;
+        }
+        if (pending.length) {
+          var createEntries = findFunction("createWorldbookEntries");
+          if (!createEntries) return { ok: false, reason: "宿主缺少世界书条目写入接口。" };
+          await Promise.resolve(createEntries.fn.call(createEntries.view, worldName, pending, { render: "immediate" }));
+        }
+        return { ok: true, inserted: pending.length, existing: existing, targetWorldbook: worldName, method: "host-bridge" };
+      } catch (error) {
+        return { ok: false, reason: String(error && error.message || error || "宿主写入世界书失败。") };
+      }
+    }
+
     function cloneSnapshot(value) {
       if (!value || typeof value !== "object") return value;
       try {
@@ -1427,7 +1484,7 @@
         "globalThis.SillyTavern={getContext:function(){return r.getContext()},getCurrentChatId:function(){return r.getCurrentChatId()}};" +
         "var sourceMvu=r.getMvu();globalThis.Mvu={events:sourceMvu&&sourceMvu.events||{},getMvuData:function(o){return r.readMvu('getMvuData',[option(o)])},replaceMvuData:function(m,o){return r.guardedMvu('replaceMvuData',[m,writeOption(o)])},setMvuVariable:function(){return r.guardedMvu('setMvuVariable',Array.prototype.slice.call(arguments))}};" +
         "['eventOn','getCharWorldbookNames','getWorldbook'].forEach(function(n){globalThis[n]=function(){return r.callApi(n,Array.prototype.slice.call(arguments))}});" +
-        "['createWorldbook','createWorldbookEntries','createWorldInfoEntry','replaceWorldbook','updateWorldbookWith'].forEach(function(n){globalThis[n]=function(){return r.guardedApi(n,Array.prototype.slice.call(arguments))}});" +
+        "['createWorldbook','createWorldbookEntries','createWorldInfoEntry','replaceWorldbook','updateWorldbookWith','rebindCharWorldbooks'].forEach(function(n){globalThis[n]=function(){return r.guardedApi(n,Array.prototype.slice.call(arguments))}});" +
         "})();</scr" + "ipt>";
     }
 
@@ -1896,6 +1953,7 @@
       updateProfileNeighbors: updateProfileNeighbors,
       updateProfilePossession: updateProfilePossession,
       updateHypnosisPerch: updateHypnosisPerch,
+      ensureOpeningWorldbooks: ensureOpeningWorldbooks,
       updateChrome: updateChrome,
       destroy: function () {
         if (mountTimer) host.clearTimeout(mountTimer);
@@ -1955,12 +2013,27 @@
         try { host.removeEventListener("pointermove", moveDrag, true); } catch (_) {}
         try { host.removeEventListener("pointerup", endDrag, true); } catch (_) {}
         try { host.removeEventListener("pointercancel", endDrag, true); } catch (_) {}
+        try { host.removeEventListener("message", openingWorldbookMessageHandler); } catch (_) {}
         try { shell?.remove?.(); } catch (_) {}
         stageSubscribers.clear();
         owners.clear();
         ownerOrder = [];
       }
     };
+    var openingWorldbookMessageHandler = function (event) {
+      var payload = event && event.data;
+      if (!payload || payload.type !== "ST_HYPNOOS_OPENING_WORLDINFO_REQUEST" || !payload.requestId) return;
+      Promise.resolve(ensureOpeningWorldbooks(payload.entries, payload.fallbackName)).then(function (result) {
+        try {
+          event.source?.postMessage?.({
+            type: "ST_HYPNOOS_OPENING_WORLDINFO_RESPONSE",
+            requestId: payload.requestId,
+            result: result
+          }, "*");
+        } catch (_) {}
+      });
+    };
+    try { host.addEventListener("message", openingWorldbookMessageHandler); } catch (_) {}
     return registryApi;
   }
 

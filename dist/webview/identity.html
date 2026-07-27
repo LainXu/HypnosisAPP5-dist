@@ -1968,6 +1968,40 @@
     return null;
   }
 
+  async function openingInsertWorldbooksWithHostBridge(entries) {
+    const target = window.parent && window.parent !== window ? window.parent : window.top;
+    if (!target || target === window) return null;
+    const requestId = "opening-worldinfo-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2);
+    const payload = {
+      type: "ST_HYPNOOS_OPENING_WORLDINFO_REQUEST",
+      requestId,
+      fallbackName: openingDefaultWorldbookName(),
+      entries: entries.map(openingToTavernHelperEntry)
+    };
+    return await new Promise((resolve) => {
+      let settled = false;
+      const finish = (value) => {
+        if (settled) return;
+        settled = true;
+        window.clearTimeout(timer);
+        window.removeEventListener("message", receive);
+        resolve(value);
+      };
+      const receive = (event) => {
+        const data = event?.data;
+        if (data?.type !== "ST_HYPNOOS_OPENING_WORLDINFO_RESPONSE" || data?.requestId !== requestId) return;
+        finish(data.result && typeof data.result === "object" ? data.result : null);
+      };
+      const timer = window.setTimeout(() => finish(null), 8000);
+      window.addEventListener("message", receive);
+      try {
+        target.postMessage(payload, "*");
+      } catch {
+        finish(null);
+      }
+    });
+  }
+
   async function openingImportWorldInfoModule(win) {
     if (!openingHasWorldInfoContext(win)) return null;
     const attempts = [
@@ -2100,6 +2134,8 @@
     const entries = await openingWorldbookEntriesForChoice(openingId);
     if (entries === null) return { ok: false, reason: "完整线路世界书源不可用，已阻止插入缩略版。" };
     if (!entries.length) return { ok: true, skipped: true };
+    const hostBridge = await openingInsertWorldbooksWithHostBridge(entries);
+    if (hostBridge?.ok) return hostBridge;
     const tavernHelper = await openingInsertWorldbooksWithTavernHelper(entries);
     if (tavernHelper?.ok) return tavernHelper;
     const sillyTavern = await openingInsertWorldbooksWithSillyTavern(entries);
@@ -2107,7 +2143,7 @@
     if (openingIsLocalFrontendPreview()) {
       return { ok: true, skipped: true, previewOnly: true, reason: "本地预览未连接酒馆世界书 API，已跳过世界书补写。" };
     }
-    return sillyTavern || { ok: false, reason: "无法写入角色卡世界书。" };
+    return hostBridge || sillyTavern || { ok: false, reason: "无法写入角色卡世界书。" };
   }
 
   function selectedCard() {
@@ -2804,12 +2840,13 @@
 
   function writePromptToInput(prompt) {
     const input = findSendInput();
-    if (!input) return null;
+    if (!input?.isConnected) return null;
+    try { input.blur(); } catch {}
     if ("value" in input) input.value = prompt;
     else input.textContent = prompt;
-    try { input.dispatchEvent(new Event("input", { bubbles: true })); } catch {}
-    try { input.dispatchEvent(new Event("change", { bubbles: true })); } catch {}
-    try { input.focus(); } catch {}
+    const InputEventCtor = input.ownerDocument?.defaultView?.Event || Event;
+    try { input.dispatchEvent(new InputEventCtor("input", { bubbles: true })); } catch {}
+    try { input.dispatchEvent(new InputEventCtor("change", { bubbles: true })); } catch {}
     return input;
   }
 
@@ -2827,7 +2864,7 @@
     const input = writePromptToInput(prompt);
     if (!input) return false;
     const button = findSendButton(input);
-    if (button && !button.disabled && button.getAttribute("aria-disabled") !== "true") {
+    if (input.isConnected && button?.isConnected && !button.disabled && button.getAttribute("aria-disabled") !== "true") {
       try {
         button.click();
         return true;
