@@ -1545,7 +1545,21 @@
   async function openingReadMainFrontendSource() {
     if (OPENING_MAIN_FRONTEND_SOURCE_PROMISE) return OPENING_MAIN_FRONTEND_SOURCE_PROMISE;
     OPENING_MAIN_FRONTEND_SOURCE_PROMISE = (async () => {
-      const urls = ["index.html", "./index.html", "/public/frontends/hypnosis-app/index.html"];
+      const identityUrl = String(globalThis.__ST_HYPNOOS_IDENTITY_FRONTEND_URL__ || "").trim();
+      const siblingUrl = (fileName) => {
+        if (!identityUrl) return "";
+        try { return new URL(fileName, identityUrl).href; } catch { return ""; }
+      };
+      const urls = [
+        siblingUrl("st-load-inline.html"),
+        siblingUrl("index.html"),
+        "st-load-inline.html",
+        "./st-load-inline.html",
+        "index.html",
+        "./index.html",
+        "/public/frontends/hypnosis-app/st-load-inline.html",
+        "/public/frontends/hypnosis-app/index.html"
+      ].filter(Boolean);
       for (const url of urls) {
         try {
           const response = await fetch(url, { cache: "no-store" });
@@ -1623,7 +1637,17 @@
   function openingExtractPersonaContent(source, roleConstantName) {
     const roleIndex = source.indexOf("name: " + roleConstantName);
     if (roleIndex < 0) return "";
-    const literal = openingArrayLiteralAfter(source, "personaContent:", roleIndex);
+    const personaIndex = source.indexOf("personaContent:", roleIndex);
+    if (personaIndex < 0) return "";
+    const wrapperIndex = source.indexOf("encounterBranchPersonaContent(", personaIndex);
+    const nextPropertyIndex = source.indexOf("\n      affectionChain:", personaIndex);
+    const isBranchWrapper = wrapperIndex >= 0 && (nextPropertyIndex < 0 || wrapperIndex < nextPropertyIndex);
+    // 支线人设现在由 encounterBranchPersonaContent("条目名", [完整兜底人设]) 包装。
+    // 不能从 personaContent 后遇到的第一个 `[` 开始取值，因为那其实是
+    // 字符串里的 `[mvu_plot]`，会被误当成数组并在求值时抛出 mvu_plot 未定义。
+    const literal = isBranchWrapper
+      ? openingArrayLiteralAfter(source, ",", wrapperIndex)
+      : openingArrayLiteralAfter(source, "personaContent:", roleIndex);
     const value = openingEvalArrayLiteral(literal);
     return Array.isArray(value) ? value.join("\n") : "";
   }
