@@ -136,7 +136,12 @@
     var resourceRefreshToken = 0;
     var resourceEventStops = [];
     var resourceEventsSubscribed = false;
-    var GALGAME_STYLE_ID = "st-galgame-narrative-bootstrap-style-v1";
+    var GALGAME_STYLE_ID = "st-galgame-narrative-bootstrap-style-v2";
+    var GALGAME_STALE_STYLE_IDS = [
+      "st-galgame-narrative-bootstrap-style-v1",
+      "st-galgame-narrative-host-style-v1",
+      "st-galgame-narrative-host-style-v2"
+    ];
     var GALGAME_RUNTIME_KEY = "__ST_HYPNOOS_GALGAME_HOST_RUNTIME__";
     var GALGAME_MARKER_RE = /⟪人物演出总块⟫([\s\S]*?)⟪\/人物演出总块⟫/;
     var GALGAME_SEGMENT_RE = /〔(动作|台词|思考)〕([\s\S]*?)(?=〔(?:动作|台词|思考)〕|$)/g;
@@ -145,9 +150,17 @@
     var ACTION_FOLD_MARKER_RE = /⟪HYPNOOS_ACTION_FOLD_V3⟫([\s\S]*?)⟪\/HYPNOOS_ACTION_FOLD_V3⟫/;
 
     function ensureGalgameStyle() {
-      if (!hostDocument.head || hostDocument.getElementById(GALGAME_STYLE_ID)) return;
-      var style = hostDocument.createElement("style");
-      style.id = GALGAME_STYLE_ID;
+      if (!hostDocument.head) return;
+      GALGAME_STALE_STYLE_IDS.forEach(function removeStaleGalgameStyle(styleId) {
+        var staleStyle = hostDocument.getElementById(styleId);
+        if (staleStyle) staleStyle.remove();
+      });
+      var style = hostDocument.getElementById(GALGAME_STYLE_ID);
+      if (!style) {
+        style = hostDocument.createElement("style");
+        style.id = GALGAME_STYLE_ID;
+        hostDocument.head.appendChild(style);
+      }
       style.textContent = [
         ".mes_text .st-galgame-card{--gg-hue:206;--gg-accent:hsl(var(--gg-hue) 88% 72%);position:relative;display:block;width:100%;box-sizing:border-box;margin:16px 0 14px;overflow:hidden;border:1px solid hsl(var(--gg-hue) 72% 68%/.34);border-radius:16px;background:linear-gradient(136deg,hsl(var(--gg-hue) 43% 10%/.98),hsl(calc(var(--gg-hue) + 22) 38% 15%/.97) 58%,hsl(var(--gg-hue) 42% 8%/.99));box-shadow:0 15px 34px rgba(0,0,0,.3),inset 0 1px rgba(255,255,255,.07);color:hsl(var(--gg-hue) 70% 94%);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans SC',sans-serif}",
         ".mes_text .st-galgame-card.is-joined-prev{margin-top:-10px;border-top-left-radius:6px;border-top-right-radius:6px}.mes_text .st-galgame-card.is-joined-next{margin-bottom:4px;border-bottom-left-radius:6px;border-bottom-right-radius:6px}",
@@ -161,7 +174,6 @@
         ".mes_text .st-galgame-card{--gg-red:#ed1831;--gg-black:#09090b;--gg-paper:#f4efe6;--gg-paper-2:#d8d2c8;--gg-muted:#c8c0b8;--gg-accent:var(--gg-red);border:3px solid var(--gg-black);border-radius:0;background:var(--gg-black);box-shadow:6px 6px 0 var(--gg-red),0 16px 34px rgba(0,0,0,.42);color:#fff;clip-path:polygon(1% 0,100% 2%,98% 100%,0 97%)}.mes_text .st-galgame-card.is-joined-prev,.mes_text .st-galgame-card.is-joined-next{border-radius:0}.mes_text .st-galgame-card>summary,.mes_text .st-galgame-card.is-side-right>summary{background:linear-gradient(112deg,var(--gg-paper) 0 72%,var(--gg-red) 72% 78%,var(--gg-black) 78%);color:var(--gg-black)}.mes_text .st-galgame-card__portrait,.mes_text .st-galgame-card.is-user .st-galgame-card__portrait{border:3px solid var(--gg-black);border-radius:0;background:var(--gg-paper-2);box-shadow:4px 4px 0 var(--gg-red);color:var(--gg-black)}.mes_text .st-galgame-card__portrait-fallback{color:var(--gg-black);text-shadow:none}.mes_text .st-galgame-card__name,.mes_text .st-galgame-card.is-user .st-galgame-card__name{color:var(--gg-black);text-shadow:none;font-family:Impact,'Arial Black','Noto Sans SC',sans-serif}.mes_text .st-galgame-card__name-original{color:#615b56;text-decoration-color:var(--gg-red);opacity:.78}.mes_text .st-galgame-card__name-nickname,.mes_text .st-galgame-card__name-nickname.is-private,.mes_text .st-galgame-card__name-nickname.is-recognized{color:var(--gg-red)}.mes_text .st-galgame-card__expression{border:2px solid var(--gg-black);border-radius:0;background:var(--gg-black);color:#fff;box-shadow:2px 2px 0 var(--gg-red)}.mes_text .st-galgame-card__toggle{border:2px solid var(--gg-black);border-radius:0;background:#fff;color:var(--gg-black);box-shadow:2px 2px 0 var(--gg-red)}.mes_text .st-galgame-card__body,.mes_text .st-galgame-card.is-user .st-galgame-card__body{border-top:3px solid var(--gg-red);background:linear-gradient(112deg,#151418,#09090b);color:#fff}.mes_text .st-galgame-card__segment--action{color:var(--gg-muted)}.mes_text .st-galgame-card__segment--action::before,.mes_text .st-galgame-card.is-side-right .st-galgame-card__segment--action::after{color:var(--gg-red)}.mes_text .st-galgame-card__segment--speech,.mes_text .st-galgame-card.is-user .st-galgame-card__segment--speech{color:#fff}.mes_text .st-galgame-card__segment--speech::before,.mes_text .st-galgame-card__segment--speech::after,.mes_text .st-galgame-card.is-user .st-galgame-card__segment--speech::before,.mes_text .st-galgame-card.is-user .st-galgame-card__segment--speech::after{color:var(--gg-red)}.mes_text .st-galgame-card__segment--thought{color:#d8d2cc}.mes_text .st-galgame-card.is-user{border-color:var(--gg-black);background:var(--gg-black);box-shadow:6px 6px 0 var(--gg-red),0 16px 34px rgba(0,0,0,.42)}",
         "@media(max-width:520px){.mes_text .st-galgame-card{border-radius:0}.mes_text .st-galgame-card>summary{grid-template-columns:54px minmax(0,1fr) auto;gap:9px;min-height:66px;padding:8px 9px}.mes_text .st-galgame-card.is-side-right>summary{grid-template-columns:auto minmax(0,1fr) 54px}.mes_text .st-galgame-card__portrait{width:50px;height:50px;border-radius:0}.mes_text .st-galgame-card__name{font-size:15px}.mes_text .st-galgame-card__body{padding:9px 10px 11px 72px}.mes_text .st-galgame-card.is-side-right .st-galgame-card__body{padding:9px 72px 11px 10px}}"
       ].join("");
-      hostDocument.head.appendChild(style);
     }
 
     function galgameUserName() {
