@@ -172,6 +172,7 @@
         ".mes_text .st-galgame-card__body{position:relative;display:grid;gap:5px;padding:10px 16px 14px 91px;border-top:1px solid hsl(var(--gg-hue) 76% 67%/.17)}.mes_text .st-galgame-card.is-side-right .st-galgame-card__body{padding:10px 91px 14px 16px;text-align:right}.mes_text .st-galgame-card__segment{display:block;min-width:0;white-space:pre-wrap;overflow-wrap:anywhere}.mes_text .st-galgame-card__segment--action{padding:3px 0;color:hsl(var(--gg-hue) 44% 83%/.72);font-family:ui-serif,Georgia,serif;font-size:12px;font-style:italic;line-height:1.58}.mes_text .st-galgame-card__segment--action::before{content:'＊';margin-right:6px;color:var(--gg-accent)}.mes_text .st-galgame-card__segment--speech{padding:5px 0;color:hsl(var(--gg-hue) 82% 92%);font-size:14px;font-weight:740;line-height:1.72}.mes_text .st-galgame-card__segment--speech::before{content:'“';color:var(--gg-accent)}.mes_text .st-galgame-card__segment--speech::after{content:'”';color:var(--gg-accent)}.mes_text .st-galgame-card__segment--thought{padding:5px 0;color:hsl(var(--gg-hue) 46% 88%/.76);font-family:ui-serif,Georgia,serif;font-size:13px;font-style:italic;line-height:1.72}",
         ".mes_text .st-galgame-card.is-user{--gg-hue:42!important;width:92%;border-color:rgba(253,230,138,.48)}.mes_text .st-galgame-card.is-user .st-galgame-card__portrait{border-radius:50%}.mes_text .st-galgame-card.is-user .st-galgame-card__portrait img{display:none}.mes_text .st-galgame-card.is-user .st-galgame-card__name{color:#fde68a}",
         ".mes_text .st-galgame-card{--gg-red:#ed1831;--gg-black:#09090b;--gg-paper:#f4efe6;--gg-paper-2:#d8d2c8;--gg-muted:#c8c0b8;--gg-accent:var(--gg-red);border:3px solid var(--gg-black);border-radius:0;background:var(--gg-black);box-shadow:6px 6px 0 var(--gg-red),0 16px 34px rgba(0,0,0,.42);color:#fff;clip-path:polygon(1% 0,100% 2%,98% 100%,0 97%)}.mes_text .st-galgame-card.is-joined-prev,.mes_text .st-galgame-card.is-joined-next{border-radius:0}.mes_text .st-galgame-card>summary,.mes_text .st-galgame-card.is-side-right>summary{background:linear-gradient(112deg,var(--gg-paper) 0 72%,var(--gg-red) 72% 78%,var(--gg-black) 78%);color:var(--gg-black)}.mes_text .st-galgame-card__portrait,.mes_text .st-galgame-card.is-user .st-galgame-card__portrait{border:3px solid var(--gg-black);border-radius:0;background:var(--gg-paper-2);box-shadow:4px 4px 0 var(--gg-red);color:var(--gg-black)}.mes_text .st-galgame-card__portrait-fallback{color:var(--gg-black);text-shadow:none}.mes_text .st-galgame-card__name,.mes_text .st-galgame-card.is-user .st-galgame-card__name{color:var(--gg-black);text-shadow:none;font-family:Impact,'Arial Black','Noto Sans SC',sans-serif}.mes_text .st-galgame-card__name-original{color:#615b56;text-decoration-color:var(--gg-red);opacity:.78}.mes_text .st-galgame-card__name-nickname,.mes_text .st-galgame-card__name-nickname.is-private,.mes_text .st-galgame-card__name-nickname.is-recognized{color:var(--gg-red)}.mes_text .st-galgame-card__expression{border:2px solid var(--gg-black);border-radius:0;background:var(--gg-black);color:#fff;box-shadow:2px 2px 0 var(--gg-red)}.mes_text .st-galgame-card__toggle{border:2px solid var(--gg-black);border-radius:0;background:#fff;color:var(--gg-black);box-shadow:2px 2px 0 var(--gg-red)}.mes_text .st-galgame-card__body,.mes_text .st-galgame-card.is-user .st-galgame-card__body{border-top:3px solid var(--gg-red);background:linear-gradient(112deg,#151418,#09090b);color:#fff}.mes_text .st-galgame-card__segment--action{color:var(--gg-muted)}.mes_text .st-galgame-card__segment--action::before,.mes_text .st-galgame-card.is-side-right .st-galgame-card__segment--action::after{color:var(--gg-red)}.mes_text .st-galgame-card__segment--speech,.mes_text .st-galgame-card.is-user .st-galgame-card__segment--speech{color:#fff}.mes_text .st-galgame-card__segment--speech::before,.mes_text .st-galgame-card__segment--speech::after,.mes_text .st-galgame-card.is-user .st-galgame-card__segment--speech::before,.mes_text .st-galgame-card.is-user .st-galgame-card__segment--speech::after{color:var(--gg-red)}.mes_text .st-galgame-card__segment--thought{color:#d8d2cc}.mes_text .st-galgame-card.is-user{border-color:var(--gg-black);background:var(--gg-black);box-shadow:6px 6px 0 var(--gg-red),0 16px 34px rgba(0,0,0,.42)}",
+        ".mes_text .st-galgame-card{--gg-role:#ed1831;--gg-role-dark:#790817}.mes_text .st-galgame-card[data-galgame-tone='0']{--gg-role:#ed1831;--gg-role-dark:#790817}.mes_text .st-galgame-card[data-galgame-tone='1']{--gg-role:#00a9e8;--gg-role-dark:#064c70}.mes_text .st-galgame-card[data-galgame-tone='2']{--gg-role:#f5b700;--gg-role-dark:#7a4a00}.mes_text .st-galgame-card[data-galgame-tone='3']{--gg-role:#18b875;--gg-role-dark:#075f3c}.mes_text .st-galgame-card[data-galgame-tone='4']{--gg-role:#a968ff;--gg-role-dark:#4d217d}.mes_text .st-galgame-card[data-galgame-tone='5']{--gg-role:#ff6b28;--gg-role-dark:#862a08}.mes_text .st-galgame-card[data-galgame-tone='6']{--gg-role:#f5d547;--gg-role-dark:#725700}.mes_text .st-galgame-card__portrait,.mes_text .st-galgame-card.is-user .st-galgame-card__portrait{box-shadow:4px 4px 0 var(--gg-role)}.mes_text .st-galgame-card__expression{box-shadow:2px 2px 0 var(--gg-role)}.mes_text .st-galgame-card__body,.mes_text .st-galgame-card.is-user .st-galgame-card__body{border-top-color:var(--gg-role);box-shadow:inset 6px 0 0 var(--gg-role-dark)}.mes_text .st-galgame-card.is-side-right .st-galgame-card__body{box-shadow:inset -6px 0 0 var(--gg-role-dark)}.mes_text .st-galgame-card__segment--action::before,.mes_text .st-galgame-card.is-side-right .st-galgame-card__segment--action::after,.mes_text .st-galgame-card__segment--speech::before,.mes_text .st-galgame-card__segment--speech::after{color:var(--gg-role)}.mes_text .st-galgame-card__index{position:absolute;z-index:3;right:50px;bottom:6px;display:inline-flex;align-items:center;justify-content:center;gap:3px;min-width:32px;height:18px;padding:0 5px;border:2px solid var(--gg-black);background:var(--gg-role);color:#fff;font:1000 10px/1 Impact,'Arial Black',sans-serif;letter-spacing:.12em;box-shadow:2px 2px 0 var(--gg-black);transform:rotate(-3deg)}.mes_text .st-galgame-card__index::before{content:'ACT';font-size:7px;opacity:.78}.mes_text .st-galgame-card.is-side-right .st-galgame-card__index{right:auto;left:50px;transform:rotate(3deg)}",
         "@media(max-width:520px){.mes_text .st-galgame-card{border-radius:0}.mes_text .st-galgame-card>summary{grid-template-columns:54px minmax(0,1fr) auto;gap:9px;min-height:66px;padding:8px 9px}.mes_text .st-galgame-card.is-side-right>summary{grid-template-columns:auto minmax(0,1fr) 54px}.mes_text .st-galgame-card__portrait{width:50px;height:50px;border-radius:0}.mes_text .st-galgame-card__name{font-size:15px}.mes_text .st-galgame-card__body{padding:9px 10px 11px 72px}.mes_text .st-galgame-card.is-side-right .st-galgame-card__body{padding:9px 72px 11px 10px}}"
       ].join("");
     }
@@ -231,6 +232,16 @@
       } catch (_) {}
     }
 
+    function galgameRoleTone(roleName) {
+      var source = textId(roleName) || "user";
+      var hash = 2166136261;
+      for (var index = 0; index < source.length; index += 1) {
+        hash ^= source.charCodeAt(index);
+        hash = Math.imul(hash, 16777619);
+      }
+      return (hash >>> 0) % 6;
+    }
+
     function createGalgameCard(fields) {
       var protocolRole = textId(fields && fields[0]);
       var isUser = isGalgameUserRole(protocolRole);
@@ -276,7 +287,11 @@
       var toggle = hostDocument.createElement("span");
       toggle.className = "st-galgame-card__toggle";
       toggle.textContent = "⌃";
-      summary.append(portrait, identity, toggle);
+      var sequence = hostDocument.createElement("span");
+      sequence.className = "st-galgame-card__index";
+      sequence.setAttribute("aria-hidden", "true");
+      sequence.textContent = "01";
+      summary.append(portrait, identity, sequence, toggle);
       var body = hostDocument.createElement("span");
       body.className = "st-galgame-card__body";
       parseGalgameSegments(fields && fields[2]).forEach(function (segment) {
@@ -293,10 +308,22 @@
 
     function decorateGalgameCards(container) {
       var cards = Array.prototype.slice.call(container.querySelectorAll(".st-galgame-card"));
+      var tonesByRole = new Map();
+      var usedTones = new Set();
       cards.forEach(function (card, index) {
         card.classList.remove("is-side-left", "is-side-right", "is-joined-prev", "is-joined-next");
         card.classList.add(index % 2 === 0 ? "is-side-left" : "is-side-right");
         card.dataset.galgameSequence = String(index + 1);
+        var roleKey = textId(card.dataset.galgameRole) || "user";
+        if (!tonesByRole.has(roleKey)) {
+          var tone = card.dataset.galgameUser === "true" ? 6 : galgameRoleTone(roleKey);
+          while (usedTones.has(tone) && usedTones.size < 6) tone = (tone + 1) % 6;
+          tonesByRole.set(roleKey, tone);
+          usedTones.add(tone);
+        }
+        card.dataset.galgameTone = String(tonesByRole.get(roleKey));
+        var sequenceNode = card.querySelector(".st-galgame-card__index");
+        if (sequenceNode) sequenceNode.textContent = String(index + 1).padStart(2, "0");
         card.style.setProperty("--gg-hue", String((206 + index * 137.508) % 360));
       });
       for (var index = 1; index < cards.length; index += 1) {
