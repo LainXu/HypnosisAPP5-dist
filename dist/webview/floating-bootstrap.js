@@ -754,6 +754,160 @@
       return mvu[name].apply(mvu, Array.isArray(args) ? args : []);
     }
 
+    async function importHostWorldInfoModule() {
+      var views = sourceWindows();
+      for (var i = 0; i < views.length; i += 1) {
+        try {
+          if (typeof views[i].eval !== "function") continue;
+          var mod = await Promise.resolve(views[i].eval("import('/scripts/world-info.js')"));
+          if (mod && typeof mod.loadWorldInfo === "function" && typeof mod.saveWorldInfo === "function") return mod;
+        } catch (_) {}
+      }
+      return null;
+    }
+
+    function rawWorldbookEntries(data) {
+      if (Array.isArray(data)) return data;
+      if (!data || typeof data !== "object") return [];
+      var container = data.entries || data.entry || data.world_info;
+      if (Array.isArray(container)) return container;
+      if (container && typeof container === "object") return Object.values(container);
+      return [];
+    }
+
+    function rawOpeningEntry(entry, uid, displayIndex) {
+      var strategy = entry && entry.strategy && typeof entry.strategy === "object" ? entry.strategy : {};
+      var secondary = strategy.keys_secondary && typeof strategy.keys_secondary === "object" ? strategy.keys_secondary : {};
+      var position = entry && entry.position && typeof entry.position === "object" ? entry.position : {};
+      var recursion = entry && entry.recursion && typeof entry.recursion === "object" ? entry.recursion : {};
+      var effect = entry && entry.effect && typeof entry.effect === "object" ? entry.effect : {};
+      var positionCode = {
+        before_character_definition: 0,
+        after_character_definition: 1,
+        before_author_note: 2,
+        after_author_note: 3,
+        at_depth: 4,
+        before_example_messages: 5,
+        after_example_messages: 6,
+        outlet: 7
+      };
+      var roleCode = { system: 0, user: 1, assistant: 2 };
+      var secondaryLogic = { and_any: 0, not_all: 1, not_any: 2, and_all: 3 };
+      var strategyType = textId(strategy.type) || "constant";
+      return {
+        uid: uid,
+        displayIndex: displayIndex,
+        comment: textId(entry && (entry.name || entry.comment || entry.extra && entry.extra.comment)),
+        disable: entry && entry.enabled === false,
+        constant: strategyType === "constant",
+        selective: strategyType === "selective",
+        key: Array.isArray(strategy.keys) ? strategy.keys.slice() : [],
+        keysecondary: Array.isArray(secondary.keys) ? secondary.keys.slice() : [],
+        selectiveLogic: secondaryLogic[textId(secondary.logic)] !== undefined ? secondaryLogic[textId(secondary.logic)] : 0,
+        scanDepth: strategy.scan_depth === "same_as_global" ? null : (Number.isFinite(Number(strategy.scan_depth)) ? Number(strategy.scan_depth) : null),
+        vectorized: strategyType === "vectorized",
+        position: positionCode[textId(position.type)] !== undefined ? positionCode[textId(position.type)] : 0,
+        role: roleCode[textId(position.role)] !== undefined ? roleCode[textId(position.role)] : 0,
+        depth: Number.isFinite(Number(position.depth)) ? Number(position.depth) : 4,
+        order: Number.isFinite(Number(position.order)) ? Number(position.order) : 100,
+        content: String(entry && entry.content || ""),
+        useProbability: true,
+        probability: Number.isFinite(Number(entry && entry.probability)) ? Number(entry.probability) : 100,
+        excludeRecursion: Boolean(recursion.prevent_incoming),
+        preventRecursion: Boolean(recursion.prevent_outgoing),
+        delayUntilRecursion: recursion.delay_until === null || recursion.delay_until === undefined ? false : recursion.delay_until,
+        sticky: effect.sticky === undefined ? null : effect.sticky,
+        cooldown: effect.cooldown === undefined ? null : effect.cooldown,
+        delay: effect.delay === undefined ? null : effect.delay,
+        extra: entry && entry.extra && typeof entry.extra === "object" ? Object.assign({}, entry.extra) : {}
+      };
+    }
+
+    async function ensureOpeningWorldbooksRaw(mod, worldName, requested) {
+      var data = await Promise.resolve(mod.loadWorldInfo(worldName));
+      if (!data || typeof data !== "object") return null;
+      var currentEntries = rawWorldbookEntries(data);
+      var repairedKeyArrays = 0;
+      currentEntries.forEach(function (item) {
+        if (!item || typeof item !== "object") return;
+        if (!Array.isArray(item.key)) {
+          item.key = Array.isArray(item.keys) ? item.keys.slice() : [];
+          repairedKeyArrays += 1;
+        }
+        if (!Array.isArray(item.keysecondary)) {
+          item.keysecondary = Array.isArray(item.secondary_keys) ? item.secondary_keys.slice() : [];
+          repairedKeyArrays += 1;
+        }
+      });
+      var pending = [];
+      var existing = 0;
+      for (var i = 0; i < requested.length; i += 1) {
+        var entry = requested[i];
+        var comment = textId(entry && (entry.name || entry.comment || entry.extra && entry.extra.comment));
+        var found = currentEntries.find(function (item) {
+          return textId(item && (item.comment || item.name || item.extra && item.extra.comment)) === comment;
+        });
+        if (!found) {
+          pending.push(entry);
+          continue;
+        }
+        if (String(found.content || "") !== String(entry.content || "")) {
+          return { ok: false, reason: "角色卡世界书已有同名但内容不同的条目：" + comment };
+        }
+        existing += 1;
+      }
+      if (!pending.length && !repairedKeyArrays) {
+        return { ok: true, inserted: 0, existing: existing, targetWorldbook: worldName, method: "host-native-raw" };
+      }
+      var maxUid = currentEntries.reduce(function (max, item) {
+        return Math.max(max, Number(item && item.uid) || 0);
+      }, 0);
+      var maxDisplayIndex = currentEntries.reduce(function (max, item) {
+        return Math.max(max, Number(item && item.displayIndex) || 0);
+      }, -1);
+      var container = data.entries || data.entry || data.world_info;
+      if (!container || typeof container !== "object") {
+        data.entries = {};
+        container = data.entries;
+      }
+      for (var p = 0; p < pending.length; p += 1) {
+        maxUid += 1;
+        maxDisplayIndex += 1;
+        var raw = rawOpeningEntry(pending[p], maxUid, maxDisplayIndex);
+        if (Array.isArray(container)) container.push(raw);
+        else container[maxUid] = raw;
+      }
+      var saveError = null;
+      try {
+        await Promise.resolve(mod.saveWorldInfo(worldName, data, true));
+      } catch (error) {
+        saveError = error;
+      }
+      if (saveError) {
+        var reloaded = await Promise.resolve(mod.loadWorldInfo(worldName));
+        var savedEntries = rawWorldbookEntries(reloaded);
+        var allSaved = savedEntries.every(function (item) {
+          return Array.isArray(item && item.key) && Array.isArray(item && item.keysecondary);
+        }) && pending.every(function (entry) {
+          var comment = textId(entry && (entry.name || entry.comment || entry.extra && entry.extra.comment));
+          return savedEntries.some(function (item) {
+            return textId(item && (item.comment || item.name || item.extra && item.extra.comment)) === comment
+              && String(item && item.content || "") === String(entry && entry.content || "");
+          });
+        });
+        if (!allSaved) throw saveError;
+      }
+      try { await Promise.resolve(mod.updateWorldInfoList && mod.updateWorldInfoList()); } catch (_) {}
+      return {
+        ok: true,
+        inserted: pending.length,
+        existing: existing,
+        repaired: repairedKeyArrays,
+        targetWorldbook: worldName,
+        method: "host-native-raw"
+      };
+    }
+
     async function ensureOpeningWorldbooks(entries, fallbackName) {
       var requested = Array.isArray(entries) ? entries.filter(function (entry) {
         return entry && typeof entry === "object" && String(entry.name || entry.comment || "").trim();
@@ -776,6 +930,11 @@
             primary: worldName,
             additional: Array.isArray(books.additional) ? books.additional : []
           }));
+        }
+        var nativeWorldInfo = await importHostWorldInfoModule();
+        if (nativeWorldInfo) {
+          var rawResult = await ensureOpeningWorldbooksRaw(nativeWorldInfo, worldName, requested);
+          if (rawResult) return rawResult;
         }
         var current = await Promise.resolve(callApi("getWorldbook", [worldName]));
         var currentEntries = Array.isArray(current)
