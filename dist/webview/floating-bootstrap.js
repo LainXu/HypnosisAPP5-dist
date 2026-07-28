@@ -210,7 +210,15 @@
     }
 
     function parseGalgameEntries(content) {
-      var source = String(content || "").replace(/\r\n?/g, "\n").trim();
+      // SillyTavern's Markdown pass may serialize Chinese quoted dialogue as
+      // literal <q>...</q> text inside an otherwise valid lazy marker.  The
+      // outer regex has already validated and isolated the 人物演出 block, so
+      // remove only that presentation wrapper here instead of loosening the
+      // protocol parser to accept arbitrary HTML.
+      var source = String(content || "")
+        .replace(/<\s*\/?\s*q\s*>/gi, "")
+        .replace(/\r\n?/g, "\n")
+        .trim();
       if (!source) return [];
       var entries = [];
       var roles = new Set();
@@ -1259,21 +1267,27 @@
       var found = findFunction("eventOn");
       if (!found) return;
       var events = [];
+      var galgameFinalRenderEvents = new Set();
       var mvu = findMvu();
       try {
         events.push(mvu?.events?.VARIABLE_INITIALIZED, mvu?.events?.VARIABLE_UPDATE_ENDED);
       } catch (_) {}
       sourceWindows().forEach(function (view) {
         try {
+          var characterMessageRendered = view.tavern_events?.CHARACTER_MESSAGE_RENDERED;
           events.push(
             view.tavern_events?.CHAT_CHANGED,
             view.tavern_events?.MESSAGE_SWIPED,
-            view.tavern_events?.CHARACTER_MESSAGE_RENDERED
+            characterMessageRendered
           );
+          if (characterMessageRendered) galgameFinalRenderEvents.add(characterMessageRendered);
         } catch (_) {}
       });
       Array.from(new Set(events.filter(Boolean))).forEach(function (eventName) {
-        var handler = function () { refreshSidecarResources(); };
+        var handler = function () {
+          refreshSidecarResources();
+          if (galgameFinalRenderEvents.has(eventName)) scheduleGalgameRender();
+        };
         try {
           resourceEventStops.push({
             eventName: eventName,
