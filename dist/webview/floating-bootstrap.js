@@ -113,6 +113,7 @@
     var profileNeighborHost = null;
     var profilePossessionHost = null;
     var workLeverHost = null;
+    var mapExtraChainHost = null;
     var workLeverPointer = null;
     var galgameBusy = false;
     var selectedId = "";
@@ -1478,7 +1479,8 @@
         ".panel{pointer-events:auto;position:fixed;width:min(430px,calc(100vw - 16px));height:min(812px,calc(100vh - 16px));border:0;border-radius:38px;background:transparent;box-shadow:none;overflow:visible;z-index:2;display:none;isolation:isolate;--floor-sidecar-width:270px}",
         ".panel.open{display:block}",
         ".phone-wrap{position:absolute;z-index:4;inset:0;border:1px solid rgba(221,184,255,.42);border-radius:inherit;background:#05070f;box-shadow:0 32px 110px rgba(0,0,0,.72),0 0 0 6px rgba(17,12,30,.72);overflow:hidden;isolation:isolate}.phone-wrap:after{content:'';position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09);pointer-events:none;z-index:8}.phone{display:block;width:100%;height:100%;border:0;background:transparent}",
-        ".work-lever-host{position:absolute;z-index:3;left:-67px;top:178px;width:104px;height:218px;display:none;pointer-events:none;filter:drop-shadow(0 18px 15px rgba(0,0,0,.58));user-select:none}.panel.work-lever-visible .work-lever-host{display:block}.work-lever{--lever-y:0px;position:absolute;inset:0;border:0;padding:0;background:transparent;pointer-events:auto;cursor:grab;touch-action:none}.work-lever:active,.work-lever.is-pulling{cursor:grabbing}.work-lever__rail{position:absolute;left:46px;top:61px;width:26px;height:145px;border:5px solid #111814;border-radius:16px;background:repeating-linear-gradient(180deg,#657169 0 8px,#3e4942 9px 16px);box-shadow:inset 4px 0 rgba(255,255,255,.16),8px 8px 0 rgba(5,7,6,.5)}.work-lever__arm{position:absolute;left:49px;top:39px;width:18px;height:128px;border:4px solid #111814;border-radius:12px;background:linear-gradient(90deg,#99a39c,#435048 65%,#222b25);transform-origin:50% 92%;transform:translateY(var(--lever-y)) rotate(-8deg);transition:transform .34s cubic-bezier(.16,.82,.28,1.18);box-shadow:4px 5px 0 rgba(0,0,0,.35)}.work-lever__knob{position:absolute;left:20px;top:8px;width:70px;height:68px;border:6px solid #0b0d0c;border-radius:50% 44% 51% 46%;background:radial-gradient(circle at 34% 28%,#ffcf68 0 8%,#d97706 28%,#8f330c 66%,#421507 100%);box-shadow:inset -8px -10px rgba(44,12,3,.3),7px 9px 0 rgba(0,0,0,.42);transform:translateY(var(--lever-y)) rotate(-7deg);transition:transform .34s cubic-bezier(.16,.82,.28,1.18)}.work-lever.is-pulling{--lever-y:76px}.work-lever__tag{position:absolute;left:0;top:83px;padding:5px 8px;border:3px solid #101310;background:#e9e1c9;color:#111814;font:950 10px/1 Impact,'Arial Black',sans-serif;letter-spacing:.08em;transform:rotate(-8deg);box-shadow:4px 4px 0 #d97706}.work-lever.is-pulling .work-lever__arm,.work-lever.is-pulling .work-lever__knob{transition-duration:.16s}@media(max-width:760px){.work-lever-host{left:-58px;top:166px;transform:scale(.88);transform-origin:right top}}",
+        ".work-lever-host{position:absolute;z-index:8;left:-96px;top:164px;width:132px;height:236px;display:none;pointer-events:none;filter:drop-shadow(0 18px 15px rgba(0,0,0,.58));user-select:none}.panel.work-lever-visible .work-lever-host{display:block}.work-lever{position:absolute;inset:0;border:0;padding:0;background:transparent;pointer-events:auto;cursor:grab;touch-action:none}.work-lever:active,.work-lever.is-pulling{cursor:grabbing}.work-lever__rail{position:absolute;left:79px;top:78px;width:30px;height:146px;border:5px solid #111814;border-radius:999px;background:linear-gradient(90deg,#77847c,#303a34 58%,#151b17);box-shadow:inset 5px 0 rgba(255,255,255,.14),7px 8px 0 rgba(5,7,6,.5)}.work-lever__pivot{position:absolute;left:74px;top:180px;width:40px;height:40px;border:6px solid #0b0e0c;border-radius:50%;background:radial-gradient(circle at 35% 30%,#aeb9b1,#445049 55%,#18201b 100%);box-shadow:inset -5px -6px rgba(0,0,0,.24),6px 7px 0 rgba(0,0,0,.42)}.work-lever__handle{position:absolute;left:20px;top:6px;width:92px;height:199px;transform-origin:74px 194px;transform:rotate(-15deg);transition:transform .34s cubic-bezier(.16,.82,.28,1.18)}.work-lever__arm{position:absolute;left:65px;top:46px;width:22px;height:154px;border:5px solid #111814;border-radius:999px;background:linear-gradient(90deg,#aab4ad,#46534b 62%,#222b25);box-shadow:inset 4px 0 rgba(255,255,255,.14),4px 5px 0 rgba(0,0,0,.35)}.work-lever__knob{position:absolute;left:18px;top:0;width:78px;height:76px;border:6px solid #0b0d0c;border-radius:50% 44% 51% 46%;background:radial-gradient(circle at 34% 28%,#ffcf68 0 8%,#d97706 28%,#8f330c 66%,#421507 100%);box-shadow:inset -8px -10px rgba(44,12,3,.3),7px 9px 0 rgba(0,0,0,.42)}.work-lever.is-pulling .work-lever__handle{transform:rotate(18deg);transition-duration:.16s}.work-lever__tag{position:absolute;left:0;top:91px;padding:5px 8px;border:3px solid #101310;background:#e9e1c9;color:#111814;font:950 10px/1 Impact,'Arial Black',sans-serif;letter-spacing:.08em;transform:rotate(-8deg);box-shadow:4px 4px 0 #d97706}@media(max-width:760px){.work-lever-host{left:-82px;top:155px;width:118px;transform:scale(.92);transform-origin:right top}}",
+        ".map-extra-chain-host{position:absolute;z-index:7;right:calc(100% - 18px);top:118px;width:176px;display:none;pointer-events:none;filter:drop-shadow(0 18px 16px rgba(0,0,0,.65));font-family:Impact,'Arial Black','Noto Sans SC',sans-serif;user-select:none}.panel.map-extra-chain-visible .map-extra-chain-host{display:block}.map-extra-chain{display:grid;gap:5px;pointer-events:auto}.map-extra-chain__head{justify-self:end;max-width:160px;padding:7px 12px;border:3px solid #080808;background:#f3eee4;color:#080808;box-shadow:5px 5px 0 #ed1831;font:950 12px/1.1 Impact,'Arial Black','Noto Sans SC',sans-serif;letter-spacing:.04em;transform:rotate(-2deg);clip-path:polygon(4% 0,100% 5%,94% 100%,0 88%)}.map-extra-chain__belt{display:grid;gap:2px}.map-extra-chain__item{position:relative;width:160px;min-height:47px;margin-left:auto;border:3px solid #080808;background:#f3eee4;color:#080808;padding:7px 25px 7px 13px;text-align:left;cursor:pointer;pointer-events:auto;box-shadow:5px 4px 0 #ed1831;clip-path:polygon(0 8%,92% 0,100% 48%,92% 100%,0 92%,7% 50%);font:950 12px/1.2 'Arial Black','Noto Sans SC',sans-serif;white-space:normal;overflow-wrap:anywhere;transition:translate .16s ease,filter .16s ease}.map-extra-chain__item:before{content:'';position:absolute;right:9px;top:50%;width:9px;height:9px;border:3px solid #080808;border-radius:50%;background:#ed1831;transform:translateY(-50%)}.map-extra-chain__item:after{content:'';position:absolute;right:12px;top:calc(100% - 1px);width:3px;height:9px;background:#080808}.map-extra-chain__item:last-child:after{display:none}.map-extra-chain__item:hover,.map-extra-chain__item.active{translate:-9px 0;filter:brightness(1.08)}.map-extra-chain__item.active{background:#ed1831;color:#fff;box-shadow:5px 4px 0 #f3eee4}.map-extra-chain__item.favorite{padding-left:29px}.map-extra-chain__item.favorite span:before{content:'★';position:absolute;left:11px;color:#ed1831}.map-extra-chain__pager{justify-self:end;display:flex;align-items:center;gap:5px;margin-top:4px;pointer-events:auto}.map-extra-chain__pager button{width:34px;height:30px;border:3px solid #080808;background:#f3eee4;color:#080808;box-shadow:3px 3px 0 #ed1831;font:950 15px/1 Impact,sans-serif;cursor:pointer}.map-extra-chain__pager button:disabled{opacity:.32;cursor:default}.map-extra-chain__pager span{padding:5px 8px;background:#080808;color:#fff;font:950 10px/1 Impact,sans-serif;letter-spacing:.08em}@media(max-width:760px){.map-extra-chain-host{right:calc(100% - 14px);top:112px;width:148px}.map-extra-chain__head,.map-extra-chain__item{max-width:136px}.map-extra-chain__item{font-size:10px;min-height:42px}}",
         ".hypnosis-judgement-perch{position:absolute;inset:0;display:none;pointer-events:none;user-select:none;-webkit-user-drag:none}.panel.hypnosis-perch-visible:not(.profile-possession-visible) .hypnosis-judgement-perch{display:block}.hypnosis-judgement-figure{position:absolute;top:76px;bottom:58px;width:152px;pointer-events:none}.hypnosis-judgement-figure.is-demon{right:calc(100% - 14px)}.hypnosis-judgement-figure.is-angel{left:calc(100% - 14px)}.hypnosis-judgement-figure img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none}.hypnosis-judgement-figure.is-demon img{object-position:right center}.hypnosis-judgement-figure.is-angel img{object-position:left center}.hypnosis-judgement-figure__rear{z-index:3;filter:drop-shadow(0 18px 13px rgba(0,0,0,.66)) saturate(.86) contrast(1.08)}.hypnosis-judgement-figure__front{z-index:7;filter:drop-shadow(0 5px 3px rgba(0,0,0,.78)) saturate(.9) contrast(1.12)}.hypnosis-judgement-figure.is-demon .hypnosis-judgement-figure__front{clip-path:inset(0 0 0 79%)}.hypnosis-judgement-figure.is-angel .hypnosis-judgement-figure__front{clip-path:inset(0 79% 0 0)}@media(max-width:760px){.hypnosis-judgement-figure{top:92px;bottom:72px;width:118px}.hypnosis-judgement-figure.is-demon{right:calc(100% - 11px)}.hypnosis-judgement-figure.is-angel{left:calc(100% - 11px)}}",
         ".profile-neighbor-host{position:absolute;z-index:2;inset:0;pointer-events:none}.profile-neighbor-rail{--rail-red:#ed1831;position:absolute;top:25%;width:114px;height:48%;min-height:270px;padding:0;border:3px solid #080808;background:#f4efe6;color:#080808;box-shadow:7px 8px 0 var(--rail-red),0 20px 34px rgba(0,0,0,.5);overflow:hidden;cursor:pointer;pointer-events:auto;display:none;isolation:isolate;touch-action:manipulation;transition:transform .28s cubic-bezier(.2,.85,.25,1),filter .2s ease}.panel.profile-neighbors .profile-neighbor-rail{display:block}.profile-neighbor-rail.prev{right:calc(100% - 42px);transform:perspective(420px) rotateY(18deg) rotate(-2deg);clip-path:polygon(0 4%,100% 0,95% 100%,6% 95%)}.profile-neighbor-rail.next{left:calc(100% - 42px);transform:perspective(420px) rotateY(-18deg) rotate(2deg);clip-path:polygon(5% 0,100% 4%,94% 95%,0 100%)}.profile-neighbor-rail:before{content:attr(data-kicker);position:absolute;z-index:3;top:10px;padding:5px 9px;background:#080808;color:#fff;font:950 10px/1 Impact,'Arial Black',sans-serif;letter-spacing:.12em}.profile-neighbor-rail.prev:before{left:8px}.profile-neighbor-rail.next:before{right:8px}.profile-neighbor-rail img,.profile-neighbor-rail__empty{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover;object-position:center 18%;background:#d7d1c8;filter:saturate(.72) contrast(1.08)}.profile-neighbor-rail__empty{display:grid;place-items:center;font:950 38px/1 Impact,sans-serif}.profile-neighbor-rail strong{position:absolute;z-index:3;left:7px;right:7px;bottom:12px;padding:6px 5px;background:#080808;color:#fff;font:950 11px/1.2 'Arial Black','Noto Sans SC',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:3px 3px 0 var(--rail-red)}.profile-neighbor-rail:hover{filter:brightness(1.06)}.profile-neighbor-rail.prev:hover{transform:translateX(-8px) perspective(420px) rotateY(10deg) rotate(-1deg)}.profile-neighbor-rail.next:hover{transform:translateX(8px) perspective(420px) rotateY(-10deg) rotate(1deg)}.panel.profile-neighbors .sidecar{left:calc(100% + 88px)}.panel.profile-turning-prev .profile-neighbor-rail.prev{transform:translateX(26px) scale(1.08) perspective(420px) rotateY(-4deg) rotate(3deg)}.panel.profile-turning-prev .profile-neighbor-rail.next{transform:translateX(8px) scale(.96) perspective(420px) rotateY(-22deg) rotate(2deg)}.panel.profile-turning-next .profile-neighbor-rail.next{transform:translateX(-26px) scale(1.08) perspective(420px) rotateY(4deg) rotate(-3deg)}.panel.profile-turning-next .profile-neighbor-rail.prev{transform:translateX(-8px) scale(.96) perspective(420px) rotateY(22deg) rotate(-2deg)}",
         ".profile-possession-host,.encounter-possession-decor-host{position:absolute;z-index:9;left:50%;top:-88px;width:calc(100% + 34px);height:150px;transform:translateX(-50%) rotate(-.5deg);display:none;pointer-events:none;overflow:visible}.encounter-possession-decor-host[hidden]{display:none!important}.panel.profile-possession-visible .profile-possession-host{display:block}.panel.encounter-possession-decor-visible:not(.profile-possession-visible) .encounter-possession-decor-host:not([hidden]){display:block}.encounter-possession-decor-host img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;user-select:none;-webkit-user-drag:none;clip-path:inset(0 0 18% 0);filter:grayscale(.2) saturate(.82) blur(.55px) drop-shadow(0 8px 8px rgba(0,0,0,.5));opacity:.82;transform:translate(2px,-1px)}.encounter-possession-decor-host:after{content:'';position:absolute;inset:0;background:url('" + escapeHtml(String(config.assetBase || "").replace(/\/?$/, "/") + "profile-ui/profile-possession-top-grip-v1.png") + "') center/contain no-repeat;clip-path:inset(0 0 18% 0);opacity:.14;filter:blur(4px);transform:translate(-5px,-1px)}.profile-possession-grip{position:absolute;inset:0;border:0;padding:0;background:transparent;pointer-events:auto;cursor:pointer;touch-action:manipulation;clip-path:inset(0 0 18% 0);filter:grayscale(.24) saturate(.76) blur(.7px);opacity:.6;transform:translate(2px,-1px);transition:transform .25s cubic-bezier(.2,.85,.22,1),filter .25s ease,opacity .25s ease}.profile-possession-grip img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;user-select:none;-webkit-user-drag:none}.profile-possession-grip:after{content:'';position:absolute;inset:0;background:url('" + escapeHtml(String(config.assetBase || "").replace(/\/?$/, "/") + "profile-ui/profile-possession-top-grip-v1.png") + "') center/contain no-repeat;opacity:.2;filter:blur(4px);transform:translate(-6px,-1px);pointer-events:none}.profile-possession-grip:hover{opacity:.8;filter:grayscale(.1) saturate(.9) blur(.35px);transform:translateY(2px) rotate(.25deg)}.profile-possession-grip:active{transform:translateY(4px) scale(.992)}.profile-possession-grip.active{opacity:1;filter:saturate(1.06) contrast(1.04);transform:none}.profile-possession-grip.active:after{opacity:.07;filter:blur(2px);transform:translate(-2px,-1px)}",
@@ -1593,6 +1595,53 @@
       return visible;
     }
 
+    function updateMapExtraChain(payload) {
+      ensureShell();
+      if (!panel || !mapExtraChainHost) return false;
+      var data = payload && typeof payload === "object" ? payload : null;
+      var visible = Boolean(data && data.visible);
+      panel.classList.toggle("map-extra-chain-visible", visible);
+      if (!visible) {
+        mapExtraChainHost.innerHTML = "";
+        mapExtraChainHost.setAttribute("aria-hidden", "true");
+        return false;
+      }
+      var items = Array.isArray(data.items) ? data.items.slice(0, 6) : [];
+      var page = Math.max(0, Number(data.page) || 0);
+      var pageCount = Math.max(1, Number(data.pageCount) || 1);
+      var itemHtml = items.map(function (item) {
+        var id = textId(item && item.id);
+        var label = textId(item && item.label) || id || "未命名地点";
+        var classes = ["map-extra-chain__item"];
+        if (item && item.active) classes.push("active");
+        if (item && item.favorite) classes.push("favorite");
+        return "<button type='button' class='" + classes.join(" ") + "' data-map-extra-id='" + escapeHtml(id) + "'><span>" + escapeHtml(label) + "</span></button>";
+      }).join("");
+      mapExtraChainHost.innerHTML =
+        "<section class='map-extra-chain'>" +
+          "<strong class='map-extra-chain__head'>" + escapeHtml(textId(data.title) || "更多区域") + "</strong>" +
+          "<div class='map-extra-chain__belt'>" + itemHtml + "</div>" +
+          "<div class='map-extra-chain__pager'><button type='button' data-map-extra-page='prev' aria-label='上一页'" + (pageCount <= 1 ? " disabled" : "") + ">‹</button><span>" + (page + 1) + " / " + pageCount + "</span><button type='button' data-map-extra-page='next' aria-label='下一页'" + (pageCount <= 1 ? " disabled" : "") + ">›</button></div>" +
+        "</section>";
+      mapExtraChainHost.setAttribute("aria-hidden", "false");
+      mapExtraChainHost.querySelectorAll("[data-map-extra-id]").forEach(function (button) {
+        button.addEventListener("click", function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          phoneApi("__ST_HYPNOOS_MAP_EXTRA_SELECT__", [button.getAttribute("data-map-extra-id") || ""], false);
+        });
+      });
+      mapExtraChainHost.querySelectorAll("[data-map-extra-page]").forEach(function (button) {
+        button.addEventListener("click", function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          phoneApi("__ST_HYPNOOS_MAP_EXTRA_PAGE__", [button.getAttribute("data-map-extra-page") || "next"], false);
+        });
+      });
+      applySavedPosition();
+      return true;
+    }
+
     function showEncounterDetail(payload) {
       ensureShell();
       if (!encounterDetailHost) return false;
@@ -1661,6 +1710,7 @@
         "globalThis.__ST_HYPNOOS_UPDATE_ENCOUNTER_POSSESSION_DECOR__=function(p){return r.updateEncounterPossessionDecor(p)};" +
         "globalThis.__ST_HYPNOOS_UPDATE_HYPNOSIS_PERCH__=function(p){return r.updateHypnosisPerch(p)};" +
         "globalThis.__ST_HYPNOOS_UPDATE_WORK_LEVER__=function(p){return r.updateWorkLever(p)};" +
+        "globalThis.__ST_HYPNOOS_UPDATE_MAP_EXTRA_CHAIN__=function(p){return r.updateMapExtraChain(p)};" +
         "globalThis.SillyTavern={getContext:function(){return r.getContext()},getCurrentChatId:function(){return r.getCurrentChatId()}};" +
         "var sourceMvu=r.getMvu();globalThis.Mvu={events:sourceMvu&&sourceMvu.events||{},getMvuData:function(o){return r.readMvu('getMvuData',[option(o)])},replaceMvuData:function(m,o){return r.guardedMvu('replaceMvuData',[m,writeOption(o)])},setMvuVariable:function(){return r.guardedMvu('setMvuVariable',Array.prototype.slice.call(arguments))}};" +
         "['eventOn','getCharWorldbookNames','getWorldbook'].forEach(function(n){globalThis[n]=function(){return r.callApi(n,Array.prototype.slice.call(arguments))}});" +
@@ -1676,6 +1726,7 @@
       updateProfileNeighbors(null);
       updateHypnosisPerch(null);
       updateWorkLever(null);
+      updateMapExtraChain(null);
       frame.dataset.loadedFor = currentWritable;
       loadedForWritableId = currentWritable;
       try { fetchController?.abort?.(); } catch (_) {}
@@ -1713,7 +1764,7 @@
       shadow = shell.attachShadow({ mode: "open" });
       shadow.innerHTML = "<style>" + shellCss() + "</style>" +
         "<button class='launcher' type='button' aria-label='打开悬浮手机'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8'><rect x='6' y='2.5' width='12' height='19' rx='3'/><path d='M10 5h4M11 18.5h2'/></svg><i>0</i></button>" +
-        "<section class='panel' aria-label='HypnoOS 悬浮手机'><aside class='work-lever-host' aria-label='打工滚筒摇杆'><button class='work-lever' type='button' data-work-lever-host aria-label='拉动摇杆切换下一份工作'><span class='work-lever__rail'></span><span class='work-lever__arm'></span><span class='work-lever__knob'></span><span class='work-lever__tag'>PULL</span></button></aside><aside class='hypnosis-judgement-perch' aria-hidden='true'><span class='hypnosis-judgement-figure is-demon'><img class='hypnosis-judgement-figure__rear' alt='' draggable='false' src='" + escapeHtml(String(config.assetBase || "").replace(/\/?$/, "/") + "profile-ui/hypnosis-demon-side-v3.png") + "'><img class='hypnosis-judgement-figure__front' alt='' draggable='false' src='" + escapeHtml(String(config.assetBase || "").replace(/\/?$/, "/") + "profile-ui/hypnosis-demon-side-v3.png") + "'></span><span class='hypnosis-judgement-figure is-angel'><img class='hypnosis-judgement-figure__rear' alt='' draggable='false' src='" + escapeHtml(String(config.assetBase || "").replace(/\/?$/, "/") + "profile-ui/hypnosis-angel-side-v3.png") + "'><img class='hypnosis-judgement-figure__front' alt='' draggable='false' src='" + escapeHtml(String(config.assetBase || "").replace(/\/?$/, "/") + "profile-ui/hypnosis-angel-side-v3.png") + "'></span></aside><aside class='encounter-detail-host' aria-hidden='true'></aside><aside class='profile-neighbor-host' aria-label='相邻人物档案'><button class='profile-neighbor-rail prev' type='button' data-kicker='PREV' data-profile-neighbor='prev'></button><button class='profile-neighbor-rail next' type='button' data-kicker='NEXT' data-profile-neighbor='next'></button></aside><aside class='encounter-possession-decor-host' aria-hidden='true' hidden><img alt='' draggable='false' src='" + escapeHtml(String(config.assetBase || "").replace(/\/?$/, "/") + "profile-ui/profile-possession-top-grip-v1.png") + "'></aside><aside class='profile-possession-host' aria-label='附身控制'><button class='profile-possession-grip' type='button' data-profile-possession-host='' aria-pressed='false'><img alt='' draggable='false' src='" + escapeHtml(String(config.assetBase || "").replace(/\/?$/, "/") + "profile-ui/profile-possession-top-grip-v1.png") + "'></button></aside><div class='phone-wrap'><iframe class='phone' title='HypnoOS 手机前端'></iframe><div class='galgame-dialog' role='dialog' aria-modal='true' aria-hidden='true' aria-labelledby='hypnoos-galgame-dialog-title'><section class='galgame-dialog__card'><strong id='hypnoos-galgame-dialog-title' data-galgame-dialog-title>Galgame人物演出</strong><p data-galgame-dialog-body></p><button type='button' data-galgame-dialog-close>知道了</button></section></div></div><span class='drag-edge top' data-phone-drag></span><span class='drag-edge right' data-phone-drag></span><span class='drag-edge bottom' data-phone-drag></span><span class='drag-edge left' data-phone-drag></span><span class='drag-grip' data-phone-drag aria-label='拖动手机'></span><aside class='sidecar'><button class='galgame-toggle' type='button' aria-pressed='false' disabled>Galgame --</button><section class='resource-panel loading' aria-label='当前楼层资源'><div class='resource-row money'><span>零花钱</span><strong data-resource-money>--</strong></div><div class='resource-row starlight'><span>星光点</span><strong data-resource-starlight>--</strong></div><div class='resource-row energy'><span>MC能量</span><strong data-resource-energy>--</strong></div></section><span class='readonly'>历史楼层 · 只读；切回当前楼后才能操作</span><button class='floor-toggle' type='button' aria-expanded='false'>楼层</button><section class='floor-drawer'><span class='floor-title'></span><button class='mode' type='button'>跟随视口</button><select class='select' aria-label='选择变量楼层'></select><span class='badge'></span></section></aside></section>";
+        "<section class='panel' aria-label='HypnoOS 悬浮手机'><aside class='map-extra-chain-host' aria-label='更多地图区域' aria-hidden='true'></aside><aside class='work-lever-host' aria-label='打工滚筒摇杆'><button class='work-lever' type='button' data-work-lever-host aria-label='拉动或点击摇杆切换下一份工作'><span class='work-lever__rail'></span><span class='work-lever__pivot'></span><span class='work-lever__handle'><span class='work-lever__arm'></span><span class='work-lever__knob'></span></span><span class='work-lever__tag'>PULL</span></button></aside><aside class='hypnosis-judgement-perch' aria-hidden='true'><span class='hypnosis-judgement-figure is-demon'><img class='hypnosis-judgement-figure__rear' alt='' draggable='false' src='" + escapeHtml(String(config.assetBase || "").replace(/\/?$/, "/") + "profile-ui/hypnosis-demon-side-v3.png") + "'><img class='hypnosis-judgement-figure__front' alt='' draggable='false' src='" + escapeHtml(String(config.assetBase || "").replace(/\/?$/, "/") + "profile-ui/hypnosis-demon-side-v3.png") + "'></span><span class='hypnosis-judgement-figure is-angel'><img class='hypnosis-judgement-figure__rear' alt='' draggable='false' src='" + escapeHtml(String(config.assetBase || "").replace(/\/?$/, "/") + "profile-ui/hypnosis-angel-side-v3.png") + "'><img class='hypnosis-judgement-figure__front' alt='' draggable='false' src='" + escapeHtml(String(config.assetBase || "").replace(/\/?$/, "/") + "profile-ui/hypnosis-angel-side-v3.png") + "'></span></aside><aside class='encounter-detail-host' aria-hidden='true'></aside><aside class='profile-neighbor-host' aria-label='相邻人物档案'><button class='profile-neighbor-rail prev' type='button' data-kicker='PREV' data-profile-neighbor='prev'></button><button class='profile-neighbor-rail next' type='button' data-kicker='NEXT' data-profile-neighbor='next'></button></aside><aside class='encounter-possession-decor-host' aria-hidden='true' hidden><img alt='' draggable='false' src='" + escapeHtml(String(config.assetBase || "").replace(/\/?$/, "/") + "profile-ui/profile-possession-top-grip-v1.png") + "'></aside><aside class='profile-possession-host' aria-label='附身控制'><button class='profile-possession-grip' type='button' data-profile-possession-host='' aria-pressed='false'><img alt='' draggable='false' src='" + escapeHtml(String(config.assetBase || "").replace(/\/?$/, "/") + "profile-ui/profile-possession-top-grip-v1.png") + "'></button></aside><div class='phone-wrap'><iframe class='phone' title='HypnoOS 手机前端'></iframe><div class='galgame-dialog' role='dialog' aria-modal='true' aria-hidden='true' aria-labelledby='hypnoos-galgame-dialog-title'><section class='galgame-dialog__card'><strong id='hypnoos-galgame-dialog-title' data-galgame-dialog-title>Galgame人物演出</strong><p data-galgame-dialog-body></p><button type='button' data-galgame-dialog-close>知道了</button></section></div></div><span class='drag-edge top' data-phone-drag></span><span class='drag-edge right' data-phone-drag></span><span class='drag-edge bottom' data-phone-drag></span><span class='drag-edge left' data-phone-drag></span><span class='drag-grip' data-phone-drag aria-label='拖动手机'></span><aside class='sidecar'><button class='galgame-toggle' type='button' aria-pressed='false' disabled>Galgame --</button><section class='resource-panel loading' aria-label='当前楼层资源'><div class='resource-row money'><span>零花钱</span><strong data-resource-money>--</strong></div><div class='resource-row starlight'><span>星光点</span><strong data-resource-starlight>--</strong></div><div class='resource-row energy'><span>MC能量</span><strong data-resource-energy>--</strong></div></section><span class='readonly'>历史楼层 · 只读；切回当前楼后才能操作</span><button class='floor-toggle' type='button' aria-expanded='false'>楼层</button><section class='floor-drawer'><span class='floor-title'></span><button class='mode' type='button'>跟随视口</button><select class='select' aria-label='选择变量楼层'></select><span class='badge'></span></section></aside></section>";
       hostDocument.body.appendChild(shell);
       launcher = shadow.querySelector(".launcher");
       panel = shadow.querySelector(".panel");
@@ -1730,6 +1781,7 @@
       profileNeighborHost = shadow.querySelector(".profile-neighbor-host");
       profilePossessionHost = shadow.querySelector(".profile-possession-host");
       workLeverHost = shadow.querySelector(".work-lever-host");
+      mapExtraChainHost = shadow.querySelector(".map-extra-chain-host");
       var workLeverButton = workLeverHost && workLeverHost.querySelector("[data-work-lever-host]");
       if (workLeverButton) {
         workLeverButton.addEventListener("pointerdown", function (event) {
@@ -1747,14 +1799,26 @@
         });
         var releaseWorkLever = function (event) {
           if (!workLeverPointer || workLeverPointer.id !== event.pointerId) return;
-          var shouldFire = !workLeverPointer.fired && event.clientY - workLeverPointer.y >= 10;
+          var shouldFire = !workLeverPointer.fired;
           workLeverPointer = null;
           if (shouldFire) phoneApi("__ST_HYPNOOS_WORK_LEVER_PULL__", ["next"], false);
           host.setTimeout(function () { workLeverButton.classList.remove("is-pulling"); }, 170);
           try { workLeverButton.releasePointerCapture(event.pointerId); } catch (_) {}
         };
+        var cancelWorkLever = function (event) {
+          if (!workLeverPointer || workLeverPointer.id !== event.pointerId) return;
+          workLeverPointer = null;
+          host.setTimeout(function () { workLeverButton.classList.remove("is-pulling"); }, 90);
+          try { workLeverButton.releasePointerCapture(event.pointerId); } catch (_) {}
+        };
         workLeverButton.addEventListener("pointerup", releaseWorkLever);
-        workLeverButton.addEventListener("pointercancel", releaseWorkLever);
+        workLeverButton.addEventListener("pointercancel", cancelWorkLever);
+        workLeverButton.addEventListener("click", function (event) {
+          if (event.detail !== 0) return;
+          event.preventDefault();
+          event.stopPropagation();
+          phoneApi("__ST_HYPNOOS_WORK_LEVER_PULL__", ["next"], false);
+        });
       }
       profileNeighborHost?.querySelectorAll("[data-profile-neighbor]")?.forEach(function (button) {
         button.addEventListener("click", function (event) {
@@ -2162,6 +2226,7 @@
       updateProfilePossession: updateProfilePossession,
       updateHypnosisPerch: updateHypnosisPerch,
       updateWorkLever: updateWorkLever,
+      updateMapExtraChain: updateMapExtraChain,
       ensureOpeningWorldbooks: ensureOpeningWorldbooks,
       updateChrome: updateChrome,
       destroy: function () {
@@ -2208,11 +2273,13 @@
         updateProfilePossession(null);
         updateHypnosisPerch(null);
         updateWorkLever(null);
+        updateMapExtraChain(null);
         encounterDetailHost = null;
         encounterPossessionDecorHost = null;
         profileNeighborHost = null;
         profilePossessionHost = null;
         workLeverHost = null;
+        mapExtraChainHost = null;
         resourcePanel = null;
         try {
           if (hostDocument[GALGAME_RUNTIME_KEY] && hostDocument[GALGAME_RUNTIME_KEY].registry === registryApi) {
